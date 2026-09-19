@@ -9,6 +9,7 @@
 - ○ Jana Alhazmi:  Database & API Integration
 
 ### ● Collaboration & Communication Strategy:
+
 - ○ We established a dedicated communication channel on Discord / WhatsApp for daily updates and quick syncs.
 - ○ We utilized shared platforms like Google Docs to centralize our brainstorming notes, track ideas, and collaborate on the documentation in real-time.
 
@@ -33,9 +34,11 @@
 ## 3. Selected MVP Concept
 
 ### ● Selected Idea Summary:
+
 ○ MAMAR is a GIS-based B2B platform that connects contractors with traffic control service providers to manage temporary traffic control operations for construction and roadwork projects. Contractors can define their work zone on an interactive map, request traffic control services, and coordinate the implementation of temporary traffic elements such as road diversions, barriers, and traffic signs. Service providers can manage requests and document the actual field implementation using geographic locations and site information.
 
 ### ● The Problem It Solves:
+
 ○ Construction and roadwork projects often require temporary traffic control measures, such as road diversions, barriers, traffic signs, and temporary traffic routes around work zones. Coordinating these services between contractors and traffic control service providers can involve multiple parties and requires clear location-based information. MAMAR addresses this problem by providing a centralized GIS-based platform where contractors can define their work zone, request the required traffic control services, connect with suitable service providers, and document the implementation geographically.
 
 ### ● Target Audience:
@@ -61,8 +64,6 @@ Both parties can follow the request status, while service providers record compl
 ○ Innovation & Impact: MAMAR brings contractors and traffic control service providers into one digital workflow, simplifying service coordination and improving visibility throughout the process. The platform combines service management with location-based capabilities to provide a more organized and practical approach to temporary traffic control operations.
 
 ○ Scalability: The system is designed to support future growth by allowing new services and features to be added without changing the core workflow. Future versions could include real-time tracking, automated notifications, payment integration, advanced project dashboards, and additional traffic management services.
-
-○
 
 ### ● Potential Challenges & Opportunities:
 
