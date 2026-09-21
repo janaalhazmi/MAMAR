@@ -6,7 +6,7 @@
 - ○ Kayan Alnazari: Frontend Development
 - ○ Shouq Alqarni:  Backend Development
 - ○ Razan Kashr: Database & Geospatial Integration
-- ○ Jana Alhazmi: Frontend Development
+- ○ Jana Alhazmi: Frontend Developer & UI/UX Integration
 
 ### ● Collaboration & Communication Strategy:
 
