@@ -5,7 +5,7 @@
 ### ● Team Members & Roles:
 - ○ Kayan Alnazari: Frontend Development
 - ○ Shouq Alqarni:  Backend Development
-- ○ Razan Kashr: Database & Geospatial Integration
+- ○ Razan Kashr: Project Manager & GIS Lead Integration
 - ○ Jana Alhazmi: Frontend Developer & UI/UX Integration
 
 ### ● Collaboration & Communication Strategy:
