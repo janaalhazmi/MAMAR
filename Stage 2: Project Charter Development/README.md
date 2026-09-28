@@ -1,4 +1,4 @@
-# MAMAR | Temporary Traffic Control Management Platform🚧
+# MAMAR | Temporary Traffic Control Management Platform
 
 ## 0. Project Objectives
 
@@ -76,16 +76,16 @@ The purpose of MAMAR is to provide a centralized GIS-based B2B platform that con
 
 | Stage | Timeline | Key Deliverables |
 |---|---|---|
-| Stage 1: Idea Development – Completed | Weeks 1–2 | Team formation, brainstorming, idea selection, problem identification, and development of the MAMAR platform concept. |
-| Stage 2: Project Charter Development – Current | Weeks 3–4 | Define project objectives, team roles, stakeholders, project scope, risks and mitigation plans, develop the high-level project plan, and begin preparing the geospatial data required for the project. |
-| Stage 3: Technical Documentation | Weeks 5–6 | Prepare user stories and mockups, system architecture, database design, sequence diagrams, API specifications, GIS requirements, SCM and QA plans, technical justifications, user flows, and UI/UX documentation. |
-| Stage 4: MVP Development | Weeks 7–10 | Develop the MAMAR MVP including user authentication, project creation, work zone mapping, service requests, provider selection, field documentation, dashboards, system integration between frontend, backend, database, APIs, and GIS components. |
-| Stage 5: Project Closure | Weeks 11–12 | Complete final testing and bug fixing, finalize project documentation, prepare the final presentation and demo, and deliver the final MVP. |
+| Stage 1: Idea Development – Completed | Sep 13–19 | Team formation, brainstorming, idea selection, problem identification, and development of the MAMAR platform concept. |
+| Stage 2: Project Charter Development – Current | Sep 20–26 | Define project objectives, team roles, stakeholders, project scope, risks and mitigation plans, develop the high-level project plan, and begin preparing the geospatial data required for the project. |
+| Stage 3: Technical Documentation | Sep 27–Oct 10 | Prepare user stories and mockups, system architecture, database design, sequence diagrams, API specifications, GIS requirements, SCM and QA plans, technical justifications, user flows, and UI/UX documentation. |
+| Stage 4: MVP Development | Oct 11 – Nov 21 | Develop the MAMAR MVP including user authentication, project creation, work zone mapping, service requests, provider selection, field documentation, dashboards, system integration between frontend, backend, database, APIs, and GIS components. |
+| Stage 5: Project Closure | Nov 22 – Dec 5 | Complete final testing and bug fixing, finalize project documentation, prepare the final presentation and demo, and deliver the final MVP. |
 
 ### Key Milestones
 
-- Idea approved and team formed – End of Week 2
-- Project Charter completed – End of Week 4
-- Technical documentation finalized – End of Week 6
+- Idea approved and team formed – End of Week 1
+- Project Charter completed – End of Week 2
+- Technical documentation finalized – End of Week 4
 - Functional MAMAR MVP completed – End of Week 10
 - Final presentation and project closure – End of Week 12
