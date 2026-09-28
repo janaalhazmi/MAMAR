@@ -80,7 +80,7 @@ The purpose of MAMAR is to provide a centralized GIS-based B2B platform that con
 | Stage 2: Project Charter Development – Current | Weeks 3–4 | Define project objectives, team roles, stakeholders, project scope, risks and mitigation plans, develop the high-level project plan, and begin preparing the geospatial data required for the project. |
 | Stage 3: Technical Documentation | Weeks 5–6 | Prepare user stories and mockups, system architecture, database design, sequence diagrams, API specifications, GIS requirements, SCM and QA plans, technical justifications, user flows, and UI/UX documentation. |
 | Stage 4: MVP Development | Weeks 7–10 | Develop the MAMAR MVP including user authentication, project creation, work zone mapping, service requests, provider selection, field documentation, dashboards, system integration between frontend, backend, database, APIs, and GIS components. |
-| Stage 5: Project Closure | Weeks 11–12 | Final testing and bug fixing, complete project documentation, prepare the final presentation and demo, and deliver the final MVP. |
+| Stage 5: Project Closure | Weeks 11–12 | Complete final testing and bug fixing, finalize project documentation, prepare the final presentation and demo, and deliver the final MVP. |
 
 ### Key Milestones
 
