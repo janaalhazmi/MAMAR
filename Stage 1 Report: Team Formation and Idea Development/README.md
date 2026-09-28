@@ -121,4 +121,4 @@ The system is designed to support future growth by allowing new services and fea
 Managing development time effectively between software development tasks and preparing the required GIS layers and spatial data.
 
 **Opportunities:**  
-MAMAR has the potential to become a real market-ready product. As it supports existing governmental requirements related to temporary traffic control and work-zone management, it could create future opportunities for adoption by contractors and traffic control service providers, partnerships with relevant organizations, and expansion across infrastructure projects in Saudi Arabia.
+MAMAR has the potential to become a real market-ready product. The platform supports existing governmental requirements related to temporary traffic control and work-zone management. This could create future opportunities for adoption by contractors and traffic control service providers, partnerships with relevant organizations, and expansion across infrastructure projects in Saudi Arabia.
