@@ -122,3 +122,12 @@ Managing development time effectively between software development tasks and pre
 
 **Opportunities:**  
 MAMAR has the potential to become a real market-ready product. The platform supports existing governmental requirements related to temporary traffic control and work-zone management. This could create future opportunities for adoption by contractors and traffic control service providers, partnerships with relevant organizations, and expansion across infrastructure projects in Saudi Arabia.
+
+---
+
+## Authors
+
+- Razan Kashr
+- Kayan Alnazari
+- Shouq Alqarni
+- Jana Alhazmi
