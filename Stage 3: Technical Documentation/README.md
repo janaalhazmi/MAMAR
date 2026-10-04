@@ -1,4 +1,4 @@
-# MAMAR – Technical Documentation (Stage 3)
+# MAMAR – Technical Documentation 
 
 ## Project Overview
 
