@@ -10,7 +10,56 @@ This document contains the technical documentation for Stage 3 of the MAMAR proj
 
 # Task 0 – Define User Stories and Mockups
 
-> To be added.
+Task 0 – Define User Stories and Mockups
+
+User Stories
+
+The following user stories define and prioritize the main functionalities of the MAMAR MVP from the perspectives of contractors, traffic-control providers, and field workers.
+
+| ID | User Story | MoSCoW Priority |
+|---|---|---|
+| US01 | As a contractor, I want to create a project, so that I can define my temporary traffic-control requirements. | Must Have |
+| US02 | As a contractor, I want to define the project work zone on a map, so that the project location can be geographically documented. | Must Have |
+| US03 | As a contractor, I want to request traffic-control services, so that qualified providers can submit quotations for my project. | Must Have |
+| US04 | As a contractor, I want to review and compare provider quotations, so that I can select a suitable provider. | Must Have |
+| US05 | As a traffic-control provider, I want to view service requests and submit quotations, so that I can offer my services to contractors. | Must Have |
+| US06 | As a traffic-control provider, I want to manage assigned projects and field execution, so that project activities can be documented. | Must Have |
+| US07 | As a field worker, I want to capture my current location when verifying an installed traffic-control device, so that its installation location can be compared with its planned location. | Must Have |
+| US08 | As a field worker, I want to attach an installation photo, so that field evidence can be recorded with the verification. | Should Have |
+| US09 | As a contractor, I want to monitor project execution and verification status, so that I can follow the progress of my project. | Should Have |
+| US10 | As a contractor, I want to review the provider's final project submission, so that I can confirm project completion. | Could Have |
+
+Won't Have in the MVP
+
+The following functionalities are outside the scope of the current MVP:
+
+- Online payment integration
+- Continuous GPS tracking
+- Government permit approval
+- Automatic Traffic Control Plan approval
+- Real-time vehicle or worker tracking
+
+UI/UX Mockups
+
+The MAMAR user interface was designed in Figma to visualize the main workflows for contractors, traffic-control providers, and field workers.
+
+The mockups cover the main MVP screens, including:
+
+- Landing and authentication
+- Contractor dashboard
+- Project creation
+- GIS-based work-zone selection
+- Traffic-control service selection
+- Provider matching
+- Quotations and provider selection
+- Project monitoring
+- Provider dashboard and field execution
+- Device installation verification
+- Project completion and contractor review
+
+Figma Design:
+[View MAMAR UI/UX Design in Figma]
+(https://www.figma.com/design/X55NZXhkUJMgvVBJvXdE7k/MAMAR?node-id=0-1&t=RwGuPAq0YCEA78Ad-1)
 
 ---
 
