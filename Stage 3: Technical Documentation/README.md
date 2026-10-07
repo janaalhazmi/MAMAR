@@ -1303,7 +1303,7 @@ A release will be considered ready for production when the critical MAMAR user f
 
 ---
 
-## Task 6 – Technical Justifications
+## Task 6 – Deliverable: Technical Documentation
 
 This section explains why the main technologies and design decisions of MAMAR were selected.
 
@@ -1346,4 +1346,4 @@ The final Stage 3 technical documentation includes:
 - Task 3 – High-Level Sequence Diagrams
 - Task 4 – External and Internal APIs
 - Task 5 – SCM and QA Strategies
-- Task 6 – Technical Justifications
+- Task 6 – Technical Documentation
