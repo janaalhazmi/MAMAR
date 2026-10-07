@@ -1303,6 +1303,39 @@ A release will be considered ready for production when the critical MAMAR user f
 
 ---
 
+## Task 6 – Technical Justifications
+
+This section explains why the main technologies and design decisions of MAMAR were selected.
+
+## 6.1 Technology Choices
+
+| Technology | Justification |
+|---|---|
+| **React** | Its component-based structure lets us reuse UI parts such as `ProjectMap` and `Dashboard` across screens. It also works directly with the ArcGIS Maps SDK for JavaScript. |
+| **FastAPI** | A lightweight Python framework for building a REST API quickly. It validates requests automatically (returning 422 on invalid input) and generates interactive API documentation, which also helps with API testing. |
+| **PostgreSQL** | A reliable relational database. Foreign keys and UNIQUE constraints keep the data consistent, for example one quote per provider per request. This fits MAMAR's structured data: users, projects, requests, quotes, and assignments. |
+| **SQLAlchemy** | Lets each backend class be defined as a model mapped to a table, so the database schema and business logic stay aligned. |
+| **ArcGIS Online (Hosted Feature Layers)** | Stores and manages spatial data (polygons, polylines, points) in a cloud GIS platform, so we do not have to build or host our own spatial database. |
+| **ArcGIS Maps SDK for JavaScript** | The official SDK for ArcGIS Online. It displays the MAMAR Web Map and lets users draw work zones, detours, and devices, so we do not have to build map tools ourselves. |
+| **Browser Geolocation API** | Built into the browser, so field workers get their position and GPS accuracy without installing a mobile app. |
+| **Vercel and Render** | Provide simple cloud deployment for the frontend, backend, and PostgreSQL database, with environment variables for configuration and secrets. |
+| **Git and GitHub** | Provide version control, Pull Requests, and code reviews. Branches keep unfinished work away from the stable `main` branch. |
+| **pytest and Postman** | pytest tests the backend logic automatically, and Postman tests the API endpoints, including authentication and error responses. |
+
+## 6.2 Design Decisions
+
+| Design Decision | Justification |
+|---|---|
+| **Layered architecture** | Separating the interface, application logic, and data lets each layer be developed, tested, and changed independently. |
+| **Separate storage for GIS and application data** | PostgreSQL manages non-spatial transactional data, and ArcGIS Online manages spatial data. Each system handles the data type it is best suited for. |
+| **Shared IDs between PostgreSQL and ArcGIS** | `project_id`, `provider_id`, `contractor_id`, `worker_id`, and `device_id` link both systems without a direct connection between them. |
+| **No direct connection between FastAPI and ArcGIS Online** | The frontend talks to ArcGIS through the SDK, which keeps the backend simple and avoids handling GIS credentials and spatial logic on the server. |
+| **REST API with JSON** | A standard, well-understood interface that lets the frontend and backend be developed independently. |
+| **Token-based authentication with role-based access** | Every protected endpoint requires a Bearer token, and the user's role (contractor, provider, or worker) decides what they can access. |
+| **Location captured once at verification** | The GPS position is read only when the worker verifies a device. This avoids continuous tracking, which is outside the MVP scope, and respects worker privacy. |
+| **Award logic in a single operation (`award(quote_id)`)** | Accepting one quote, rejecting the others, and marking the request as awarded happen together, so the data never ends up inconsistent. |
+| **MVP scope using MoSCoW** | Focusing on Must Have features first delivers a working core (projects, quotes, verification) and leaves payments and live tracking out. |
+
 # Stage 3 Deliverables
 
 The final Stage 3 technical documentation includes:
@@ -1313,3 +1346,4 @@ The final Stage 3 technical documentation includes:
 - Task 3 – High-Level Sequence Diagrams
 - Task 4 – External and Internal APIs
 - Task 5 – SCM and QA Strategies
+- Task 6 – Technical Justifications
