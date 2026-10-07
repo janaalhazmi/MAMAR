@@ -10,7 +10,7 @@ This document contains the technical documentation for Stage 3 of the MAMAR proj
 
 # Task 0 – Define User Stories and Mockups
 
-User Stories
+User Stories:
 
 The following user stories define and prioritize the main functionalities of the MAMAR MVP from the perspectives of contractors, traffic-control providers, and field workers.
 
@@ -37,7 +37,7 @@ The following functionalities are outside the scope of the current MVP:
 - Automatic Traffic Control Plan approval
 - Real-time vehicle or worker tracking
 
-UI/UX Mockups
+UI/UX Mockups:
 
 The MAMAR user interface was designed in Figma to visualize the main workflows for contractors, traffic-control providers, and field workers.
 
