@@ -169,7 +169,422 @@ The MAMAR Web Map provides the configured map visualization, while the Hosted Fe
 
 # Task 2 – Define Components, Classes, and Database Design
 
-> To be added.
+### 2.1 Overview
+
+We split Mamar's data between two places because the project has two very different kinds of data. Everything that is not on the map, like accounts, service requests, quotes and worker assignments, goes into PostgreSQL. Everything that has a location goes into ArcGIS Online as five Hosted Feature Layers. PostgreSQL and ArcGIS Online do not know about each other, so we keep them connected ourselves by using the same shared IDs on both sides: `project_id`, `provider_id`, `contractor_id`, `worker_id`, and `device_id`.
+
+The table below shows which technology handles each part of the system.
+
+| Part | Technology | Responsibility |
+| --- | --- | --- |
+| Front-end | React, deployed on Vercel | All the pages. It also draws the map with the ArcGIS Maps SDK for JavaScript and reads the worker's position with the Browser Geolocation API |
+| Back-end | FastAPI, deployed on Render | REST API that returns JSON for users, projects, service requests, quotes, and assignments |
+| Database | PostgreSQL on Render | Non-spatial application data. The back-end reaches it through SQLAlchemy |
+| GIS | ArcGIS Online | The MAMAR Web Map and the five Hosted Feature Layers |
+
+### 2.2 Back-end Classes
+
+Our back-end is a FastAPI application with six key classes. We wrote each class as a SQLAlchemy model, so every class has its own table in PostgreSQL. The back-end never touches the GIS layers. That part is done in the front-end with the ArcGIS Maps SDK. For each class below we describe what it represents, then list its attributes and its methods.
+
+#### 2.2.1 User
+
+A `User` is anyone who can sign in to Mamar. That can be a contractor, an employee of a provider, a field worker or an admin. The `role` attribute tells us which one.
+
+- **Attributes:** `user_id`, `full_name`, `email`, `password_hash`, `phone`, `role`, `provider_id`, `is_active`, `created_at`
+
+| Method | What it does |
+| --- | --- |
+| `set_password(password)` | Hashes the new password and saves only the hash, so the real password is never stored |
+| `check_password(password)` | Compares a password with the saved hash when the user logs in |
+| `to_dict()` | Returns the user as JSON, without the password hash |
+
+#### 2.2.2 Provider
+
+A `Provider` is a traffic control company. Providers are the ones who answer service requests with a quote.
+
+- **Attributes:** `provider_id`, `company_name`, `service_type`, `city`, `phone`, `website`, `is_verified`, `created_at`
+
+| Method | What it does |
+| --- | --- |
+| `list_workers()` | Returns the field workers that work for this provider |
+| `to_dict()` | Returns the provider as JSON |
+
+#### 2.2.3 Project
+
+A `Project` is a road project that a contractor creates in Mamar.
+
+- **Attributes:** `project_id`, `contractor_id`, `project_name`, `project_status`, `closure_type`, `start_date`, `end_date`, `description`, `created_at`
+
+| Method | What it does |
+| --- | --- |
+| `update_status(status)` | Moves `project_status` between draft, active, completed and cancelled |
+| `to_dict()` | Returns the project as JSON |
+
+#### 2.2.4 ServiceRequest
+
+A `ServiceRequest` is what the contractor posts when a project needs traffic control work. Each request belongs to one project.
+
+- **Attributes:** `request_id`, `project_id`, `title`, `details`, `required_by`, `status`, `created_at`
+
+| Method | What it does |
+| --- | --- |
+| `award(quote_id)` | The main operation for choosing a provider. It accepts the quote that the contractor picked, rejects all the other quotes and marks the request as awarded |
+| `close()` | Marks the request as closed when no more quotes are needed |
+
+#### 2.2.5 Quote
+
+A `Quote` is the offer that a provider sends for a service request. It has a price and the number of days the work will take.
+
+- **Attributes:** `quote_id`, `request_id`, `provider_id`, `price`, `duration_days`, `notes`, `status`, `created_at`
+
+| Method | What it does |
+| --- | --- |
+| `accept()` | Marks the quote as accepted. It is only called from inside `award(quote_id)` |
+| `reject()` | Marks the quote as rejected. It is only called from inside `award(quote_id)` |
+
+#### 2.2.6 Assignment
+
+An `Assignment` records which field worker was sent to which project. The provider that won the request creates it after its quote is accepted.
+
+- **Attributes:** `assignment_id`, `project_id`, `provider_id`, `worker_id`, `assigned_at`, `status`
+
+| Method | What it does |
+| --- | --- |
+| `complete()` | Marks the assignment as completed when the worker finishes the assigned field work |
+| `to_dict()` | Returns the assignment as JSON |
+
+#### 2.2.7 API Routers
+
+The endpoints that use these classes are grouped into five routers. The details of every endpoint are in the API section of this document.
+
+| Router | Main endpoints | Used by |
+| --- | --- | --- |
+| `auth` | `POST /auth/register`, `POST /auth/login` | All roles |
+| `projects` | `GET /projects`, `POST /projects`, `PATCH /projects/{id}` | Contractor |
+| `requests` | `POST /projects/{id}/requests`, `GET /requests`, `POST /requests/{id}/award` | Contractor, Traffic Control Provider |
+| `quotes` | `POST /requests/{id}/quotes`, `GET /requests/{id}/quotes` | Traffic Control Provider, Contractor |
+| `assignments` | `POST /projects/{id}/assignments`, `GET /assignments` | Traffic Control Provider, Field Worker |
+
+#### 2.2.8 Class Diagram
+
+```mermaid
+classDiagram
+    class User {
+        +int user_id
+        +string full_name
+        +string email
+        +string role
+        +int provider_id
+        +set_password(password)
+        +check_password(password)
+        +to_dict()
+    }
+    class Provider {
+        +int provider_id
+        +string company_name
+        +string service_type
+        +bool is_verified
+        +list_workers()
+        +to_dict()
+    }
+    class Project {
+        +int project_id
+        +int contractor_id
+        +string project_name
+        +string project_status
+        +string closure_type
+        +update_status(status)
+        +to_dict()
+    }
+    class ServiceRequest {
+        +int request_id
+        +int project_id
+        +string title
+        +string status
+        +award(quote_id)
+        +close()
+    }
+    class Quote {
+        +int quote_id
+        +int request_id
+        +int provider_id
+        +decimal price
+        +accept()
+        +reject()
+    }
+    class Assignment {
+        +int assignment_id
+        +int project_id
+        +int provider_id
+        +int worker_id
+        +string status
+        +complete()
+        +to_dict()
+    }
+    Provider "1" --> "0..*" User : employs
+    User "1" --> "0..*" Project : owns
+    Project "1" --> "0..*" ServiceRequest : has
+    ServiceRequest "1" --> "0..*" Quote : receives
+    Provider "1" --> "0..*" Quote : submits
+    Project "1" --> "0..*" Assignment : has
+    Provider "1" --> "0..*" Assignment : creates
+    User "1" --> "0..*" Assignment : assigned to
+```
+
+### 2.3 Database Schema (PostgreSQL)
+
+Mamar uses a relational database, PostgreSQL, with six tables. None of them stores geometry because all the geometry is in ArcGIS Online. In the tables below, PK means primary key and FK means foreign key.
+
+#### 2.3.1 users
+
+| Column | Type | Constraints |
+| --- | --- | --- |
+| `user_id` | SERIAL | PK |
+| `full_name` | VARCHAR(100) | NOT NULL |
+| `email` | VARCHAR(255) | NOT NULL, UNIQUE |
+| `password_hash` | VARCHAR(255) | NOT NULL |
+| `phone` | VARCHAR(20) | Optional |
+| `role` | VARCHAR(20) | NOT NULL. One of: contractor, provider, worker, admin |
+| `provider_id` | INTEGER | FK to `providers`. NULL for contractors and admins |
+| `is_active` | BOOLEAN | NOT NULL, default true |
+| `created_at` | TIMESTAMP | NOT NULL, default now |
+
+#### 2.3.2 providers
+
+| Column | Type | Constraints |
+| --- | --- | --- |
+| `provider_id` | SERIAL | PK |
+| `company_name` | VARCHAR(150) | NOT NULL |
+| `service_type` | VARCHAR(50) | NOT NULL |
+| `city` | VARCHAR(50) | NOT NULL |
+| `phone` | VARCHAR(20) | Optional |
+| `website` | VARCHAR(255) | Optional |
+| `is_verified` | BOOLEAN | NOT NULL, default false |
+| `created_at` | TIMESTAMP | NOT NULL, default now |
+
+#### 2.3.3 projects
+
+| Column | Type | Constraints |
+| --- | --- | --- |
+| `project_id` | SERIAL | PK |
+| `contractor_id` | INTEGER | NOT NULL, FK to `users` |
+| `project_name` | VARCHAR(150) | NOT NULL |
+| `project_status` | VARCHAR(20) | NOT NULL. One of: draft, active, completed, cancelled |
+| `closure_type` | VARCHAR(50) | NOT NULL |
+| `start_date` | DATE | NOT NULL |
+| `end_date` | DATE | NOT NULL |
+| `description` | TEXT | Optional |
+| `created_at` | TIMESTAMP | NOT NULL, default now |
+
+#### 2.3.4 service_requests
+
+| Column | Type | Constraints |
+| --- | --- | --- |
+| `request_id` | SERIAL | PK |
+| `project_id` | INTEGER | NOT NULL, FK to `projects` |
+| `title` | VARCHAR(150) | NOT NULL |
+| `details` | TEXT | Optional |
+| `required_by` | DATE | NOT NULL |
+| `status` | VARCHAR(20) | NOT NULL. One of: open, awarded, closed |
+| `created_at` | TIMESTAMP | NOT NULL, default now |
+
+#### 2.3.5 quotes
+
+| Column | Type | Constraints |
+| --- | --- | --- |
+| `quote_id` | SERIAL | PK |
+| `request_id` | INTEGER | NOT NULL, FK to `service_requests` |
+| `provider_id` | INTEGER | NOT NULL, FK to `providers` |
+| `price` | NUMERIC(12,2) | NOT NULL, in SAR |
+| `duration_days` | INTEGER | NOT NULL |
+| `notes` | TEXT | Optional |
+| `status` | VARCHAR(20) | NOT NULL. One of: pending, accepted, rejected |
+| `created_at` | TIMESTAMP | NOT NULL, default now |
+
+We added a UNIQUE constraint on the pair (`request_id`, `provider_id`). This way a provider cannot send two quotes for the same request.
+
+#### 2.3.6 assignments
+
+| Column | Type | Constraints |
+| --- | --- | --- |
+| `assignment_id` | SERIAL | PK |
+| `project_id` | INTEGER | NOT NULL, FK to `projects` |
+| `provider_id` | INTEGER | NOT NULL, FK to `providers` |
+| `worker_id` | INTEGER | NOT NULL, FK to `users` |
+| `assigned_at` | TIMESTAMP | NOT NULL, default now |
+| `status` | VARCHAR(20) | NOT NULL. One of: active, completed, cancelled |
+
+The pair (`project_id`, `worker_id`) is also UNIQUE, so the same field worker cannot be assigned to one project twice.
+
+### 2.4 Relationships and ER Diagram
+
+#### 2.4.1 Relationships
+
+All the relationships between our tables are one-to-many. The table shows the parent, the child and the column that links them.
+
+| Parent | Child | Type | Linked by |
+| --- | --- | --- | --- |
+| `providers` | `users` | One-to-many | `users.provider_id` |
+| `users` | `projects` | One-to-many | `projects.contractor_id` |
+| `projects` | `service_requests` | One-to-many | `service_requests.project_id` |
+| `service_requests` | `quotes` | One-to-many | `quotes.request_id` |
+| `providers` | `quotes` | One-to-many | `quotes.provider_id` |
+| `projects` | `assignments` | One-to-many | `assignments.project_id` |
+| `providers` | `assignments` | One-to-many | `assignments.provider_id` |
+| `users` | `assignments` | One-to-many | `assignments.worker_id` |
+
+#### 2.4.2 ER Diagram
+
+The diagram below shows the six tables together with the five GIS layers. Solid lines are real foreign keys inside PostgreSQL. Dashed lines are the links to the GIS layers. Nothing enforces the dashed links because the layers live outside the database, so the application is responsible for writing the same ID on both sides.
+
+```mermaid
+erDiagram
+    providers |o--o{ users : "employs"
+    users ||--o{ projects : "owns"
+    projects ||--o{ service_requests : "has"
+    service_requests ||--o{ quotes : "receives"
+    providers ||--o{ quotes : "submits"
+    projects ||--o{ assignments : "has"
+    providers ||--o{ assignments : "creates"
+    users ||--o{ assignments : "is assigned"
+
+    projects ||..|| MAMAR_Projects : "project_id"
+    providers ||..o| MAMAR_Providers : "provider_id"
+    users ||..o{ MAMAR_Verifications : "worker_id"
+
+    MAMAR_Projects ||..o{ MAMAR_Detours : "project_id"
+    MAMAR_Projects ||..o{ MAMAR_Traffic_Devices : "project_id"
+    MAMAR_Providers ||..o{ MAMAR_Traffic_Devices : "provider_id"
+    MAMAR_Traffic_Devices ||..o{ MAMAR_Verifications : "device_id"
+
+    users {
+        int user_id PK
+        string email
+        string role
+        int provider_id FK
+    }
+    providers {
+        int provider_id PK
+        string company_name
+        string service_type
+        boolean is_verified
+    }
+    projects {
+        int project_id PK
+        int contractor_id FK
+        string project_name
+        string project_status
+        string closure_type
+    }
+    service_requests {
+        int request_id PK
+        int project_id FK
+        date required_by
+        string status
+    }
+    quotes {
+        int quote_id PK
+        int request_id FK
+        int provider_id FK
+        decimal price
+    }
+    assignments {
+        int assignment_id PK
+        int project_id FK
+        int provider_id FK
+        int worker_id FK
+        string status
+    }
+    MAMAR_Projects {
+        polygon geometry
+        int project_id
+        int contractor_id
+        string project_status
+    }
+    MAMAR_Providers {
+        point geometry
+        int provider_id
+        string company_name
+    }
+    MAMAR_Detours {
+        polyline geometry
+        int detour_id
+        int project_id
+    }
+    MAMAR_Traffic_Devices {
+        point geometry
+        int device_id
+        int project_id
+        int provider_id
+    }
+    MAMAR_Verifications {
+        point geometry
+        int verification_id
+        int device_id
+        int worker_id
+    }
+```
+
+### 2.5 GIS Data (ArcGIS Online)
+
+The spatial data lives in ArcGIS Online as five Hosted Feature Layers. These layers are not PostgreSQL tables. Every feature in a layer has a geometry and a set of fields. The table lists the mandatory fields and the optional fields of each layer.
+
+| Layer | Geometry | Mandatory fields | Optional fields |
+| --- | --- | --- | --- |
+| `MAMAR_Providers` | Point | `provider_id`, `company_name`, `service_type`, `city`, `active` | `website`, `phone`, `demo_status` |
+| `MAMAR_Projects` | Polygon | `project_id`, `project_name`, `contractor_id`, `project_status`, `closure_type`, `start_date`, `end_date` | `work_zone_area`, `affected_length`, `description` |
+| `MAMAR_Detours` | Polyline | `detour_id`, `project_id`, `detour_name`, `detour_type`, `status` | `length_m`, `description` |
+| `MAMAR_Traffic_Devices` | Point | `device_id`, `project_id`, `device_type`, `device_code`, `device_status`, `planned_date` | `installed_date`, `provider_id`, `notes` |
+| `MAMAR_Verifications` | Point | `verification_id`, `device_id`, `project_id`, `worker_id`, `verification_date`, `distance_m`, `gps_accuracy`, `verification_status`, `photo_url` | `notes` |
+
+The `providers` table in PostgreSQL and the `MAMAR_Providers` layer look similar, but they are not the same thing. The `providers` table is the company account and its data inside the application. The `MAMAR_Providers` layer is only the location of the company on the map. We connect the two with `provider_id`.
+
+In `MAMAR_Traffic_Devices` we kept `provider_id` as an optional field. It is empty when a device is first planned because no provider has been chosen yet. Once a provider is selected for the project, the field is filled so that every device is linked to the provider responsible for installing it.
+
+We use the same name for the project status, `project_status`, in the `projects` table and in the `MAMAR_Projects` layer. This avoids confusion when we link them in the code.
+
+The MVP stores a reference to the verification photo in `photo_url`. The final photo storage mechanism will be selected during implementation.
+
+The fields below are the ones that connect the layers to each other and to PostgreSQL.
+
+| Field | Points to | Purpose |
+| --- | --- | --- |
+| `project_id` | `projects.project_id` | Links a project record to its work zone, detours, devices and verifications |
+| `provider_id` | `providers.provider_id` | Links a provider account to its map location and its devices |
+| `contractor_id` | `users.user_id` | Shows which contractor owns a project |
+| `worker_id` | `users.user_id` | Shows which field worker submitted a verification. The worker must have an assignment for the same project |
+| `device_id` | `MAMAR_Traffic_Devices.device_id` | Links a verification to the device that was checked |
+
+### 2.6 Front-end Components
+
+The front-end is a React application with twelve main UI components. Not every user sees all of them. The role of the signed-in user decides which components are shown.
+
+| Component | Used by | What it does |
+| --- | --- | --- |
+| `LoginPage` | All roles | Signs the user in and keeps the token for the next requests |
+| `RegisterPage` | All roles | Creates an account and lets the user choose a role |
+| `ProjectMap` | All roles | Shows the MAMAR Web Map with the ArcGIS Maps SDK for JavaScript and filters the five layers by project and status |
+| `ProjectForm` | Contractor | Collects the project details and lets the contractor draw the work zone polygon |
+| `RequestForm` | Contractor | Creates a service request for a project |
+| `RequestBoard` | Traffic Control Provider | Lists the open service requests |
+| `QuoteForm` | Traffic Control Provider | Sends a price and a duration for a request |
+| `QuoteList` | Contractor | Shows the quotes for a request and lets the contractor accept one |
+| `AssignmentPanel` | Traffic Control Provider | Assigns a field worker to the project after the provider's quote is accepted |
+| `DevicePlanner` | Traffic Control Provider | Adds planned devices and detours on the map |
+| `VerificationScreen` | Field Worker | Captures the GPS position for one device and lets the worker attach a verification photo |
+| `Dashboard` | Contractor | Shows how many devices are planned, installed and verified in each project |
+
+#### 2.6.1 Component Interactions
+
+The steps below follow one project from start to finish and show how the components interact with each other, with the API and with the map.
+
+1. The contractor fills in `ProjectForm` and draws the work zone. The app first sends the details to the API and gets a `project_id` back. After that it saves the polygon to `MAMAR_Projects` with the same `project_id`.
+2. The contractor creates a request in `RequestForm`. Providers can now see it in `RequestBoard`.
+3. A provider opens the request and sends a price with `QuoteForm`. The contractor compares the prices in `QuoteList` and accepts one quote. Behind this, the API runs `award(quote_id)`, which rejects the other quotes and marks the request as awarded.
+4. The selected provider opens `AssignmentPanel` and assigns a field worker to the awarded project.
+5. The provider adds the devices and detours in `DevicePlanner`. Each device gets the `provider_id` of the selected provider.
+6. On site, the assigned field worker opens `VerificationScreen`. The Browser Geolocation API returns the position and its accuracy. The app calculates the distance to the planned device, the worker attaches a verification photo, and a point is saved to `MAMAR_Verifications`.
+7. Finally, `ProjectMap` and `Dashboard` query the layers again, so everyone sees the new status.
 
 ---
 
@@ -293,7 +708,373 @@ sequenceDiagram
 
 # Task 4 – Document External and Internal APIs
 
-> To be added.
+### 4.1 External APIs
+
+Mamar uses three external/browser technologies for its GIS and location functionality: ArcGIS Maps SDK for JavaScript, ArcGIS Online Feature Services, and the Browser Geolocation API. They are not all the same kind of thing. The ArcGIS Maps SDK is a JavaScript library, the Feature Services are REST services, and the Geolocation API is built into the browser.
+
+All three are used from the React front-end. The front-end uses the ArcGIS Maps SDK for JavaScript to show the MAMAR Web Map and to work with the Hosted Feature Layers in ArcGIS Online. There is no direct connection between FastAPI and ArcGIS Online. The system has these three connections only:
+
+```text
+React <-> FastAPI <-> PostgreSQL
+React <-> ArcGIS Maps SDK for JavaScript <-> ArcGIS Online
+React <-> Browser Geolocation API
+```
+
+We do not use a payment API or a tracking API in the MVP.
+
+| Technology | What we use it for | Why we chose it |
+| --- | --- | --- |
+| ArcGIS Maps SDK for JavaScript | Shows the MAMAR Web Map in `ProjectMap`, and lets the user draw work zones, detours and devices | It is the official SDK for ArcGIS Online, so it can read our Hosted Feature Layers directly and we do not have to build the map tools ourselves |
+| ArcGIS Online Feature Services | Read and save features in the five Hosted Feature Layers | Our spatial data is already in ArcGIS Online, and these are the services that read and edit it |
+| Browser Geolocation API | Gets the current position of the field worker and its accuracy when the worker verifies a device in `VerificationScreen` | It is already built into the browser. The field worker only opens the website and does not need to install an app |
+
+#### 4.1.1 ArcGIS Online Feature Services Operations
+
+We do not write these requests by hand. The ArcGIS Maps SDK sends them for us. The input goes as query parameters or form fields, and the output format is JSON.
+
+| Operation | HTTP method | Used on | Purpose |
+| --- | --- | --- | --- |
+| `query` | GET | All five layers | Returns the features that match a filter, for example `project_id = 12` |
+| `addFeatures` | POST | `MAMAR_Projects`, `MAMAR_Detours`, `MAMAR_Traffic_Devices`, `MAMAR_Verifications` | Saves a new work zone, detour, device or verification |
+| `updateFeatures` | POST | `MAMAR_Projects`, `MAMAR_Traffic_Devices`, `MAMAR_Detours` | Updates `project_status`, `device_status` and `provider_id`, and edits the path or status of a detour |
+
+#### 4.1.2 Browser Geolocation API
+
+To get the worker's position, the front-end calls `navigator.geolocation.getCurrentPosition()`. The browser asks the worker for permission and then returns the coordinates (`latitude` and `longitude`) and the `accuracy` in meters. We save `accuracy` in the `gps_accuracy` field of `MAMAR_Verifications`.
+
+The position is captured only once, at the moment the worker captures the current location to verify an installation. Mamar does not follow the worker's position at any other time.
+
+### 4.2 Internal API
+
+The internal API is our own FastAPI back-end. It has 12 endpoints grouped into five routers, and it only deals with the non-spatial data in PostgreSQL.
+
+#### 4.2.1 General Rules
+
+These rules are the same for every endpoint, so we write them once here.
+
+- **Input format:** JSON in the request body for POST and PATCH. Query parameters for GET.
+- **Output format:** JSON for every response.
+- **Authentication:** Every endpoint except the two `auth` endpoints needs the header `Authorization: Bearer <token>`.
+- **Errors:** Every error returns JSON in this structure: `{"detail": "message"}`.
+
+| Status code | Meaning |
+| --- | --- |
+| 200 | The request succeeded |
+| 201 | A new record was created |
+| 400 | The request is not valid for the current state, for example awarding a closed request |
+| 401 | The token is missing or not valid |
+| 403 | The role of the user is not allowed to use this endpoint |
+| 404 | The record was not found |
+| 409 | The record already exists, for example a second quote from the same provider |
+| 422 | A required field is missing or has the wrong type |
+
+#### 4.2.2 Endpoint Summary
+
+This table is a quick list of all the endpoints. Each one is described in detail after it.
+
+| URL path | HTTP method | Purpose | Used by |
+| --- | --- | --- | --- |
+| `/auth/register` | POST | Create an account | All roles |
+| `/auth/login` | POST | Sign in and get a token | All roles |
+| `/projects` | GET | List projects | Contractor |
+| `/projects` | POST | Create a project | Contractor |
+| `/projects/{id}` | PATCH | Update a project or its status | Contractor |
+| `/projects/{id}/requests` | POST | Create a service request for a project | Contractor |
+| `/requests` | GET | List service requests | Contractor, Traffic Control Provider |
+| `/requests/{id}/award` | POST | Accept one quote and award the request | Contractor |
+| `/requests/{id}/quotes` | POST | Submit a quote | Traffic Control Provider |
+| `/requests/{id}/quotes` | GET | List the quotes of a request | Contractor, Traffic Control Provider |
+| `/projects/{id}/assignments` | POST | Assign a field worker to a project | Traffic Control Provider |
+| `/assignments` | GET | List assignments | Traffic Control Provider, Field Worker |
+
+#### 4.2.3 POST /auth/register
+
+Creates a new user account.
+
+- **URL path:** `/auth/register`
+- **HTTP method:** POST
+- **Input format:** JSON body. `phone` is optional. `provider_id` is required only when `role` is provider or worker. In the MVP this link is a controlled demo association. The provider records are prepared in advance, so a user cannot link themselves freely to any provider, and we do not build a full company verification system.
+
+```json
+{
+  "full_name": "Sara Ahmed",
+  "email": "sara@example.com",
+  "password": "StrongPass123",
+  "phone": "0500000000",
+  "role": "contractor",
+  "provider_id": null
+}
+```
+
+- **Output format:** 201 with the new user as JSON. The password is never returned.
+
+```json
+{
+  "user_id": 7,
+  "full_name": "Sara Ahmed",
+  "email": "sara@example.com",
+  "phone": "0500000000",
+  "role": "contractor",
+  "provider_id": null,
+  "is_active": true,
+  "created_at": "2026-10-05T10:00:00Z"
+}
+```
+
+- **Errors:** 404 if the `provider_id` does not exist. 409 if the email is already registered. 422 if a field is missing.
+
+#### 4.2.4 POST /auth/login
+
+Checks the email and password. If they are correct, it returns a token that the front-end sends with the next requests.
+
+- **URL path:** `/auth/login`
+- **HTTP method:** POST
+- **Input format:** JSON body.
+
+```json
+{
+  "email": "sara@example.com",
+  "password": "StrongPass123"
+}
+```
+
+- **Output format:** 200 with the token and the user as JSON.
+
+```json
+{
+  "access_token": "<token>",
+  "token_type": "bearer",
+  "user": {
+    "user_id": 7,
+    "full_name": "Sara Ahmed",
+    "role": "contractor",
+    "provider_id": null
+  }
+}
+```
+
+- **Errors:** 401 if the email or password is wrong.
+
+#### 4.2.5 GET /projects
+
+Returns the projects of the signed-in contractor.
+
+- **URL path:** `/projects`
+- **HTTP method:** GET
+- **Input format:** Query parameters. `project_status` is optional and filters the list, for example `/projects?project_status=active`.
+- **Output format:** 200 with a JSON array of projects.
+
+```json
+[
+  {
+    "project_id": 12,
+    "contractor_id": 7,
+    "project_name": "King Fahd Road Maintenance",
+    "project_status": "active",
+    "closure_type": "lane_closure",
+    "start_date": "2026-11-01",
+    "end_date": "2026-12-15",
+    "description": "Night work on the right lane",
+    "created_at": "2026-10-05T10:05:00Z"
+  }
+]
+```
+
+- **Errors:** 401 if the token is missing. 403 if the user is not a contractor.
+
+#### 4.2.6 POST /projects
+
+Creates a project. The front-end needs the returned `project_id` because it uses it to save the work zone polygon in `MAMAR_Projects`.
+
+- **URL path:** `/projects`
+- **HTTP method:** POST
+- **Input format:** JSON body. `description` is optional.
+
+```json
+{
+  "project_name": "King Fahd Road Maintenance",
+  "closure_type": "lane_closure",
+  "start_date": "2026-11-01",
+  "end_date": "2026-12-15",
+  "description": "Night work on the right lane"
+}
+```
+
+- **Output format:** 201 with the new project as JSON, in the same structure as one item of `GET /projects`. The `project_status` of a new project is draft.
+- **Errors:** 403 if the user is not a contractor. 422 if `end_date` is before `start_date`.
+
+#### 4.2.7 PATCH /projects/{id}
+
+Updates a project. Only the fields that are sent are changed.
+
+- **URL path:** `/projects/{id}`
+- **HTTP method:** PATCH
+- **Input format:** JSON body with one or more of these fields: `project_name`, `project_status`, `closure_type`, `start_date`, `end_date`, `description`.
+
+```json
+{
+  "project_status": "active"
+}
+```
+
+- **Output format:** 200 with the updated project as JSON.
+- **Errors:** 403 if the project belongs to another contractor. 404 if the project does not exist.
+
+#### 4.2.8 POST /projects/{id}/requests
+
+Creates a service request for a project.
+
+- **URL path:** `/projects/{id}/requests`
+- **HTTP method:** POST
+- **Input format:** JSON body. `details` is optional.
+
+```json
+{
+  "title": "Lane closure signs and barriers",
+  "details": "20 cones, 4 warning signs and 1 detour",
+  "required_by": "2026-10-25"
+}
+```
+
+- **Output format:** 201 with the new service request as JSON.
+
+```json
+{
+  "request_id": 31,
+  "project_id": 12,
+  "title": "Lane closure signs and barriers",
+  "details": "20 cones, 4 warning signs and 1 detour",
+  "required_by": "2026-10-25",
+  "status": "open",
+  "created_at": "2026-10-05T10:20:00Z"
+}
+```
+
+- **Errors:** 403 if the project belongs to another contractor. 404 if the project does not exist.
+
+#### 4.2.9 GET /requests
+
+Returns service requests. A provider sees the open requests. A contractor sees the requests of their own projects.
+
+- **URL path:** `/requests`
+- **HTTP method:** GET
+- **Input format:** Query parameters. `status` and `project_id` are optional, for example `/requests?status=open`.
+- **Output format:** 200 with a JSON array of service requests, in the same structure as the output of `POST /projects/{id}/requests`.
+- **Errors:** 401 if the token is missing.
+
+#### 4.2.10 POST /requests/{id}/quotes
+
+Lets a provider send a price for a service request. The provider is the one who enters `price`, `duration_days` and `notes`. Mamar does not calculate the price automatically from the area of the polygon or the length of the road. The work zone area and the other project details only help the provider prepare the quote.
+
+- **URL path:** `/requests/{id}/quotes`
+- **HTTP method:** POST
+- **Input format:** JSON body. `notes` is optional. The `provider_id` is taken from the signed-in user.
+
+```json
+{
+  "price": 18500.00,
+  "duration_days": 5,
+  "notes": "Includes installation and removal"
+}
+```
+
+- **Output format:** 201 with the new quote as JSON.
+
+```json
+{
+  "quote_id": 54,
+  "request_id": 31,
+  "provider_id": 3,
+  "price": 18500.00,
+  "duration_days": 5,
+  "notes": "Includes installation and removal",
+  "status": "pending",
+  "created_at": "2026-10-06T09:00:00Z"
+}
+```
+
+- **Errors:** 400 if the request is not open. 403 if the user is not a provider. 409 if this provider already submitted a quote for the request.
+
+#### 4.2.11 GET /requests/{id}/quotes
+
+Returns the quotes of one service request. A contractor sees all the quotes. A provider sees only their own quote.
+
+- **URL path:** `/requests/{id}/quotes`
+- **HTTP method:** GET
+- **Input format:** No body and no query parameters. The request is identified by `{id}` in the URL path.
+- **Output format:** 200 with a JSON array of quotes, in the same structure as the output of `POST /requests/{id}/quotes`.
+- **Errors:** 403 if the request belongs to another contractor. 404 if the request does not exist.
+
+#### 4.2.12 POST /requests/{id}/award
+
+This endpoint runs `award(quote_id)`. It accepts the quote that the contractor selected, rejects the other quotes and marks the request as awarded.
+
+- **URL path:** `/requests/{id}/award`
+- **HTTP method:** POST
+- **Input format:** JSON body.
+
+```json
+{
+  "quote_id": 54
+}
+```
+
+- **Output format:** 200 with the request and the accepted quote as JSON.
+
+```json
+{
+  "request_id": 31,
+  "status": "awarded",
+  "accepted_quote": {
+    "quote_id": 54,
+    "provider_id": 3,
+    "price": 18500.00,
+    "status": "accepted"
+  }
+}
+```
+
+- **Errors:** 400 if the request is already awarded or closed. 403 if the request belongs to another contractor. 404 if the quote does not belong to this request.
+
+#### 4.2.13 POST /projects/{id}/assignments
+
+Assigns a field worker to an awarded project. Only the provider that won the request can use it.
+
+- **URL path:** `/projects/{id}/assignments`
+- **HTTP method:** POST
+- **Input format:** JSON body. The `provider_id` is taken from the signed-in user.
+
+```json
+{
+  "worker_id": 15
+}
+```
+
+- **Output format:** 201 with the new assignment as JSON.
+
+```json
+{
+  "assignment_id": 9,
+  "project_id": 12,
+  "provider_id": 3,
+  "worker_id": 15,
+  "assigned_at": "2026-10-07T08:30:00Z",
+  "status": "active"
+}
+```
+
+- **Errors:** 403 if the provider did not win a request for this project. 404 if the worker does not belong to this provider. 409 if the worker is already assigned to this project.
+
+#### 4.2.14 GET /assignments
+
+Returns assignments. A field worker sees their own assignments. A provider sees the assignments that the provider created.
+
+- **URL path:** `/assignments`
+- **HTTP method:** GET
+- **Input format:** Query parameters. `project_id` and `status` are optional, for example `/assignments?status=active`.
+- **Output format:** 200 with a JSON array of assignments, in the same structure as the output of `POST /projects/{id}/assignments`.
+- **Errors:** 401 if the token is missing.
+
 
 ---
 
