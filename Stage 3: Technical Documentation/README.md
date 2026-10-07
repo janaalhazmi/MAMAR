@@ -10,8 +10,6 @@ This document contains the technical documentation for Stage 3 of the MAMAR proj
 
 # Task 0 – Define User Stories and Mockups
 
-Task 0 – Define User Stories and Mockups
-
 User Stories
 
 The following user stories define and prioritize the main functionalities of the MAMAR MVP from the perspectives of contractors, traffic-control providers, and field workers.
@@ -57,8 +55,7 @@ The mockups cover the main MVP screens, including:
 - Device installation verification
 - Project completion and contractor review
 
-Figma Design:
-[View MAMAR UI/UX Design in Figma]
+View MAMAR UI/UX Design in Figma:
 (https://www.figma.com/design/X55NZXhkUJMgvVBJvXdE7k/MAMAR?node-id=0-1&t=RwGuPAq0YCEA78Ad-1)
 
 ---
