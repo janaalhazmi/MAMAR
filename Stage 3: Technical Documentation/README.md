@@ -55,7 +55,7 @@ The mockups cover the main MVP screens, including:
 - Device installation verification
 - Project completion and contractor review
 
-## The complete interactive UI/UX design is available for further review:
+**The complete interactive UI/UX design is available for further review:** 
 
 [View MAMAR UI/UX Design in Figma](https://www.figma.com/design/X55NZXhkUJMgvVBJvXdE7k/MAMAR?node-id=0-1&t=RwGuPAq0YCEA78Ad-1)
 
