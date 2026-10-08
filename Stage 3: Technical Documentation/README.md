@@ -87,7 +87,7 @@ The main system users are:
 The following diagram illustrates the high-level architecture of the MAMAR platform and the interaction between its main components.
 
 ```mermaid
-%%{init: {"theme":"base","themeVariables":{"background":"#FFFFFF","primaryColor":"#F3F0FF","primaryTextColor":"#1F2937","primaryBorderColor":"#8B5CF6","lineColor":"#374151","secondaryColor":"#F3F0FF","tertiaryColor":"#FFFFFF","actorBkg":"#F3F0FF","actorBorder":"#8B5CF6","actorTextColor":"#1F2937","signalColor":"#374151","signalTextColor":"#1F2937","labelBoxBkgColor":"#F3F0FF","labelBoxBorderColor":"#8B5CF6","noteBkgColor":"#F3F0FF","noteBorderColor":"#8B5CF6","fontFamily":"Arial, sans-serif","fontSize":"16px"},"flowchart":{"nodeSpacing":32,"rankSpacing":48,"curve":"basis","htmlLabels":true}}}%%
+%%{init: {"theme": "base", "themeVariables": {"background": "#FFFFFF", "primaryColor": "#F3F0FF", "primaryTextColor": "#1F2937", "primaryBorderColor": "#8B5CF6", "lineColor": "#374151", "secondaryColor": "#F3F0FF", "tertiaryColor": "#FFFFFF", "actorBkg": "#F3F0FF", "actorBorder": "#8B5CF6", "actorTextColor": "#1F2937", "signalColor": "#374151", "signalTextColor": "#1F2937", "labelBoxBkgColor": "#F3F0FF", "labelBoxBorderColor": "#8B5CF6", "noteBkgColor": "#F3F0FF", "noteBorderColor": "#8B5CF6", "fontFamily": "Arial", "fontSize": "14px"}}}%%
 flowchart TB
     Contractor[Contractor] --> React[React Frontend - Vercel]
     Provider[Traffic Control Provider] --> React
@@ -113,11 +113,7 @@ flowchart TB
       V[MAMAR_Verifications - Point]
       AGOL --> WebMap
       AGOL --> Hosted
-      Hosted --> P
-      Hosted --> Pr
-      Hosted --> D
-      Hosted --> T
-      Hosted --> V
+      Hosted --> P & Pr & D & T & V
     end
     React <-->|REST API - JSON| API
     API <-->|SQLAlchemy - SQL| DB
@@ -256,7 +252,7 @@ The endpoints that use these classes are grouped into five routers. The details 
 #### 2.2.8 Class Diagram
 
 ```mermaid
-%%{init: {"theme":"base","themeVariables":{"background":"#FFFFFF","primaryColor":"#F3F0FF","primaryTextColor":"#1F2937","primaryBorderColor":"#8B5CF6","lineColor":"#374151","secondaryColor":"#F3F0FF","tertiaryColor":"#FFFFFF","actorBkg":"#F3F0FF","actorBorder":"#8B5CF6","actorTextColor":"#1F2937","signalColor":"#374151","signalTextColor":"#1F2937","labelBoxBkgColor":"#F3F0FF","labelBoxBorderColor":"#8B5CF6","noteBkgColor":"#F3F0FF","noteBorderColor":"#8B5CF6","fontFamily":"Arial, sans-serif","fontSize":"16px"}}}%%
+%%{init: {"theme": "base", "themeVariables": {"background": "#FFFFFF", "primaryColor": "#F3F0FF", "primaryTextColor": "#1F2937", "primaryBorderColor": "#8B5CF6", "lineColor": "#374151", "secondaryColor": "#F3F0FF", "tertiaryColor": "#FFFFFF", "actorBkg": "#F3F0FF", "actorBorder": "#8B5CF6", "actorTextColor": "#1F2937", "signalColor": "#374151", "signalTextColor": "#1F2937", "labelBoxBkgColor": "#F3F0FF", "labelBoxBorderColor": "#8B5CF6", "noteBkgColor": "#F3F0FF", "noteBorderColor": "#8B5CF6", "fontFamily": "Arial", "fontSize": "14px"}}}%%
 classDiagram
     class User {
       +int user_id
@@ -426,7 +422,7 @@ The PostgreSQL tables are connected through one-to-many relationships, as detail
 The diagram below shows the six tables together with the five GIS layers. Solid lines are real foreign keys inside PostgreSQL. Dashed lines are the links to the GIS layers. Nothing enforces the dashed links because the layers live outside the database, so the application is responsible for writing the same ID on both sides.
 
 ```mermaid
-%%{init: {"theme":"base","themeVariables":{"background":"#FFFFFF","primaryColor":"#F3F0FF","primaryTextColor":"#1F2937","primaryBorderColor":"#8B5CF6","lineColor":"#374151","secondaryColor":"#F3F0FF","tertiaryColor":"#FFFFFF","actorBkg":"#F3F0FF","actorBorder":"#8B5CF6","actorTextColor":"#1F2937","signalColor":"#374151","signalTextColor":"#1F2937","labelBoxBkgColor":"#F3F0FF","labelBoxBorderColor":"#8B5CF6","noteBkgColor":"#F3F0FF","noteBorderColor":"#8B5CF6","fontFamily":"Arial, sans-serif","fontSize":"16px"}}}%%
+%%{init: {"theme": "base", "themeVariables": {"background": "#FFFFFF", "primaryColor": "#F3F0FF", "primaryTextColor": "#1F2937", "primaryBorderColor": "#8B5CF6", "lineColor": "#374151", "secondaryColor": "#F3F0FF", "tertiaryColor": "#FFFFFF", "actorBkg": "#F3F0FF", "actorBorder": "#8B5CF6", "actorTextColor": "#1F2937", "signalColor": "#374151", "signalTextColor": "#1F2937", "labelBoxBkgColor": "#F3F0FF", "labelBoxBorderColor": "#8B5CF6", "noteBkgColor": "#F3F0FF", "noteBorderColor": "#8B5CF6", "fontFamily": "Arial", "fontSize": "14px"}}}%%
 erDiagram
     providers |o--o{ users : employs
     users ||--o{ projects : owns
@@ -587,7 +583,7 @@ This sequence shows how a contractor creates a new project and defines its geogr
 The project information is first created through the FastAPI backend and stored in PostgreSQL. After receiving the generated `project_id`, the contractor defines the work zone on the map. The polygon is then stored in the `MAMAR_Projects` Hosted Feature Layer in ArcGIS Online using the same `project_id`.
 
 ```mermaid
-%%{init: {"theme":"base","themeVariables":{"background":"#FFFFFF","primaryColor":"#F3F0FF","primaryTextColor":"#1F2937","primaryBorderColor":"#8B5CF6","lineColor":"#374151","secondaryColor":"#F3F0FF","tertiaryColor":"#FFFFFF","actorBkg":"#F3F0FF","actorBorder":"#8B5CF6","actorTextColor":"#1F2937","signalColor":"#374151","signalTextColor":"#1F2937","labelBoxBkgColor":"#F3F0FF","labelBoxBorderColor":"#8B5CF6","noteBkgColor":"#F3F0FF","noteBorderColor":"#8B5CF6","fontFamily":"Arial, sans-serif","fontSize":"16px"},"sequence":{"actorFontSize":16,"messageFontSize":15,"noteFontSize":15,"actorMargin":65,"messageMargin":35,"mirrorActors":false}}}%%
+%%{init: {"theme": "base", "themeVariables": {"background": "#FFFFFF", "primaryColor": "#F3F0FF", "primaryTextColor": "#1F2937", "primaryBorderColor": "#8B5CF6", "lineColor": "#374151", "secondaryColor": "#F3F0FF", "tertiaryColor": "#FFFFFF", "actorBkg": "#F3F0FF", "actorBorder": "#8B5CF6", "actorTextColor": "#1F2937", "signalColor": "#374151", "signalTextColor": "#1F2937", "labelBoxBkgColor": "#F3F0FF", "labelBoxBorderColor": "#8B5CF6", "noteBkgColor": "#F3F0FF", "noteBorderColor": "#8B5CF6", "fontFamily": "Arial", "fontSize": "14px"}}}%%
 sequenceDiagram
     participant C as Contractor
     participant R as React Frontend (ProjectForm)
@@ -616,7 +612,7 @@ This sequence shows how a contractor creates a traffic control service request a
 The service request and quotation information are handled through the FastAPI REST API and stored as non-spatial application data in PostgreSQL.
 
 ```mermaid
-%%{init: {"theme":"base","themeVariables":{"background":"#FFFFFF","primaryColor":"#F3F0FF","primaryTextColor":"#1F2937","primaryBorderColor":"#8B5CF6","lineColor":"#374151","secondaryColor":"#F3F0FF","tertiaryColor":"#FFFFFF","actorBkg":"#F3F0FF","actorBorder":"#8B5CF6","actorTextColor":"#1F2937","signalColor":"#374151","signalTextColor":"#1F2937","labelBoxBkgColor":"#F3F0FF","labelBoxBorderColor":"#8B5CF6","noteBkgColor":"#F3F0FF","noteBorderColor":"#8B5CF6","fontFamily":"Arial, sans-serif","fontSize":"16px"},"sequence":{"actorFontSize":16,"messageFontSize":15,"noteFontSize":15,"actorMargin":65,"messageMargin":35,"mirrorActors":false}}}%%
+%%{init: {"theme": "base", "themeVariables": {"background": "#FFFFFF", "primaryColor": "#F3F0FF", "primaryTextColor": "#1F2937", "primaryBorderColor": "#8B5CF6", "lineColor": "#374151", "secondaryColor": "#F3F0FF", "tertiaryColor": "#FFFFFF", "actorBkg": "#F3F0FF", "actorBorder": "#8B5CF6", "actorTextColor": "#1F2937", "signalColor": "#374151", "signalTextColor": "#1F2937", "labelBoxBkgColor": "#F3F0FF", "labelBoxBorderColor": "#8B5CF6", "noteBkgColor": "#F3F0FF", "noteBorderColor": "#8B5CF6", "fontFamily": "Arial", "fontSize": "14px"}}}%%
 sequenceDiagram
     participant C as Contractor
     participant R as React Frontend
@@ -662,7 +658,7 @@ The application retrieves the planned device from `MAMAR_Traffic_Devices`. When 
 The application calculates the distance between the captured location and the planned device location, determines the verification status, and stores the verification record in `MAMAR_Verifications`.
 
 ```mermaid
-%%{init: {"theme":"base","themeVariables":{"background":"#FFFFFF","primaryColor":"#F3F0FF","primaryTextColor":"#1F2937","primaryBorderColor":"#8B5CF6","lineColor":"#374151","secondaryColor":"#F3F0FF","tertiaryColor":"#FFFFFF","actorBkg":"#F3F0FF","actorBorder":"#8B5CF6","actorTextColor":"#1F2937","signalColor":"#374151","signalTextColor":"#1F2937","labelBoxBkgColor":"#F3F0FF","labelBoxBorderColor":"#8B5CF6","noteBkgColor":"#F3F0FF","noteBorderColor":"#8B5CF6","fontFamily":"Arial, sans-serif","fontSize":"16px"},"sequence":{"actorFontSize":16,"messageFontSize":15,"noteFontSize":15,"actorMargin":65,"messageMargin":35,"mirrorActors":false}}}%%
+%%{init: {"theme": "base", "themeVariables": {"background": "#FFFFFF", "primaryColor": "#F3F0FF", "primaryTextColor": "#1F2937", "primaryBorderColor": "#8B5CF6", "lineColor": "#374151", "secondaryColor": "#F3F0FF", "tertiaryColor": "#FFFFFF", "actorBkg": "#F3F0FF", "actorBorder": "#8B5CF6", "actorTextColor": "#1F2937", "signalColor": "#374151", "signalTextColor": "#1F2937", "labelBoxBkgColor": "#F3F0FF", "labelBoxBorderColor": "#8B5CF6", "noteBkgColor": "#F3F0FF", "noteBorderColor": "#8B5CF6", "fontFamily": "Arial", "fontSize": "14px"}}}%%
 sequenceDiagram
     participant W as Field Worker
     participant R as React Frontend (VerificationScreen)
@@ -1331,3 +1327,4 @@ The final Stage 3 technical documentation includes:
 - Task 4 – External and Internal APIs
 - Task 5 – SCM and QA Strategies
 - Task 6 – Technical Justifications
+
