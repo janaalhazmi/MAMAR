@@ -184,7 +184,7 @@ The table below shows which technology handles each part of the system.
 
 ### 2.2 Back-end Classes
 
-Our back-end is a FastAPI application with six key classes. We wrote each class as a SQLAlchemy model, so every class has its own table in PostgreSQL. The back-end never touches the GIS layers. That part is done in the front-end with the ArcGIS Maps SDK. For each class below we describe what it represents, then list its attributes and its methods.
+Our back-end is a FastAPI application with six key classes. Each class is designed as a SQLAlchemy model, with a corresponding table in PostgreSQL. The back-end never touches the GIS layers. That part is done in the front-end with the ArcGIS Maps SDK. For each class below we describe what it represents, then list its attributes and its methods.
 
 #### 2.2.1 User
 
@@ -420,7 +420,7 @@ The pair (`project_id`, `worker_id`) is also UNIQUE, so the same field worker ca
 
 #### 2.4.1 Relationships
 
-All the relationships between our tables are one-to-many. The table shows the parent, the child and the column that links them.
+The PostgreSQL tables are connected through one-to-many relationships, as detailed below. These relationships are enforced through foreign keys, while GIS layer associations are maintained separately using shared IDs.
 
 | Parent | Child | Type | Linked by |
 | --- | --- | --- | --- |
