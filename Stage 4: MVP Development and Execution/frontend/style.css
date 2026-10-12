@@ -614,3 +614,328 @@ body {
     gap: 35px;
   }
 }
+/* =========================
+   LOGIN PAGE
+========================= */
+
+.login-page {
+  margin: 0;
+  min-height: 100vh;
+  background: #ffffff;
+  font-family: "Poppins", sans-serif;
+  color: #101828;
+}
+
+/* Header */
+
+.login-header {
+  width: 100%;
+  height: 83px;
+  padding: 20px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-bottom: 1.5px solid #eef0f3;
+}
+
+.login-header-logo {
+  width: 86px;
+  height: 45px;
+  object-fit: contain;
+}
+
+.login-header-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.login-nav-btn {
+  height: 40px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #242424;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signin-btn {
+  width: 92px;
+  background: #d6d1bf;
+  gap: 6px;
+}
+
+.start-btn {
+  width: 98px;
+  background: #fabf0d;
+}
+
+
+/* Main */
+
+.login-main {
+  min-height: calc(100vh - 83px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 26px;
+}
+
+
+/* Login Card */
+
+.login-card {
+  width: 540px;
+  height: 738px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 40px 40px 60px rgba(228, 230, 234, 0.74);
+
+  padding: 48px 72px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-logo {
+  width: 86px;
+  height: 45px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.login-card h1 {
+  margin: 0 0 16px;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 600;
+  color: #101828;
+}
+
+
+/* Contractor / Provider */
+
+.role-buttons {
+  width: 424px;
+
+  display: grid;
+  grid-template-columns: repeat(2, 200px);
+  justify-content: center;
+
+  gap: 12px 16px;
+
+  margin-bottom: 32px;
+}
+
+.role-btn {
+  width: 200px;
+  height: 48px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #d6d1bf;
+
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #000000;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.role-btn:nth-child(3) {
+  grid-column: 1 / 3;
+  justify-self: center;
+}
+
+.role-btn.active {
+  background: #ffcc00;
+}
+
+/* Form */
+
+.login-form {
+  width: 396px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.login-field {
+  width: 396px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login-field label {
+  font-size: 16px;
+  line-height: 16px;
+  font-weight: 400;
+  color: #344054;
+}
+
+.password-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.password-heading a {
+  font-size: 16px;
+  color: #000000;
+  text-decoration: none;
+}
+
+.login-field input {
+  width: 396px;
+  height: 48px;
+  padding: 12px 16px;
+
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  color: #344054;
+
+  outline: none;
+}
+
+.login-field input:focus {
+  border: 3px solid #d1e9ff;
+}
+
+.login-field input::placeholder {
+  color: #98a2b3;
+}
+
+
+/* Password */
+
+.password-input {
+  width: 396px;
+  position: relative;
+}
+
+.password-input input {
+  padding-right: 50px;
+}
+
+.eye-btn {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  border: none;
+  background: transparent;
+  color: #98a2b3;
+
+  cursor: pointer;
+  font-size: 18px;
+}
+
+
+/* Login Button */
+
+.login-submit {
+  width: 396px;
+  height: 48px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #ffcc00;
+  color: #000000;
+
+  font-family: "Poppins", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.login-submit:hover {
+  background: #f2bf00;
+}
+
+
+/* OR */
+
+.login-or {
+  width: 396px;
+  margin: 28px 0 22px;
+
+  text-align: center;
+
+  font-size: 14px;
+  font-weight: 600;
+  color: #000000;
+}
+
+
+/* Create Account */
+
+.create-account {
+  width: 396px;
+  height: 54px;
+
+  border: 1.5px solid #000000;
+  border-radius: 12px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  text-decoration: none;
+
+  font-family: "Poppins", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #000000;
+}
+
+
+/* Responsive */
+
+@media (max-width: 650px) {
+
+  .login-header {
+    padding: 20px;
+  }
+
+  .login-card {
+    width: calc(100% - 32px);
+    height: auto;
+    padding: 40px 24px;
+  }
+
+  .role-buttons,
+  .login-form,
+  .login-field,
+  .login-field input,
+  .password-input,
+  .login-submit,
+  .login-or,
+  .create-account {
+    width: 100%;
+  }
+
+  .role-buttons {
+    gap: 8px;
+  }
+
+  .role-btn:first-child,
+  .role-btn:last-child {
+    width: 50%;
+  }
+}
