@@ -1,4 +1,4 @@
-# MAMAR – Stage 4: MVP Development and Execution
+# MAMAR – MVP Development and Execution
 
 ## Task 0: Plan and Define Sprints
 
