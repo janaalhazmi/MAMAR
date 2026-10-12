@@ -104,17 +104,17 @@ Establish the development environment, configure project
 management and version control, deploy the initial system,
 and begin MVP implementation.
 
-| Task | Priority | Assigned To |
-|---|---|---|
-| Set up React frontend and initial UI pages | Must Have | Jana & Kayan |
-| Set up FastAPI backend and PostgreSQL database | Must Have | Shouq |
-| Configure GitHub repository and branching workflow | Must Have | Jana |
-| Set up GitHub Projects and assign development tasks | Must Have | Razan |
-| Deploy frontend to Vercel and backend to Render | Must Have | Development Team |
-| Verify local execution for all team members | Must Have | All Members |
-| Prepare ArcGIS Online layers for frontend integration | Must Have | Razan |
-| Begin frontend and backend API integration | Should Have | Kayan & Shouq |
-| Review progress and document initial QA results | Must Have | Razan & Kayan |
+| Task | Priority | Assigned To | Deadline |
+|---|---|---|---|
+| Set up React frontend and initial UI pages | Must Have | Jana & Kayan | Oct 13 |
+| Set up FastAPI backend and PostgreSQL database | Must Have | Shouq | Oct 13 |
+| Configure GitHub repository and branching workflow | Must Have | Jana | Oct 12 |
+| Set up GitHub Projects and assign development tasks | Must Have | Razan | Oct 13 |
+| Deploy frontend to Vercel and backend to Render | Must Have | Development Team | Oct 14 |
+| Verify local execution for all team members | Must Have | All Members | Oct 14 |
+| Prepare ArcGIS Online layers for frontend integration | Must Have | Razan | Oct 14 |
+| Begin frontend and backend API integration | Should Have | Kayan & Shouq | Oct 16 |
+| Review progress and document initial QA results | Must Have | Razan & Kayan | Oct 17 |
 
 **Dependencies:**
 - Frontend and backend setup must be completed before integration.
