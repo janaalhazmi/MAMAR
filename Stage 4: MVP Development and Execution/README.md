@@ -95,29 +95,38 @@ The MoSCoW method is used to prioritize features according to their importance t
 
 ### 6. Sprint Breakdown
 
-#### Sprint 1: Project Setup and Core Frontend
+### Sprint 1: Project Setup and Initial Development
 
 **Duration:** October 11–17, 2026
 
-**Goal:** Establish the development environment and implement the initial user interfaces.
+**Sprint Goal:**
+Establish the development environment, configure project
+management and version control, deploy the initial system,
+and begin MVP implementation.
 
-| Task | Priority | Assigned To | Deadline |
-|---|---|---|---|
-| Organize GitHub repository and development structure | Must Have | All Team Members | Oct 12 |
-| Initialize React and Vite frontend | Must Have | Kayan | Oct 14 |
-| Implement registration and login interfaces | Must Have | Kayan | Oct 16 |
-| Implement initial UI layout and navigation | Must Have | Jana | Oct 17 |
-| Initialize FastAPI backend structure | Must Have | Shouq | Oct 15 |
-| Review ArcGIS Online layers and integration requirements | Must Have | Razan | Oct 17 |
-| Establish sprint tracking and responsibilities | Must Have | Razan | Oct 13 |
+| Task | Priority | Assigned To |
+|---|---|---|
+| Set up React frontend and initial UI pages | Must Have | Jana & Kayan |
+| Set up FastAPI backend and PostgreSQL database | Must Have | Shouq |
+| Configure GitHub repository and branching workflow | Must Have | Jana |
+| Set up GitHub Projects and assign development tasks | Must Have | Razan |
+| Deploy frontend to Vercel and backend to Render | Must Have | Development Team |
+| Verify local execution for all team members | Must Have | All Members |
+| Prepare ArcGIS Online layers for frontend integration | Must Have | Razan |
+| Begin frontend and backend API integration | Should Have | Kayan & Shouq |
+| Review progress and document initial QA results | Must Have | Razan & Kayan |
+
+**Dependencies:**
+- Frontend and backend setup must be completed before integration.
+- Backend and database configuration must be completed before deployment testing.
+- GIS layer verification must be completed before map integration.
 
 **Expected Deliverables:**
-- Organized project repository.
-- Initial React frontend.
-- Registration and login interfaces.
-- FastAPI project structure.
-- Reviewed GIS integration requirements.
-- Documented sprint progress.
+- Working frontend, backend, and database environments.
+- Initial frontend and backend deployments.
+- GitHub Projects board with assigned tasks and deadlines.
+- Local execution verified by all team members.
+- Initial development progress documented.
 
 #### Sprint 2: Authentication and Project Management
 
