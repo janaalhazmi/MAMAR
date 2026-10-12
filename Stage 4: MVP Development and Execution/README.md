@@ -39,10 +39,34 @@ The objectives of sprint planning are to:
 
 | Team Member | Role | Responsibilities |
 |---|---|---|
-| Razan Kashr | Project Manager & GIS Lead Integration | Sprint planning, task coordination, progress tracking, GIS integration, spatial data configuration, and GIS functionality testing |
-| Jana Alhazmi | Frontend Developer & UI/UX Integration | Frontend development, UI/UX implementation, React components, and interface integration |
-| Kayan Alnazari | Frontend Developer | React frontend development, authentication pages, dashboards, forms, and responsive interface implementation |
-| Shouq Alqarni | Backend Developer | FastAPI development, PostgreSQL database implementation, authentication, business logic, and API testing |
+| Razan Kashr | Project Manager (PM) & GIS Lead Integration | Manage sprint planning, task assignments, deadlines, progress tracking, team coordination, GIS integration, spatial data configuration, and GIS functionality testing. |
+| Jana Alhazmi | Frontend Developer, UI/UX Integration & Source Control Manager (SCM) | Develop React frontend components, integrate UI/UX designs, coordinate Git branching strategies, review pull requests, and ensure proper version control practices. |
+| Kayan Alnazari | Frontend Developer & Quality Assurance (QA) | Develop React frontend components, authentication pages, dashboards, and forms; coordinate test cases, document bugs, track fixes, and verify completed features. |
+| Shouq Alqarni | Backend Developer | Develop FastAPI endpoints, implement PostgreSQL database models, authentication, business logic, and backend testing. |
+
+### 4.1 Management and Quality Responsibilities
+
+To ensure effective project organization, version control, and quality assurance, the following responsibilities have been assigned:
+
+**Project Manager (PM) – Razan Kashr**
+- Coordinate sprint planning and task assignments.
+- Monitor deadlines, progress, and task dependencies.
+- Identify blockers and coordinate solutions.
+- Review sprint deliverables against the MVP scope.
+
+**Source Control Manager (SCM) – Jana Alhazmi**
+- Coordinate Git branching and version control practices.
+- Ensure development changes are submitted through pull requests.
+- Review code changes before merging.
+- Maintain repository organization and branch integrity.
+
+**Quality Assurance (QA) – Kayan Alnazari**
+- Prepare and coordinate test cases for completed features.
+- Test functionality against project requirements.
+- Document bugs and track their resolution.
+- Verify fixes and confirm that features meet acceptance criteria.
+
+All team members remain responsible for testing their own implementations and participating in code reviews when required.
 
 ### 5. MoSCoW Prioritization
 
