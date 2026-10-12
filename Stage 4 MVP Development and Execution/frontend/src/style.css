@@ -1316,9 +1316,9 @@ body {
     color: #7b7d73;
   }
 
-  .field-worker-message.show {
-    display: block;
-  }
+.field-worker-message.show {
+  display: block;
+}
 
   .signup-form,
   .signup-field,
