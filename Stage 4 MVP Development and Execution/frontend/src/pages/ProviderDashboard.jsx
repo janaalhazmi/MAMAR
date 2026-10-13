@@ -2,341 +2,323 @@ import { Link } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 
 function ProviderDashboard() {
-  const statistics = [
-    { icon: "▤", value: 4, label: "New Requests" },
-    { icon: "◷", value: 2, label: "Pending Quotations" },
-    { icon: "✓", value: 3, label: "Active Projects" },
-    { icon: "•••", value: 8, label: "Field Workers" },
-  ];
-
-  const projects = [
-    {
-      name: "King Fahd Road – Water Line",
-      location: "Riyadh",
-      startDate: "10 Sep 2026",
-      endDate: "20 Sep 2026",
-      status: "Active",
-      statusClass: "in-progress",
-    },
-    {
-      name: "Olaya Street – Maintenance",
-      location: "Riyadh",
-      startDate: "01 Oct 2026",
-      endDate: "15 Oct 2026",
-      status: "Quotation Pending",
-      statusClass: "pending-quotes",
-    },
-    {
-      name: "Northern Ring Road",
-      location: "Riyadh",
-      startDate: "12 Oct 2026",
-      endDate: "05 Nov 2026",
-      status: "Assigned",
-      statusClass: "completed",
-    },
-    {
-      name: "Al Yarmouk Intersection",
-      location: "Riyadh",
-      startDate: "20 Nov 2026",
-      endDate: "05 Dec 2026",
-      status: "New Request",
-      statusClass: "planned",
-    },
-  ];
-
-  const activities = [
-    {
-      icon: "▤",
-      title: "New service request received",
-      description: "King Fahd Road – Water Line",
-      time: "2h ago",
-      type: "quote",
-    },
-    {
-      icon: "✓",
-      title: "Quotation submitted",
-      description: "Olaya Street – Maintenance",
-      time: "5h ago",
-      type: "success",
-    },
-    {
-      icon: "□",
-      title: "Field worker assigned",
-      description: "Northern Ring Road",
-      time: "1d ago",
-      type: "message",
-    },
-    {
-      icon: "+",
-      title: "Project execution started",
-      description: "King Fahd Road – Water Line",
-      time: "2d ago",
-      type: "created",
-    },
-  ];
-
   return (
-    <div className="contractor-dashboard">
-      <aside className="contractor-sidebar">
-        <Link to="/" className="dashboard-brand">
+    <div className="provider-dashboard-page">
+
+      {/* Sidebar */}
+      <aside className="provider-sidebar">
+
+        <Link to="/" className="provider-sidebar-logo">
           <img src={logo} alt="MAMAR Logo" />
         </Link>
 
-        <nav className="dashboard-navigation">
+        <nav className="provider-sidebar-nav">
           <Link to="/provider-dashboard" className="active">
-            <span className="navigation-icon">▦</span>
+            <span>▦</span>
             Dashboard
           </Link>
 
-          <a href="#projects">
-            <span className="navigation-icon">▣</span>
+          <Link to="/provider/projects">
+            <span>▣</span>
             Projects
-          </a>
+          </Link>
 
-          <a href="#requests">
-            <span className="navigation-icon">⊕</span>
-            Service Requests
-          </a>
+          <Link to="/provider/execution">
+            <span>↗</span>
+            Execution
+          </Link>
 
-          <a href="#quotations">
-            <span className="navigation-icon">▤</span>
-            Quotations
-          </a>
+          <Link to="/provider/device-verification">
+            <span>♢</span>
+            Device Verification
+          </Link>
 
-          <a href="#execution">
-            <span className="navigation-icon">⌖</span>
-            Field Execution
-          </a>
-
-          <a href="#workers">
-            <span className="navigation-icon">♧</span>
-            Field Workers
-          </a>
+          <Link to="/provider/field-team">
+            <span>♧</span>
+            Field Team
+          </Link>
         </nav>
 
-        <div className="sidebar-bottom">
+        <div className="provider-sidebar-bottom">
           <a href="#disclaimer">
             <span>ⓘ</span>
             Data Disclaimer
           </a>
 
-          <Link to="/support">
-            <span>ⓘ</span>
-            Help &amp; Support
-          </Link>
+          <a href="#support">
+            <span>?</span>
+            Help & Support
+          </a>
 
           <Link to="/login">
             <span>→</span>
             Log out
           </Link>
         </div>
+
       </aside>
 
-      <main className="contractor-main">
-        <header className="dashboard-header">
-          <Link to="/" className="dashboard-header-logo">
-            <img src={logo} alt="MAMAR" />
-          </Link>
 
-          <div className="dashboard-user">
-            <div className="user-avatar">S</div>
+      {/* Main */}
+      <div className="provider-main-area">
 
-            <div className="user-information">
-              <strong>Safety Arabia</strong>
+        {/* Header */}
+        <header className="provider-topbar">
+
+          <div />
+
+          <div className="provider-account">
+            <div className="provider-avatar">TC</div>
+
+            <div>
+              <strong>TCM</strong>
               <span>Service Provider</span>
             </div>
           </div>
+
         </header>
 
-        <div className="dashboard-content" id="dashboard">
-          <section className="dashboard-welcome">
-            <div>
-              <h1>
-                Welcome Back, Safety Arabia <span>👋</span>
-              </h1>
 
-              <p>
-                Here's an overview of your requests, quotations, and active projects.
+        <main className="provider-dashboard-content">
+
+          {/* Title */}
+          <section className="provider-title">
+            <h1>Provider Dashboard</h1>
+
+            <p>
+              Review service requests, manage assigned projects and track field
+              execution.
+            </p>
+          </section>
+
+
+          {/* Statistics */}
+          <section className="provider-summary-grid">
+
+            <article className="provider-summary-card">
+              <div className="provider-summary-icon yellow">＋</div>
+
+              <div>
+                <span>Assigned Projects</span>
+                <strong>04</strong>
+              </div>
+            </article>
+
+            <article className="provider-summary-card">
+              <div className="provider-summary-icon green">✓</div>
+
+              <div>
+                <span>Active Execution</span>
+                <strong>02</strong>
+              </div>
+            </article>
+
+            <article className="provider-summary-card">
+              <div className="provider-summary-icon blue">□</div>
+
+              <div>
+                <span>Upcoming</span>
+                <strong>01</strong>
+              </div>
+            </article>
+
+            <article className="provider-summary-card">
+              <div className="provider-summary-icon gray">✓</div>
+
+              <div>
+                <span>Completed Projects</span>
+                <strong>01</strong>
+              </div>
+            </article>
+
+          </section>
+
+
+          {/* New Service Request */}
+          <section className="provider-section">
+
+            <h2>New Service Request</h2>
+
+            <article className="service-request-card">
+
+              <span className="request-badge">
+                ● &nbsp; NEW REQUEST
+              </span>
+
+              <h3>King Fahd Road – Water Line</h3>
+
+              <p className="request-company">
+                Al Noor Contracting · Infrastructure Project
               </p>
-            </div>
 
-            <a href="#requests" className="create-project-button">
-              <span>+</span>
-              View New Requests
-            </a>
+
+              <div className="request-details">
+
+                <div>
+                  <span>LOCATION</span>
+                  <strong>King Fahd Road, Riyadh</strong>
+                </div>
+
+                <div>
+                  <span>START DATE</span>
+                  <strong>18 Oct 2026</strong>
+                </div>
+
+                <div>
+                  <span>END DATE</span>
+                  <strong>24 Oct 2026</strong>
+                </div>
+
+                <div>
+                  <span>STATUS</span>
+                  <strong className="request-status">
+                    Awaiting Your Quote
+                  </strong>
+                </div>
+
+              </div>
+
+
+              <div className="request-footer">
+
+                <div className="request-tags">
+                  <span>Traffic Barriers</span>
+                  <span>Traffic Cones</span>
+                  <span>Road Signs</span>
+                </div>
+
+                <button type="button" className="prepare-quotation-btn">
+                  Prepare Quotation →
+                </button>
+
+              </div>
+
+            </article>
+
           </section>
 
-          <section className="statistics-grid">
-            {statistics.map((stat) => (
-              <article className="stat-card" key={stat.label}>
-                <div className="stat-icon">{stat.icon}</div>
 
-                <div className="stat-information">
-                  <strong>{stat.value}</strong>
-                  <span>{stat.label}</span>
-                </div>
-              </article>
-            ))}
+          {/* Assigned Project */}
+          <section className="provider-section">
+
+            <h2>New Assigned Project</h2>
+
+            <article className="assigned-project-card">
+
+              <div>
+                <span className="accepted-badge">
+                  QUOTE ACCEPTED
+                </span>
+
+                <h3>Al Mursalat – Road Maintenance</h3>
+
+                <p>Riyadh · 25–30 Oct 2026</p>
+
+                <span className="ready-status">
+                  Ready to Start
+                </span>
+              </div>
+
+              <button type="button" className="view-project-btn">
+                View Project →
+              </button>
+
+            </article>
+
           </section>
 
-          <div className="dashboard-grid">
-            <div className="dashboard-left-column">
-              <section className="dashboard-panel locations-panel">
-                <div className="panel-heading">
-                  <h2>Active Project Locations</h2>
+
+          {/* Bottom Grid */}
+          <section className="provider-bottom-grid">
+
+            {/* Active Projects */}
+            <article className="provider-bottom-card">
+
+              <div className="provider-card-heading">
+                <h2>Active Projects</h2>
+                <a href="#projects">View All</a>
+              </div>
+
+
+              <div className="active-project-header">
+                <span>PROJECT</span>
+                <span>LOCATION</span>
+                <span>PROGRESS</span>
+                <span>STATUS</span>
+              </div>
+
+
+              <div className="active-project-row">
+
+                <span>Northern Ring Road</span>
+                <span>Riyadh</span>
+
+                <div className="progress-area">
+                  <div className="progress-bar">
+                    <div style={{ width: "68%" }} />
+                  </div>
+                  <span>68%</span>
                 </div>
 
-                <div className="map-placeholder">
-                  <div className="map-road map-road-one" />
-                  <div className="map-road map-road-two" />
-                  <div className="map-road map-road-three" />
+                <span className="active-badge">Active</span>
 
-                  <span className="map-marker marker-one">1</span>
-                  <span className="map-marker marker-two">2</span>
-                  <span className="map-marker marker-three">3</span>
+              </div>
 
-                  <span className="map-label">
-                    Active project locations
-                  </span>
+
+              <div className="active-project-row">
+
+                <span>Olaya Road Works</span>
+                <span>Riyadh</span>
+
+                <div className="progress-area">
+                  <div className="progress-bar">
+                    <div style={{ width: "35%" }} />
+                  </div>
+                  <span>35%</span>
                 </div>
 
-                <Link
-                  to="/project/location"
-                  className="map-full-button"
-                >
-                  View Full Map →
-                </Link>
-              </section>
+                <span className="active-badge">Active</span>
 
-              <section className="dashboard-panel projects-panel" id="projects">
-                <div className="panel-heading">
-                  <h2>Assigned Projects</h2>
+              </div>
 
-                  <a href="#projects">View all →</a>
+            </article>
+
+
+            {/* Execution Overview */}
+            <article className="provider-bottom-card execution-overview">
+
+              <h2>Execution Overview</h2>
+
+              <div className="execution-item">
+                <span className="execution-icon yellow">✓</span>
+
+                <div>
+                  <small>FIELD TEAM</small>
+                  <p>6 Workers Active</p>
                 </div>
+              </div>
 
-                <div className="projects-table-wrapper">
-                  <table className="projects-table">
-                    <thead>
-                      <tr>
-                        <th>Project Name</th>
-                        <th>Location</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
 
-                    <tbody>
-                      {projects.map((project) => (
-                        <tr key={project.name}>
-                          <td>
-                            <div className="project-name-cell">
-                              <span className="project-thumbnail" />
-                              <strong>{project.name}</strong>
-                            </div>
-                          </td>
+              <div className="execution-item">
+                <span className="execution-icon green">✓</span>
 
-                          <td>{project.location}</td>
-                          <td>{project.startDate}</td>
-                          <td>{project.endDate}</td>
-
-                          <td>
-                            <span
-                              className={`project-status ${project.statusClass}`}
-                            >
-                              {project.status}
-                            </span>
-                          </td>
-
-                          <td>
-                            <button
-                              type="button"
-                              className="project-actions-button"
-                              aria-label={`Actions for ${project.name}`}
-                            >
-                              ⋮
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div>
+                  <small>SITE EXECUTION</small>
+                  <p>2 Sites Active</p>
                 </div>
-              </section>
-            </div>
+              </div>
 
-            <div className="dashboard-right-column">
-              <section className="dashboard-panel quick-actions-panel">
-                <h2>Quick Actions</h2>
 
-                <a href="#requests" className="quick-action">
-                  <span className="action-icon">+</span>
+              <a href="#execution">
+                View Execution Details →
+              </a>
 
-                  <span className="action-information">
-                    <strong>Review Service Requests</strong>
-                    <small>View new contractor requests</small>
-                  </span>
+            </article>
 
-                  <span className="action-arrow">›</span>
-                </a>
+          </section>
 
-                <a href="#quotations" className="quick-action">
-                  <span className="action-icon">▤</span>
-
-                  <span className="action-information">
-                    <strong>Manage Quotations</strong>
-                    <small>Submit and review quotations</small>
-                  </span>
-
-                  <span className="action-arrow">›</span>
-                </a>
-
-                <a href="#workers" className="quick-action">
-                  <span className="action-icon">♧</span>
-
-                  <span className="action-information">
-                    <strong>Assign Field Worker</strong>
-                    <small>Manage project assignments</small>
-                  </span>
-
-                  <span className="action-arrow">›</span>
-                </a>
-              </section>
-
-              <section className="dashboard-panel activity-panel">
-                <div className="panel-heading">
-                  <h2>Recent Activity</h2>
-
-                  <a href="#activity">View all →</a>
-                </div>
-
-                <div className="activity-list" id="activity">
-                  {activities.map((activity) => (
-                    <article
-                      className="activity-item"
-                      key={activity.title}
-                    >
-                      <span
-                        className={`activity-icon ${activity.type}`}
-                      >
-                        {activity.icon}
-                      </span>
-
-                      <div className="activity-information">
-                        <strong>{activity.title}</strong>
-                        <p>{activity.description}</p>
-                        <small>{activity.time}</small>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
-            </div>
-          </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
