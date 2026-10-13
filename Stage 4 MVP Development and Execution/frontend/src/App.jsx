@@ -6,15 +6,20 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ContractorDashboard from "./pages/ContractorDashboard";
 
-
-
 function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/Contractor-Dashboard" element={<ContractorDashboard />} />
+      <Route
+        path="/contractor-dashboard"
+        element={<ContractorDashboard />}
+      />
+      <Route
+        path="/project/location"
+        element={<ProjectLocationPage />}
+      />
     </Routes>
   );
 }
