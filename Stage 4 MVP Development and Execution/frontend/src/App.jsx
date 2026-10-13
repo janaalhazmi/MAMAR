@@ -7,6 +7,9 @@ import ContractorDashboard from "./pages/ContractorDashboard";
 import ProviderDashboard from "./pages/ProviderDashboard";
 import ProjectLocationPage from "./pages/ProjectLocationPage";
 import CreateProjectPage from "./pages/CreateProjectPage";
+import ServicesPage from "./pages/ServicesPage";
+
+
 
 function App() {
   return (
@@ -37,6 +40,8 @@ function App() {
        path="/project-location"
        element={<ProjectLocationPage />}
     />
+    <Route path="/services" element={<ServicesPage />} />
+    
   </Routes>
   );
 }
