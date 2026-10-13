@@ -2021,7 +2021,7 @@ body {
   }
 }
 
-<<<<<<< HEAD
+
 /* =========================
    CREATE PROJECT PAGE
 ========================= */
@@ -2757,7 +2757,8 @@ body {
   padding: 0 16px;
   border: 1px solid #d0d5dd;
   border-radius: 7px;
-  background: #ffffff;
+  background:   border-color: #d4a900;
+;
   color: #344054;
   font-family: Arial, sans-serif;
   font-size: 13px;
@@ -3352,13 +3353,20 @@ body {
 
 .location-back-button,
 .location-next-button {
-  min-width: 90px;
-  height: 39px;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 0 18px;
-  border-radius: 6px;
-  font-family: Arial, sans-serif;
-  font-size: 11px;
-=======
+  border: none;
+  border-radius: 8px;
+  background: #fabf0d;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.2s ease;
+
 /* =================================================
    PROVIDER DASHBOARD
    ================================================= */
@@ -3695,12 +3703,12 @@ body {
   background: #ffc400;
   color: #111111;
 
->>>>>>> 60a730c093a5a46f8f303c280aa7371ba53ed9eb
+
   font-weight: 600;
   cursor: pointer;
 }
 
-<<<<<<< HEAD
+
 .location-back-button {
   border: 1px solid #d0d5dd;
   background: #ffffff;
@@ -3809,7 +3817,7 @@ body {
     min-height: 200px;
   }
 }
-=======
+
 .assigned-project-card {
   background: #ffffff;
   border: 1px solid #e0e0d6;
@@ -4012,4 +4020,4 @@ body {
   text-decoration: none;
   font-size: 10px;
 }
->>>>>>> 60a730c093a5a46f8f303c280aa7371ba53ed9eb
+
