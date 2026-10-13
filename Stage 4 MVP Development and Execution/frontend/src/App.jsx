@@ -6,6 +6,7 @@ import RegisterPage from "./pages/RegisterPage";
 import ContractorDashboard from "./pages/ContractorDashboard";
 import ProviderDashboard from "./pages/ProviderDashboard";
 import ProjectLocationPage from "./pages/ProjectLocationPage";
+import CreateProjectPage from "./pages/CreateProjectPage";
 
 function App() {
   return (
@@ -28,7 +29,15 @@ function App() {
         path="/project/location"
         element={<ProjectLocationPage />}
       />
-    </Routes>
+      <Route
+       path="/create-project"
+       element={<CreateProjectPage />}
+      />
+    <Route
+       path="/project-location"
+       element={<ProjectLocationPage />}
+    />
+  </Routes>
   );
 }
 

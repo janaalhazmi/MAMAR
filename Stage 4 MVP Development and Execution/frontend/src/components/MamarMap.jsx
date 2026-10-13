@@ -5,9 +5,7 @@ function MamarMap() {
   return (
     <div className="mamar-map-container">
       <arcgis-map
-        basemap="streets-navigation-vector"
-        center="46.6753,24.7136"
-        zoom="11"
+        item-id="7371729f1ff240038c3a8155edebfeda"
         className="mamar-map"
       >
         <arcgis-zoom slot="top-left" />
