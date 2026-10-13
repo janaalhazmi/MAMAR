@@ -40,14 +40,20 @@ function LoginPage() {
       return;
     }
 
-    if (user.role !== "contractor") {
-      alert(
-        "Access denied. Only Contractor accounts can access this dashboard."
-      );
+    if (user.role === "contractor") {
+      navigate("/contractor-dashboard");
       return;
     }
 
-    navigate("/contractor-dashboard");
+    if (user.role === "provider") {
+      navigate("/provider-dashboard");
+      return;
+    }
+
+    if (user.role === "field-worker") {
+      alert("Field Worker dashboard will be added later.");
+      return;
+    }
   };
 
   return (
