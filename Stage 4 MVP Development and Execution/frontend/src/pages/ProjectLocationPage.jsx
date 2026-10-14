@@ -44,14 +44,24 @@ function ProjectLocationPage() {
 
     const savedProject = sessionStorage.getItem("mamarNewProject");
 
-    let project = {};
+try {
+  const project = savedProject ? JSON.parse(savedProject) : {};
 
-    try {
-      project = savedProject ? JSON.parse(savedProject) : {};
-    } catch {
-      setError("Unable to load the project details. Please try again.");
-      return;
-    }
+  sessionStorage.setItem(
+    "mamarNewProject",
+    JSON.stringify({
+      ...project,
+      location: location.address,
+      latitude: location.latitude,
+      longitude: location.longitude,
+    })
+  );
+} catch {
+  setError("Unable to load the project details. Please try again.");
+  return;
+}
+
+navigate("/select-service");
 
     sessionStorage.setItem(
       "mamarNewProject",
