@@ -129,7 +129,9 @@ function LandingPage() {
           id="how-mamar-works"
         >
           <div className="how-title">
-            How <span> MAMAR </span> Works
+         How{" "}
+          <span>MAMAR</span>{" "}
+           Works
           </div>
 
           <div className="steps-box">

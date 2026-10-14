@@ -18,28 +18,6 @@ body {
   font-family: Arial, sans-serif;
 }
 
-/* =========================
-   NAVBAR
-========================= */
-
-.navbar {
-  width: 100%;
-  height: 60px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 0 88px;
-
-  background: #ffffff;
-
-  box-shadow: 0 2px 6px rgba(171, 190, 209, 0.4);
-
-  position: relative;
-  z-index: 10;
-}
-
 .brand {
   width: 86px;
   height: 45px;
@@ -52,32 +30,6 @@ body {
   width: 86px;
   height: 45px;
   object-fit: contain;
-}
-
-.nav-buttons {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.nav-btn {
-  height: 40px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 10px;
-
-  border-radius: 6px;
-
-  text-decoration: none;
-
-  font-family: Inter, Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-
-  color: #242424;
 }
 
 .sign-in {
@@ -144,29 +96,6 @@ body {
   gap: 20px;
 
   margin-top: 50px;
-}
-
-.primary-btn {
-  width: 162px;
-  height: 40px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 8px;
-
-  background: #fabf0d;
-
-  color: #000000;
-
-  border-radius: 12px;
-
-  text-decoration: none;
-
-  font-family: Inter, Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 600;
 }
 
 .outline-btn {
@@ -437,82 +366,6 @@ body {
   color: #111827;
 }
 
-/* =========================
-   FOOTER
-========================= */
-
-.footer {
-  min-height: 290px;
-
-  display: grid;
-  grid-template-columns: 1.3fr 1fr 1fr 1fr;
-
-  gap: 80px;
-
-  align-items: start;
-
-  padding: 68px 55px 25px;
-
-  background: #ffffff;
-}
-
-.footer-brand {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
-
-.footer-logo {
-  width: 86px;
-  height: 45px;
-
-  object-fit: contain;
-}
-
-.footer-brand p {
-  font-size: 10px;
-
-  color: #98a2b3;
-}
-
-.footer-column {
-  display: flex;
-  flex-direction: column;
-
-  gap: 18px;
-}
-
-.footer-column h4 {
-  font-size: 16px;
-  font-weight: 700;
-
-  color: #000000;
-}
-
-.footer-column a {
-  font-size: 14px;
-
-  color: #000000;
-
-  text-decoration: none;
-}
-
-/* =========================
-   HOVER
-========================= */
-
-.primary-btn,
-.outline-btn,
-.nav-btn,
-.footer-column a {
-  transition: 0.2s ease;
-}
-
-.primary-btn:hover,
-.get-started:hover {
-  opacity: 0.88;
-}
-
 .outline-btn:hover {
   background: #ffffff;
 }
@@ -521,19 +374,11 @@ body {
   opacity: 0.85;
 }
 
-.footer-column a:hover {
-  text-decoration: underline;
-}
-
 /* =========================
    RESPONSIVE
 ========================= */
 
 @media (max-width: 1000px) {
-
-  .navbar {
-    padding: 0 25px;
-  }
 
   .hero-content {
     left: 25px;
@@ -544,17 +389,9 @@ body {
   .why-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-
-  .footer {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 @media (max-width: 650px) {
-
-  .navbar {
-    padding: 0 14px;
-  }
 
   .brand img {
     width: 70px;
@@ -606,12 +443,6 @@ body {
     align-items: flex-start;
 
     gap: 20px;
-  }
-
-  .footer {
-    grid-template-columns: 1fr;
-
-    gap: 35px;
   }
 }
 /* =========================
@@ -4180,4 +4011,129 @@ body {
   .services-progress {
     overflow-x: auto;
   }
+}
+/* =========================
+   SHARED HEADER
+========================= */
+
+.mamar-header {
+  width: 100%;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  background: #ffffff;
+  border-bottom: 1px solid #eeeeee;
+  box-sizing: border-box;
+}
+
+.mamar-header-logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.mamar-header-logo img {
+  width: 92px;
+  height: auto;
+  display: block;
+}
+
+.mamar-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* =========================
+   SHARED BUTTONS
+========================= */
+
+.mamar-btn {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: 0.2s ease;
+  box-sizing: border-box;
+}
+
+.mamar-btn-primary {
+  background: #ffcc00;
+  border: 1px solid #ffcc00;
+  color: #111111;
+}
+
+.mamar-btn-primary:hover {
+  background: #f2bf00;
+}
+
+.mamar-btn-secondary {
+  background: #ffffff;
+  border: 1px solid #d0d5dd;
+  color: #344054;
+}
+
+.mamar-btn-secondary:hover {
+  background: #f9fafb;
+}
+
+/* =========================
+   SHARED FOOTER
+========================= */
+
+.mamar-footer {
+  background: #ffffff;
+  border-top: 1px solid #eeeeee;
+  padding: 40px 48px 20px;
+}
+
+.mamar-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.mamar-footer-brand img {
+  width: 78px;
+}
+
+.mamar-footer-brand p {
+  margin: 0;
+  color: #667085;
+  font-size: 14px;
+}
+
+.mamar-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.mamar-footer-links a {
+  color: #475467;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.mamar-footer-links a:hover {
+  color: #d4a900;
+}
+
+.mamar-footer-bottom {
+  padding-top: 20px;
+  border-top: 1px solid #eeeeee;
+  color: #98a2b3;
+  font-size: 12px;
 }
