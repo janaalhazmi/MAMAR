@@ -95,6 +95,7 @@ The tables are created automatically when the server starts. Tables that already
 
    - `http://127.0.0.1:8000/health` returns `{"status": "ok", "database": "connected"}`.
    - `http://127.0.0.1:8000/docs` opens the interactive API documentation.
+   - `http://127.0.0.1:8000/` opens the same documentation page.
    - In pgAdmin, the `mamar` database has the six tables: `users`, `providers`, `projects`, `service_requests`, `quotes` and `assignments`.
 
 On macOS, activate the environment with `source venv/bin/activate` and copy the settings with `cp .env.example .env`.
@@ -136,6 +137,7 @@ fetch("http://127.0.0.1:8000/health")
 | Item | Value |
 | --- | --- |
 | Backend base URL (local) | `http://127.0.0.1:8000` |
+| Backend base URL (Render) | `https://mamar-api.onrender.com` |
 | Test endpoint | `GET /health` |
 | Success response | `{"status": "ok", "database": "connected"}` |
 | Error response | `{"detail": "message"}`, so the frontend can show `detail` to the user |
@@ -155,6 +157,7 @@ pytest
 | --- | --- |
 | `test_health_returns_ok_when_database_is_connected` | The API reaches PostgreSQL and returns 200 |
 | `test_health_returns_503_when_database_is_down` | A database error returns 503 with `{"detail": "..."}` |
+| `test_root_opens_the_api_documentation` | Opening the server address goes to `/docs` |
 | `test_frontend_origin_is_allowed` | The React frontend on port 5173 is allowed by CORS |
 | `test_unknown_origin_is_not_allowed` | Other websites are not allowed |
 | `test_tables_and_columns_match_the_er_diagram` | The six tables have the same columns as the Stage 3 database schema |
@@ -163,9 +166,15 @@ pytest
 
 ## Deploy on Render
 
+The backend is deployed at `https://mamar-api.onrender.com` (free instance). It sleeps after 15 minutes without requests, so the first request after that takes about a minute.
+
 | Setting | Value |
 | --- | --- |
-| Root Directory | `Stage 4: MVP Development and Execution/backend` |
-| Build Command | `pip install -r requirements.txt` |
-| Start Command | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
-| Environment Variables | `DATABASE_URL` with the Internal Database URL of the Render PostgreSQL database (it must start with `postgresql://`), and `FRONTEND_ORIGINS` with the Vercel address |
+| Language | Python 3 |
+| Root Directory | Empty. Render only accepts letters, numbers, `-`, `_`, `.` and `/` in this field, so the commands below enter the folder instead |
+| Build Command | `cd "Stage 4: MVP Development and Execution/backend" && pip install -r requirements.txt` |
+| Start Command | `cd "Stage 4: MVP Development and Execution/backend" && uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
+| `DATABASE_URL` | Added with **Add variable > Datastore URL**, linked to the Render PostgreSQL database (internal URL), so the password is never typed by hand |
+| `FRONTEND_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173`. The Vercel address is added after the frontend is deployed |
+
+The free Render PostgreSQL database expires 30 days after it is created.

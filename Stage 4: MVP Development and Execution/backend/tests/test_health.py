@@ -33,6 +33,12 @@ def test_health_returns_503_when_database_is_down():
     assert response.json() == {"detail": "Database connection failed"}
 
 
+def test_root_opens_the_api_documentation():
+    response = client.get("/", follow_redirects=False)
+    assert response.status_code == 307
+    assert response.headers["location"] == "/docs"
+
+
 def test_frontend_origin_is_allowed():
     response = client.get("/health", headers={"Origin": "http://localhost:5173"})
     assert response.headers["access-control-allow-origin"] == "http://localhost:5173"

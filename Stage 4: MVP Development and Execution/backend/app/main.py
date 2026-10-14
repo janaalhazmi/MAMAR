@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 
 from app.core.config import FRONTEND_ORIGINS
 from app.db.init_db import create_tables
@@ -25,3 +26,9 @@ app.add_middleware(
 )
 
 app.include_router(health.router)
+
+
+@app.get("/", include_in_schema=False)
+def root():
+    # Opening the server address shows the API documentation.
+    return RedirectResponse(url="/docs")
