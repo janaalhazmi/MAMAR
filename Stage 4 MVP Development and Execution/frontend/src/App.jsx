@@ -8,6 +8,7 @@ import ProviderDashboard from "./pages/ProviderDashboard";
 import ProjectLocationPage from "./pages/ProjectLocationPage";
 import CreateProjectPage from "./pages/CreateProjectPage";
 import ServicesPage from "./pages/ServicesPage";
+import ReviewPage from "./pages/ReviewPage";
 
 
 
@@ -42,6 +43,7 @@ function App() {
     />
     <Route path="/services" element={<ServicesPage />} />
     <Route path="/select-service" element={<ServicesPage />} />
+    <Route path="/review" element={<ReviewPage />} />
     
   </Routes>
   );

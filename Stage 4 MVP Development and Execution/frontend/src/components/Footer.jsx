@@ -8,7 +8,7 @@ function Footer() {
         <img src={logo} alt="MAMAR Logo" />
 
         <p>
-          Temporary Traffic Control Coordination Platform
+          Temporary Traffic Control Management 
         </p>
       </div>
 

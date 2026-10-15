@@ -1,3 +1,7 @@
+/* components/_index.css */
+@import "components/button.css";
+
+
 /* =========================
    RESET
 ========================= */
@@ -38,8 +42,8 @@ body {
 }
 
 .get-started {
-  width: 98px;
-  background: #fabf0d;
+ width: 98px;
+  background: #fabf0d ;
 }
 
 /* =========================
@@ -108,9 +112,11 @@ body {
 
   gap: 8px;
 
-  border: 1.5px solid #000000;
+ 
 
   border-radius: 12px;
+
+  background-color: #fabf0d;
 
   color: #000000;
 
@@ -119,8 +125,8 @@ body {
   font-family: Inter, Arial, sans-serif;
   font-size: 14px;
   font-weight: 600;
+  
 
-  background: transparent;
 }
 
 /* =========================
@@ -4407,4 +4413,158 @@ body {
   border-top: 1px solid #eeeeee;
   color: #98a2b3;
   font-size: 12px;
+}
+
+/* ==========================================
+   Review PAGE
+========================================== */
+
+/* =========================
+   REVIEW PAGE SIDEBAR FIX
+========================= */
+
+.review-page {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.review-page .mamar-sidebar {
+  width: 210px;
+  min-width: 210px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  padding: 0;
+  background: #ffffff;
+  border-right: 1px solid #eaecf0;
+}
+
+.review-page .mamar-sidebar-logo {
+  height: 66px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-bottom: 1px solid #f2f4f7;
+}
+
+.review-page .mamar-sidebar-logo img {
+  display: block;
+  width: 76px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.review-page .mamar-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 14px 0 0;
+}
+
+.review-page .mamar-sidebar-nav a {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  border-left: 3px solid transparent;
+  border-radius: 0;
+  color: #475467;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.review-page .mamar-sidebar-nav a:hover {
+  background: #fffaf0;
+}
+
+.review-page .mamar-sidebar-nav a.active {
+  border-left-color: #ffcc00;
+  background: #fff7df;
+  color: #9a7200;
+  font-weight: 600;
+}
+
+.review-page .mamar-sidebar-nav a span {
+  display: inline-block;
+  font-size: 14px;
+}
+
+.review-page .mamar-sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: auto;
+  padding: 20px 16px;
+}
+
+.review-page .mamar-sidebar-bottom a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #667085;
+  font-size: 10px;
+  text-decoration: none;
+}
+
+.review-page .mamar-sidebar-bottom a:hover {
+  color: #9a7200;
+}
+
+.review-page .review-main {
+  flex: 1;
+  min-width: 0;
+  width: calc(100% - 210px);
+}
+
+.review-page .review-content {
+  width: 100%;
+  max-width: 1250px;
+  margin: 0 auto;
+  padding: 28px 24px 40px;
+}
+
+/* Keep the layout usable on smaller screens */
+
+@media (max-width: 650px) {
+  .review-page {
+    flex-direction: column;
+  }
+
+  .review-page .mamar-sidebar {
+    width: 100%;
+    min-width: 0;
+    min-height: auto;
+  }
+
+  .review-page .mamar-sidebar-logo {
+    justify-content: flex-start;
+    padding-left: 16px;
+  }
+
+  .review-page .mamar-sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 8px;
+  }
+
+  .review-page .mamar-sidebar-nav a {
+    flex-shrink: 0;
+    padding: 0 10px;
+  }
+
+  .review-page .mamar-sidebar-bottom {
+    display: none;
+  }
+
+  .review-page .review-main {
+    width: 100%;
+  }
 }
