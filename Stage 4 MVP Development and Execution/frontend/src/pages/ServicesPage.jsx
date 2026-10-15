@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
+import MamarMap from "../components/MamarMap";
 
 const SERVICE_OPTIONS = [
   {
@@ -15,8 +16,7 @@ const SERVICE_OPTIONS = [
     id: "cones-barriers",
     icon: "▥",
     title: "Traffic Cones & Barriers",
-    description:
-      "Supply and installation of traffic cones and barriers.",
+    description: "Supply and installation of traffic cones and barriers.",
     tags: ["Cones", "Road Barriers"],
   },
   {
@@ -29,7 +29,7 @@ const SERVICE_OPTIONS = [
   },
 ];
 
-function getSavedProject() {
+function readProject() {
   try {
     return JSON.parse(sessionStorage.getItem("mamarNewProject")) || {};
   } catch {
@@ -40,36 +40,38 @@ function getSavedProject() {
 function ServicesPage() {
   const navigate = useNavigate();
 
-  const [project, setProject] = useState(getSavedProject);
+  const [project] = useState(readProject);
 
   const [selectedServices, setSelectedServices] = useState(() => {
-    const saved = getSavedProject();
-    return Array.isArray(saved.services) ? saved.services : [
-      "ttc-plan",
-      "road-signs",
-    ];
+    const saved = readProject();
+
+    return Array.isArray(saved.services)
+      ? saved.services
+      : ["ttc-plan", "road-signs"];
   });
 
-  useEffect(() => {
-    setProject(getSavedProject());
-  }, []);
+  const [error, setError] = useState("");
 
-  const toggleService = (serviceId) => {
-    setSelectedServices((current) =>
-      current.includes(serviceId)
-        ? current.filter((id) => id !== serviceId)
-        : [...current, serviceId]
-    );
-  };
+  function toggleService(serviceId) {
+    setSelectedServices((current) => {
+      if (current.includes(serviceId)) {
+        return current.filter((id) => id !== serviceId);
+      }
 
-  const handleNext = () => {
+      return [...current, serviceId];
+    });
+
+    setError("");
+  }
+
+  function handleNext() {
     if (selectedServices.length === 0) {
-      window.alert("Please select at least one service.");
+      setError("Please select at least one service.");
       return;
     }
 
     const updatedProject = {
-      ...getSavedProject(),
+      ...readProject(),
       services: selectedServices,
     };
 
@@ -79,12 +81,9 @@ function ServicesPage() {
     );
 
     navigate("/review");
-  };
+  }
 
-  const projectName = project.name || "King Fahd Road – Water Line";
-  const projectType = project.type || "Infrastructure (Water Line)";
-
-  const formatDate = (value) => {
+  function formatDate(value) {
     if (!value) return "";
 
     const date = new Date(`${value}T00:00:00`);
@@ -96,12 +95,15 @@ function ServicesPage() {
       month: "short",
       year: "numeric",
     });
-  };
+  }
+
+  const projectName = project.name || "King Fahd Road – Water Line";
+  const projectType = project.type || "Road Maintenance";
 
   const projectDates =
     project.startDate && project.endDate
       ? `${formatDate(project.startDate)} – ${formatDate(project.endDate)}`
-      : "10 Sep 2026 – 20 Sep 2026";
+      : "2 Oct 2026 – 23 Oct 2026";
 
   return (
     <div className="services-page">
@@ -149,7 +151,6 @@ function ServicesPage() {
 
       {/* Main */}
       <main className="services-main">
-        {/* Header */}
         <header className="services-header">
           <div className="services-account">
             <div className="services-avatar">K</div>
@@ -163,8 +164,8 @@ function ServicesPage() {
           </div>
         </header>
 
-        {/* Content */}
         <div className="services-content">
+          {/* Heading */}
           <div className="services-page-heading">
             <h1>Select Traffic-Control Service</h1>
             <p>
@@ -175,13 +176,24 @@ function ServicesPage() {
 
           {/* Progress */}
           <div className="services-progress">
-            <ProgressStep number="✓" label="Project Details" status="completed" />
+            <ProgressStep
+              number="✓"
+              label="Project Details"
+              status="completed"
+            />
+
             <div className="services-progress-line completed-line" />
 
-            <ProgressStep number="✓" label="Location" status="completed" />
+            <ProgressStep
+              number="✓"
+              label="Location"
+              status="completed"
+            />
+
             <div className="services-progress-line completed-line" />
 
             <ProgressStep number="3" label="Service" status="active" />
+
             <div className="services-progress-line" />
 
             <ProgressStep number="4" label="Review" status="" />
@@ -189,7 +201,6 @@ function ServicesPage() {
 
           {/* Workspace */}
           <div className="services-workspace">
-            {/* Available Services */}
             <section className="services-list-panel">
               <div className="services-panel-heading">
                 <h2>Available Services</h2>
@@ -235,6 +246,8 @@ function ServicesPage() {
                   );
                 })}
               </div>
+
+              {error && <p className="services-error">{error}</p>}
             </section>
 
             {/* Project Summary */}
@@ -246,11 +259,10 @@ function ServicesPage() {
               </p>
 
               <div className="services-summary-map">
-                <iframe
-                  src="https://arcg.is/0r90n00"
-                  title="Project location map"
-                  loading="lazy"
-                  allowFullScreen
+                <MamarMap
+                  latitude={project.latitude ?? null}
+                  longitude={project.longitude ?? null}
+                  readOnly
                 />
               </div>
 
@@ -269,7 +281,7 @@ function ServicesPage() {
             </aside>
           </div>
 
-          {/* Bottom Buttons */}
+          {/* Actions */}
           <div className="services-actions">
             <button
               type="button"

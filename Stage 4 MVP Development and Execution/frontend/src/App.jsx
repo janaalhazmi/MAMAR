@@ -41,6 +41,7 @@ function App() {
        element={<ProjectLocationPage />}
     />
     <Route path="/services" element={<ServicesPage />} />
+    <Route path="/select-service" element={<ServicesPage />} />
     
   </Routes>
   );
