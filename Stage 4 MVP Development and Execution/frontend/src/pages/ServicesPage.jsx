@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
-import MamarMap from "../components/MamarMap";
 
 const SERVICE_OPTIONS = [
   {
@@ -16,7 +15,8 @@ const SERVICE_OPTIONS = [
     id: "cones-barriers",
     icon: "▥",
     title: "Traffic Cones & Barriers",
-    description: "Supply and installation of traffic cones and barriers.",
+    description:
+      "Supply and installation of traffic cones and barriers.",
     tags: ["Cones", "Road Barriers"],
   },
   {
@@ -29,7 +29,7 @@ const SERVICE_OPTIONS = [
   },
 ];
 
-function readProject() {
+function getSavedProject() {
   try {
     return JSON.parse(sessionStorage.getItem("mamarNewProject")) || {};
   } catch {
@@ -40,38 +40,36 @@ function readProject() {
 function ServicesPage() {
   const navigate = useNavigate();
 
-  const [project] = useState(readProject);
+  const [project, setProject] = useState(getSavedProject);
 
   const [selectedServices, setSelectedServices] = useState(() => {
-    const saved = readProject();
-
-    return Array.isArray(saved.services)
-      ? saved.services
-      : ["ttc-plan", "road-signs"];
+    const saved = getSavedProject();
+    return Array.isArray(saved.services) ? saved.services : [
+      "ttc-plan",
+      "road-signs",
+    ];
   });
 
-  const [error, setError] = useState("");
+  useEffect(() => {
+    setProject(getSavedProject());
+  }, []);
 
-  function toggleService(serviceId) {
-    setSelectedServices((current) => {
-      if (current.includes(serviceId)) {
-        return current.filter((id) => id !== serviceId);
-      }
+  const toggleService = (serviceId) => {
+    setSelectedServices((current) =>
+      current.includes(serviceId)
+        ? current.filter((id) => id !== serviceId)
+        : [...current, serviceId]
+    );
+  };
 
-      return [...current, serviceId];
-    });
-
-    setError("");
-  }
-
-  function handleNext() {
+  const handleNext = () => {
     if (selectedServices.length === 0) {
-      setError("Please select at least one service.");
+      window.alert("Please select at least one service.");
       return;
     }
 
     const updatedProject = {
-      ...readProject(),
+      ...getSavedProject(),
       services: selectedServices,
     };
 
@@ -81,9 +79,12 @@ function ServicesPage() {
     );
 
     navigate("/review");
-  }
+  };
 
-  function formatDate(value) {
+  const projectName = project.name || "King Fahd Road – Water Line";
+  const projectType = project.type || "Infrastructure (Water Line)";
+
+  const formatDate = (value) => {
     if (!value) return "";
 
     const date = new Date(`${value}T00:00:00`);
@@ -95,221 +96,210 @@ function ServicesPage() {
       month: "short",
       year: "numeric",
     });
-  }
-
-  const projectName = project.name || "King Fahd Road – Water Line";
-  const projectType = project.type || "Road Maintenance";
+  };
 
   const projectDates =
     project.startDate && project.endDate
       ? `${formatDate(project.startDate)} – ${formatDate(project.endDate)}`
-      : "2 Oct 2026 – 23 Oct 2026";
+      : "10 Sep 2026 – 20 Sep 2026";
 
   return (
-    <div className="services-page">
-      {/* Sidebar */}
-      <aside className="services-sidebar">
-        <div className="services-sidebar-logo">
+    <div className="location-screen">
+      <aside className="location-sidebar">
+        <Link to="/" className="location-sidebar-logo">
+          <img src={logo} alt="MAMAR" />
+        </Link>
+
+        <nav className="location-sidebar-nav">
           <Link to="/contractor-dashboard">
-            <img src={logo} alt="MAMAR" />
+            <span className="location-nav-icon">▦</span>
+            <span>Dashboard</span>
           </Link>
-        </div>
 
-        <nav className="services-sidebar-nav">
           <Link to="/contractor-dashboard">
-            <span className="services-nav-icon">▦</span>
-            Dashboard
+            <span className="location-nav-icon">▣</span>
+            <span>My Projects</span>
           </Link>
 
-          <Link to="/my-projects">
-            <span className="services-nav-icon">▣</span>
-            My Projects
-          </Link>
-
-          <Link to="/create-project" className="active">
-            <span className="services-nav-icon">✚</span>
-            Create Project
+          <Link
+            to="/create-project"
+            className="location-nav-active"
+          >
+            <span className="location-nav-icon">⊕</span>
+            <span>Create Project</span>
           </Link>
 
           <Link to="/providers">
-            <span className="services-nav-icon">♧</span>
-            Providers
+            <span className="location-nav-icon">♧</span>
+            <span>Providers</span>
           </Link>
 
           <Link to="/quotations">
-            <span className="services-nav-icon">▤</span>
-            Quotations
+            <span className="location-nav-icon">▤</span>
+            <span>Quotations</span>
           </Link>
         </nav>
 
-        <div className="services-sidebar-bottom">
-          <Link to="/data-disclaimer">ⓘ Data Disclaimer</Link>
-          <Link to="/support">ⓘ Help &amp; Support</Link>
-          <Link to="/login">➜ Log out</Link>
+        <div className="location-sidebar-bottom">
+          <Link to="/data-disclaimer">
+            <span>ⓘ</span>
+            Data Disclaimer
+          </Link>
+
+          <Link to="/support">
+            <span>ⓘ</span>
+            Help &amp; Support
+          </Link>
+
+          <Link to="/login">
+            <span>➜</span>
+            Log out
+          </Link>
         </div>
       </aside>
 
       {/* Main */}
       <main className="services-main">
+        {/* Header */}
         <header className="services-header">
           <div className="services-account">
             <div className="services-avatar">K</div>
 
-            <div className="services-user-info">
+            <div className="location-user-info">
               <strong>Kayan</strong>
               <span>Contractor</span>
             </div>
 
-            <span className="services-user-chevron">⌄</span>
+            <span className="location-user-chevron">⌄</span>
           </div>
         </header>
 
+        {/* Content */}
         <div className="services-content">
-          {/* Heading */}
           <div className="services-page-heading">
             <h1>Select Traffic-Control Service</h1>
             <p>
-              Choose the services you need for this project. You can select
-              more than one.
+              Find your project location and draw the work zone on the map.
             </p>
           </div>
 
           {/* Progress */}
           <div className="services-progress">
-            <ProgressStep
-              number="✓"
-              label="Project Details"
-              status="completed"
-            />
-
+            <ProgressStep number="✓" label="Project Details" status="completed" />
             <div className="services-progress-line completed-line" />
 
-            <ProgressStep
-              number="✓"
-              label="Location"
-              status="completed"
-            />
-
+            <ProgressStep number="✓" label="Location" status="completed" />
             <div className="services-progress-line completed-line" />
 
             <ProgressStep number="3" label="Service" status="active" />
-
             <div className="services-progress-line" />
 
-            <ProgressStep number="4" label="Review" status="" />
+            <div className="location-progress-step">
+              <span className="location-progress-number">4</span>
+              <span className="location-progress-label">
+                Review
+              </span>
+            </div>
           </div>
 
           {/* Workspace */}
           <div className="services-workspace">
+            {/* Available Services */}
             <section className="services-list-panel">
               <div className="services-panel-heading">
                 <h2>Available Services</h2>
                 <p>
-                  Select the traffic-control services required for your
-                  project.
+                  Search for a location, then draw the project work zone
+                  directly on the map.
                 </p>
               </div>
 
-              <div className="services-options">
-                {SERVICE_OPTIONS.map((service) => {
-                  const isSelected = selectedServices.includes(service.id);
+              <form
+                className="location-search"
+                onSubmit={(event) => event.preventDefault()}
+              >
+                <span className="location-search-icon">⌕</span>
 
-                  return (
-                    <label
-                      key={service.id}
-                      className={`services-option ${
-                        isSelected ? "selected" : ""
-                      }`}
-                    >
-                      <div className="services-option-icon">
-                        {service.icon}
-                      </div>
+                <input
+                  type="text"
+                  placeholder="Search location e.g. King Fahd Road, Riyadh"
+                  value={location.address}
+                  onChange={handleAddressChange}
+                  aria-label="Search project location"
+                />
+              </form>
 
-                      <div className="services-option-content">
-                        <h3>{service.title}</h3>
-                        <p>{service.description}</p>
-
-                        <div className="services-option-tags">
-                          {service.tags.map((tag) => (
-                            <span key={tag}>{tag}</span>
-                          ))}
-                        </div>
-                      </div>
-
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => toggleService(service.id)}
-                        aria-label={`Select ${service.title}`}
-                      />
-                    </label>
-                  );
-                })}
+              <div className="location-map-frame">
+                <MamarMap
+                  height="100%"
+                  onLocationSelect={handleMapLocationSelect}
+                />
               </div>
-
-              {error && <p className="services-error">{error}</p>}
             </section>
 
-            {/* Project Summary */}
-            <aside className="services-summary-panel">
-              <h2>Project Summary</h2>
+            <aside className="location-details-panel">
+              <h2>Location Details</h2>
 
-              <p className="services-summary-description">
-                Review your selected project details before continuing.
+              <p className="location-details-description">
+                Confirm your project location.
               </p>
 
               <div className="services-summary-map">
-                <MamarMap
-                  latitude={project.latitude ?? null}
-                  longitude={project.longitude ?? null}
-                  readOnly
+                <iframe
+                  src="https://arcg.is/0r90n00"
+                  title="Project location map"
+                  loading="lazy"
+                  allowFullScreen
                 />
               </div>
 
-              <SummaryItem label="Project Name" value={projectName} />
+              <div className="location-detail-section">
+                <span className="location-detail-label">
+                  WORK ZONE AREA
+                </span>
 
-              <SummaryItem label="Project Type" value={projectType} />
+                <strong>
+                  {location.latitude !== null
+                    ? "Location selected"
+                    : "Calculated automatically"}
+                </strong>
+              </div>
 
-              <SummaryItem label="Project Dates" value={projectDates} />
+              <div className="location-details-divider" />
 
-              <SummaryItem
-                label="Services Selected"
-                value={`${selectedServices.length} ${
-                  selectedServices.length === 1 ? "service" : "services"
-                }`}
-              />
+              <div className="location-work-zone">
+                <span className="location-detail-label">
+                  WORK ZONE
+                </span>
+
+                <p>
+                  <span className="location-zone-dot" />
+                  Work zone
+                </p>
+              </div>
             </aside>
           </div>
 
-          {/* Actions */}
+          {/* Bottom Buttons */}
           <div className="services-actions">
             <button
               type="button"
-              className="services-back-button"
-              onClick={() => navigate("/project-location")}
+              className="location-back-button"
+              onClick={handleBack}
             >
               ← Back
             </button>
 
             <button
               type="button"
-              className="services-next-button"
-              onClick={handleNext}
+              className="location-next-button"
+              onClick={handleContinue}
             >
               Next →
             </button>
           </div>
-        </div>
-      </main>
-    </div>
-  );
-}
-
-function ProgressStep({ number, label, status }) {
-  return (
-    <div className={`services-progress-step ${status}`}>
-      <span className="services-progress-number">{number}</span>
-      <span className="services-progress-label">{label}</span>
+        </main>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,29 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import Header from "../components/Header";
+import Button from "../components/Button";
 import logo from "../assets/mamar-logo.svg";
+
+const roles = [
+  {
+    id: "contractor",
+    label: "Contractor",
+  },
+  {
+    id: "provider",
+    label: "Provider",
+  },
+  {
+    id: "field-worker",
+    label: "Field Worker",
+  },
+];
+
+const dashboardRoutes = {
+  contractor: "/contractor-dashboard",
+  provider: "/provider-dashboard",
+};
 
 function LoginPage() {
   const [role, setRole] = useState("");
@@ -17,7 +39,10 @@ function LoginPage() {
       return;
     }
 
-    const email = event.target.loginEmail.value.trim().toLowerCase();
+    const email = event.target.loginEmail.value
+      .trim()
+      .toLowerCase();
+
     const password = event.target.loginPassword.value;
 
     const savedUsers = JSON.parse(
@@ -40,43 +65,21 @@ function LoginPage() {
       return;
     }
 
-    if (user.role !== "contractor") {
-      alert(
-        "Access denied. Only Contractor accounts can access this dashboard."
-      );
+    if (user.role === "field-worker") {
+      alert("Field Worker dashboard will be added later.");
       return;
     }
 
-    navigate("/contractor-dashboard");
+    const dashboardRoute = dashboardRoutes[user.role];
+
+    if (dashboardRoute) {
+      navigate(dashboardRoute);
+    }
   };
 
   return (
     <div className="login-page">
-      <header className="login-header">
-        <Link to="/">
-          <img
-            src={logo}
-            alt="MAMAR Logo"
-            className="login-header-logo"
-          />
-        </Link>
-
-        <div className="login-header-buttons">
-          <Link
-            to="/login"
-            className="login-nav-btn signin-btn"
-          >
-            Sign in →
-          </Link>
-
-          <Link
-            to="/register"
-            className="login-nav-btn start-btn"
-          >
-            Get Started
-          </Link>
-        </div>
-      </header>
+      <Header />
 
       <main className="login-main">
         <section className="login-card">
@@ -89,35 +92,18 @@ function LoginPage() {
           <h1>Welcome back</h1>
 
           <div className="role-buttons">
-            <button
-              type="button"
-              className={`role-btn ${
-                role === "contractor" ? "active" : ""
-              }`}
-              onClick={() => setRole("contractor")}
-            >
-              Contractor
-            </button>
-
-            <button
-              type="button"
-              className={`role-btn ${
-                role === "provider" ? "active" : ""
-              }`}
-              onClick={() => setRole("provider")}
-            >
-              Provider
-            </button>
-
-            <button
-              type="button"
-              className={`role-btn ${
-                role === "field-worker" ? "active" : ""
-              }`}
-              onClick={() => setRole("field-worker")}
-            >
-              Field Worker
-            </button>
+            {roles.map((accountRole) => (
+              <button
+                key={accountRole.id}
+                type="button"
+                className={`role-btn ${
+                  role === accountRole.id ? "active" : ""
+                }`}
+                onClick={() => setRole(accountRole.id)}
+              >
+                {accountRole.label}
+              </button>
+            ))}
           </div>
 
           <form
@@ -169,7 +155,7 @@ function LoginPage() {
                       : "Show password"
                   }
                   onClick={() =>
-                    setShowPassword(!showPassword)
+                    setShowPassword((current) => !current)
                   }
                 >
                   ◉
@@ -177,12 +163,12 @@ function LoginPage() {
               </div>
             </div>
 
-            <button
+            <Button
               type="submit"
               className="login-submit"
             >
               Login now
-            </button>
+            </Button>
           </form>
 
           <div className="login-or">

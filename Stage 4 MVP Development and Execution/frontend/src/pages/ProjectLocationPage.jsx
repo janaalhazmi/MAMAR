@@ -35,23 +35,17 @@ function ProjectLocationPage() {
   };
 
   const handleContinue = (event) => {
-    event.preventDefault();
+  event.preventDefault();
 
-    if (location.latitude === null || location.longitude === null) {
-      setError("Please select a location on the map before continuing.");
-      return;
-    }
+  if (location.latitude === null || location.longitude === null) {
+    setError("Please select a location on the map before continuing.");
+    return;
+  }
 
-    const savedProject = sessionStorage.getItem("mamarNewProject");
+  const savedProject = sessionStorage.getItem("mamarNewProject");
 
-    let project = {};
-
-    try {
-      project = savedProject ? JSON.parse(savedProject) : {};
-    } catch {
-      setError("Unable to load the project details. Please try again.");
-      return;
-    }
+  try {
+    const project = savedProject ? JSON.parse(savedProject) : {};
 
     sessionStorage.setItem(
       "mamarNewProject",
@@ -62,9 +56,13 @@ function ProjectLocationPage() {
         longitude: location.longitude,
       })
     );
+  } catch {
+    setError("Unable to load the project details. Please try again.");
+    return;
+  }
 
-    navigate("/select-service");
-  };
+  navigate("/select-service");
+};
 
   const handleBack = () => {
     navigate("/create-project");
