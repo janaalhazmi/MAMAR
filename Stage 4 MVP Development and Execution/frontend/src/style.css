@@ -103,65 +103,34 @@ body {
 }
 
 .outline-btn {
-  width: 182px;
-  height: 40px;
-
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-
   gap: 8px;
+  min-height: 42px;
+  padding: 0 18px;
 
- 
+  background: #ffffff;
+  border: 1px solid #6b7280;
+  border-radius: 8px;
 
-  border-radius: 12px;
-
-  background-color: #fabf0d;
-
-  color: #000000;
-
+  color: #6b7280;
   text-decoration: none;
-
-  font-family: Inter, Arial, sans-serif;
   font-size: 14px;
   font-weight: 600;
-  
+  transition: 0.2s ease;
+}
 
+.outline-btn:hover {
+  background: #f3f4f6;
+  color: #6b7280;
 }
 
 /* =========================
    HOW MAMAR WORKS
 ========================= */
-
 .how-section {
-  background: #ffffff;
-
-  padding-top: 47px;
-}
-
-.how-title {
-  width: 278px;
-  height: 54px;
-
-  margin: 0 auto;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 1.5px solid #000000;
-
-  border-radius: 12px;
-
-  font-family: Inter, Arial, sans-serif;
-  font-size: 25px;
-  font-weight: 600;
-
-  color: #000000;
-}
-
-.how-title span {
-  color: #fabf0d;
+  padding: 48px 40px;
 }
 
 .steps-box {
@@ -4567,4 +4536,109 @@ body {
   .review-page .review-main {
     width: 100%;
   }
+}
+/* =========================
+   SHARED SIDEBAR
+========================= */
+
+.mamar-sidebar {
+  width: 238px;
+  min-width: 238px;
+  min-height: 100vh;
+  background: #ffffff;
+  border-right: 1px solid #e7e7e7;
+  display: flex;
+  flex-direction: column;
+}
+
+.mamar-sidebar-logo {
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.mamar-sidebar-logo img {
+  width: 78px;
+  height: auto;
+  display: block;
+}
+
+.mamar-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  margin-top: 31px;
+}
+
+.mamar-sidebar-nav a {
+  min-height: 51px;
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  padding: 0 27px;
+  text-decoration: none;
+  color: #51534f;
+  font-size: 14px;
+  border-left: 4px solid transparent;
+  box-sizing: border-box;
+}
+
+.mamar-sidebar-nav a svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.mamar-sidebar-nav a:hover {
+  background: #fff7e8;
+  color: #f0ab00;
+}
+
+.mamar-sidebar-nav a.active {
+  background: #fff7e8;
+  color: #f0ab00;
+  border-left-color: #ffc400;
+}
+
+.mamar-sidebar-bottom {
+  margin-top: auto;
+  padding: 24px 27px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.mamar-sidebar-bottom a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #80827d;
+  font-size: 12px;
+}
+
+
+
+
+/* How MAMAR Works */
+.how-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 24px;
+  line-height: 1.1;
+}
+
+.how-title-text {
+  color: #000000;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.how-title-highlight {
+  color: #ffcc00;
+  font-size: 22px;
+  font-weight: 700;
 }

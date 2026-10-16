@@ -129,30 +129,30 @@ function LandingPage() {
           id="how-mamar-works"
         >
           <div className="how-title">
-            
-             How {""}<span> MAMAR {""}</span> Works
+            <span className="how-title-text">How</span>
+            <span className="how-title-highlight">MAMAR</span>
+            <span className="how-title-text">Works</span>
           </div>
 
-          <div className="steps-box">
-            {steps.map((step) => (
-              <article
-                className="step-card"
-                key={step.number}
-              >
-                <span className="step-number">
-                  {step.number}
-                </span>
+  <div className="steps-box">
+    {steps.map((step) => (
+      <article
+        className="step-card"
+        key={step.number}
+      >
+        <span className="step-number">
+          {step.number}
+        </span>
 
-                <h3>{step.title}</h3>
+        <h3>{step.title}</h3>
+        <p>{step.description}</p>
+      </article>
+    ))}
+  </div>
+</section>
 
-                <p>{step.description}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        {/* Providers */}
-        <section className="providers-section">
+{/* Providers */}
+<section className="providers-section">
           <div className="providers-title">
             Featured Service Providers
           </div>
@@ -178,21 +178,21 @@ function LandingPage() {
           </div>
         </section>
 
-        {/* Why MAMAR */}
-        <section className="why-section">
-          <h2>
-            Why <span>MAMAR?</span>
-          </h2>
+       {/* Why MAMAR */}
+<section className="why-section">
+  <h2>
+    Why <span>MAMAR?</span>
+  </h2>
 
-          <div className="why-grid">
-            {benefits.map((benefit) => (
-              <article key={benefit.title}>
-                <h3>{benefit.title}</h3>
-                <p>{benefit.description}</p>
-              </article>
-            ))}
-          </div>
-        </section>
+  <div className="why-grid">
+    {benefits.map((benefit) => (
+      <article key={benefit.title}>
+        <h3>{benefit.title}</h3>
+        <p>{benefit.description}</p>
+      </article>
+    ))}
+  </div>
+</section>
 
         {/* CTA */}
         <section className="cta-section">
@@ -209,7 +209,7 @@ function LandingPage() {
 
       </main>
 
-      <Footer />
+      <Footer/>
     </div>
   );
 }
