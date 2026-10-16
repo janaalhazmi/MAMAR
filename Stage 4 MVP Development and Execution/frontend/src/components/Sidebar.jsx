@@ -1,7 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 
-function Sidebar({ items, activePath }) {
+function Sidebar({ items }) {
   return (
     <aside className="mamar-sidebar">
       <Link to="/" className="mamar-sidebar-logo">
@@ -13,23 +13,32 @@ function Sidebar({ items, activePath }) {
           const Icon = item.icon;
 
           return (
-            <Link
+            <NavLink
               key={item.path}
               to={item.path}
-              className={
-                activePath === item.path ? "active" : ""
+              className={({ isActive }) =>
+                isActive ? "active" : ""
               }
             >
               {Icon && <Icon size={20} />}
               <span>{item.label}</span>
-            </Link>
+            </NavLink>
           );
         })}
       </nav>
 
       <div className="mamar-sidebar-bottom">
-        <Link to="/support">Help & Support</Link>
-        <Link to="/login">Log out</Link>
+         <Link to="/data-disclaimer">
+          Data Disclaimer
+         </Link>
+
+        <Link to="/support">
+          Help & Support
+        </Link>
+
+        <Link to="/login">
+          Log out
+        </Link>
       </div>
     </aside>
   );
