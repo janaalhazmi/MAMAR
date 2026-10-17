@@ -171,7 +171,7 @@ function ProviderDashboard() {
                   <span>Road Signs</span>
                 </div>
 
-                <Button>
+                <Button to="/provider/quotation">
                   Prepare Quotation →
                 </Button>
               </div>
