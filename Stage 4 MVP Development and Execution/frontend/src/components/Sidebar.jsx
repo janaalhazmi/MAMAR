@@ -1,3 +1,4 @@
+import { logout } from "../services/auth";
 import { Link, NavLink } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 
@@ -36,7 +37,7 @@ function Sidebar({ items }) {
           Help & Support
         </Link>
 
-        <Link to="/login">
+        <Link to="/login" onClick={logout}>
           Log out
         </Link>
       </div>

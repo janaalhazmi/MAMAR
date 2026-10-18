@@ -1,52 +1,51 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import { registerUser } from "../services/api";
 import logo from "../assets/mamar-logo.svg";
 
 function RegisterPage() {
   const [role, setRole] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-
+    if (loading) return;
+    setError("");
     if (!role) {
-      alert("Please select your account type.");
+      setError("Please select your account type.");
       return;
     }
-
-    const email = event.target.registerEmail.value.trim().toLowerCase();
-    const password = event.target.registerPassword.value;
-
-    const savedUsers = JSON.parse(
-      localStorage.getItem("mamarUsers") || "[]"
-    );
-
-    const existingUser = savedUsers.find(
-      (user) => user.email === email
-    );
-
-    if (existingUser) {
-      alert("An account with this email already exists.");
+    const form = event.currentTarget;
+    const providerId = form.elements.registerProviderId?.value;
+    if (role !== "contractor" &&
+        (!Number.isSafeInteger(Number(providerId)) || Number(providerId) < 1)) {
+      setError("Please enter a valid provider ID.");
       return;
     }
-
-    const newUser = {
-      email,
-      password,
+    const user = {
+      full_name: form.registerFullName.value.trim(),
+      email: form.registerEmail.value.trim().toLowerCase(),
+      password: form.registerPassword.value,
       role,
+      provider_id: role === "contractor" ? null : Number(providerId),
     };
-
-    savedUsers.push(newUser);
-
-    localStorage.setItem("mamarUsers", JSON.stringify(savedUsers));
-
-    alert("Account created successfully!");
-
-    navigate("/login");
+    setLoading(true);
+    try {
+      await registerUser(user);
+      localStorage.removeItem("mamarUsers");
+      navigate("/login", { replace: true });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <div className="signup-page">
@@ -108,15 +107,15 @@ function RegisterPage() {
             <button
               type="button"
               className={`signup-role-btn ${
-                role === "field-worker" ? "active" : ""
+                role === "worker" ? "active" : ""
               }`}
-              onClick={() => setRole("field-worker")}
+              onClick={() => setRole("worker")}
             >
               Field Worker
             </button>
           </div>
 
-          {role === "field-worker" && (
+          {role === "worker" && (
             <p className="field-worker-message">
               Enter the email address sent to you by your service provider.
             </p>
@@ -126,6 +125,22 @@ function RegisterPage() {
             className="signup-form"
             onSubmit={handleSubmit}
           >
+            <div className="signup-field">
+              <label htmlFor="registerFullName">Full name</label>
+              <input id="registerFullName" name="registerFullName"
+                type="text" autoComplete="name" maxLength={100}
+                placeholder="Enter your full name" required />
+            </div>
+
+            {(role === "provider" || role === "worker") && (
+              <div className="signup-field">
+                <label htmlFor="registerProviderId">Provider ID</label>
+                <input id="registerProviderId" name="registerProviderId"
+                  type="number" min="1" step="1" required
+                  placeholder="Enter your existing provider ID" />
+              </div>
+            )}
+
             <div className="signup-field">
               <label htmlFor="registerEmail">
                 Email
@@ -174,11 +189,13 @@ function RegisterPage() {
               </div>
             </div>
 
+            {error && <p role="alert">{error}</p>}
             <button
+              disabled={loading}
               type="submit"
               className="signup-submit"
             >
-              Create Account →
+              {loading ? "Creating account..." : "Create Account →"}
             </button>
           </form>
 

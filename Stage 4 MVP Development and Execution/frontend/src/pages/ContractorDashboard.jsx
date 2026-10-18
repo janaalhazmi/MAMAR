@@ -1,3 +1,5 @@
+import { getSession } from "../services/auth";
+import { logout } from "../services/auth";
 
 import { Link } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
@@ -5,6 +7,8 @@ import logo from "../assets/mamar-logo.svg";
 
 
 function ContractorDashboard() {
+  const user = getSession()?.user;
+  const displayName = user?.full_name || "User";
   const statistics = [
     { icon: "▤", value: 5, label: "Total Projects" },
     { icon: "◷", value: 2, label: "In Progress" },
@@ -124,7 +128,7 @@ function ContractorDashboard() {
             Help &amp; Support
            </Link>
 
-          <Link to="/login">
+          <Link to="/login" onClick={logout}>
             <span>→</span>
             Log out
           </Link>
@@ -139,10 +143,10 @@ function ContractorDashboard() {
           </Link>
 
           <div className="dashboard-user">
-            <div className="user-avatar">K</div>
+            <div className="user-avatar">{displayName.charAt(0).toUpperCase()}</div>
 
             <div className="user-information">
-              <strong>Kayan</strong>
+              <strong>{displayName}</strong>
               <span>Contractor</span>
             </div>
           </div>
@@ -153,7 +157,7 @@ function ContractorDashboard() {
           <section className="dashboard-welcome">
             <div>
               <h1>
-                Welcome Back, Kayan <span>👋</span>
+                Welcome Back, {displayName} <span>👋</span>
               </h1>
 
               <p>

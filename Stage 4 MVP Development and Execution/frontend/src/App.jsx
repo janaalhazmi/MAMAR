@@ -1,3 +1,4 @@
+import ProtectedRoute from "./components/ProtectedRoute";
 import { Routes, Route } from "react-router-dom";
 
 import LandingPage from "./pages/LandingPage";
@@ -20,47 +21,47 @@ function App() {
 
       <Route
         path="/contractor-dashboard"
-        element={<ContractorDashboard />}
+        element={<ProtectedRoute roles={["contractor"]}><ContractorDashboard /></ProtectedRoute>}
       />
 
       <Route
         path="/provider-dashboard"
-        element={<ProviderDashboard />}
+        element={<ProtectedRoute roles={["provider"]}><ProviderDashboard /></ProtectedRoute>}
       />
 
       <Route
         path="/provider/quotation"
-        element={<PrepareQuotation />}
+        element={<ProtectedRoute roles={["provider"]}><PrepareQuotation /></ProtectedRoute>}
       />
 
       <Route
         path="/project/location"
-        element={<ProjectLocationPage />}
+        element={<ProtectedRoute roles={["contractor"]}><ProjectLocationPage /></ProtectedRoute>}
       />
 
       <Route
         path="/create-project"
-        element={<CreateProjectPage />}
+        element={<ProtectedRoute roles={["contractor"]}><CreateProjectPage /></ProtectedRoute>}
       />
 
       <Route
         path="/project-location"
-        element={<ProjectLocationPage />}
+        element={<ProtectedRoute roles={["contractor"]}><ProjectLocationPage /></ProtectedRoute>}
       />
 
       <Route
         path="/services"
-        element={<ServicesPage />}
+        element={<ProtectedRoute roles={["contractor"]}><ServicesPage /></ProtectedRoute>}
       />
 
       <Route
         path="/select-service"
-        element={<ServicesPage />}
+        element={<ProtectedRoute roles={["contractor"]}><ServicesPage /></ProtectedRoute>}
       />
 
       <Route
         path="/review"
-        element={<ReviewPage />}
+        element={<ProtectedRoute roles={["contractor"]}><ReviewPage /></ProtectedRoute>}
       />
     </Routes>
   );

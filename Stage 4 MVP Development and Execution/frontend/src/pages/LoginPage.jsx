@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import { loginUser } from "../services/api";
+import { logout, saveSession } from "../services/auth";
 import Header from "../components/Header";
 import Button from "../components/Button";
 import logo from "../assets/mamar-logo.svg";
@@ -15,7 +17,7 @@ const roles = [
     label: "Provider",
   },
   {
-    id: "field-worker",
+    id: "worker",
     label: "Field Worker",
   },
 ];
@@ -27,55 +29,42 @@ const dashboardRoutes = {
 
 function LoginPage() {
   const [role, setRole] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-
+    if (loading) return;
+    setError("");
     if (!role) {
-      alert("Please select your account type.");
+      setError("Please select your account type.");
       return;
     }
-
-    const email = event.target.loginEmail.value
-      .trim()
-      .toLowerCase();
-
-    const password = event.target.loginPassword.value;
-
-    const savedUsers = JSON.parse(
-      localStorage.getItem("mamarUsers") || "[]"
-    );
-
-    const user = savedUsers.find(
-      (savedUser) =>
-        savedUser.email === email &&
-        savedUser.password === password
-    );
-
-    if (!user) {
-      alert("Invalid email or password.");
-      return;
-    }
-
-    if (user.role !== role) {
-      alert("The selected account type does not match your account.");
-      return;
-    }
-
-    if (user.role === "field-worker") {
-      alert("Field Worker dashboard will be added later.");
-      return;
-    }
-
-    const dashboardRoute = dashboardRoutes[user.role];
-
-    if (dashboardRoute) {
-      navigate(dashboardRoute);
+    const form = event.currentTarget;
+    const email = form.loginEmail.value.trim().toLowerCase();
+    const password = form.loginPassword.value;
+    setLoading(true);
+    try {
+      logout();
+      const data = await loginUser(email, password);
+      if (data.user.role !== role) {
+        throw new Error("The selected account type does not match your account.");
+      }
+      if (!dashboardRoutes[data.user.role]) {
+        throw new Error("The Field Worker dashboard is not available yet.");
+      }
+      saveSession(data);
+      navigate(dashboardRoutes[data.user.role], { replace: true });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
+
 
   return (
     <div className="login-page">
@@ -163,11 +152,13 @@ function LoginPage() {
               </div>
             </div>
 
+            {error && <p role="alert">{error}</p>}
             <Button
+              disabled={loading}
               type="submit"
               className="login-submit"
             >
-              Login now
+              {loading ? "Signing in..." : "Login now"}
             </Button>
           </form>
 
