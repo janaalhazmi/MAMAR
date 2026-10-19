@@ -44,7 +44,6 @@ Sprint 1 – Project Setup and Initial Development
 | TC23 | Register | Create contractor account | Account is created through backend and can log in | PASS |
 | TC24 | Contractor Dashboard | Refresh after login | Valid session remains active and dashboard stays open | PASS |
 | TC25 | Protected Route | Open contractor dashboard in a fresh private window | Redirects to `/login` | PASS |
-
 | TC26 | Login | Submit incorrect password | Rejects login with an error | PASS |
 | TC27 | Login | Select a role different from the account role | Rejects login with a role mismatch error | PASS |
 | TC28 | Register | Register a contractor with an existing email | Rejects duplicate registration | PASS |
