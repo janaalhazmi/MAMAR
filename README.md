@@ -93,3 +93,33 @@ To maintain an organized development process:
 - Keep commit messages meaningful.
 - Do not commit passwords, API keys, or database credentials.
 - Communicate blockers and update task statuses regularly.
+## Deployment & Setup
+
+### Frontend Deployment
+- Platform: Vercel
+- Live URL: https://mammar-blush.vercel.app/
+- Framework: React + Vite
+
+### Backend Deployment
+- Platform: Render
+- API URL: https://mamar-api.onrender.com
+- Framework: FastAPI
+- Database: PostgreSQL
+
+### Integration
+- The frontend communicates with the backend through REST API requests.
+- CORS is configured to allow requests from the deployed frontend.
+- User registration and login have been tested successfully.
+
+### Environment Configuration
+- The frontend requires the backend API URL.
+- The backend requires database connection settings.
+- Sensitive environment variables must be configured securely and must not be committed to GitHub.
+
+### Deployment Verification
+- Frontend deployment: Verified.
+- Backend deployment: Verified.
+- Frontend-to-backend API communication: Verified.
+- Registration and login: Verified.
+- Redeployment after code updates: Pending verification.
+
