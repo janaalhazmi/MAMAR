@@ -47,6 +47,9 @@ Sprint 1 – Project Setup and Initial Development
 | TC26 | Login | Submit incorrect password | Rejects login with an error | PASS |
 | TC27 | Login | Select a role different from the account role | Rejects login with a role mismatch error | PASS |
 | TC28 | Register | Register a contractor with an existing email | Rejects duplicate registration | PASS |
+| TC29 | Protected Route | Contractor opens `/provider-dashboard` | Redirects to landing page | PASS |
+| TC30 | Logout | Log out, then open contractor dashboard | Redirects to `/login` | PASS |
+| TC31 | Project Flow | Navigate through details, location, services, and review | Reaches review without navigation failure | PASS |
 
 ## Authentication Test Run - 2026-10-19
 
@@ -64,12 +67,17 @@ Sprint 1 – Project Setup and Initial Development
 - TC27: Role mismatch was rejected: `The selected account type does not match your account.`
 - TC28: Duplicate contractor email was rejected: `Email is already registered`.
 - Provider registration attempt returned `Provider not found`; successful provider registration and login remain unverified.
-- Token expiry, logout, cross-role route access, API failures, and deployed-site integration remain Not Tested.
+- TC29: Contractor access to the provider dashboard redirected to the landing page.
+- TC30: After logout, opening the contractor dashboard redirected to login.
+- Token expiry, provider-to-contractor route access, API failures, and deployed-site integration remain Not Tested.
 
 ## QA Notes
 
 - Landing, Login, Register, and Project Location pages are implemented.
-- Earlier navigation results are retained; the full project flow and all visible links still require verification.
+- TC31: The tester reached review through project details, location, and services without navigation failure.
+- Review displays text, but styling appears incomplete; ownership and expected styling require confirmation.
+- Project data persistence and accuracy in review remain Not Tested.
+- Remaining visible links still require verification.
 - Basic form validation is working.
 - ArcGIS frontend structure has been added.
 - Full Web Map display and GIS data integration are still pending.
@@ -78,9 +86,9 @@ Sprint 1 – Project Setup and Initial Development
 ## Sprint 1 QA Status
 
 - Frontend UI Testing: Completed
-- Navigation Testing: Partially tested; full route audit remains Not Tested
+- Navigation Testing: Project flow to review passed; remaining links require verification
 - Basic Form Validation: Completed
 - ArcGIS Frontend Setup: Completed
 - GIS Data Integration: Pending
 - Backend Integration Testing: Partially tested on `feature/frontend-auth` at `74a48c7`
-- Authentication Testing: Seven contractor authentication scenarios passed; remaining authentication scenarios are Not Tested.
+- Authentication Testing: Nine contractor authentication scenarios passed; remaining scenarios are Not Tested.
