@@ -58,3 +58,5 @@ React frontend for MAMAR, built with Vite and React Router.
 
 - The backend's CORS only allows the origins listed in `FRONTEND_ORIGINS`. Until the Vercel URL is added there, requests from the deployed frontend to the deployed backend will fail with a CORS error (visible in the browser console), even though the backend itself is running.
 - The free Render backend sleeps after 15 minutes of inactivity. The first request after that can take about a minute, so the status badge may show "Checking backend..." for longer than usual right after a period of inactivity.
+
+- The `frontend` folder's parent directory is named differently across branches ("Stage 4: MVP Development and Execution" with a colon on `main`, "Stage 4 MVP Development and Execution" without one on `feature/frontend-auth`-based branches). Switching branches locally can leave stray untracked files from the other naming; remove them manually if `git status` shows an unexpected extra folder after a checkout.
