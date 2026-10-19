@@ -12,6 +12,7 @@ from app.core.security import ALGORITHM, get_current_user
 from app.db.database import SessionLocal
 from app.main import app
 from app.models import Provider, User
+from app.routers.auth import company_domain
 
 # The fields of the 201 response in Stage 3, section 4.2.3, in the same order.
 USER_FIELDS = [
@@ -40,8 +41,14 @@ def email():
 @pytest.fixture
 def provider_id():
     # A provider prepared in advance, like Stage 3 describes. It is deleted after the test.
+    # Its website domain is example.com, the same domain as the test emails.
     with SessionLocal() as db:
-        provider = Provider(company_name="Test Traffic Control", service_type="Traffic Control", city="Riyadh")
+        provider = Provider(
+            company_name="Test Traffic Control",
+            service_type="Traffic Control",
+            city="Riyadh",
+            website="https://example.com",
+        )
         db.add(provider)
         db.commit()
         provider_id = provider.provider_id
@@ -109,8 +116,13 @@ def test_register_with_a_missing_field_returns_422(client, email):
 INVALID_BODIES = [
     pytest.param(
         {"role": "field-worker"},
-        "role: Input should be 'contractor', 'provider', 'worker' or 'admin'",
+        "role: Input should be 'contractor', 'provider' or 'worker'",
         id="role-field-worker",
+    ),
+    pytest.param(
+        {"role": "admin"},
+        "role: Input should be 'contractor', 'provider' or 'worker'",
+        id="role-admin",
     ),
     pytest.param(
         {"email": "sara"},
@@ -129,7 +141,7 @@ INVALID_BODIES = [
     ),
     pytest.param(
         {"provider_id": 1},
-        "provider_id must be null when role is contractor or admin",
+        "provider_id must be null when role is contractor",
         id="contractor-with-provider",
     ),
 ]
@@ -153,6 +165,46 @@ def test_register_a_worker_of_an_existing_provider(client, email, provider_id):
     assert response.status_code == 201
     assert response.json()["role"] == "worker"
     assert response.json()["provider_id"] == provider_id
+
+
+@pytest.mark.parametrize("role", ["provider", "worker"])
+def test_register_with_an_email_outside_the_company_returns_422(client, provider_id, role):
+    # Stage 3: a user cannot link themselves freely to any provider.
+    other_email = f"test-{uuid.uuid4().hex[:12]}@gmail.com"
+    response = client.post("/auth/register", json=register_body(other_email, role=role, provider_id=provider_id))
+    assert response.status_code == 422
+    assert response.json() == {"detail": "email: use your company email (@example.com)"}
+    with SessionLocal() as db:
+        assert db.scalar(select(User).where(User.email == other_email)) is None
+
+
+def test_register_with_a_provider_without_a_website_returns_422(client, email):
+    with SessionLocal() as db:
+        provider = Provider(company_name="No Website Co.", service_type="Traffic Control", city="Riyadh")
+        db.add(provider)
+        db.commit()
+        no_website_id = provider.provider_id
+    try:
+        response = client.post("/auth/register", json=register_body(email, role="worker", provider_id=no_website_id))
+        assert response.status_code == 422
+        assert response.json() == {"detail": "provider_id: this provider has no company website yet"}
+    finally:
+        with SessionLocal() as db:
+            db.execute(delete(Provider).where(Provider.provider_id == no_website_id))
+            db.commit()
+
+
+@pytest.mark.parametrize(
+    ("website", "domain"),
+    [
+        ("https://tcmksa.com", "tcmksa.com"),
+        ("https://www.safetytriangle.com.sa", "safetytriangle.com.sa"),
+        ("shawahidts.com", "shawahidts.com"),
+        (None, None),
+    ],
+)
+def test_company_domain_comes_from_the_provider_website(website, domain):
+    assert company_domain(website) == domain
 
 
 def test_frontend_can_send_the_register_request(client):
