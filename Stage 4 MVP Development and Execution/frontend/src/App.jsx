@@ -1,6 +1,7 @@
 import ProtectedRoute from "./components/ProtectedRoute";
 import { Routes, Route } from "react-router-dom";
 
+import BackendStatus from "./components/BackendStatus";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -14,7 +15,9 @@ import ReviewPage from "./pages/ReviewPage";
 
 function App() {
   return (
-    <Routes>
+    <>
+      <BackendStatus />
+      <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
@@ -63,7 +66,8 @@ function App() {
         path="/review"
         element={<ProtectedRoute roles={["contractor"]}><ReviewPage /></ProtectedRoute>}
       />
-    </Routes>
+      </Routes>
+    </>
   );
 }
 
