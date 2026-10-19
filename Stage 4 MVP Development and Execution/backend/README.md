@@ -19,7 +19,7 @@ backend/
       security.py          # Login tokens (JWT) and the token check for protected endpoints
     db/
       database.py          # Database engine, sessions and the Base class for the models
-      init_db.py           # Creates the tables when the server starts
+      init_db.py           # Creates the tables and adds the demo providers when the server starts
     models/
       user.py              # users table
       provider.py          # providers table
@@ -36,6 +36,7 @@ backend/
     main.py                # Creates the FastAPI app, allows the frontend (CORS) and adds the routers
   tests/
     test_auth.py           # Register, login and token tests
+    test_demo_providers.py # Demo providers tests
     test_health.py         # Health check and CORS tests
     test_models.py         # Checks the tables against the Stage 3 database schema
   .env.example             # Example settings, without real passwords
@@ -60,6 +61,19 @@ Each class from the Stage 3 class design is a SQLAlchemy model with its own tabl
 | `Assignment` | `assignments` | `status` is one of `active`, `completed`, `cancelled`. A worker is assigned to a project only once |
 
 The tables are created automatically when the server starts. Tables that already exist are not changed.
+
+### Demo Providers
+
+Stage 3 says the provider records are prepared in advance, so a user cannot link themselves to any company. When the server starts, it adds these four providers to the `providers` table if they are missing. They are the same companies and `provider_id` values as the `MAMAR_Providers` layer in ArcGIS Online, so the map and the database match.
+
+| `provider_id` | `company_name` | `service_type` |
+| --- | --- | --- |
+| 1 | Traffic and Construction Management TCM | Traffic Management |
+| 2 | Safety Arabia Co. LTD | Traffic Devices |
+| 3 | Shawahid Roads Industrial Co. | Road Safety |
+| 4 | Safety Triangle Company | Road Safety |
+
+A provider that already exists is not changed. New providers start from `provider_id` 5.
 
 The `User` methods from Stage 3 are ready: `set_password()` hashes the password with Argon2 and saves only the hash, `check_password()` compares a password with the saved hash, and `to_dict()` returns the user without the password hash. The methods of the other classes, such as `award()`, are added with their endpoints in the next sprints.
 
@@ -106,7 +120,7 @@ The `User` methods from Stage 3 are ready: `set_password()` hashes the password 
    - `http://127.0.0.1:8000/docs` opens the interactive API documentation.
    - `http://127.0.0.1:8000/` opens the same documentation page.
    - In `/docs`, open `POST /auth/register` and click **Try it out**, then **Execute**. It creates an account with the Stage 3 example and returns 201. Executing it again returns 409, because the email is already registered. Then `POST /auth/login` with the same email and password returns the token.
-   - In pgAdmin, the `mamar` database has the six tables: `users`, `providers`, `projects`, `service_requests`, `quotes` and `assignments`.
+   - In pgAdmin, the `mamar` database has the six tables: `users`, `providers`, `projects`, `service_requests`, `quotes` and `assignments`, and the `providers` table has the four demo providers.
 
 On macOS, activate the environment with `source venv/bin/activate` and copy the settings with `cp .env.example .env`.
 
@@ -201,7 +215,7 @@ The other 10 endpoints in Stage 3 need the header `Authorization: Bearer <token>
 
 ## Frontend Integration
 
-The React frontend runs on Vite at `http://localhost:5173`, which is allowed in `FRONTEND_ORIGINS`. CORS allows the methods used by the API (`GET`, `POST` and `PATCH`) and the `Authorization` and `Content-Type` headers, so the frontend can send JSON and the token in the next sprints. After the frontend is deployed on Vercel, its address is added to `FRONTEND_ORIGINS` on Render, separated by a comma.
+The React frontend runs on Vite at `http://localhost:5173`, which is allowed in `FRONTEND_ORIGINS`. CORS allows the methods used by the API (`GET`, `POST` and `PATCH`) and the `Authorization` and `Content-Type` headers, so the frontend can send JSON and the token in the next sprints. The deployed frontend, `https://mammar-blush.vercel.app`, is also allowed in `FRONTEND_ORIGINS` on Render.
 
 The frontend can test the connection with:
 
@@ -246,13 +260,14 @@ headers: { Authorization: `Bearer ${accessToken}` }
 | Token header for the other endpoints | `Authorization: Bearer <token>` |
 | Success response | `{"status": "ok", "database": "connected"}` |
 | Error response | `{"detail": "message"}`, so the frontend can show `detail` to the user |
-| Allowed frontend origins | `http://localhost:5173` and `http://127.0.0.1:5173` |
+| Allowed frontend origins | `http://localhost:5173` and `http://127.0.0.1:5173`, and `https://mammar-blush.vercel.app` on Render |
+| Provider IDs for testing | 1 to 4, see [Demo Providers](#demo-providers) |
 
 To connect the register page to `POST /auth/register`:
 
 - Send the role `worker` instead of `field-worker`, because the `users` table and the Stage 3 API accept `worker`. The button can still say "Field Worker". The login page should use `worker` too.
 - Add a full name field. `full_name` is required in Stage 3, and the page now asks only for the email, the password and the role.
-- `provider` and `worker` accounts need a `provider_id`. The `providers` table is empty until the demo providers are prepared, so test with `contractor` first.
+- `provider` and `worker` accounts need a `provider_id`. Use one of the demo providers, 1 to 4. Another number returns 404 `Provider not found`.
 
 ## Run the Tests
 
@@ -272,6 +287,10 @@ pytest
 | `test_tables_and_columns_match_the_er_diagram` | The six tables have the same columns as the Stage 3 database schema |
 | `test_foreign_keys_match_the_relationships` | The foreign keys match the Stage 3 relationships table |
 | `test_unique_rules` | `email`, one quote per provider per request, and one assignment per worker per project are unique |
+| `test_demo_providers_are_added_when_the_server_starts` | The four demo providers exist with the same data as the `MAMAR_Providers` layer |
+| `test_adding_them_again_does_not_change_existing_providers` | Starting the server again does not overwrite a provider that already exists |
+| `test_a_new_provider_does_not_reuse_a_demo_provider_id` | A new provider gets a `provider_id` after the demo providers |
+| `test_register_a_provider_account_with_a_demo_provider` | A `provider` account with `provider_id` 1 is registered and can log in |
 | `test_register_creates_the_user` | A new account returns 201 with the same fields as Stage 3, without the password |
 | `test_register_saves_only_the_password_hash` | Only the Argon2 hash is saved, and `check_password()` accepts the right password only |
 | `test_register_with_an_existing_email_returns_409` | The same email cannot register twice, even in capital letters |
@@ -294,10 +313,10 @@ The backend is deployed at `https://mamar-api.onrender.com` (free instance). It 
 | --- | --- |
 | Language | Python 3 |
 | Root Directory | Empty. Render only accepts letters, numbers, `-`, `_`, `.` and `/` in this field, so the commands below enter the folder instead |
-| Build Command | `cd "Stage 4: MVP Development and Execution/backend" && pip install -r requirements.txt` |
-| Start Command | `cd "Stage 4: MVP Development and Execution/backend" && uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
+| Build Command | `cd "Stage 4 MVP Development and Execution/backend" && pip install -r requirements.txt` |
+| Start Command | `cd "Stage 4 MVP Development and Execution/backend" && uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
 | `DATABASE_URL` | Added with **Add variable > Datastore URL**, linked to the Render PostgreSQL database (internal URL), so the password is never typed by hand |
 | `SECRET_KEY` | Added with the **Generate** button on Render, so the value is random and never typed by hand |
-| `FRONTEND_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173`. The Vercel address is added after the frontend is deployed |
+| `FRONTEND_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173,https://mammar-blush.vercel.app` |
 
 The free Render PostgreSQL database expires 30 days after it is created.
