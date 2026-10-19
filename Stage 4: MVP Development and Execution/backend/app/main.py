@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 
 from app.core.config import FRONTEND_ORIGINS
-from app.db.init_db import create_tables
+from app.db.init_db import add_demo_providers, create_tables
 from app.routers import auth, health
 
 
@@ -14,6 +14,7 @@ from app.routers import auth, health
 async def lifespan(app: FastAPI):
     # Runs once when the server starts.
     create_tables()
+    add_demo_providers()
     yield
 
 
