@@ -3,7 +3,12 @@ import { useEffect, useRef } from "react";
 import "@arcgis/map-components/components/arcgis-map";
 import "@arcgis/map-components/components/arcgis-zoom";
 
-function MamarMap({ onLocationSelect }) {
+function MamarMap({
+  onLocationSelect,
+  latitude = null,
+  longitude = null,
+  readOnly = false,
+}) {
   const mapRef = useRef(null);
   const markerRef = useRef(null);
   const callbackRef = useRef(onLocationSelect);
@@ -27,6 +32,40 @@ function MamarMap({ onLocationSelect }) {
         if (cancelled) return;
 
         const view = mapElement.view;
+
+        // NEW: show a previously selected point (used on the Services page).
+        if (
+          latitude !== null &&
+          longitude !== null &&
+          !Number.isNaN(Number(latitude)) &&
+          !Number.isNaN(Number(longitude))
+        ) {
+          view.graphics.add({
+            geometry: {
+              type: "point",
+              latitude: Number(latitude),
+              longitude: Number(longitude),
+            },
+            symbol: {
+              type: "simple-marker",
+              style: "circle",
+              color: "#ffcc00",
+              size: "16px",
+              outline: {
+                color: "#222222",
+                width: 2,
+              },
+            },
+          });
+
+          view.goTo({
+            center: [Number(longitude), Number(latitude)],
+            zoom: 15,
+          });
+        }
+
+        // NEW: in read-only mode the user cannot place a point.
+        if (readOnly) return;
 
         clickHandler = view.on("click", (event) => {
           const point = view.toMap({
