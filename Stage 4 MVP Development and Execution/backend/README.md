@@ -66,14 +66,16 @@ The tables are created automatically when the server starts. Tables that already
 
 Stage 3 says the provider records are prepared in advance, so a user cannot link themselves to any company. When the server starts, it adds these four providers to the `providers` table if they are missing. They are the same companies and `provider_id` values as the `MAMAR_Providers` layer in ArcGIS Online, so the map and the database match.
 
-| `provider_id` | `company_name` | `service_type` |
-| --- | --- | --- |
-| 1 | Traffic and Construction Management TCM | Traffic Management |
-| 2 | Safety Arabia Co. LTD | Traffic Devices |
-| 3 | Shawahid Roads Industrial Co. | Road Safety |
-| 4 | Safety Triangle Company | Road Safety |
+| `provider_id` | `company_name` | `service_type` | Company email |
+| --- | --- | --- | --- |
+| 1 | Traffic and Construction Management TCM | Traffic Management | `@tcmksa.com` |
+| 2 | Safety Arabia Co. LTD | Traffic Devices | `@redanational.com` |
+| 3 | Shawahid Roads Industrial Co. | Road Safety | `@shawahidts.com` |
+| 4 | Safety Triangle Company | Road Safety | `@safetytriangle.com.sa` |
 
 A provider that already exists is not changed. New providers start from `provider_id` 5.
+
+The company email is the domain of the provider's `website`, without `www.`. A `provider` or `worker` account of a company must register with that email, see [Register](#register).
 
 The `User` methods from Stage 3 are ready: `set_password()` hashes the password with Argon2 and saves only the hash, `check_password()` compares a password with the saved hash, and `to_dict()` returns the user without the password hash. The methods of the other classes, such as `award()`, are added with their endpoints in the next sprints.
 
@@ -172,14 +174,18 @@ Request body. `phone` is optional, and `provider_id` is required only when `role
 | `provider_id` does not exist | 404 | `{"detail": "Provider not found"}` |
 | Email already registered | 409 | `{"detail": "Email is already registered"}` |
 | A field is missing or not valid | 422 | `{"detail": "full_name: Field required"}` |
+| `role` is `admin` | 422 | `{"detail": "role: Input should be 'contractor', 'provider' or 'worker'"}` |
+| A `provider` or `worker` email is not the company email | 422 | `{"detail": "email: use your company email (@tcmksa.com)"}` |
+| The provider has no `website`, so it has no company email | 422 | `{"detail": "provider_id: this provider has no company website yet"}` |
 
 The request is checked before anything is saved:
 
 | Rule | Source |
 | --- | --- |
 | `full_name` has up to 100 characters, `email` up to 255 and `phone` up to 20 | Column sizes of the `users` table |
-| `role` is `contractor`, `provider`, `worker` or `admin` | `users` table |
-| `provider_id` is required for `provider` and `worker`, and `null` for `contractor` and `admin` | Register endpoint and `users` table |
+| `role` is `contractor`, `provider` or `worker`. `admin` is not accepted, because anyone could open this endpoint and make themselves an admin. The `users` table still allows `admin` for accounts the team adds | `users` table and Sprint 1 review |
+| `provider_id` is required for `provider` and `worker`, and `null` for `contractor` | Register endpoint and `users` table |
+| A `provider` or `worker` registers with the company email of its provider, for example `@tcmksa.com` for provider 1 | Stage 3: a user cannot link themselves freely to any provider |
 | The email is saved in lowercase without spaces, so `Sara@Example.com` and `sara@example.com` are the same account | The register page does the same |
 | The password has at least 6 characters | The register page asks for the same |
 
@@ -267,7 +273,7 @@ To connect the register page to `POST /auth/register`:
 
 - Send the role `worker` instead of `field-worker`, because the `users` table and the Stage 3 API accept `worker`. The button can still say "Field Worker". The login page should use `worker` too.
 - Add a full name field. `full_name` is required in Stage 3, and the page now asks only for the email, the password and the role.
-- `provider` and `worker` accounts need a `provider_id`. Use one of the demo providers, 1 to 4. Another number returns 404 `Provider not found`.
+- `provider` and `worker` accounts need a `provider_id`. Use one of the demo providers, 1 to 4, with its company email, for example `test@tcmksa.com` for provider 1. Another number returns 404 `Provider not found`, and another email returns 422.
 
 ## Run the Tests
 
@@ -295,9 +301,12 @@ pytest
 | `test_register_saves_only_the_password_hash` | Only the Argon2 hash is saved, and `check_password()` accepts the right password only |
 | `test_register_with_an_existing_email_returns_409` | The same email cannot register twice, even in capital letters |
 | `test_register_with_a_missing_field_returns_422` | A missing field returns 422 with `{"detail": "message"}` |
-| `test_register_with_an_invalid_body_returns_422` | A wrong role, a wrong email, a short password and the two `provider_id` rules return 422 (5 cases) |
+| `test_register_with_an_invalid_body_returns_422` | A wrong role, the `admin` role, a wrong email, a short password and the two `provider_id` rules return 422 (6 cases) |
 | `test_register_with_an_unknown_provider_returns_404` | A `provider_id` that does not exist returns 404 |
-| `test_register_a_worker_of_an_existing_provider` | A worker of an existing provider is registered |
+| `test_register_a_worker_of_an_existing_provider` | A worker of an existing provider is registered with the company email |
+| `test_register_with_an_email_outside_the_company_returns_422` | A `provider` or `worker` with another email returns 422 and nothing is saved (2 cases) |
+| `test_register_with_a_provider_without_a_website_returns_422` | A provider without a website cannot have `provider` or `worker` accounts yet |
+| `test_company_domain_comes_from_the_provider_website` | The company email domain is the website domain without `www.` (4 cases) |
 | `test_frontend_can_send_the_register_request` | The browser can send JSON from the React frontend to the register endpoint (CORS) |
 | `test_login_returns_a_token_and_the_user` | Login returns 200 with the token and the user, like Stage 3, and the token keeps the user id and role |
 | `test_login_with_a_wrong_password_returns_401` | A wrong password returns 401 |
