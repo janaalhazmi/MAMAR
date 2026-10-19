@@ -57,7 +57,8 @@ def test_a_new_provider_does_not_reuse_a_demo_provider_id():
 
 def test_register_a_provider_account_with_a_demo_provider():
     # The QA case that returned "Provider not found" before the demo providers were added.
-    email = f"test-{uuid.uuid4().hex[:12]}@example.com"
+    # Provider 1 is TCM, so the account uses the company email domain tcmksa.com.
+    email = f"test-{uuid.uuid4().hex[:12]}@tcmksa.com"
     body = {
         "full_name": "Test Provider",
         "email": email,
