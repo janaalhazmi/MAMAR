@@ -40,8 +40,23 @@ Sprint 1 – Project Setup and Initial Development
 | TC19 | Project Location | Open GIS page | `/project/location` loads | PASS |
 | TC20 | Project Location | Load ArcGIS component | ArcGIS map component initializes | PASS |
 | TC21 | Project Location | Display MAMAR Web Map | Existing map and layers display | PENDING |
-| TC22 | Login | Authenticate valid user | User logs in through backend | NOT IMPLEMENTED |
-| TC23 | Register | Create account | Account is created through backend | NOT IMPLEMENTED |
+| TC22 | Login | Authenticate valid contractor | Opens contractor dashboard and displays the account name | PASS |
+| TC23 | Register | Create account | Account is created through backend | Not Tested |
+| TC24 | Contractor Dashboard | Refresh after login | Valid session remains active and dashboard stays open | PASS |
+| TC25 | Protected Route | Open contractor dashboard in a fresh private window | Redirects to `/login` | PASS |
+
+## Authentication Test Run - 2026-10-19
+
+- Tester: Kayan Alnazari
+- Environment: Local frontend
+- Tested branch: `feature/frontend-auth`
+- Tested commit: `74a48c7`
+- TC22: Contractor login succeeded and the dashboard displayed the account name.
+- TC24: Refreshing the dashboard preserved the session.
+- TC25: Opening the dashboard in a fresh private window redirected to login.
+- Evidence: Manual execution reported by the tester; screenshots have not been attached.
+- These results apply to the tested commit, not to the current contents of `develop`.
+- New account registration, provider login, token expiry, and API failure scenarios remain Not Tested.
 
 ## QA Notes
 
@@ -50,7 +65,7 @@ Sprint 1 – Project Setup and Initial Development
 - Basic form validation is working.
 - ArcGIS frontend structure has been added.
 - Full Web Map display and GIS data integration are still pending.
-- Login and Register are not yet connected to FastAPI.
+- Login and Register call FastAPI on the tested feature branch. Contractor login was verified; new account registration remains Not Tested.
 
 ## Sprint 1 QA Status
 
@@ -59,5 +74,5 @@ Sprint 1 – Project Setup and Initial Development
 - Basic Form Validation: Completed
 - ArcGIS Frontend Setup: Completed
 - GIS Data Integration: Pending
-- Backend Integration Testing: Pending
-- Authentication Testing: Pending
+- Backend Integration Testing: Partially tested on `feature/frontend-auth` at `74a48c7`
+- Authentication Testing: Contractor login, refresh persistence, and unauthenticated redirect passed on the tested commit; remaining scenarios are Not Tested.
