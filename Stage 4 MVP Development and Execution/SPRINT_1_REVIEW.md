@@ -18,7 +18,7 @@
 
 | Team Member | Role |
 |---|---|
-| Razan | Project Manager, GIS Lead, and QA |
+| Razan Kashr | Project Manager, GIS Lead, and QA |
 | Jana Alhazmi | Frontend Developer and Source Control Management |
 | Kayan Alnazari | Frontend Developer and QA |
 | Shouq Alqarni | Backend Developer |
