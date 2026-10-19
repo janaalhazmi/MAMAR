@@ -33,7 +33,9 @@ class RegisterRequest(BaseModel):
     # The register page also asks for at least 6 characters.
     password: Annotated[str, StringConstraints(min_length=6)]
     phone: Annotated[str, StringConstraints(strip_whitespace=True, max_length=20)] | None = None
-    role: Literal["contractor", "provider", "worker", "admin"]
+    # admin is not accepted here, because anyone could open this endpoint and make
+    # themselves an admin. The users table still allows admin for accounts the team adds.
+    role: Literal["contractor", "provider", "worker"]
     provider_id: int | None = None
 
     @field_validator("email")
@@ -45,11 +47,11 @@ class RegisterRequest(BaseModel):
 
     @model_validator(mode="after")
     def check_provider_id(self):
-        # provider_id is required for providers and workers, and NULL for contractors and admins.
+        # provider_id is required for providers and workers, and NULL for contractors.
         if self.role in ("provider", "worker") and self.provider_id is None:
             raise ValueError("provider_id is required when role is provider or worker")
-        if self.role in ("contractor", "admin") and self.provider_id is not None:
-            raise ValueError("provider_id must be null when role is contractor or admin")
+        if self.role == "contractor" and self.provider_id is not None:
+            raise ValueError("provider_id must be null when role is contractor")
         return self
 
 
