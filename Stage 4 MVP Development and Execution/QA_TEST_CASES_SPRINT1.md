@@ -76,7 +76,7 @@ Sprint 1 – Project Setup and Initial Development
 - Landing, Login, Register, and Project Location pages are implemented.
 - TC31: The tester reached review through project details, location, and services without navigation failure.
 - Review displays text, but styling appears incomplete; ownership and expected styling require confirmation.
-- Project data persistence and accuracy in review remain Not Tested.
+- Review data matched the entered selections (TC37). Persistence after refresh and database saving remain Not Tested.
 - Remaining visible links still require verification.
 - Basic form validation is working.
 - ArcGIS frontend structure has been added.
@@ -85,10 +85,35 @@ Sprint 1 – Project Setup and Initial Development
 
 ## Sprint 1 QA Status
 
-- Frontend UI Testing: Completed
+- Frontend UI Testing: Partially tested; review styling and blank Providers page require follow-up
 - Navigation Testing: Project flow to review passed; remaining links require verification
 - Basic Form Validation: Completed
 - ArcGIS Frontend Setup: Completed
 - GIS Data Integration: Pending
 - Backend Integration Testing: Partially tested on `feature/frontend-auth` at `74a48c7`
 - Authentication Testing: Nine contractor authentication scenarios passed; remaining scenarios are Not Tested.
+
+## Contractor Follow-up Tests - 2026-10-19
+
+Environment: Local frontend  
+Branch: `feature/frontend-auth`  
+Evidence: Manual testing reported by Kayan Alnazari; screenshots are not attached.
+
+| ID | Test Scenario | Actual Result | Status |
+|---|---|---|---|
+| TC32 | Open Providers from contractor account | `/providers` displays a blank page | Fail |
+| TC33 | Open Quotations from contractor account | `/contractor-dashboard#quotations` stays on the dashboard without navigating to a quotations section | Fail |
+| TC34 | Click My Projects | Scrolls to the user's projects section | Pass |
+| TC35 | Click Create Project | Opens the project creation page | Pass |
+| TC36 | Select a location point | Yellow point appears with `Location selected successfully` | Pass |
+| TC37 | Compare review data with entered selections | Project details, services, and location match the user's selections | Pass |
+| TC38 | Draw and edit a project polygon | Current selection uses a point; polygon requirement is incomplete | Blocked |
+| TC39 | Open Field Worker dashboard and workflows | Cannot execute: Field Worker frontend pages and routes are not implemented yet | Blocked |
+
+### Issues and Follow-up
+
+- TC32 and TC33 require fixes and retesting. Implementation ownership is not yet confirmed.
+- TC38: The tester reports that the current Figma design uses point selection. Clarify the polygon requirement with Razan before implementation.
+- Review page styling appears incomplete and needs follow-up.
+- Provider account testing has not started.
+- This run does not verify project submission, database persistence, or all remaining links.
