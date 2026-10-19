@@ -41,9 +41,13 @@ Sprint 1 – Project Setup and Initial Development
 | TC20 | Project Location | Load ArcGIS component | ArcGIS map component initializes | PASS |
 | TC21 | Project Location | Display MAMAR Web Map | Existing map and layers display | PENDING |
 | TC22 | Login | Authenticate valid contractor | Opens contractor dashboard and displays the account name | PASS |
-| TC23 | Register | Create account | Account is created through backend | Not Tested |
+| TC23 | Register | Create contractor account | Account is created through backend and can log in | PASS |
 | TC24 | Contractor Dashboard | Refresh after login | Valid session remains active and dashboard stays open | PASS |
 | TC25 | Protected Route | Open contractor dashboard in a fresh private window | Redirects to `/login` | PASS |
+
+| TC26 | Login | Submit incorrect password | Rejects login with an error | PASS |
+| TC27 | Login | Select a role different from the account role | Rejects login with a role mismatch error | PASS |
+| TC28 | Register | Register a contractor with an existing email | Rejects duplicate registration | PASS |
 
 ## Authentication Test Run - 2026-10-19
 
@@ -56,23 +60,28 @@ Sprint 1 – Project Setup and Initial Development
 - TC25: Opening the dashboard in a fresh private window redirected to login.
 - Evidence: Manual execution reported by the tester; screenshots have not been attached.
 - These results apply to the tested commit, not to the current contents of `develop`.
-- New account registration, provider login, token expiry, and API failure scenarios remain Not Tested.
+- TC23: A new contractor account was created and successfully used to log in.
+- TC26: Incorrect password was rejected: `Email or password is wrong`.
+- TC27: Role mismatch was rejected: `The selected account type does not match your account.`
+- TC28: Duplicate contractor email was rejected: `Email is already registered`.
+- Provider registration attempt returned `Provider not found`; successful provider registration and login remain unverified.
+- Token expiry, logout, cross-role route access, API failures, and deployed-site integration remain Not Tested.
 
 ## QA Notes
 
 - Landing, Login, Register, and Project Location pages are implemented.
-- Navigation between current frontend pages is working.
+- Earlier navigation results are retained; the full project flow and all visible links still require verification.
 - Basic form validation is working.
 - ArcGIS frontend structure has been added.
 - Full Web Map display and GIS data integration are still pending.
-- Login and Register call FastAPI on the tested feature branch. Contractor login was verified; new account registration remains Not Tested.
+- Contractor registration and login through FastAPI were manually verified on the tested feature branch.
 
 ## Sprint 1 QA Status
 
 - Frontend UI Testing: Completed
-- Navigation Testing: Completed
+- Navigation Testing: Partially tested; full route audit remains Not Tested
 - Basic Form Validation: Completed
 - ArcGIS Frontend Setup: Completed
 - GIS Data Integration: Pending
 - Backend Integration Testing: Partially tested on `feature/frontend-auth` at `74a48c7`
-- Authentication Testing: Contractor login, refresh persistence, and unauthenticated redirect passed on the tested commit; remaining scenarios are Not Tested.
+- Authentication Testing: Seven contractor authentication scenarios passed; remaining authentication scenarios are Not Tested.
