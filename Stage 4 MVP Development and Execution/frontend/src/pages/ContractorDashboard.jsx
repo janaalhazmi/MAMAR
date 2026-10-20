@@ -452,10 +452,20 @@ function ContractorDashboard() {
             </section>
           </div>
 
-          {/* Footer */}
+                   {/* Footer */}
           <footer className="dashboard-footer">
             <span>© 2026 MAMAR. All rights reserved.</span>
 
             <div>
               <Link to="/data-disclaimer">Privacy &amp; Data</Link>
-              <Link
+              <Link to="/support">Help &amp; Support</Link>
+            </div>
+          </footer>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+export default ContractorDashboard;
+            
