@@ -8,6 +8,11 @@ from pydantic import BaseModel, ConfigDict, StringConstraints, field_validator, 
 EMAIL_PATTERN = re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]+")
 
 
+def is_passcode(value: str) -> bool:
+    # 6 digits from 0 to 9, like 042917.
+    return len(value) == 6 and value.isascii() and value.isdigit()
+
+
 class RegisterRequest(BaseModel):
     # The JSON body of POST /auth/register (Stage 3, section 4.2.3).
     # The example from Stage 3 is shown in /docs.
@@ -37,6 +42,8 @@ class RegisterRequest(BaseModel):
     # themselves an admin. The users table still allows admin for accounts the team adds.
     role: Literal["contractor", "provider", "worker"]
     provider_id: int | None = None
+    # The 6-digit passcode sent by POST /auth/send-passcode. Required when email verification is on.
+    passcode: Annotated[str, StringConstraints(strip_whitespace=True)] | None = None
 
     @field_validator("email")
     @classmethod
@@ -44,6 +51,13 @@ class RegisterRequest(BaseModel):
         if not EMAIL_PATTERN.fullmatch(email):
             raise ValueError("value is not a valid email address")
         return email
+
+    @field_validator("passcode")
+    @classmethod
+    def check_passcode(cls, passcode: str | None) -> str | None:
+        if passcode is not None and not is_passcode(passcode):
+            raise ValueError("the passcode has 6 digits")
+        return passcode
 
     @model_validator(mode="after")
     def check_provider_id(self):
@@ -91,3 +105,23 @@ class LoginResponse(BaseModel):
     access_token: str
     token_type: str
     user: LoginUser
+
+
+class SendPasscodeRequest(BaseModel):
+    # The JSON body of POST /auth/send-passcode.
+    model_config = ConfigDict(json_schema_extra={"examples": [{"email": "sara@example.com"}]})
+
+    # Lowercase without spaces, the same way register saves it.
+    email: Annotated[str, StringConstraints(strip_whitespace=True, to_lower=True, max_length=255)]
+
+    @field_validator("email")
+    @classmethod
+    def check_email(cls, email: str) -> str:
+        if not EMAIL_PATTERN.fullmatch(email):
+            raise ValueError("value is not a valid email address")
+        return email
+
+
+class MessageResponse(BaseModel):
+    # A short success message, for the endpoints that do not return data.
+    message: str
