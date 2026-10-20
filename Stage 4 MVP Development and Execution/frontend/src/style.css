@@ -1132,11 +1132,14 @@ body {
 ========================= */
 
 .contractor-dashboard {
+  width: 210px;
+  min-width: 210px;
   min-height: 100vh;
   display: flex;
-  background: #f5f7fa;
-  color: #111827;
-  font-family: Arial, sans-serif;
+  flex-direction: column;
+  padding: 0;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
 }
 
 .contractor-dashboard a {
@@ -1147,8 +1150,8 @@ body {
 /* Sidebar */
 
 .contractor-sidebar {
-  width: 220px;
-  min-width: 220px;
+  width: 228px;
+  min-width: 228px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -1242,11 +1245,12 @@ body {
 }
 
 .dashboard-header {
-  min-height: 72px;
+  height: 62px;
+  min-height: 62px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 32px;
+  padding: 0 28px;
   background: #ffffff;
   border-bottom: 1px solid #e5e7eb;
 }
@@ -1306,8 +1310,8 @@ body {
 .dashboard-content {
   width: 100%;
   max-width: 1600px;
-  margin: 0 auto;
-  padding: 32px;
+  margin: 0;
+  padding: 24px;
 }
 
 .dashboard-welcome {
@@ -1367,25 +1371,26 @@ body {
 
 .stat-card {
   min-width: 0;
+  min-height: 64px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 20px;
+  gap: 10px;
+  padding: 10px;
   background: #ffffff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #eaecf0;
   border-radius: 8px;
 }
 
 .stat-icon {
-  width: 42px;
-  height: 42px;
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  border-radius: 8px;
-  background: #fff9ec;
-  color: #111827;
-  font-size: 20px;
+  border-radius: 50%;
+  background: #fff4d6;
+  color: #d6a000;
+  font-size: 16px;
 }
 
 .stat-information strong,
@@ -1408,8 +1413,8 @@ body {
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr);
-  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) 172px;
+  gap: 12px;
   align-items: start;
 }
 
@@ -5602,19 +5607,83 @@ body {
 }
 
 /* Dashboard map */
+
 .dashboard-map-frame {
   width: 100%;
   height: 230px;
+  min-width: 0;
   overflow: hidden;
   border: 1px solid #e1e5eb;
   border-radius: 8px;
   background: #f1f3f5;
+
 }
 
-.dashboard-map-frame .mamar-map-container,
-.dashboard-map-frame .mamar-map {
+/* =========================
+   CONTRACTOR DASHBOARD MAP
+========================= */
+
+.contractor-dashboard .locations-panel {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.contractor-dashboard .dashboard-map-frame {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f5f7fa;
+  border: 1px solid #e5e7eb;
+}
+
+.contractor-dashboard .dashboard-map-frame .mamar-map-container {
   width: 100%;
   height: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.contractor-dashboard .dashboard-map-frame arcgis-map {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+}
+
+.contractor-dashboard .dashboard-map-frame arcgis-zoom {
+  --calcite-color-brand: #fabc05;
+}
+
+/* Map button */
+
+.contractor-dashboard .map-full-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  padding: 9px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #111827;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.contractor-dashboard .map-full-button:hover {
+  background: #fff9ec;
+}
+
+/* Responsive */
+
+@media (max-width: 650px) {
+  .contractor-dashboard .dashboard-map-frame {
+    height: 200px;
+  }
 }
 
 /* Map drawing tools */
