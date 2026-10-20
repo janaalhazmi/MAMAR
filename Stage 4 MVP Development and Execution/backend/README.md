@@ -7,7 +7,7 @@ This folder covers the Sprint 1 backend tasks:
 - Set up FastAPI backend and PostgreSQL database.
 - Begin frontend and backend API integration.
 
-The six database models follow the approved Stage 3 ER diagram. The two `auth` endpoints from Stage 3, `POST /auth/register` and `POST /auth/login`, are ready, with the token check that the other endpoints will use. The other 10 endpoints are added in the next sprints.
+The six database models follow the approved Stage 3 ER diagram. The two `auth` endpoints from Stage 3, `POST /auth/register` and `POST /auth/login`, are ready, with the token check that the other endpoints will use. The other 10 endpoints are added in the next sprints. [Email verification](#email-verification) with a 6-digit passcode is ready too, and it stays off until the frontend sends the passcode.
 
 ## Folder Structure
 
@@ -16,6 +16,7 @@ backend/
   app/
     core/
       config.py            # Reads the settings from the .env file
+      email.py             # Sends the registration passcode with Brevo
       security.py          # Login tokens (JWT) and the token check for protected endpoints
     db/
       database.py          # Database engine, sessions and the Base class for the models
@@ -27,8 +28,9 @@ backend/
       service_request.py   # service_requests table
       quote.py             # quotes table
       assignment.py        # assignments table
+      email_passcode.py    # email_passcodes table (email verification, extra to Stage 3)
     routers/
-      auth.py              # POST /auth/register and POST /auth/login
+      auth.py              # POST /auth/send-passcode, /auth/register and /auth/login
       health.py            # GET /health
     schemas/
       auth.py              # Request and response formats of the auth endpoints
@@ -37,6 +39,7 @@ backend/
   tests/
     test_auth.py           # Register, login and token tests
     test_demo_providers.py # Demo providers tests
+    test_email_verification.py # Email verification tests
     test_health.py         # Health check and CORS tests
     test_models.py         # Checks the tables against the Stage 3 database schema
   .env.example             # Example settings, without real passwords
@@ -61,6 +64,8 @@ Each class from the Stage 3 class design is a SQLAlchemy model with its own tabl
 | `Assignment` | `assignments` | `status` is one of `active`, `completed`, `cancelled`. A worker is assigned to a project only once |
 
 The tables are created automatically when the server starts. Tables that already exist are not changed.
+
+One more table, `email_passcodes`, keeps the passcodes sent to emails that are not registered yet. It is extra to the Stage 3 schema and does not change the six tables, see [Email Verification](#email-verification).
 
 ### Demo Providers
 
@@ -143,6 +148,9 @@ The problems we met while setting up the project, and how we solved them.
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:your_password@localhost:5432/mamar` |
 | `SECRET_KEY` | Long random value that signs the login tokens (JWT). Every computer and Render has its own | Output of `python -c "import secrets; print(secrets.token_urlsafe(32))"` |
 | `FRONTEND_ORIGINS` | Frontend addresses allowed to call the API, separated by commas | `http://localhost:5173,http://127.0.0.1:5173` |
+| `EMAIL_VERIFICATION` | `on` or `off`. Optional, `off` by default | `off` |
+| `BREVO_API_KEY` | Brevo API key that sends the passcode emails. Optional: without it, the passcode is written in the server log | Empty on a local computer |
+| `EMAIL_SENDER` | The sender email you confirmed in Brevo | `your_email@gmail.com` |
 
 The `.env` file is ignored by Git, so passwords are never committed.
 
@@ -165,7 +173,7 @@ The two `auth` endpoints follow Stage 3 (sections 4.2.3 and 4.2.4). They are the
 
 `POST /auth/register` creates a new user account.
 
-Request body. `phone` is optional, and `provider_id` is required only when `role` is `provider` or `worker`:
+Request body. `phone` is optional, and `provider_id` is required only when `role` is `provider` or `worker`. `passcode` is required only when [email verification](#email-verification) is on:
 
 ```json
 {
@@ -219,6 +227,55 @@ The password is hashed with Argon2 by `set_password()`, so the real password is 
 | A field is missing | 422 | `{"detail": "password: Field required"}` |
 
 The token is a JWT signed with `SECRET_KEY`. It keeps the user id and role, and it expires after 60 minutes, so the user signs in again after that.
+
+### Email Verification
+
+Email verification is an addition to the Stage 3 API. When `EMAIL_VERIFICATION` is `on`, an account is created only with the 6-digit passcode that was sent to its email. This follows the Create Account pages in the frontend (`RegisterVerificationPage` and `WorkerVerificationPage`): the user fills the register form, receives the passcode, enters it, and then the account is created.
+
+1. The register form sends `POST /auth/send-passcode` with the email. The passcode is sent to that email.
+2. The passcode page sends `POST /auth/register` with the register form and `"passcode": "042917"`.
+3. With the right passcode, register returns 201 as before and the account can log in.
+
+It is `off` on Render until the frontend sends the passcode. While it is off, `passcode` is not needed and register works as before. Turning it on is one change in the Render settings and needs no new deploy. Accounts that already exist are not affected.
+
+| Rule | Value |
+| --- | --- |
+| Passcode | 6 random digits. Only its Argon2 hash is saved, like the passwords |
+| Expires after | 10 minutes |
+| Wrong passcodes | After 5 wrong passcodes, the passcode stops working and a new one is needed |
+| New passcode | Once a minute, with `POST /auth/send-passcode` again. The old passcode stops working |
+| Used once | The passcode is deleted when the account is created |
+
+`POST /auth/send-passcode` with `{"email": "sara@example.com"}`:
+
+| Case | Status code | Response |
+| --- | --- | --- |
+| Passcode sent | 200 | `{"message": "Passcode sent"}` |
+| Email already registered | 409 | `{"detail": "Email is already registered"}` |
+| The email is not valid | 422 | `{"detail": "email: value is not a valid email address"}` |
+| Less than a minute since the last passcode | 429 | `{"detail": "Wait a minute before asking for a new passcode"}` |
+| Brevo could not send the email | 502 | `{"detail": "Could not send the email, try again later"}`. The user can try again right away |
+
+`POST /auth/register` when verification is on, in addition to the register cases above:
+
+| Case | Status code | Response |
+| --- | --- | --- |
+| No `passcode` | 422 | `{"detail": "passcode: Field required"}` |
+| The passcode is not 6 digits | 422 | `{"detail": "passcode: the passcode has 6 digits"}` |
+| No passcode was asked for this email | 400 | `{"detail": "Ask for a passcode first"}` |
+| Wrong passcode | 400 | `{"detail": "Passcode is wrong"}` |
+| Passcode expired | 400 | `{"detail": "Passcode has expired, ask for a new passcode"}` |
+| 5 wrong passcodes | 429 | `{"detail": "Too many wrong passcodes, ask for a new passcode"}` |
+
+The emails are sent with the [Brevo](https://www.brevo.com) API over HTTPS, because the free Render plan blocks the SMTP ports, so Gmail SMTP cannot send from Render. On a local computer without `BREVO_API_KEY`, the passcode is written in the server terminal instead, for example `The passcode for sara@example.com is 042917`.
+
+To turn it on, on Render:
+
+1. Create a free Brevo account, then in **Senders** add the email that sends the passcodes and confirm it from its inbox.
+2. In **SMTP & API > API Keys**, create an API key.
+3. On Render (Backend service > Environment), add `BREVO_API_KEY` with that key, `EMAIL_SENDER` with the confirmed email, and `EMAIL_VERIFICATION` with `on`. Render restarts the backend.
+
+While verification is on, `provider` and `worker` accounts receive the passcode at their company email (for example `@tcmksa.com`), so test those accounts with verification off. The worker page says the passcode comes from the service provider. For now the worker receives it from MAMAR like the other roles. A passcode sent by the provider needs a provider screen and endpoint, which are not built yet.
 
 ### Token for the Other Endpoints
 
@@ -278,12 +335,19 @@ headers: { Authorization: `Bearer ${accessToken}` }
 | Error response | `{"detail": "message"}`, so the frontend can show `detail` to the user |
 | Allowed frontend origins | `http://localhost:5173` and `http://127.0.0.1:5173`, and `https://mammar-blush.vercel.app` on Render |
 | Provider IDs for testing | 1 to 4, see [Demo Providers](#demo-providers) |
+| Email verification | `POST /auth/send-passcode`, then `passcode` in `POST /auth/register` (off on Render for now) |
 
 To connect the register page to `POST /auth/register`:
 
 - Send the role `worker` instead of `field-worker`, because the `users` table and the Stage 3 API accept `worker`. The button can still say "Field Worker". The login page should use `worker` too.
 - Add a full name field. `full_name` is required in Stage 3, and the page now asks only for the email, the password and the role.
 - `provider` and `worker` accounts need a `provider_id`. Use one of the demo providers, 1 to 4, with its company email, for example `test@tcmksa.com` for provider 1. Another number returns 404 `Provider not found`, and another email returns 422.
+
+To connect the Create Account (passcode) pages before email verification is turned on:
+
+- `RegisterPage`: before going to the passcode page, send `POST /auth/send-passcode` with the email, and show `detail` if it fails (for example 409 when the email is already registered).
+- `RegisterVerificationPage` and `WorkerVerificationPage`: on **Create Account**, send `POST /auth/register` with the saved registration and `passcode`. On 201, remove `mamarPendingRegistration` from `sessionStorage` and open the login page. Otherwise show `detail`.
+- A "send a new passcode" button can send `POST /auth/send-passcode` again (once a minute).
 
 ## Run the Tests
 
@@ -323,6 +387,21 @@ pytest
 | `test_login_with_an_unknown_email_returns_401` | An email that is not registered returns the same 401 |
 | `test_protected_endpoint_accepts_the_login_token` | The login token opens an endpoint that needs a token |
 | `test_protected_endpoint_without_a_valid_token_returns_401` | No token, a wrong token, an expired token and a token signed with another key all return 401 |
+| `test_verification_is_off_by_default` | With the switch off, register works without a passcode, as before |
+| `test_register_with_the_right_passcode_creates_the_account` | The right passcode creates the account, it can log in, and the passcode is used once |
+| `test_register_without_a_passcode_returns_422` | With the switch on, `passcode` is required |
+| `test_register_before_asking_for_a_passcode_returns_400` | A passcode that was never asked for returns 400 |
+| `test_wrong_passcode_returns_400_and_creates_nothing` | A wrong passcode returns 400 and no account is saved |
+| `test_too_many_wrong_passcodes_block_the_passcode` | After 5 wrong passcodes, even the right one returns 429 |
+| `test_expired_passcode_returns_400` | A passcode older than 10 minutes returns 400 |
+| `test_passcode_must_have_6_digits` | Passcodes that are not 6 digits return 422 (4 cases) |
+| `test_only_the_hash_of_the_passcode_is_saved` | The passcode is saved as an Argon2 hash |
+| `test_new_passcode_waits_a_minute_and_replaces_the_old_one` | A new passcode waits a minute, and then only the new one works |
+| `test_new_passcode_after_wrong_passcodes_works` | A new passcode works after 5 wrong ones |
+| `test_send_passcode_to_a_registered_email_returns_409` | A registered email cannot get a passcode |
+| `test_send_passcode_with_an_invalid_email_returns_422` | An email that is not valid returns 422 |
+| `test_send_passcode_returns_502_when_the_email_cannot_be_sent` | When Brevo fails, it returns 502 and the user can try again right away |
+| `test_brevo_request` | The request to Brevo has the right address, key, sender, receiver and passcode |
 
 ## Deploy on Render
 
@@ -337,5 +416,6 @@ The backend is deployed at `https://mamar-api.onrender.com` (free instance). It 
 | `DATABASE_URL` | Added with **Add variable > Datastore URL**, linked to the Render PostgreSQL database (internal URL), so the password is never typed by hand |
 | `SECRET_KEY` | Added with the **Generate** button on Render, so the value is random and never typed by hand |
 | `FRONTEND_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173,https://mammar-blush.vercel.app` |
+| `EMAIL_VERIFICATION` | Not added yet, so it is `off`. Added as `on` with `BREVO_API_KEY` and `EMAIL_SENDER` when the frontend sends the passcode, see [Email Verification](#email-verification) |
 
 The free Render PostgreSQL database expires 30 days after it is created.
