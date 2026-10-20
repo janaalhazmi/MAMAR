@@ -16,7 +16,7 @@ backend/
   app/
     core/
       config.py            # Reads the settings from the .env file
-      email.py             # Sends the registration passcode with Brevo
+      email.py             # Sends the registration passcode with EmailJS
       security.py          # Login tokens (JWT) and the token check for protected endpoints
     db/
       database.py          # Database engine, sessions and the Base class for the models
@@ -152,8 +152,10 @@ The problems we met while setting up the project, and how we solved them.
 | `SECRET_KEY` | Long random value that signs the login tokens (JWT). Every computer and Render has its own | Output of `python -c "import secrets; print(secrets.token_urlsafe(32))"` |
 | `FRONTEND_ORIGINS` | Frontend addresses allowed to call the API, separated by commas | `http://localhost:5173,http://127.0.0.1:5173` |
 | `EMAIL_VERIFICATION` | `on` or `off`. Optional, `off` by default | `off` |
-| `BREVO_API_KEY` | Brevo API key that sends the passcode emails. Optional: without it, the passcode is written in the server log | Empty on a local computer |
-| `EMAIL_SENDER` | The sender email you confirmed in Brevo | `your_email@gmail.com` |
+| `EMAILJS_SERVICE_ID` | EmailJS Gmail service that sends the passcode emails. Optional: without the four EmailJS values, the passcode is written in the server log | Empty on a local computer |
+| `EMAILJS_TEMPLATE_ID` | EmailJS template of the passcode email | `template_xxxxxxx` |
+| `EMAILJS_PUBLIC_KEY` | EmailJS public key (Account > General) | Empty on a local computer |
+| `EMAILJS_PRIVATE_KEY` | EmailJS private key (Account > Security). Secret, like a password | Empty on a local computer |
 
 The `.env` file is ignored by Git, so passwords are never committed.
 
@@ -257,7 +259,7 @@ It is `off` on Render until the frontend sends the passcode. While it is off, `p
 | Email already registered | 409 | `{"detail": "Email is already registered"}` |
 | The email is not valid | 422 | `{"detail": "email: value is not a valid email address"}` |
 | Less than a minute since the last passcode | 429 | `{"detail": "Wait a minute before asking for a new passcode"}` |
-| Brevo could not send the email | 502 | `{"detail": "Could not send the email, try again later"}`. The user can try again right away |
+| EmailJS could not send the email | 502 | `{"detail": "Could not send the email, try again later"}`. The user can try again right away |
 
 `POST /auth/register` when verification is on, in addition to the register cases above:
 
@@ -270,13 +272,23 @@ It is `off` on Render until the frontend sends the passcode. While it is off, `p
 | Passcode expired | 400 | `{"detail": "Passcode has expired, ask for a new passcode"}` |
 | 5 wrong passcodes | 429 | `{"detail": "Too many wrong passcodes, ask for a new passcode"}` |
 
-The emails are sent with the [Brevo](https://www.brevo.com) API over HTTPS, because the free Render plan blocks the SMTP ports, so Gmail SMTP cannot send from Render. On a local computer without `BREVO_API_KEY`, the passcode is written in the server terminal instead, for example `The passcode for sara@example.com is 042917`.
+The emails are sent from the team's Gmail account with the [EmailJS](https://www.emailjs.com) API over HTTPS, because the free Render plan blocks the SMTP ports, so Gmail SMTP cannot send from Render. The free EmailJS plan sends 200 emails a month. We first tried Brevo, but Brevo asks for a phone verification code before it creates an API key, and the code never arrived. On a local computer without the EmailJS values, the passcode is written in the server terminal instead, for example `The passcode for sara@example.com is 042917`.
 
-To turn it on, on Render:
+To turn it on:
 
-1. Create a free Brevo account, then in **Senders** add the email that sends the passcodes and confirm it from its inbox.
-2. In **SMTP & API > API Keys**, create an API key.
-3. On Render (Backend service > Environment), add `BREVO_API_KEY` with that key, `EMAIL_SENDER` with the confirmed email, and `EMAIL_VERIFICATION` with `on`. Render restarts the backend.
+1. Create a free EmailJS account. In **Email Services**, add a **Gmail** service and connect the Gmail account that sends the passcodes.
+2. In **Email Templates**, create a template with **To Email** `{{to_email}}`, **From Name** `MAMAR`, **Subject** `Your MAMAR passcode`, and this content:
+
+   ```text
+   Your MAMAR passcode is {{passcode}}.
+   Enter it on the Create Account page. It expires in 10 minutes.
+   If you did not ask for a MAMAR account, ignore this email.
+   ```
+
+3. In **Account > Security**, turn on **Allow EmailJS API for non-browser applications** and **Use Private Key**, because the backend calls EmailJS from the server.
+4. On Render (Backend service > Environment), add `EMAILJS_SERVICE_ID`, `EMAILJS_TEMPLATE_ID`, `EMAILJS_PUBLIC_KEY` and `EMAILJS_PRIVATE_KEY`, and `EMAIL_VERIFICATION` with `on`. Render restarts the backend.
+
+When EmailJS refuses a request, the reason it gives is written in the server log, for example `EmailJS returned 403: API calls are disabled for non-browser applications`.
 
 While verification is on, `provider` and `worker` accounts receive the passcode at their company email (for example `@tcmksa.com`), so test those accounts with verification off. The worker page says the passcode comes from the service provider. For now the worker receives it from MAMAR like the other roles. A passcode sent by the provider needs a provider screen and endpoint, which are not built yet.
 
@@ -494,8 +506,10 @@ pytest
 | `test_new_passcode_after_wrong_passcodes_works` | A new passcode works after 5 wrong ones |
 | `test_send_passcode_to_a_registered_email_returns_409` | A registered email cannot get a passcode |
 | `test_send_passcode_with_an_invalid_email_returns_422` | An email that is not valid returns 422 |
-| `test_send_passcode_returns_502_when_the_email_cannot_be_sent` | When Brevo fails, it returns 502 and the user can try again right away |
-| `test_brevo_request` | The request to Brevo has the right address, key, sender, receiver and passcode |
+| `test_send_passcode_returns_502_when_the_email_cannot_be_sent` | When EmailJS fails, it returns 502 and the user can try again right away |
+| `test_emailjs_request` | The request to EmailJS has the right address, service, template, keys, receiver and passcode |
+| `test_emailjs_error_is_explained` | When EmailJS refuses the request, its reason is kept in the error for the server log |
+| `test_without_emailjs_the_passcode_is_written_in_the_log` | Without EmailJS, nothing is sent and the passcode is written in the server log |
 | `test_create_project_returns_201_as_draft` | A contractor creates a project with the Stage 3 example. It returns 201 with the Stage 3 fields, as `draft`, and saves the contractor's `user_id` |
 | `test_create_project_without_description` | `description` is optional, and an empty description is saved as `null` |
 | `test_end_date_before_start_date_returns_422` | `end_date` before `start_date` returns 422 and nothing is saved. The same day is accepted |
@@ -527,6 +541,7 @@ The backend is deployed at `https://mamar-api.onrender.com` (free instance). It 
 | `DATABASE_URL` | Added with **Add variable > Datastore URL**, linked to the Render PostgreSQL database (internal URL), so the password is never typed by hand |
 | `SECRET_KEY` | Added with the **Generate** button on Render, so the value is random and never typed by hand |
 | `FRONTEND_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173,https://mammar-blush.vercel.app` |
-| `EMAIL_VERIFICATION` | Not added yet, so it is `off`. Added as `on` with `BREVO_API_KEY` and `EMAIL_SENDER` when the frontend sends the passcode, see [Email Verification](#email-verification) |
+| `EMAILJS_SERVICE_ID`, `EMAILJS_TEMPLATE_ID`, `EMAILJS_PUBLIC_KEY`, `EMAILJS_PRIVATE_KEY` | From the EmailJS account, see [Email Verification](#email-verification). `EMAILJS_PRIVATE_KEY` is secret |
+| `EMAIL_VERIFICATION` | Not added yet, so it is `off`. Added as `on` when the frontend sends the passcode, see [Email Verification](#email-verification) |
 
 The free Render PostgreSQL database expires 30 days after it is created.
