@@ -5616,3 +5616,106 @@ body {
     font-size: 26px;
   }
 }
+
+/* Dashboard map */
+.dashboard-map-frame {
+  width: 100%;
+  height: 230px;
+  overflow: hidden;
+  border: 1px solid #e1e5eb;
+  border-radius: 8px;
+  background: #f1f3f5;
+}
+
+.dashboard-map-frame .mamar-map-container,
+.dashboard-map-frame .mamar-map {
+  width: 100%;
+  height: 100%;
+}
+
+/* Map drawing tools */
+.mamar-map-tools {
+  position: absolute;
+  z-index: 10;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 24px);
+}
+
+.mamar-map-tool-button {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 7px;
+  background: #ffcc00;
+  color: #222;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+}
+
+.mamar-map-tool-button:hover {
+  background: #f2bf00;
+}
+
+.mamar-map-tool-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mamar-map-tool-button.secondary {
+  background: #fff;
+  border: 1px solid #ddd;
+}
+
+.mamar-map-drawing-hint {
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #fff;
+  color: #222;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+}
+
+/* Neighborhood search */
+.location-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.location-search input {
+  flex: 1;
+  min-width: 0;
+}
+
+.location-search button {
+  flex-shrink: 0;
+  height: 38px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 7px;
+  background: #ffcc00;
+  color: #172033;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.location-search button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.quick-actions-panel button.quick-action {
+  width: 100%;
+  border: 1px solid #e1e5eb;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}

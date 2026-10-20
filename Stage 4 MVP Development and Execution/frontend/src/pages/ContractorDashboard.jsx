@@ -1,84 +1,92 @@
-import { getSession } from "../services/auth";
-import { logout } from "../services/auth";
-
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
-
-
+import MamarMap from "../components/MamarMap";
 
 function ContractorDashboard() {
-  const user = getSession()?.user;
-  const displayName = user?.full_name || "User";
+  const navigate = useNavigate();
+
   const statistics = [
-    { icon: "▤", value: 5, label: "Total Projects" },
-    { icon: "◷", value: 2, label: "In Progress" },
-    { icon: "✓", value: 2, label: "Completed" },
-    { icon: "•••", value: 1, label: "Pending Quotes" },
+    {
+      title: "Total Projects",
+      value: "12",
+      change: "+2 this month",
+      icon: "▦",
+      className: "stat-icon-yellow",
+    },
+    {
+      title: "Active Projects",
+      value: "4",
+      change: "Currently in progress",
+      icon: "◷",
+      className: "stat-icon-blue",
+    },
+    {
+      title: "Pending Quotations",
+      value: "3",
+      change: "Awaiting your response",
+      icon: "▤",
+      className: "stat-icon-orange",
+    },
+    {
+      title: "Completed Projects",
+      value: "8",
+      change: "Successfully completed",
+      icon: "✓",
+      className: "stat-icon-green",
+    },
   ];
 
   const projects = [
     {
       name: "King Fahd Road – Water Line",
-      location: "Riyadh",
-      startDate: "10 Sep 2025",
-      endDate: "20 Sep 2025",
+      type: "Infrastructure",
+      location: "King Fahd Road, Riyadh",
       status: "In Progress",
-      statusClass: "in-progress",
+      statusClass: "status-progress",
+      progress: 65,
+      date: "20 Sep 2026",
     },
     {
-      name: "Olaya Street – Maintenance",
-      location: "Riyadh",
-      startDate: "01 Oct 2025",
-      endDate: "15 Oct 2025",
-      status: "Pending Quotes",
-      statusClass: "pending-quotes",
+      name: "North Riyadh Road Maintenance",
+      type: "Road Maintenance",
+      location: "Al Narjis, Riyadh",
+      status: "Pending",
+      statusClass: "status-pending",
+      progress: 20,
+      date: "25 Sep 2026",
     },
     {
-      name: "Northern Ring Road",
-      location: "Riyadh",
-      startDate: "12 Oct 2025",
-      endDate: "05 Nov 2025",
+      name: "Olaya Street Development",
+      type: "Road Development",
+      location: "Olaya, Riyadh",
       status: "Completed",
-      statusClass: "completed",
-    },
-    {
-      name: "Al Yarmouk Intersection",
-      location: "Riyadh",
-      startDate: "20 Nov 2025",
-      endDate: "05 Dec 2025",
-      status: "Planned",
-      statusClass: "planned",
+      statusClass: "status-completed",
+      progress: 100,
+      date: "10 Sep 2026",
     },
   ];
 
   const activities = [
     {
-      icon: "▤",
-      title: "New quote received",
-      description: "King Fahd Road – Water Line",
-      time: "2h ago",
-      type: "quote",
-    },
-    {
       icon: "✓",
+      className: "activity-icon-green",
       title: "Project status updated",
-      description: "Olaya Street – Maintenance",
-      time: "5h ago",
-      type: "success",
+      description: "King Fahd Road – Water Line is now in progress.",
+      time: "2 hours ago",
     },
     {
-      icon: "□",
-      title: "Provider message",
-      description: "Safety Arabia Co. LTD",
-      time: "1d ago",
-      type: "message",
+      icon: "▤",
+      className: "activity-icon-yellow",
+      title: "New quotation received",
+      description: "A provider submitted a quotation for your project.",
+      time: "Yesterday",
     },
     {
-      icon: "+",
+      icon: "＋",
+      className: "activity-icon-blue",
       title: "Project created",
-      description: "Northern Ring Road",
-      time: "2d ago",
-      type: "created",
+      description: "North Riyadh Road Maintenance was created.",
+      time: "2 days ago",
     },
   ];
 
@@ -86,231 +94,282 @@ function ContractorDashboard() {
     <div className="contractor-dashboard">
       {/* Sidebar */}
       <aside className="contractor-sidebar">
-        <Link to="/" className="dashboard-brand">
-          <img src={logo} alt="MAMAR Logo" />
-        </Link>
+        <div className="dashboard-logo">
+          <Link to="/contractor-dashboard" aria-label="MAMAR Dashboard">
+            <img src={logo} alt="MAMAR" />
+          </Link>
+        </div>
 
-        <nav className="dashboard-navigation">
-          <a href="#dashboard" className="active">
-            <span className="navigation-icon">▦</span>
-            Dashboard
-          </a>
+        <nav className="dashboard-navigation" aria-label="Main navigation">
+          <Link
+            to="/contractor-dashboard"
+            className="dashboard-nav-active"
+          >
+            <span className="dashboard-nav-icon">▦</span>
+            <span>Dashboard</span>
+          </Link>
 
-          <a href="#projects">
-            <span className="navigation-icon">▣</span>
-            My Projects
-          </a>
+          <Link to="/contractor-dashboard#projects">
+            <span className="dashboard-nav-icon">▣</span>
+            <span>My Projects</span>
+          </Link>
 
           <Link to="/create-project">
-            <span className="navigation-icon">⊕</span>
-            Create Project
+            <span className="dashboard-nav-icon">＋</span>
+            <span>Create Project</span>
           </Link>
 
           <Link to="/providers">
-            <span className="navigation-icon">♧</span>
-            Providers
+            <span className="dashboard-nav-icon">♧</span>
+            <span>Providers</span>
           </Link>
 
-          <a href="#quotations">
-            <span className="navigation-icon">▤</span>
-            Quotations
-          </a>
+          <Link to="/quotations">
+            <span className="dashboard-nav-icon">▤</span>
+            <span>Quotations</span>
+          </Link>
         </nav>
 
         <div className="sidebar-bottom">
-          <a href="#disclaimer">
-            <span>ⓘ</span>
-            Data Disclaimer
-          </a>
+          <Link to="/data-disclaimer">
+            <span className="dashboard-nav-icon">ⓘ</span>
+            <span>Data Disclaimer</span>
+          </Link>
 
           <Link to="/support">
-            <span>ⓘ</span>
-            Help &amp; Support
-           </Link>
+            <span className="dashboard-nav-icon">ⓘ</span>
+            <span>Help &amp; Support</span>
+          </Link>
 
-          <Link to="/login" onClick={logout}>
-            <span>→</span>
-            Log out
+          <Link to="/login">
+            <span className="dashboard-nav-icon">↪</span>
+            <span>Log out</span>
           </Link>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="contractor-main">
+      {/* Main Dashboard */}
+      <main className="dashboard-main">
+        {/* Header */}
         <header className="dashboard-header">
-          <Link to="/" className="dashboard-header-logo">
+          <div className="dashboard-header-logo">
             <img src={logo} alt="MAMAR" />
-          </Link>
+          </div>
 
-          <div className="dashboard-user">
-            <div className="user-avatar">{displayName.charAt(0).toUpperCase()}</div>
+          <div className="dashboard-header-right">
+            <button
+              type="button"
+              className="dashboard-notification-button"
+              aria-label="Notifications"
+            >
+              ♧
+              <span className="notification-dot" />
+            </button>
 
-            <div className="user-information">
-              <strong>{displayName}</strong>
-              <span>Contractor</span>
+            <div className="dashboard-user">
+              <div className="dashboard-avatar">K</div>
+
+              <div className="dashboard-user-info">
+                <strong>Kayan</strong>
+                <span>Contractor</span>
+              </div>
+
+              <span className="dashboard-user-chevron">⌄</span>
             </div>
           </div>
         </header>
 
-        <div className="dashboard-content" id="dashboard">
+        {/* Dashboard Content */}
+        <div className="dashboard-content">
           {/* Welcome */}
           <section className="dashboard-welcome">
             <div>
-              <h1>
-                Welcome Back, {displayName} <span>👋</span>
-              </h1>
-
+              <h1>Welcome back, Kayan!</h1>
               <p>
-                Here's an overview of your projects and activity.
+                Here&apos;s an overview of your projects and activities.
               </p>
             </div>
 
-            <Link
-              to="/create-project"
-              className="create-project-button"
+            <button
+              type="button"
+              className="dashboard-create-button"
+              onClick={() => navigate("/create-project")}
             >
-              <span>+</span>
+              <span>＋</span>
               Create New Project
-            </Link>
+            </button>
           </section>
 
           {/* Statistics */}
           <section className="statistics-grid">
-            {statistics.map((stat) => (
-              <article className="stat-card" key={stat.label}>
-                <div className="stat-icon">{stat.icon}</div>
+            {statistics.map((statistic) => (
+              <article
+                className="stat-card"
+                key={statistic.title}
+              >
+                <div className="stat-card-top">
+                  <div
+                    className={`stat-icon ${statistic.className}`}
+                  >
+                    {statistic.icon}
+                  </div>
+
+                  <span className="stat-menu">•••</span>
+                </div>
 
                 <div className="stat-information">
-                  <strong>{stat.value}</strong>
-                  <span>{stat.label}</span>
+                  <span>{statistic.title}</span>
+                  <strong>{statistic.value}</strong>
+                  <small>{statistic.change}</small>
                 </div>
               </article>
             ))}
           </section>
 
-          {/* Dashboard Grid */}
-          <div className="dashboard-grid">
-            <div className="dashboard-left-column">
-              {/* Project Locations */}
-              <section className="dashboard-panel locations-panel">
-                <div className="panel-heading">
-                  <h2>Project Locations</h2>
+          {/* Projects and Map */}
+          <div className="dashboard-main-grid">
+            {/* Projects */}
+            <section
+              className="dashboard-panel projects-panel"
+              id="projects"
+            >
+              <div className="panel-heading">
+                <div>
+                  <h2>Recent Projects</h2>
+                  <p>Track and manage your latest projects.</p>
                 </div>
 
-                <div className="map-placeholder">
-                  <div className="map-road map-road-one" />
-                  <div className="map-road map-road-two" />
-                  <div className="map-road map-road-three" />
+                <Link
+                  to="/contractor-dashboard#projects"
+                  className="panel-heading-link"
+                >
+                  View All →
+                </Link>
+              </div>
 
-                  <span className="map-marker marker-one">1</span>
-                  <span className="map-marker marker-two">2</span>
-                  <span className="map-marker marker-three">3</span>
+              <div className="projects-table-wrapper">
+                <table className="projects-table">
+                  <thead>
+                    <tr>
+                      <th>Project</th>
+                      <th>Status</th>
+                      <th>Progress</th>
+                      <th>Due Date</th>
+                    </tr>
+                  </thead>
 
-                  <span className="map-label">
-                    Project locations
-                  </span>
+                  <tbody>
+                    {projects.map((project) => (
+                      <tr key={project.name}>
+                        <td>
+                          <div className="project-name-cell">
+                            <strong>{project.name}</strong>
+                            <span>
+                              {project.type} · {project.location}
+                            </span>
+                          </div>
+                        </td>
+
+                        <td>
+                          <span
+                            className={`project-status ${project.statusClass}`}
+                          >
+                            {project.status}
+                          </span>
+                        </td>
+
+                        <td>
+                          <div className="project-progress-cell">
+                            <div className="project-progress-track">
+                              <div
+                                className="project-progress-fill"
+                                style={{
+                                  width: `${project.progress}%`,
+                                }}
+                              />
+                            </div>
+
+                            <span>{project.progress}%</span>
+                          </div>
+                        </td>
+
+                        <td className="project-date">
+                          {project.date}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            {/* Project Locations Map */}
+            <section
+              className="dashboard-panel locations-panel"
+              id="locations"
+            >
+              <div className="panel-heading">
+                <div>
+                  <h2>Project Locations</h2>
+                  <p>Explore locations on the map.</p>
                 </div>
 
                 <button
                   type="button"
-                  className="map-full-button"
-                  onClick={() => {
-                    alert("Map integration will be added later.");
-                  }}
+                  className="map-expand-button"
+                  onClick={() => navigate("/project/location")}
+                  aria-label="Open full map"
                 >
-                  View Full Map →
+                  ↗
                 </button>
-              </section>
+              </div>
 
-              {/* Projects Table */}
-              <section className="dashboard-panel projects-panel" id="projects">
-                <div className="panel-heading">
-                  <h2>My Projects</h2>
+              <div className="dashboard-map-frame">
+                <MamarMap readOnly height="100%" />
+              </div>
 
-                  <a href="#projects">View all →</a>
+              <button
+                type="button"
+                className="map-full-button"
+                onClick={() => navigate("/project/location")}
+              >
+                View Full Map →
+              </button>
+            </section>
+          </div>
+
+          {/* Quick Actions and Activity */}
+          <div className="dashboard-bottom-grid">
+            {/* Quick Actions */}
+            <section className="dashboard-panel quick-actions-panel">
+              <div className="panel-heading">
+                <div>
+                  <h2>Quick Actions</h2>
+                  <p>Shortcuts to common tasks.</p>
                 </div>
+              </div>
 
-                <div className="projects-table-wrapper">
-                  <table className="projects-table">
-                    <thead>
-                      <tr>
-                        <th>Project Name</th>
-                        <th>Location</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {projects.map((project) => (
-                        <tr key={project.name}>
-                          <td>
-                            <div className="project-name-cell">
-                              <span className="project-thumbnail" />
-                              <strong>{project.name}</strong>
-                            </div>
-                          </td>
-
-                          <td>{project.location}</td>
-                          <td>{project.startDate}</td>
-                          <td>{project.endDate}</td>
-
-                          <td>
-                            <span
-                              className={`project-status ${project.statusClass}`}
-                            >
-                              {project.status}
-                            </span>
-                          </td>
-
-                          <td>
-                            <button
-                              type="button"
-                              className="project-actions-button"
-                              aria-label={`Actions for ${project.name}`}
-                            >
-                              ⋮
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-            </div>
-
-            {/* Right Column */}
-            <div className="dashboard-right-column">
-              {/* Quick Actions */}
-              <section className="dashboard-panel quick-actions-panel">
-                <h2>Quick Actions</h2>
-
-                <Link to="/create-project" className="quick-action">
-                  <span className="action-icon">+</span>
+              <div className="quick-actions-list">
+                <button
+                  type="button"
+                  className="quick-action"
+                  onClick={() => navigate("/create-project")}
+                >
+                  <span className="action-icon">＋</span>
 
                   <span className="action-information">
-                    <strong>Create New Project</strong>
-                    <small>Add a new road project</small>
+                    <strong>Create Project</strong>
+                    <small>Start a new project</small>
                   </span>
 
                   <span className="action-arrow">›</span>
-                </Link>
+                </button>
 
-                <Link to="/providers" className="quick-action">
-                  <span className="action-icon">♧</span>
-
-                  <span className="action-information">
-                    <strong>Browse Providers</strong>
-                    <small>Compare traffic control companies</small>
-                  </span>
-
-                  <span className="action-arrow">›</span>
-                </Link>
-
-                <a href="#locations" className="quick-action">
+                <button
+                  type="button"
+                  className="quick-action"
+                  onClick={() => navigate("/project/location")}
+                >
                   <span className="action-icon">⌖</span>
 
                   <span className="action-information">
@@ -319,44 +378,84 @@ function ContractorDashboard() {
                   </span>
 
                   <span className="action-arrow">›</span>
-                </a>
-              </section>
+                </button>
 
-              {/* Recent Activity */}
-              <section className="dashboard-panel activity-panel">
-                <div className="panel-heading">
+                <button
+                  type="button"
+                  className="quick-action"
+                  onClick={() => navigate("/quotations")}
+                >
+                  <span className="action-icon">▤</span>
+
+                  <span className="action-information">
+                    <strong>View Quotations</strong>
+                    <small>Review provider offers</small>
+                  </span>
+
+                  <span className="action-arrow">›</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="quick-action"
+                  onClick={() => navigate("/providers")}
+                >
+                  <span className="action-icon">♧</span>
+
+                  <span className="action-information">
+                    <strong>Find Providers</strong>
+                    <small>Browse service providers</small>
+                  </span>
+
+                  <span className="action-arrow">›</span>
+                </button>
+              </div>
+            </section>
+
+            {/* Recent Activity */}
+            <section className="dashboard-panel activity-panel">
+              <div className="panel-heading">
+                <div>
                   <h2>Recent Activity</h2>
-
-                  <a href="#activity">View all →</a>
+                  <p>Stay up to date with your projects.</p>
                 </div>
 
-                <div className="activity-list" id="activity">
-                  {activities.map((activity) => (
-                    <article
-                      className="activity-item"
-                      key={activity.title}
+                <button
+                  type="button"
+                  className="panel-heading-link"
+                  onClick={() => navigate("/contractor-dashboard")}
+                >
+                  View All →
+                </button>
+              </div>
+
+              <div className="activity-list">
+                {activities.map((activity, index) => (
+                  <article
+                    className="activity-item"
+                    key={`${activity.title}-${index}`}
+                  >
+                    <div
+                      className={`activity-icon ${activity.className}`}
                     >
-                      <span
-                        className={`activity-icon ${activity.type}`}
-                      >
-                        {activity.icon}
-                      </span>
+                      {activity.icon}
+                    </div>
 
-                      <div className="activity-information">
-                        <strong>{activity.title}</strong>
-                        <p>{activity.description}</p>
-                        <small>{activity.time}</small>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
-            </div>
+                    <div className="activity-information">
+                      <strong>{activity.title}</strong>
+                      <p>{activity.description}</p>
+                      <span>{activity.time}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
           </div>
-        </div>
-      </main>
-    </div>
-  );
-}
 
-export default ContractorDashboard;
+          {/* Footer */}
+          <footer className="dashboard-footer">
+            <span>© 2026 MAMAR. All rights reserved.</span>
+
+            <div>
+              <Link to="/data-disclaimer">Privacy &amp; Data</Link>
+              <Link
