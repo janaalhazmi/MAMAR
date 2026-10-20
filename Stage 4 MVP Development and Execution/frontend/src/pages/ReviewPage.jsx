@@ -15,6 +15,7 @@ import {
 import Sidebar from "../components/Sidebar";
 import Button from "../components/Button";
 import MamarMap from "../components/MamarMap";
+import { getSession } from "../services/auth";
 
 const SERVICE_OPTIONS = [
   {
@@ -91,6 +92,8 @@ function formatDate(value) {
 }
 
 function ReviewPage() {
+  const displayName = getSession()?.user?.full_name || "User";
+
   const navigate = useNavigate();
 
   const [project, setProject] = useState(readProject);
@@ -202,10 +205,12 @@ function ReviewPage() {
       <main className="review-main">
         <header className="review-header">
           <div className="review-account">
-            <div className="review-avatar">K</div>
+            <div className="review-avatar">
+              {displayName.charAt(0).toUpperCase()}
+            </div>
 
             <div className="review-user-info">
-              <strong>Kayan</strong>
+              <strong>{displayName}</strong>
               <span>Contractor</span>
             </div>
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
+import { getSession } from "../services/auth";
 
 const SERVICE_OPTIONS = [
   {
@@ -38,6 +39,8 @@ function readProject() {
 }
 
 function ServicesPage() {
+  const displayName = getSession()?.user?.full_name || "User";
+
   const navigate = useNavigate();
 
   const [project] = useState(readProject);
@@ -153,10 +156,12 @@ function ServicesPage() {
       <main className="services-main">
         <header className="services-header">
           <div className="services-account">
-            <div className="services-avatar">K</div>
+            <div className="services-avatar">
+              {displayName.charAt(0).toUpperCase()}
+            </div>
 
             <div className="services-user-info">
-              <strong>Kayan</strong>
+              <strong>{displayName}</strong>
               <span>Contractor</span>
             </div>
 

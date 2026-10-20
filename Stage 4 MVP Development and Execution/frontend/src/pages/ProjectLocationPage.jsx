@@ -2,8 +2,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
+import { getSession } from "../services/auth";
 
 function ProjectLocationPage() {
+  const displayName = getSession()?.user?.full_name || "User";
+
   const navigate = useNavigate();
 
   const [location, setLocation] = useState({
@@ -131,10 +134,12 @@ function ProjectLocationPage() {
           <div className="location-header-spacer" />
 
           <div className="location-user">
-            <div className="location-avatar">K</div>
+            <div className="location-avatar">
+              {displayName.charAt(0).toUpperCase()}
+            </div>
 
             <div className="location-user-info">
-              <strong>Kayan</strong>
+              <strong>{displayName}</strong>
               <span>Contractor</span>
             </div>
 

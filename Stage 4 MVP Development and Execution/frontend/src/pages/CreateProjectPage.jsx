@@ -2,8 +2,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../assets/mamar-logo.svg";
+import { getSession } from "../services/auth";
 
 function CreateProjectPage() {
+  const displayName = getSession()?.user?.full_name || "User";
+
   const navigate = useNavigate();
 
   const getToday = () => {
@@ -152,10 +155,12 @@ function CreateProjectPage() {
           </Link>
 
           <div className="create-project-user">
-            <div className="create-project-avatar">K</div>
+            <div className="create-project-avatar">
+              {displayName.charAt(0).toUpperCase()}
+            </div>
 
             <div>
-              <strong>Kayan</strong>
+              <strong>{displayName}</strong>
               <span>Contractor</span>
             </div>
 

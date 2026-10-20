@@ -4386,8 +4386,51 @@ body {
 
 /* ==========================================
    REVIEW PAGE - CONTENT
-   (paste below the existing .review-page rules)
 ========================================== */
+.review-page {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  min-height: 100vh;
+}
+ 
+.review-page .mamar-sidebar {
+  width: 210px;
+  min-width: 210px;
+  min-height: 100vh;
+  flex-shrink: 0;
+}
+ 
+.review-page .review-main {
+  flex: 1;
+  min-width: 0;
+  width: calc(100% - 210px);
+}
+ 
+.review-page .review-content {
+  width: 100%;
+  max-width: 1250px;
+  margin: 0 auto;
+  padding: 28px 24px 40px;
+}
+ 
+@media (max-width: 650px) {
+  .review-page {
+    flex-direction: column;
+  }
+ 
+  .review-page .mamar-sidebar {
+    width: 100%;
+    min-width: 0;
+    min-height: auto;
+  }
+ 
+  .review-page .review-main {
+    width: 100%;
+  }
+}
+ 
 
 .review-page {
   background: #f5f7fa;
