@@ -2,7 +2,6 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
 
-
 function ContractorDashboard() {
   const navigate = useNavigate();
 
@@ -92,7 +91,16 @@ function ContractorDashboard() {
   ];
 
   return (
-    <div className="contractor-dashboard">
+    <div
+      className="contractor-dashboard"
+      style={{
+        display: "flex",
+        width: "100%",
+        minWidth: 0,
+        minHeight: "100vh",
+        flexDirection: "row",
+      }}
+    >
       {/* Sidebar */}
       <aside className="contractor-sidebar">
         <div className="dashboard-logo">
@@ -147,7 +155,14 @@ function ContractorDashboard() {
       </aside>
 
       {/* Main dashboard */}
-      <main className="dashboard-main">
+      <main
+        className="dashboard-main"
+        style={{
+          flex: "1 1 0",
+          width: 0,
+          minWidth: 0,
+        }}
+      >
         {/* Header */}
         <header className="dashboard-header">
           <div className="dashboard-header-logo">
@@ -280,7 +295,10 @@ function ContractorDashboard() {
             </section>
 
             {/* Project locations map */}
-            <section className="dashboard-panel locations-panel" id="locations">
+            <section
+              className="dashboard-panel locations-panel"
+              id="locations"
+            >
               <div className="panel-heading">
                 <div>
                   <h2>Project Locations</h2>
