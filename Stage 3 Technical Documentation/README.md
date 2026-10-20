@@ -1260,6 +1260,30 @@ The deployment platforms are:
 - **Backend:** Render
 - **Database:** PostgreSQL on Render
 - **GIS Services:** ArcGIS Online
+  
+### Deployment Platform Justification
+
+**Vercel – Frontend Hosting**
+
+Vercel was selected to host MAMAR's React frontend because it supports GitHub-based deployment and allows the team to publish frontend updates independently.
+
+As MAMAR is a student-developed MVP with a limited timeline and budget, Vercel reduces the need for manual server configuration and allows the team to focus on developing the platform's core features.
+
+**Trade-off:** Vercel is suitable for hosting the React frontend, but MAMAR's FastAPI backend and PostgreSQL database require separate hosting.
+
+**Render – Backend Hosting**
+
+Render was selected to host MAMAR's FastAPI backend because it supports Python applications, environment variables, and PostgreSQL connectivity.
+
+MAMAR requires a backend to manage user authentication, project information, and service requests. Render allows the backend to communicate with the React frontend through HTTPS API endpoints.
+
+**Trade-off:** Lower-cost hosting plans may experience startup delays after inactivity, and the team must configure API URLs and CORS to maintain communication between Vercel and Render.
+
+**Final Decision**
+
+Using Vercel and Render separately allows MAMAR's frontend and backend to be developed, tested, and deployed independently.
+
+This architecture is appropriate for the MVP because it balances cost, development time, and technical compatibility while supporting the platform's core workflows.
 
 During development, new features will first be tested before being merged into `main`.
 
@@ -1280,6 +1304,44 @@ A feature will be considered ready for integration when:
 - The code has been reviewed before integration.
 
 A release will be considered ready for production when the critical MAMAR user flows have been successfully tested and no blocking issues remain.
+
+## 5.5 Defect Management Workflow
+
+MAMAR uses GitHub Issues and GitHub Projects to report, prioritize, assign, track, and resolve defects during MVP development.
+
+### Defect Reporting
+- Any team member who identifies a defect creates a GitHub Issue.
+- Each issue includes the defect description, steps to reproduce, expected and actual results, and supporting screenshots or logs when available.
+- The issue is added to the MAMAR GitHub Project.
+
+### Defect Prioritization
+Defects are prioritized based on their impact on the MVP:
+
+- **Critical:** Blocks essential functionality, such as user authentication.
+- **High:** Significantly affects functionality but does not completely block the system.
+- **Medium:** Affects non-critical features or usability.
+- **Low:** Minor visual or cosmetic issues.
+
+Critical and high-priority defects are addressed first.
+
+### Defect Ownership
+- The Project Manager reviews reported defects and assigns an owner.
+- Frontend defects are assigned to the frontend developers.
+- Backend and database defects are assigned to the backend developer.
+- GIS-related defects are assigned to the GIS Lead.
+
+### Defect Resolution and Verification
+1. The assigned developer investigates and fixes the defect in a dedicated branch.
+2. A Pull Request is created and reviewed before merging into `develop`.
+3. The QA team retests the affected functionality and checks for regressions.
+4. If the issue persists, it is returned to the assigned developer.
+
+### Defect Closure
+- A defect is closed only after the fix has been merged and successfully verified.
+- The GitHub Issue is updated with the resolution summary, related Pull Request, and testing evidence.
+- The issue status is changed to `Done` in GitHub Projects.
+
+**Workflow:** Report → Prioritize → Assign → Fix → Review → Retest → Close
 
 ---
 
