@@ -1,64 +1,28 @@
-import {
-  LayoutDashboard,
-  FolderKanban,
-  Wrench,
-  BadgeCheck,
-  Users,
-} from "lucide-react";
-
-import Sidebar from "../components/Sidebar";
+import ProviderSidebar from "../components/ProviderSidebar";
 import Button from "../components/Button";
-
-const providerItems = [
-  {
-    label: "Dashboard",
-    path: "/provider-dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    label: "Projects",
-    path: "/provider/projects",
-    icon: FolderKanban,
-  },
-  {
-    label: "Execution",
-    path: "/provider/execution",
-    icon: Wrench,
-  },
-  {
-    label: "Device Verification",
-    path: "/provider/device-verification",
-    icon: BadgeCheck,
-  },
-  {
-    label: "Field Team",
-    path: "/provider/field-team",
-    icon: Users,
-  },
-];
 
 const summaryCards = [
   {
     label: "Assigned Projects",
-    value: "04",
+    value: "4",
     icon: "＋",
     color: "yellow",
   },
   {
     label: "Active Execution",
-    value: "02",
+    value: "2",
     icon: "✓",
     color: "green",
   },
   {
     label: "Upcoming",
-    value: "01",
+    value: "1",
     icon: "□",
     color: "blue",
   },
   {
     label: "Completed Projects",
-    value: "01",
+    value: "1",
     icon: "✓",
     color: "gray",
   },
@@ -80,7 +44,7 @@ const activeProjects = [
 function ProviderDashboard() {
   return (
     <div className="provider-dashboard-page">
-      <Sidebar items={providerItems} />
+      <ProviderSidebar />
 
       <div className="provider-main-area">
         <header className="provider-topbar">
@@ -196,7 +160,7 @@ function ProviderDashboard() {
                 </span>
               </div>
 
-              <Button variant="secondary">
+              <Button to="/provider/projects">
                 View Project →
               </Button>
             </article>

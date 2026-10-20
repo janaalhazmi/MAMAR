@@ -29,6 +29,14 @@ function PrepareQuotation() {
   const [services, setServices] = useState(initialServices);
   const [delivery, setDelivery] = useState(1200);
   const [showWorkZone, setShowWorkZone] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [workZone, setWorkZone] = useState(null);
+  const handleWorkZoneSelect = (polygon) => {
+  sessionStorage.setItem(
+    "providerWorkZone",
+    JSON.stringify(polygon)
+  );
+};
 
   const handleQuantityChange = (id, value) => {
     const newQuantity = Number(value);
@@ -67,6 +75,65 @@ function PrepareQuotation() {
   );
 
   const total = subtotal + Number(delivery || 0);
+
+  const getQuotationData = () => ({
+    requestId: "REQ-024",
+    services,
+    delivery,
+    subtotal,
+    total,
+    location: selectedLocation,
+    workZone,
+    notes: document.querySelector(".quotation-notes textarea")?.value || "",
+    validUntil: document.querySelector(".quotation-date")?.value || "",
+  });
+
+  const handleSaveDraft = () => {
+    const quotation = getQuotationData();
+
+    localStorage.setItem(
+      "providerQuotationDraft",
+      JSON.stringify(quotation)
+    );
+
+    alert("Quotation draft saved successfully.");
+  };
+
+  const handleSubmitQuotation = () => {
+    if (!selectedLocation) {
+      alert("Please select the project location first.");
+      return;
+    }
+
+    if (!workZone) {
+      alert("Please draw the work zone polygon first.");
+      return;
+    }
+
+    const hasInvalidService = services.some(
+      (service) =>
+        Number(service.quantity) <= 0 ||
+        Number(service.unitPrice) <= 0
+    );
+
+    if (hasInvalidService) {
+      alert("Please enter a valid quantity and unit price for all services.");
+      return;
+    }
+
+    const quotation = getQuotationData();
+
+    localStorage.setItem(
+      "submittedQuotationPreview",
+      JSON.stringify(quotation)
+    );
+
+    localStorage.removeItem("providerQuotationDraft");
+
+    alert(
+      "Quotation is ready to submit. Backend connection will be added when the API endpoint is available."
+    );
+  };
 
   return (
     <div className="quotation-page">
@@ -134,12 +201,6 @@ function PrepareQuotation() {
             View Work Zone
           </Button>
         </section>
-
-        {showWorkZone && (
-          <div className="quotation-map">
-            <MamarMap />
-          </div>
-        )}
 
         <div className="quotation-layout">
           <div className="quotation-left">
@@ -263,13 +324,17 @@ function PrepareQuotation() {
               </strong>
             </div>
 
-            <Button className="quotation-submit">
+            <Button
+              className="quotation-submit"
+              onClick={handleSubmitQuotation}
+            >
               Submit Quotation →
             </Button>
 
             <Button
               variant="secondary"
               className="quotation-draft"
+              onClick={handleSaveDraft}
             >
               Save Draft
             </Button>
@@ -299,7 +364,14 @@ function PrepareQuotation() {
       </div>
 
       <div className="work-zone-map">
-        <MamarMap />
+        <MamarMap
+          enablePolygon
+          onLocationSelect={setSelectedLocation}
+          onPolygonSelect={(polygon) => {
+            setWorkZone(polygon);
+            handleWorkZoneSelect(polygon);
+          }}
+        />
       </div>
     </div>
   </div>

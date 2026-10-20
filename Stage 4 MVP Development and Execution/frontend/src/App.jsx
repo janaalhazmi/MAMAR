@@ -14,7 +14,12 @@ import ProjectLocationPage from "./pages/ProjectLocationPage";
 import CreateProjectPage from "./pages/CreateProjectPage";
 import ServicesPage from "./pages/ServicesPage";
 import ReviewPage from "./pages/ReviewPage";
+<<<<<<< HEAD
 import HelpSupportPage from "./pages/HelpSupportPage";
+=======
+import ProviderProjects from "./pages/ProviderProjects";
+import ProviderProjectDetails from "./pages/ProviderProjectDetails";
+>>>>>>> a23cbe8 (Update provider projects and project details)
 
 function App() {
   return (
@@ -114,7 +119,9 @@ function App() {
           </ProtectedRoute>
         }
       />
-    </Routes>
+            <Route path="/provider/projects" element={<ProviderProjects />} />
+        <Route path="/provider/projects/:projectId" element={<ProviderProjectDetails />} />
+</Routes>
   );
 }
 
