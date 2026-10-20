@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
+import "./ContractorDashboard.css";
 
 function ContractorDashboard() {
   const navigate = useNavigate();
@@ -101,10 +102,7 @@ function ContractorDashboard() {
         </div>
 
         <nav className="dashboard-navigation" aria-label="Main navigation">
-          <Link
-            to="/contractor-dashboard"
-            className="dashboard-nav-active"
-          >
+          <Link to="/contractor-dashboard" className="dashboard-nav-active">
             <span className="dashboard-nav-icon">▦</span>
             <span>Dashboard</span>
           </Link>
@@ -148,7 +146,7 @@ function ContractorDashboard() {
         </div>
       </aside>
 
-      {/* Main Dashboard */}
+      {/* Main dashboard */}
       <main className="dashboard-main">
         {/* Header */}
         <header className="dashboard-header">
@@ -168,26 +166,22 @@ function ContractorDashboard() {
 
             <div className="dashboard-user">
               <div className="dashboard-avatar">K</div>
-
               <div className="dashboard-user-info">
                 <strong>Kayan</strong>
                 <span>Contractor</span>
               </div>
-
               <span className="dashboard-user-chevron">⌄</span>
             </div>
           </div>
         </header>
 
-        {/* Dashboard Content */}
+        {/* Dashboard content */}
         <div className="dashboard-content">
           {/* Welcome */}
           <section className="dashboard-welcome">
             <div>
               <h1>Welcome back, Kayan!</h1>
-              <p>
-                Here&apos;s an overview of your projects and activities.
-              </p>
+              <p>Here&apos;s an overview of your projects and activities.</p>
             </div>
 
             <button
@@ -203,17 +197,11 @@ function ContractorDashboard() {
           {/* Statistics */}
           <section className="statistics-grid">
             {statistics.map((statistic) => (
-              <article
-                className="stat-card"
-                key={statistic.title}
-              >
+              <article className="stat-card" key={statistic.title}>
                 <div className="stat-card-top">
-                  <div
-                    className={`stat-icon ${statistic.className}`}
-                  >
+                  <div className={`stat-icon ${statistic.className}`}>
                     {statistic.icon}
                   </div>
-
                   <span className="stat-menu">•••</span>
                 </div>
 
@@ -226,13 +214,9 @@ function ContractorDashboard() {
             ))}
           </section>
 
-          {/* Projects and Map */}
+          {/* Projects and map */}
           <div className="dashboard-main-grid">
-            {/* Projects */}
-            <section
-              className="dashboard-panel projects-panel"
-              id="projects"
-            >
+            <section className="dashboard-panel projects-panel" id="projects">
               <div className="panel-heading">
                 <div>
                   <h2>Recent Projects</h2>
@@ -269,7 +253,6 @@ function ContractorDashboard() {
                             </span>
                           </div>
                         </td>
-
                         <td>
                           <span
                             className={`project-status ${project.statusClass}`}
@@ -277,25 +260,18 @@ function ContractorDashboard() {
                             {project.status}
                           </span>
                         </td>
-
                         <td>
                           <div className="project-progress-cell">
                             <div className="project-progress-track">
                               <div
                                 className="project-progress-fill"
-                                style={{
-                                  width: `${project.progress}%`,
-                                }}
+                                style={{ width: `${project.progress}%` }}
                               />
                             </div>
-
                             <span>{project.progress}%</span>
                           </div>
                         </td>
-
-                        <td className="project-date">
-                          {project.date}
-                        </td>
+                        <td className="project-date">{project.date}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -303,11 +279,8 @@ function ContractorDashboard() {
               </div>
             </section>
 
-            {/* Project Locations Map */}
-            <section
-              className="dashboard-panel locations-panel"
-              id="locations"
-            >
+            {/* Project locations map */}
+            <section className="dashboard-panel locations-panel" id="locations">
               <div className="panel-heading">
                 <div>
                   <h2>Project Locations</h2>
@@ -338,9 +311,8 @@ function ContractorDashboard() {
             </section>
           </div>
 
-          {/* Quick Actions and Activity */}
+          {/* Quick actions and recent activity */}
           <div className="dashboard-bottom-grid">
-            {/* Quick Actions */}
             <section className="dashboard-panel quick-actions-panel">
               <div className="panel-heading">
                 <div>
@@ -356,12 +328,10 @@ function ContractorDashboard() {
                   onClick={() => navigate("/create-project")}
                 >
                   <span className="action-icon">＋</span>
-
                   <span className="action-information">
                     <strong>Create Project</strong>
                     <small>Start a new project</small>
                   </span>
-
                   <span className="action-arrow">›</span>
                 </button>
 
@@ -371,12 +341,10 @@ function ContractorDashboard() {
                   onClick={() => navigate("/project/location")}
                 >
                   <span className="action-icon">⌖</span>
-
                   <span className="action-information">
                     <strong>Open Map</strong>
                     <small>Explore project locations</small>
                   </span>
-
                   <span className="action-arrow">›</span>
                 </button>
 
@@ -386,12 +354,10 @@ function ContractorDashboard() {
                   onClick={() => navigate("/quotations")}
                 >
                   <span className="action-icon">▤</span>
-
                   <span className="action-information">
                     <strong>View Quotations</strong>
                     <small>Review provider offers</small>
                   </span>
-
                   <span className="action-arrow">›</span>
                 </button>
 
@@ -401,18 +367,15 @@ function ContractorDashboard() {
                   onClick={() => navigate("/providers")}
                 >
                   <span className="action-icon">♧</span>
-
                   <span className="action-information">
                     <strong>Find Providers</strong>
                     <small>Browse service providers</small>
                   </span>
-
                   <span className="action-arrow">›</span>
                 </button>
               </div>
             </section>
 
-            {/* Recent Activity */}
             <section className="dashboard-panel activity-panel">
               <div className="panel-heading">
                 <div>
@@ -435,12 +398,9 @@ function ContractorDashboard() {
                     className="activity-item"
                     key={`${activity.title}-${index}`}
                   >
-                    <div
-                      className={`activity-icon ${activity.className}`}
-                    >
+                    <div className={`activity-icon ${activity.className}`}>
                       {activity.icon}
                     </div>
-
                     <div className="activity-information">
                       <strong>{activity.title}</strong>
                       <p>{activity.description}</p>
@@ -452,10 +412,9 @@ function ContractorDashboard() {
             </section>
           </div>
 
-                   {/* Footer */}
+          {/* Footer */}
           <footer className="dashboard-footer">
             <span>© 2026 MAMAR. All rights reserved.</span>
-
             <div>
               <Link to="/data-disclaimer">Privacy &amp; Data</Link>
               <Link to="/support">Help &amp; Support</Link>
@@ -468,4 +427,3 @@ function ContractorDashboard() {
 }
 
 export default ContractorDashboard;
-            
