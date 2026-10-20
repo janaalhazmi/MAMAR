@@ -2,13 +2,20 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../assets/mamar-logo.svg";
-
+import {
+  registerAccount,
+  sendPasscode,
+} from "../services/authApi";
 
 function WorkerVerificationPage() {
   const navigate = useNavigate();
 
   const [passcode, setPasscode] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendSeconds, setResendSeconds] = useState(0);
 
   useEffect(() => {
     const saved = sessionStorage.getItem("mamarPendingRegistration");
@@ -29,19 +36,89 @@ function WorkerVerificationPage() {
     }
   }, [navigate]);
 
-  const handleSubmit = (event) => {
+  useEffect(() => {
+    if (resendSeconds <= 0) return undefined;
+
+    const timer = setTimeout(() => {
+      setResendSeconds((seconds) => seconds - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [resendSeconds]);
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
+    setSuccess("");
 
-    if (!passcode.trim()) {
-      setError("Please enter your passcode.");
+    if (!/^\d{6}$/.test(passcode)) {
+      setError("Please enter the 6-digit passcode.");
       return;
     }
 
-    // Backend worker verification will be connected later.
-    setError(
-      "Passcode verification is not connected yet. Please try again later."
-    );
+    const saved = sessionStorage.getItem("mamarPendingRegistration");
+
+    if (!saved) {
+      navigate("/register", { replace: true });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const registration = JSON.parse(saved);
+
+      if (registration.role !== "worker") {
+        throw new Error("Invalid account type. Please register again.");
+      }
+
+      await registerAccount(registration, passcode);
+
+      sessionStorage.removeItem("mamarPendingRegistration");
+
+      navigate("/login", {
+        replace: true,
+        state: {
+          message: "Account created successfully. Please sign in.",
+        },
+      });
+    } catch (requestError) {
+      setError(requestError.message || "Unable to create your account.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResendPasscode = async () => {
+    if (resendSeconds > 0 || isResending) return;
+
+    const saved = sessionStorage.getItem("mamarPendingRegistration");
+
+    if (!saved) {
+      navigate("/register", { replace: true });
+      return;
+    }
+
+    setError("");
+    setSuccess("");
+    setIsResending(true);
+
+    try {
+      const registration = JSON.parse(saved);
+
+      if (registration.role !== "worker") {
+        throw new Error("Invalid account type. Please register again.");
+      }
+
+      await sendPasscode(registration.email);
+
+      setResendSeconds(60);
+      setSuccess("A new passcode has been sent to your email.");
+    } catch (requestError) {
+      setError(requestError.message || "Unable to resend the passcode.");
+    } finally {
+      setIsResending(false);
+    }
   };
 
   return (
@@ -56,17 +133,11 @@ function WorkerVerificationPage() {
         </Link>
 
         <nav className="signup-header-buttons">
-          <Link
-            to="/login"
-            className="signup-nav-btn signup-signin"
-          >
+          <Link to="/login" className="signup-nav-btn signup-signin">
             Sign in →
           </Link>
 
-          <Link
-            to="/register"
-            className="signup-nav-btn signup-start"
-          >
+          <Link to="/register" className="signup-nav-btn signup-start">
             Get Started
           </Link>
         </nav>
@@ -79,7 +150,7 @@ function WorkerVerificationPage() {
           <span className="worker-role-badge">Field Worker</span>
 
           <p className="signup-subtitle">
-            Enter the Passcode that was sent to your email address by your
+            Enter the passcode that was sent to your email address by your
             service provider.
           </p>
 
@@ -92,9 +163,12 @@ function WorkerVerificationPage() {
                 type="text"
                 inputMode="numeric"
                 autoComplete="one-time-code"
-                placeholder="Enter your passcode"
+                placeholder="Enter your 6-digit passcode"
                 value={passcode}
-                onChange={(event) => setPasscode(event.target.value)}
+                onChange={(event) =>
+                  setPasscode(event.target.value.replace(/\D/g, "").slice(0, 6))
+                }
+                maxLength={6}
                 required
               />
             </div>
@@ -105,8 +179,31 @@ function WorkerVerificationPage() {
               </p>
             )}
 
-            <button type="submit" className="signup-submit">
-              Create Account →
+            {success && (
+              <p className="signup-success" role="status">
+                {success}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="signup-submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Creating account..." : "Create Account →"}
+            </button>
+
+            <button
+              type="button"
+              className="verification-back"
+              onClick={handleResendPasscode}
+              disabled={resendSeconds > 0 || isResending}
+            >
+              {isResending
+                ? "Sending..."
+                : resendSeconds > 0
+                  ? `Resend passcode in ${resendSeconds}s`
+                  : "Resend Passcode"}
             </button>
 
             <button

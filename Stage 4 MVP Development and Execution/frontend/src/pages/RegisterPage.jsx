@@ -2,15 +2,17 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../assets/mamar-logo.svg";
+import { sendPasscode } from "../services/authApi";
 
 function RegisterPage() {
   const [role, setRole] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
 
@@ -20,11 +22,21 @@ function RegisterPage() {
     }
 
     const form = event.currentTarget;
+
     const fullName = form.elements.registerFullName.value.trim();
     const email = form.elements.registerEmail.value.trim().toLowerCase();
     const password = form.elements.registerPassword.value;
-
     const providerId = form.elements.registerProviderId?.value;
+
+    if (!fullName || !email || !password) {
+      setError("Please complete all required fields.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must contain at least 6 characters.");
+      return;
+    }
 
     if (
       (role === "provider" || role === "worker") &&
@@ -32,11 +44,6 @@ function RegisterPage() {
         Number(providerId) < 1)
     ) {
       setError("Please enter a valid provider ID.");
-      return;
-    }
-
-    if (!fullName || !email || !password) {
-      setError("Please complete all required fields.");
       return;
     }
 
@@ -49,15 +56,27 @@ function RegisterPage() {
         role === "contractor" ? null : Number(providerId),
     };
 
-    sessionStorage.setItem(
-      "mamarPendingRegistration",
-      JSON.stringify(registration)
-    );
+    setIsSending(true);
 
-    if (role === "worker") {
-      navigate("/register/worker-verification");
-    } else {
-      navigate("/register/verify");
+    try {
+      await sendPasscode(email);
+
+      sessionStorage.setItem(
+        "mamarPendingRegistration",
+        JSON.stringify(registration)
+      );
+
+      if (role === "worker") {
+        navigate("/register/worker-verification");
+      } else {
+        navigate("/register/verify");
+      }
+    } catch (requestError) {
+      setError(
+        requestError.message || "Unable to send the verification passcode."
+      );
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -73,17 +92,11 @@ function RegisterPage() {
         </Link>
 
         <nav className="signup-header-buttons">
-          <Link
-            to="/login"
-            className="signup-nav-btn signup-signin"
-          >
+          <Link to="/login" className="signup-nav-btn signup-signin">
             Sign in →
           </Link>
 
-          <Link
-            to="/register"
-            className="signup-nav-btn signup-start"
-          >
+          <Link to="/register" className="signup-nav-btn signup-start">
             Get Started
           </Link>
         </nav>
@@ -93,9 +106,7 @@ function RegisterPage() {
         <section className="signup-card">
           <h1>Create Account</h1>
 
-          <p className="signup-subtitle">
-            Get started with MAMAR
-          </p>
+          <p className="signup-subtitle">Get started with MAMAR</p>
 
           <div className="signup-role-buttons">
             <button
@@ -140,8 +151,7 @@ function RegisterPage() {
 
           {role === "worker" && (
             <p className="field-worker-message">
-              Enter the email address sent to you by your service
-              provider.
+              Enter the email address sent to you by your service provider.
             </p>
           )}
 
@@ -162,9 +172,7 @@ function RegisterPage() {
 
             {(role === "provider" || role === "worker") && (
               <div className="signup-field">
-                <label htmlFor="registerProviderId">
-                  Provider ID
-                </label>
+                <label htmlFor="registerProviderId">Provider ID</label>
 
                 <input
                   id="registerProviderId"
@@ -224,14 +232,16 @@ function RegisterPage() {
               </p>
             )}
 
-            <button type="submit" className="signup-submit">
-              Create Account →
+            <button
+              type="submit"
+              className="signup-submit"
+              disabled={isSending}
+            >
+              {isSending ? "Sending passcode..." : "Create Account →"}
             </button>
           </form>
 
-          <p className="signup-existing">
-            Already have an account?
-          </p>
+          <p className="signup-existing">Already have an account?</p>
 
           <Link to="/login" className="signup-login-link">
             Sign in
