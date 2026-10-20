@@ -7,7 +7,7 @@ This folder covers the Sprint 1 backend tasks:
 - Set up FastAPI backend and PostgreSQL database.
 - Begin frontend and backend API integration.
 
-The six database models follow the approved Stage 3 ER diagram. The two `auth` endpoints from Stage 3, `POST /auth/register` and `POST /auth/login`, are ready, with the token check that the other endpoints will use. The other 10 endpoints are added in the next sprints. [Email verification](#email-verification) with a 6-digit passcode is ready too, and it stays off until the frontend sends the passcode.
+The six database models follow the approved Stage 3 ER diagram. The two `auth` endpoints from Stage 3, `POST /auth/register` and `POST /auth/login`, are ready, with the token check that the other endpoints use. The three [projects endpoints](#projects-endpoints), `GET`, `POST` and `PATCH /projects`, are ready too (Sprint 1, T09). The other 7 endpoints are added in the next sprints. [Email verification](#email-verification) with a 6-digit passcode is ready too, and it stays off until the frontend sends the passcode.
 
 ## Folder Structure
 
@@ -32,9 +32,11 @@ backend/
     routers/
       auth.py              # POST /auth/send-passcode, /auth/register and /auth/login
       health.py            # GET /health
+      projects.py          # GET /projects, POST /projects and PATCH /projects/{id}
     schemas/
       auth.py              # Request and response formats of the auth endpoints
       error.py             # The error format {"detail": "message"}
+      project.py           # Request and response formats of the projects endpoints
     main.py                # Creates the FastAPI app, allows the frontend (CORS) and adds the routers
   tests/
     test_auth.py           # Register, login and token tests
@@ -42,6 +44,7 @@ backend/
     test_email_verification.py # Email verification tests
     test_health.py         # Health check and CORS tests
     test_models.py         # Checks the tables against the Stage 3 database schema
+    test_projects.py       # Projects endpoints tests
   .env.example             # Example settings, without real passwords
   .gitignore
   README.md
@@ -58,7 +61,7 @@ Each class from the Stage 3 class design is a SQLAlchemy model with its own tabl
 | --- | --- | --- |
 | `User` | `users` | `email` is unique. `role` is one of `contractor`, `provider`, `worker`, `admin` |
 | `Provider` | `providers` | `is_verified` is false by default |
-| `Project` | `projects` | `project_status` is one of `draft`, `active`, `completed`, `cancelled` |
+| `Project` | `projects` | `project_status` is one of `draft`, `active`, `completed`, `cancelled`. A new project starts as `draft` |
 | `ServiceRequest` | `service_requests` | `status` is one of `open`, `awarded`, `closed` |
 | `Quote` | `quotes` | `status` is one of `pending`, `accepted`, `rejected`. One quote per provider per request |
 | `Assignment` | `assignments` | `status` is one of `active`, `completed`, `cancelled`. A worker is assigned to a project only once |
@@ -82,7 +85,7 @@ A provider that already exists is not changed. New providers start from `provide
 
 The company email is the domain of the provider's `website`, without `www.`. A `provider` or `worker` account of a company must register with that email, see [Register](#register).
 
-The `User` methods from Stage 3 are ready: `set_password()` hashes the password with Argon2 and saves only the hash, `check_password()` compares a password with the saved hash, and `to_dict()` returns the user without the password hash. The methods of the other classes, such as `award()`, are added with their endpoints in the next sprints.
+The `User` methods from Stage 3 are ready: `set_password()` hashes the password with Argon2 and saves only the hash, `check_password()` compares a password with the saved hash, and `to_dict()` returns the user without the password hash. The `Project` methods are ready too: `update_status(status)` moves `project_status` between `draft`, `active`, `completed` and `cancelled`, and `to_dict()` returns the project as JSON. The methods of the other classes, such as `award()`, are added with their endpoints in the next sprints.
 
 ## Requirements
 
@@ -279,16 +282,86 @@ While verification is on, `provider` and `worker` accounts receive the passcode 
 
 ### Token for the Other Endpoints
 
-The other 10 endpoints in Stage 3 need the header `Authorization: Bearer <token>`. They will use `get_current_user()` from `app/core/security.py`, which returns the signed-in user:
+Every endpoint except `/health` and the `auth` endpoints needs the header `Authorization: Bearer <token>`. The [projects endpoints](#projects-endpoints) and the other 7 endpoints in Stage 3 use `get_current_user()` from `app/core/security.py`, which returns the signed-in user:
 
 | Case | Status code | Response |
 | --- | --- | --- |
 | No token | 401 | `{"detail": "Token is missing"}` |
 | Wrong, expired or changed token | 401 | `{"detail": "Token is not valid"}` |
 
+## Projects Endpoints
+
+The three `projects` endpoints follow Stage 3 (sections 4.2.5 to 4.2.7). Only a contractor can use them, with the login token in the header `Authorization: Bearer <token>`. A contractor sees and changes only their own projects.
+
+| Endpoint | What it does |
+| --- | --- |
+| `GET /projects` | Lists the projects of the signed-in contractor, newest first. `?project_status=active` filters the list |
+| `POST /projects` | Creates a project as `draft` and returns it with its new `project_id` |
+| `PATCH /projects/{id}` | Changes only the fields that are sent, for example `{"project_status": "active"}` |
+
+`POST /projects` body. `description` is optional:
+
+```json
+{
+  "project_name": "King Fahd Road Maintenance",
+  "closure_type": "lane_closure",
+  "start_date": "2026-11-01",
+  "end_date": "2026-12-15",
+  "description": "Night work on the right lane"
+}
+```
+
+`POST` returns 201 and `PATCH` returns 200 with the project. `GET` returns a list of the same objects:
+
+```json
+{
+  "project_id": 12,
+  "contractor_id": 7,
+  "project_name": "King Fahd Road Maintenance",
+  "project_status": "draft",
+  "closure_type": "lane_closure",
+  "start_date": "2026-11-01",
+  "end_date": "2026-12-15",
+  "description": "Night work on the right lane",
+  "created_at": "2026-10-20T10:05:00"
+}
+```
+
+| Case | Status code | Response |
+| --- | --- | --- |
+| No token | 401 | `{"detail": "Token is missing"}` |
+| Wrong or expired token | 401 | `{"detail": "Token is not valid"}` |
+| The user is a `provider` or `worker` | 403 | `{"detail": "Only contractors can use the projects endpoints"}` |
+| `PATCH` on a project of another contractor | 403 | `{"detail": "This project belongs to another contractor"}` |
+| `PATCH` on a project that does not exist | 404 | `{"detail": "Project not found"}` |
+| `end_date` is before `start_date` | 422 | `{"detail": "end_date: cannot be before start_date"}` |
+| A field is missing or not valid | 422 | `{"detail": "project_name: Field required"}` |
+| `project_status` is not one of the four statuses | 422 | `{"detail": "project_status: Input should be 'draft', 'active', 'completed' or 'cancelled'"}` |
+| `PATCH` with none of the six fields | 422 | `{"detail": "Send at least one of: project_name, project_status, closure_type, start_date, end_date, description"}` |
+
+| Rule | Source |
+| --- | --- |
+| `project_name` has up to 150 characters and `closure_type` up to 50 | Column sizes of the `projects` table |
+| A new project is `draft`. `contractor_id` is the signed-in contractor, so it cannot be sent | Stage 3, section 4.2.6 |
+| `project_status` is `draft`, `active`, `completed` or `cancelled`, and only `PATCH` changes it, with `update_status()` | Stage 3, sections 2.2.3 and 4.2.7 |
+| `end_date` is the same day as `start_date` or later. `PATCH` checks the new date with the saved one, also when only one date is sent | Stage 3, section 4.2.6 |
+| `project_name`, `closure_type`, `start_date`, `end_date` and `project_status` cannot be `null` in `PATCH`. `description` can be `null` to remove it | `NOT NULL` columns of the `projects` table |
+| Fields that are not in Stage 3, like `contractor_id` or `project_id`, are ignored in `PATCH` | Stage 3, section 4.2.7 |
+
+### Work Zone Polygon
+
+The work zone polygon is not saved in PostgreSQL. As in Stage 3 (sections 2.3 and 3.1), the frontend first sends `POST /projects`, then saves the polygon in the `MAMAR_Projects` layer in ArcGIS Online with the returned `project_id`, using the ArcGIS Maps SDK (`applyEdits`). The backend never connects to ArcGIS Online.
+
+| Item | Value |
+| --- | --- |
+| Layer | `MAMAR_Projects`: `https://services5.arcgis.com/kGzNyz7ldsPH1gDF/arcgis/rest/services/MAMAR_Web_Map_WFL1/FeatureServer/4` |
+| Editing | The five layers allow only `Query` now. Editing (Create and Update) has to be turned on in ArcGIS Online before the frontend can save the polygon |
+| `closure_type` | The layer accepts `No Closure`, `Partial Closure` or `Full Closure`. The API accepts any text up to 50 characters, so the frontend can send the same value to both |
+| `project_status` | The API saves `draft`. The layer's values are `Draft`, `RFQ`, `Active`, `Completed` and `Cancelled`, so the frontend writes `Draft` in the layer |
+
 ## Frontend Integration
 
-The React frontend runs on Vite at `http://localhost:5173`, which is allowed in `FRONTEND_ORIGINS`. CORS allows the methods used by the API (`GET`, `POST` and `PATCH`) and the `Authorization` and `Content-Type` headers, so the frontend can send JSON and the token in the next sprints. The deployed frontend, `https://mammar-blush.vercel.app`, is also allowed in `FRONTEND_ORIGINS` on Render.
+The React frontend runs on Vite at `http://localhost:5173`, which is allowed in `FRONTEND_ORIGINS`. CORS allows the methods used by the API (`GET`, `POST` and `PATCH`) and the `Authorization` and `Content-Type` headers, so the frontend can send JSON and the token. The deployed frontend, `https://mammar-blush.vercel.app`, is also allowed in `FRONTEND_ORIGINS` on Render.
 
 The frontend can test the connection with:
 
@@ -321,6 +394,26 @@ The login page works the same way with `POST /auth/login`. It keeps `access_toke
 headers: { Authorization: `Bearer ${accessToken}` }
 ```
 
+The create project pages can save the project like this, then save the work zone polygon with `project.project_id` (see [Work Zone Polygon](#work-zone-polygon)):
+
+```javascript
+export async function createProject(project, accessToken) {
+  const response = await fetch(`${API_BASE_URL}/projects`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(project),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.detail);
+  }
+  return data;
+}
+```
+
 ### Integration Notes
 
 | Item | Value |
@@ -330,6 +423,7 @@ headers: { Authorization: `Bearer ${accessToken}` }
 | Test endpoint | `GET /health` |
 | Register endpoint | `POST /auth/register` |
 | Login endpoint | `POST /auth/login` |
+| Projects endpoints | `GET /projects`, `POST /projects` and `PATCH /projects/{id}`, for contractors only |
 | Token header for the other endpoints | `Authorization: Bearer <token>` |
 | Success response | `{"status": "ok", "database": "connected"}` |
 | Error response | `{"detail": "message"}`, so the frontend can show `detail` to the user |
@@ -351,7 +445,7 @@ To connect the Create Account (passcode) pages before email verification is turn
 
 ## Run the Tests
 
-PostgreSQL must be running and `.env` must be filled in. The register tests create their own test accounts and delete them at the end, so the database stays clean.
+PostgreSQL must be running and `.env` must be filled in. The register and projects tests create their own test accounts and projects and delete them at the end, so the database stays clean.
 
 ```powershell
 pytest
@@ -402,6 +496,23 @@ pytest
 | `test_send_passcode_with_an_invalid_email_returns_422` | An email that is not valid returns 422 |
 | `test_send_passcode_returns_502_when_the_email_cannot_be_sent` | When Brevo fails, it returns 502 and the user can try again right away |
 | `test_brevo_request` | The request to Brevo has the right address, key, sender, receiver and passcode |
+| `test_create_project_returns_201_as_draft` | A contractor creates a project with the Stage 3 example. It returns 201 with the Stage 3 fields, as `draft`, and saves the contractor's `user_id` |
+| `test_create_project_without_description` | `description` is optional, and an empty description is saved as `null` |
+| `test_end_date_before_start_date_returns_422` | `end_date` before `start_date` returns 422 and nothing is saved. The same day is accepted |
+| `test_create_project_with_an_invalid_body_returns_422` | A missing or empty name, too long name or closure type, and dates that are not valid return 422 and nothing is saved (7 cases) |
+| `test_projects_need_a_token` | `GET`, `POST` and `PATCH` without a token return 401 |
+| `test_only_contractors_can_use_projects` | A `provider` and a `worker` get 403 on the three endpoints (2 cases) |
+| `test_list_returns_only_my_projects_newest_first` | A contractor sees only their own projects, newest first |
+| `test_list_without_projects_returns_an_empty_list` | A contractor without projects gets `[]` |
+| `test_list_filters_by_project_status` | `?project_status=` filters the list, and an unknown status returns 422 |
+| `test_patch_changes_only_the_sent_fields` | `PATCH` changes only the sent fields, removes `description` with `null`, and ignores `contractor_id` and `project_id` |
+| `test_patch_moves_the_status_between_the_four_statuses` | `project_status` can be `draft`, `active`, `completed` and `cancelled` |
+| `test_patch_with_invalid_data_returns_422` | An unknown status, `null` for a required field, an empty name and a body without the six fields return 422 and change nothing (7 cases) |
+| `test_patch_checks_the_dates_together` | A new date is checked with the saved one, also when only one date is sent |
+| `test_patch_a_project_of_another_contractor_returns_403` | A contractor cannot change another contractor's project |
+| `test_patch_an_unknown_project_returns_404` | A project that does not exist returns 404 |
+| `test_update_status_accepts_only_the_four_statuses` | `update_status()` accepts only the four Stage 3 statuses |
+| `test_frontend_can_send_a_patch_with_the_token` | The browser can send `PATCH` with the token from the React frontend (CORS) |
 
 ## Deploy on Render
 
