@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../assets/mamar-logo.svg";
-import { sendPasscode } from "../services/authApi";
+import { sendPasscode } from "../services/api";
 
 function RegisterPage() {
   const [role, setRole] = useState("");

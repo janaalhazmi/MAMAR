@@ -5,7 +5,7 @@ import logo from "../assets/mamar-logo.svg";
 import {
   registerAccount,
   sendPasscode,
-} from "../services/authApi";
+} from "../services/api";
 
 function WorkerVerificationPage() {
   const navigate = useNavigate();
