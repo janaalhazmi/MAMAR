@@ -126,6 +126,16 @@ The `User` methods from Stage 3 are ready: `set_password()` hashes the password 
 
 On macOS, activate the environment with `source venv/bin/activate` and copy the settings with `cp .env.example .env`.
 
+### Setup Issues
+
+The problems we met while setting up the project, and how we solved them.
+
+| Problem | Cause | Solution |
+| --- | --- | --- |
+| `git clone` or `git checkout` on Windows fails with `error: invalid path 'Stage 4: MVP Development and Execution/...'` | Windows does not allow `:` in folder names, and the Stage folders had `:` in their names | The Stage folders were renamed without `:`, for example `Stage 4 MVP Development and Execution`. Clone the repository again, or pull the latest changes |
+| `fatal: Unable to create '.git/index.lock': File exists` | A git command stopped in the middle and left its lock file behind | Close the other terminals and editors that use git, then delete the lock file with `Remove-Item .git\index.lock` |
+| The Render deploy fails with `Could not open requirements file` after the folders were renamed | The Render Build and Start commands still used the old folder name | The commands now use `cd "Stage 4 MVP Development and Execution/backend"`, see [Deploy on Render](#deploy-on-render) |
+
 ## Environment Variables
 
 | Variable | Description | Example |
