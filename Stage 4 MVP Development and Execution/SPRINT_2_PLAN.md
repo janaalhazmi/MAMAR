@@ -1,20 +1,34 @@
 # MAMAR – Sprint 2 Plan
 
-## Sprint Information
+## 1. Sprint Overview
 
-- **Project:** MAMAR – Temporary Traffic Control Management
-- **Sprint:** 2
-- **Duration:** October 18–24, 2026
-- **Project Manager:** Razan Kashr
-- **Sprint Focus:** End-to-End Authentication and Home Page Integration
+| Item | Details |
+|---|---|
+| Project | MAMAR – Temporary Traffic Control Management Platform |
+| Stage | Stage 4: MVP Development and Execution |
+| Sprint | Sprint 2 |
+| Sprint Period | October 18–24, 2026 |
+| Sprint Duration | 1 Week |
+| Project Management Tool | GitHub Projects |
+| Version Control | GitHub |
+| Development Approach | Agile / Scrum-Inspired Workflow |
 
-## 1. Sprint Goal
+### Team Members and Responsibilities
+
+| Team Member | Role |
+|---|---|
+| Jana Alhazmi | Frontend Developer & UI/UX Integration |
+| Razan Kashr | Project Manager & GIS Lead Integration |
+| Kayan Alnazari | Frontend Development & QA |
+| Shouq Alqarni | Backend Development |
+
+## 2. Sprint Goal
 
 Complete and verify the authentication workflow and home page functionality across MAMAR's frontend, FastAPI backend, and PostgreSQL database.
 
 The sprint focuses on delivering functional, integrated features that can be demonstrated during Meeting 7.
 
-## 2. Sprint Backlog
+## 3. Sprint Backlog
 
 | Task | Responsible Team Members | Priority |
 |---|---|---|
@@ -28,7 +42,7 @@ The sprint focuses on delivering functional, integrated features that can be dem
 
 All tasks are tracked through GitHub Issues and GitHub Projects.
 
-## 3. Sprint Deliverables
+## 4. Sprint Deliverables
 
 By the end of Sprint 2, the team aims to deliver:
 
@@ -40,7 +54,7 @@ By the end of Sprint 2, the team aims to deliver:
 6. Successful communication between the frontend and backend.
 7. Documented QA results and testing evidence.
 
-## 4. Meeting 7 Requirements
+## 5. Meeting 7 Requirements
 
 The team will demonstrate the following functionality:
 
@@ -60,7 +74,7 @@ The team will demonstrate the following functionality:
 - Backend integration where required.
 - Successful deployment and accessibility.
 
-## 5. Development Workflow
+## 6. Development Workflow
 
 The team follows the GitHub branching workflow:
 
@@ -73,7 +87,7 @@ The team follows the GitHub branching workflow:
 7. Verify integrated functionality.
 8. Merge stable, tested changes into `main` when ready for release.
 
-## 6. QA and Testing Plan
+## 7. QA and Testing Plan
 
 QA testing will focus on the following scenarios:
 
@@ -93,7 +107,7 @@ QA testing will focus on the following scenarios:
 
 Test results will be recorded as Passed, Failed, or Blocked, with supporting evidence where available.
 
-## 7. Risks and Mitigation
+## 8. Risks and Mitigation
 
 | Risk | Impact | Mitigation |
 |---|---|---|
@@ -103,7 +117,7 @@ Test results will be recorded as Passed, Failed, or Blocked, with supporting evi
 | Delays in integration | Meeting 7 deliverables may be incomplete | Prioritize authentication and home page functionality |
 | Insufficient testing | Defects may remain undetected | Perform end-to-end QA and document results |
 
-## 8. Definition of Done
+## 9. Definition of Done
 
 A Sprint 2 task is considered complete when:
 
@@ -115,7 +129,7 @@ A Sprint 2 task is considered complete when:
 - QA verification is completed where applicable.
 - The GitHub Issue is updated with the final result.
 
-## 9. Sprint Review
+## 10. Sprint Review
 
 At the end of Sprint 2, the team will:
 
@@ -125,3 +139,21 @@ At the end of Sprint 2, the team will:
 - Present QA results.
 - Identify incomplete work and remaining defects.
 - Document achievements and improvements for Sprint 3.
+
+---
+
+## 11. Conclusion
+
+Sprint 2 focuses on completing the integration of MAMAR's authentication functionality and home page.
+
+The planned activities will strengthen communication between the React frontend, FastAPI backend, and PostgreSQL database.
+
+The team will prioritize completing the requirements for Meeting 7, resolving integration issues, and verifying the implemented functionality through end-to-end QA testing.
+
+The results of Sprint 2 will be documented in the Sprint 2 Review and Retrospective report to support planning and improvements for Sprint 3.
+
+---
+
+**Prepared by:** Project Manager and QA  
+**Project:** MAMAR  
+**Planning Date:** October 20, 2026
