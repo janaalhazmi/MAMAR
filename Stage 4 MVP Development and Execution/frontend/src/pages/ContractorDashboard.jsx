@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
+import { getSession, logout } from "../services/auth";
 
 /* Small inline icon set (outlined, 24x24) so no new dependency is needed. */
 const ICON_PATHS = {
@@ -118,15 +119,8 @@ function Icon({ name, size = 20 }) {
 function ContractorDashboard() {
   const navigate = useNavigate();
 
-  /*
-   * TODO(auth): replace `null` with the signed-in user from the app's
-   * existing session/auth mechanism. Until it is wired, the UI falls back
-   * to a neutral greeting instead of a hardcoded person's name.
-   */
-  const sessionUser = null;
-  const displayName =
-    (typeof sessionUser?.name === "string" ? sessionUser.name.trim() : "") ||
-    "there";
+  // Same source and fallback the other contractor pages use.
+  const displayName = getSession()?.user?.full_name?.trim() || "User";
   const userInitial = displayName.charAt(0).toUpperCase();
 
   const statistics = [
@@ -145,6 +139,9 @@ function ContractorDashboard() {
       status: "In Progress",
       statusClass: "cd-status-in-progress",
       thumbClass: "cd-thumb-orange",
+      latitude: 24.7114,
+      longitude: 46.6745,
+      markerColor: "#f2b01e",
     },
     {
       name: "Olaya Street – Maintenance",
@@ -154,6 +151,9 @@ function ContractorDashboard() {
       status: "Pending Quotes",
       statusClass: "cd-status-pending",
       thumbClass: "cd-thumb-orange",
+      latitude: 24.6935,
+      longitude: 46.685,
+      markerColor: "#8a94a6",
     },
     {
       name: "Northern Ring Road",
@@ -163,6 +163,9 @@ function ContractorDashboard() {
       status: "Completed",
       statusClass: "cd-status-completed",
       thumbClass: "cd-thumb-green",
+      latitude: 24.826,
+      longitude: 46.635,
+      markerColor: "#2f8f57",
     },
     {
       name: "Al Yarmouk Intersection",
@@ -172,8 +175,25 @@ function ContractorDashboard() {
       status: "Planned",
       statusClass: "cd-status-planned",
       thumbClass: "cd-thumb-grey",
+      latitude: 24.796,
+      longitude: 46.795,
+      markerColor: "#5b6475",
     },
   ];
+
+  /*
+   * One map point per project. The coordinates above are approximate
+   * placeholders for the sample projects; once projects come from the
+   * backend, use each project's saved latitude/longitude instead.
+   */
+  const projectPoints = projects.map((project) => ({
+    name: project.name,
+    status: project.status,
+    location: project.location,
+    latitude: project.latitude,
+    longitude: project.longitude,
+    color: project.markerColor,
+  }));
 
   const quickActions = [
     {
@@ -289,7 +309,7 @@ function ContractorDashboard() {
               <span>Help &amp; Support</span>
             </Link>
 
-            <Link to="/login">
+            <Link to="/login" onClick={logout}>
               <Icon name="logout" />
               <span>Log out</span>
             </Link>
@@ -344,7 +364,11 @@ function ContractorDashboard() {
                 </div>
 
                 <div className="cd-map-frame">
-                  <MamarMap readOnly height="100%" />
+                  <MamarMap
+                    readOnly
+                    height="100%"
+                    projectPoints={projectPoints}
+                  />
 
                   <button
                     type="button"

@@ -267,6 +267,7 @@ function ServicesPage() {
                 <MamarMap
                   latitude={project.latitude ?? null}
                   longitude={project.longitude ?? null}
+                  workZone={project.workZone}
                   readOnly
                 />
               </div>

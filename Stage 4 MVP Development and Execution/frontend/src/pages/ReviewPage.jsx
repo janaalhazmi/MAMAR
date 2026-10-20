@@ -321,6 +321,7 @@ function ReviewPage() {
                   <MamarMap
                     latitude={project.latitude}
                     longitude={project.longitude}
+                    workZone={project.workZone}
                     readOnly
                   />
                 ) : (

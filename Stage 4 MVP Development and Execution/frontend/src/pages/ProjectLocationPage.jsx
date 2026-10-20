@@ -5,6 +5,20 @@ import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
 import { getSession } from "../services/auth";
 
+// Riyadh city centre as "x,y" (lon,lat): ranks nearby matches first
+// without hiding matches elsewhere.
+const RIYADH_BIAS = "46.6753,24.7136";
+
+const RESULT_TYPE_LABELS = {
+  StreetName: "Road",
+  StreetAddress: "Address",
+  StreetInt: "Intersection",
+  PointAddress: "Address",
+  POI: "Place",
+  Locality: "Area",
+  Postal: "Postal code",
+};
+
 function ProjectLocationPage() {
   const displayName = getSession()?.user?.full_name || "User";
   const navigate = useNavigate();
@@ -18,6 +32,7 @@ function ProjectLocationPage() {
   const [workZone, setWorkZone] = useState([]);
   const [error, setError] = useState("");
   const [searching, setSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
 
   const handleMapLocationSelect = (coordinates) => {
     setLocation((previous) => ({
@@ -34,6 +49,17 @@ function ProjectLocationPage() {
       ...previous,
       address: event.target.value,
     }));
+
+    setSearchResults([]);
+    setError("");
+  };
+
+  const selectCandidate = (candidate) => {
+    setLocation({
+      address: candidate.address,
+      latitude: candidate.location.y,
+      longitude: candidate.location.x,
+    });
 
     setError("");
   };
@@ -60,8 +86,9 @@ function ProjectLocationPage() {
       const params = new URLSearchParams({
         SingleLine: searchQuery,
         countryCode: "SA",
+        location: RIYADH_BIAS,
         outFields: "Addr_type,Match_addr",
-        maxLocations: "5",
+        maxLocations: "8",
         f: "json",
       });
 
@@ -75,27 +102,35 @@ function ProjectLocationPage() {
 
       const data = await response.json();
 
-      const candidates = (data.candidates || []).filter(
-        (candidate) =>
-          candidate.score >= 70 &&
-          Number.isFinite(candidate.location?.x) &&
-          Number.isFinite(candidate.location?.y)
-      );
+      const seen = new Set();
+
+      const candidates = (data.candidates || [])
+        .filter(
+          (candidate) =>
+            candidate.score >= 70 &&
+            Number.isFinite(candidate.location?.x) &&
+            Number.isFinite(candidate.location?.y)
+        )
+        .filter((candidate) => {
+          if (seen.has(candidate.address)) return false;
+
+          seen.add(candidate.address);
+
+          return true;
+        })
+        .slice(0, 6);
 
       if (candidates.length === 0) {
+        setSearchResults([]);
         setError(
-          "Neighborhood not found. Try its English name or add Riyadh."
+          "Location not found. Try the English road or neighborhood name, or add Riyadh."
         );
         return;
       }
 
-      const bestMatch = candidates[0];
-
-      setLocation({
-        address: bestMatch.address,
-        latitude: bestMatch.location.y,
-        longitude: bestMatch.location.x,
-      });
+      // Jump to the best match, and keep the others selectable
+      selectCandidate(candidates[0]);
+      setSearchResults(candidates);
     } catch (searchError) {
       setError(
         searchError.message || "Unable to find this neighborhood."
@@ -269,16 +304,53 @@ function ProjectLocationPage() {
 
                 <input
                   type="text"
-                  placeholder="Search neighborhood, e.g. Al Narjis, Riyadh"
+                  placeholder="Search neighborhood or road, e.g. King Fahd Road"
                   value={location.address}
                   onChange={handleAddressChange}
-                  aria-label="Search neighborhood"
+                  aria-label="Search neighborhood or road"
                 />
 
                 <button type="submit" disabled={searching}>
                   {searching ? "Searching..." : "Search"}
                 </button>
               </form>
+
+              {searchResults.length > 1 && (
+                <ul
+                  className="location-search-results"
+                  aria-label="Search results"
+                >
+                  {searchResults.map((candidate) => {
+                    const isSelected =
+                      candidate.location.y === location.latitude &&
+                      candidate.location.x === location.longitude;
+
+                    return (
+                      <li
+                        key={`${candidate.address}-${candidate.location.x}-${candidate.location.y}`}
+                      >
+                        <button
+                          type="button"
+                          className={isSelected ? "selected" : ""}
+                          onClick={() => selectCandidate(candidate)}
+                        >
+                          <span className="location-result-name">
+                            {candidate.address}
+                          </span>
+
+                          <span className="location-result-type">
+                            {RESULT_TYPE_LABELS[
+                              candidate.attributes?.Addr_type
+                            ] ||
+                              candidate.attributes?.Addr_type ||
+                              ""}
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
 
               <div className="location-map-frame">
                 <MamarMap

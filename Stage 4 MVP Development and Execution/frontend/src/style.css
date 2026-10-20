@@ -6537,3 +6537,58 @@ body {
     padding: 16px;
   }
 }
+
+/* =========================
+   LOCATION SEARCH RESULTS (road / neighborhood matches)
+   Append at the END of style.css.
+========================= */
+
+.location-search-results {
+  max-height: 220px;
+  margin: 10px 0 0;
+  padding: 4px;
+  overflow-y: auto;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.location-search-results button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #111827;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.location-search-results button:hover,
+.location-search-results button.selected {
+  background: #fff8e6;
+}
+
+.location-search-results button.selected {
+  font-weight: 600;
+}
+
+.location-result-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.location-result-type {
+  flex-shrink: 0;
+  color: #8a94a6;
+  font-size: 11px;
+}

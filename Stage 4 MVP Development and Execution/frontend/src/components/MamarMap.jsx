@@ -10,6 +10,8 @@ function MamarMap({
   longitude = null,
   readOnly = false,
   height = "100%",
+  workZone = null,
+  projectPoints = null,
 }) {
   const mapRef = useRef(null);
   const viewRef = useRef(null);
@@ -19,6 +21,10 @@ function MamarMap({
   const areaCallbackRef = useRef(onAreaSelect);
   const drawModeRef = useRef(false);
   const drawingPointsRef = useRef([]);
+  const workZoneRef = useRef(workZone);
+  const projectPointsRef = useRef(projectPoints);
+  const savedZoneRef = useRef(null);
+  const projectGraphicsRef = useRef([]);
 
   const [drawMode, setDrawMode] = useState(false);
   const [drawingPoints, setDrawingPoints] = useState([]);
@@ -35,6 +41,14 @@ function MamarMap({
   useEffect(() => {
     drawModeRef.current = drawMode;
   }, [drawMode]);
+
+  useEffect(() => {
+    workZoneRef.current = workZone;
+  }, [workZone]);
+
+  useEffect(() => {
+    projectPointsRef.current = projectPoints;
+  }, [projectPoints]);
 
   useEffect(() => {
     const mapElement = mapRef.current;
@@ -85,6 +99,10 @@ function MamarMap({
             zoom: 15,
           });
         }
+
+        // Saved work zone (Review / Services maps) and project points (dashboard)
+        await renderSavedZone(view);
+        await renderProjectPoints(view);
 
         if (cancelled || readOnly) return;
 
@@ -210,6 +228,163 @@ function MamarMap({
     view.graphics.add(marker);
     markerRef.current = marker;
   }, [latitude, longitude]);
+
+  // Redraw when the saved zone / project points change after the map is ready
+  const workZoneKey = JSON.stringify(workZone ?? null);
+  const projectPointsKey = JSON.stringify(projectPoints ?? null);
+
+  useEffect(() => {
+    const view = viewRef.current;
+
+    if (view) renderSavedZone(view);
+  }, [workZoneKey]);
+
+  useEffect(() => {
+    const view = viewRef.current;
+
+    if (view) renderProjectPoints(view);
+  }, [projectPointsKey]);
+
+  function isValidPoint(point) {
+    return (
+      point &&
+      Number.isFinite(Number(point.latitude)) &&
+      Number.isFinite(Number(point.longitude))
+    );
+  }
+
+  // Shows a previously drawn work zone (read-only display, no editing).
+  async function renderSavedZone(view) {
+    if (savedZoneRef.current) {
+      view.graphics.remove(savedZoneRef.current);
+      savedZoneRef.current = null;
+    }
+
+    const zone = workZoneRef.current;
+
+    if (!Array.isArray(zone) || zone.length < 3 || !zone.every(isValidPoint)) {
+      return;
+    }
+
+    const ring = zone.map((point) => [
+      Number(point.longitude),
+      Number(point.latitude),
+    ]);
+
+    ring.push(ring[0]);
+
+    view.graphics.add({
+      geometry: {
+        type: "polygon",
+        rings: [ring],
+        spatialReference: { wkid: 4326 },
+      },
+      symbol: {
+        type: "simple-fill",
+        color: [255, 204, 0, 45],
+        outline: {
+          color: "#ffcc00",
+          width: 2,
+        },
+      },
+    });
+
+    // view.graphics autocasts plain objects, so keep the stored instance
+    const graphic = view.graphics.getItemAt(view.graphics.length - 1);
+
+    savedZoneRef.current = graphic;
+
+    try {
+      await view.goTo(graphic.geometry.extent.clone().expand(1.8));
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error("Could not zoom to work zone:", error);
+      }
+    }
+  }
+
+  // Shows one labelled marker per project (dashboard map).
+  async function renderProjectPoints(view) {
+    projectGraphicsRef.current.forEach((graphic) => {
+      view.graphics.remove(graphic);
+    });
+
+    projectGraphicsRef.current = [];
+
+    const points = (projectPointsRef.current || []).filter(isValidPoint);
+
+    if (points.length === 0) return;
+
+    const markers = [];
+
+    points.forEach((point) => {
+      const geometry = {
+        type: "point",
+        latitude: Number(point.latitude),
+        longitude: Number(point.longitude),
+      };
+
+      view.graphics.add({
+        geometry,
+        symbol: {
+          type: "simple-marker",
+          style: "circle",
+          color: point.color || "#f2b01e",
+          size: "14px",
+          outline: {
+            color: "#ffffff",
+            width: 2,
+          },
+        },
+        popupTemplate: {
+          title: point.name || "Project",
+          content: [point.status, point.location].filter(Boolean).join(" · "),
+        },
+      });
+
+      const marker = view.graphics.getItemAt(view.graphics.length - 1);
+
+      markers.push(marker);
+      projectGraphicsRef.current.push(marker);
+
+      if (point.name) {
+        view.graphics.add({
+          geometry,
+          symbol: {
+            type: "text",
+            text: point.name,
+            color: "#111827",
+            haloColor: "#ffffff",
+            haloSize: "2px",
+            verticalAlignment: "bottom",
+            yoffset: 10,
+            font: {
+              size: 11,
+              weight: "bold",
+            },
+          },
+        });
+
+        projectGraphicsRef.current.push(
+          view.graphics.getItemAt(view.graphics.length - 1)
+        );
+      }
+    });
+
+    try {
+      await view.goTo(
+        markers.length === 1 ? { target: markers[0], zoom: 14 } : markers
+      );
+
+      if (markers.length > 1) {
+        view.scale = view.scale * 1.4;
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error("Could not zoom to project points:", error);
+      }
+    }
+  }
 
   function clearDrawingGraphics(view) {
     drawingGraphicsRef.current.forEach((graphic) => {
