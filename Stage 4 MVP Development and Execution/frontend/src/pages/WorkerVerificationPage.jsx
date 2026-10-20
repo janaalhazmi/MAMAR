@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../assets/mamar-logo.svg";
 import {
-  registerAccount,
+  registerUser,
   sendPasscode,
 } from "../services/api";
 
@@ -72,7 +72,7 @@ function WorkerVerificationPage() {
         throw new Error("Invalid account type. Please register again.");
       }
 
-      await registerAccount(registration, passcode);
+      await registerUser(registration, passcode);
 
       sessionStorage.removeItem("mamarPendingRegistration");
 

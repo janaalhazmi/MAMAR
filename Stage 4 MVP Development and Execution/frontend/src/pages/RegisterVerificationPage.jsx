@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../assets/mamar-logo.svg";
 import {
-  registerAccount,
+  registerUser,
   sendPasscode,
 } from "../services/api";
 
@@ -71,7 +71,7 @@ function RegisterVerificationPage() {
     try {
       const registration = JSON.parse(saved);
 
-      await registerAccount(registration, passcode);
+      await registerUser(registration, passcode);
 
       sessionStorage.removeItem("mamarPendingRegistration");
 
