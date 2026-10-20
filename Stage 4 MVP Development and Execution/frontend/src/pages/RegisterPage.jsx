@@ -1,56 +1,70 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { registerUser } from "../services/api";
 import logo from "../assets/mamar-logo.svg";
 
 function RegisterPage() {
   const [role, setRole] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    if (loading) return;
     setError("");
+
     if (!role) {
       setError("Please select your account type.");
       return;
     }
+
     const form = event.currentTarget;
+    const fullName = form.elements.registerFullName.value.trim();
+    const email = form.elements.registerEmail.value.trim().toLowerCase();
+    const password = form.elements.registerPassword.value;
+
     const providerId = form.elements.registerProviderId?.value;
-    if (role !== "contractor" &&
-        (!Number.isSafeInteger(Number(providerId)) || Number(providerId) < 1)) {
+
+    if (
+      (role === "provider" || role === "worker") &&
+      (!Number.isSafeInteger(Number(providerId)) ||
+        Number(providerId) < 1)
+    ) {
       setError("Please enter a valid provider ID.");
       return;
     }
-    const user = {
-      full_name: form.registerFullName.value.trim(),
-      email: form.registerEmail.value.trim().toLowerCase(),
-      password: form.registerPassword.value,
+
+    if (!fullName || !email || !password) {
+      setError("Please complete all required fields.");
+      return;
+    }
+
+    const registration = {
+      full_name: fullName,
+      email,
+      password,
       role,
-      provider_id: role === "contractor" ? null : Number(providerId),
+      provider_id:
+        role === "contractor" ? null : Number(providerId),
     };
-    setLoading(true);
-    try {
-      await registerUser(user);
-      localStorage.removeItem("mamarUsers");
-      navigate("/login", { replace: true });
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+
+    sessionStorage.setItem(
+      "mamarPendingRegistration",
+      JSON.stringify(registration)
+    );
+
+    if (role === "worker") {
+      navigate("/register/worker-verification");
+    } else {
+      navigate("/register/verify");
     }
   };
-
 
   return (
     <div className="signup-page">
       <header className="signup-header">
-        <Link to="/">
+        <Link to="/" aria-label="MAMAR Home">
           <img
             src={logo}
             alt="MAMAR Logo"
@@ -58,7 +72,7 @@ function RegisterPage() {
           />
         </Link>
 
-        <div className="signup-header-buttons">
+        <nav className="signup-header-buttons">
           <Link
             to="/login"
             className="signup-nav-btn signup-signin"
@@ -72,7 +86,7 @@ function RegisterPage() {
           >
             Get Started
           </Link>
-        </div>
+        </nav>
       </header>
 
       <main className="signup-main">
@@ -89,7 +103,10 @@ function RegisterPage() {
               className={`signup-role-btn ${
                 role === "contractor" ? "active" : ""
               }`}
-              onClick={() => setRole("contractor")}
+              onClick={() => {
+                setRole("contractor");
+                setError("");
+              }}
             >
               Contractor
             </button>
@@ -99,7 +116,10 @@ function RegisterPage() {
               className={`signup-role-btn ${
                 role === "provider" ? "active" : ""
               }`}
-              onClick={() => setRole("provider")}
+              onClick={() => {
+                setRole("provider");
+                setError("");
+              }}
             >
               Provider
             </button>
@@ -109,7 +129,10 @@ function RegisterPage() {
               className={`signup-role-btn ${
                 role === "worker" ? "active" : ""
               }`}
-              onClick={() => setRole("worker")}
+              onClick={() => {
+                setRole("worker");
+                setError("");
+              }}
             >
               Field Worker
             </button>
@@ -117,85 +140,92 @@ function RegisterPage() {
 
           {role === "worker" && (
             <p className="field-worker-message">
-              Enter the email address sent to you by your service provider.
+              Enter the email address sent to you by your service
+              provider.
             </p>
           )}
 
-          <form
-            className="signup-form"
-            onSubmit={handleSubmit}
-          >
+          <form className="signup-form" onSubmit={handleSubmit}>
             <div className="signup-field">
               <label htmlFor="registerFullName">Full name</label>
-              <input id="registerFullName" name="registerFullName"
-                type="text" autoComplete="name" maxLength={100}
-                placeholder="Enter your full name" required />
+
+              <input
+                id="registerFullName"
+                name="registerFullName"
+                type="text"
+                autoComplete="name"
+                maxLength={100}
+                placeholder="Enter your full name"
+                required
+              />
             </div>
 
             {(role === "provider" || role === "worker") && (
               <div className="signup-field">
-                <label htmlFor="registerProviderId">Provider ID</label>
-                <input id="registerProviderId" name="registerProviderId"
-                  type="number" min="1" step="1" required
-                  placeholder="Enter your existing provider ID" />
+                <label htmlFor="registerProviderId">
+                  Provider ID
+                </label>
+
+                <input
+                  id="registerProviderId"
+                  name="registerProviderId"
+                  type="number"
+                  min="1"
+                  step="1"
+                  placeholder="Enter your existing provider ID"
+                  required
+                />
               </div>
             )}
 
             <div className="signup-field">
-              <label htmlFor="registerEmail">
-                Email
-              </label>
+              <label htmlFor="registerEmail">Email</label>
 
               <input
                 id="registerEmail"
                 name="registerEmail"
                 type="email"
-                placeholder="you@gmail.com"
                 autoComplete="email"
+                placeholder="you@gmail.com"
                 required
               />
             </div>
 
             <div className="signup-field">
-              <label htmlFor="registerPassword">
-                Password
-              </label>
+              <label htmlFor="registerPassword">Password</label>
 
               <div className="signup-password-wrapper">
                 <input
                   id="registerPassword"
                   name="registerPassword"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Create your password"
                   autoComplete="new-password"
-                  required
+                  placeholder="Create your password"
                   minLength={6}
+                  required
                 />
 
                 <button
                   type="button"
                   className="signup-eye-btn"
                   aria-label={
-                    showPassword
-                      ? "Hide password"
-                      : "Show password"
+                    showPassword ? "Hide password" : "Show password"
                   }
-                  onClick={() =>
-                    setShowPassword(!showPassword)
-                  }
+                  onClick={() => setShowPassword((current) => !current)}
                 >
                   ◉
                 </button>
               </div>
             </div>
 
-            {error && <p role="alert">{error}</p>}
-            <button
-              disabled={loading}
-              type="submit"
-              className="signup-submit"
-            >
-              {loading ? "Creating account..." : "Create Account →"}
+            {error && (
+              <p className="signup-error" role="alert">
+                {error}
+              </p>
+            )}
+
+            <button type="submit" className="signup-submit">
+              Create Account →
             </button>
           </form>
 
@@ -203,10 +233,7 @@ function RegisterPage() {
             Already have an account?
           </p>
 
-          <Link
-            to="/login"
-            className="signup-login-link"
-          >
+          <Link to="/login" className="signup-login-link">
             Sign in
           </Link>
         </section>

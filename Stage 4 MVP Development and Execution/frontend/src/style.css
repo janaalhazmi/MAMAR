@@ -5433,3 +5433,186 @@ body {
 .quantity-input:focus {
   border-color: #c7aa34;
 }
+
+
+/* =========================
+   verification Page
+========================= */
+.verification-card {
+  width: 540px;
+  min-height: 460px;
+  padding: 48px 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 20px 25px 60px rgba(228, 230, 234, 0.74);
+}
+
+.verification-card h1 {
+  margin: 0;
+  color: #30332d;
+  font-size: 30px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.verification-card .signup-subtitle {
+  margin: 14px 0 30px;
+  color: #7b7d73;
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.verification-role-buttons {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 48px;
+}
+
+.verification-role-buttons .signup-role-btn {
+  width: 100%;
+  min-height: 48px;
+  border: none;
+  border-radius: 8px;
+  background: #e9e6d9;
+  color: #55584f;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.verification-role-buttons .signup-role-btn.active {
+  background: #ffcc00;
+  color: #111;
+}
+
+.verification-card .signup-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.verification-card .signup-field {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.verification-card .signup-field label {
+  color: #55584f;
+  font-size: 15px;
+}
+
+.verification-card .signup-field input {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid #deded8;
+  border-radius: 8px;
+  outline: none;
+  color: #30332d;
+  font-size: 14px;
+  background: #fff;
+}
+
+.verification-card .signup-field input::placeholder {
+  color: #a4a69d;
+}
+
+.verification-card .signup-field input:focus {
+  border-color: #fabf0d;
+  box-shadow: 0 0 0 2px rgba(250, 191, 13, 0.15);
+}
+
+.verification-card .signup-submit {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 0;
+  border: none;
+  border-radius: 8px;
+  background: #ffcc00;
+  color: #111;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.verification-card .signup-submit:hover {
+  background: #f5c000;
+}
+
+.verification-back {
+  width: 100%;
+  min-height: 44px;
+  border: none;
+  border-radius: 8px;
+  background: #f2f2f2;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.verification-back:hover {
+  background: #e8e8e8;
+}
+
+.signup-error {
+  width: 100%;
+  margin: 0;
+  color: #c62828;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.worker-verification-card {
+  min-height: 460px;
+}
+
+.worker-role-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  min-height: 32px;
+  margin-top: 24px;
+  padding: 0 18px;
+  border-radius: 8px;
+  background: #e9e6d9;
+  color: #55584f;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.worker-verification-card .signup-subtitle {
+  max-width: 310px;
+  margin: 16px 0 30px;
+}
+
+.worker-verification-card .signup-form {
+  gap: 18px;
+}
+
+@media (max-width: 600px) {
+  .verification-card {
+    width: 100%;
+    min-height: 0;
+    padding: 36px 24px;
+  }
+
+  .verification-role-buttons {
+    margin-bottom: 32px;
+  }
+
+  .verification-card h1 {
+    font-size: 26px;
+  }
+}
