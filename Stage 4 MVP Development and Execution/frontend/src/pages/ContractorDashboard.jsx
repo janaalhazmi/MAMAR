@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
-import "./ContractorDashboard.css";
+
 
 function ContractorDashboard() {
   const navigate = useNavigate();
