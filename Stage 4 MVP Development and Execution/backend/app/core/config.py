@@ -25,7 +25,10 @@ FRONTEND_ORIGINS = [
 # It stays off until the frontend sends the passcode. Put EMAIL_VERIFICATION=on to turn it on.
 EMAIL_VERIFICATION = os.getenv("EMAIL_VERIFICATION", "off").strip().lower() == "on"
 
-# Brevo sends the emails over HTTPS, because the free Render plan blocks the SMTP ports.
-# Without BREVO_API_KEY, the passcode is written in the server log instead (for local testing).
-BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
-EMAIL_SENDER = os.getenv("EMAIL_SENDER", "")
+# EmailJS sends the passcode emails from the team's Gmail account over HTTPS, because the free
+# Render plan blocks the SMTP ports. Without these four values, the passcode is written in the
+# server log instead (for local testing).
+EMAILJS_SERVICE_ID = os.getenv("EMAILJS_SERVICE_ID", "")
+EMAILJS_TEMPLATE_ID = os.getenv("EMAILJS_TEMPLATE_ID", "")
+EMAILJS_PUBLIC_KEY = os.getenv("EMAILJS_PUBLIC_KEY", "")
+EMAILJS_PRIVATE_KEY = os.getenv("EMAILJS_PRIVATE_KEY", "")
