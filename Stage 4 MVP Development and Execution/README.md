@@ -275,6 +275,8 @@ Task statuses will be tracked using:
 - To Do
 - In Progress
 - In Review
+- Merged
+- QA
 - Done
 - Blocked
 
