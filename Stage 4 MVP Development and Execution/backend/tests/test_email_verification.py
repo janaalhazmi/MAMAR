@@ -1,3 +1,4 @@
+import io
 import json
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -186,7 +187,7 @@ def test_send_passcode_with_an_invalid_email_returns_422(client, sent):
 
 def test_send_passcode_returns_502_when_the_email_cannot_be_sent(client, new_email, monkeypatch):
     def broken_sender(to, passcode):
-        raise OSError("Brevo is not reachable")
+        raise OSError("EmailJS is not reachable")
 
     monkeypatch.setattr(auth, "send_passcode", broken_sender)
     response = send_passcode(client, new_email)
@@ -197,8 +198,15 @@ def test_send_passcode_returns_502_when_the_email_cannot_be_sent(client, new_ema
     assert response.status_code == 502
 
 
-def test_brevo_request(monkeypatch):
-    # Checks the request that goes to Brevo, without sending it.
+def set_emailjs(monkeypatch):
+    monkeypatch.setattr(config, "EMAILJS_SERVICE_ID", "service_test")
+    monkeypatch.setattr(config, "EMAILJS_TEMPLATE_ID", "template_test")
+    monkeypatch.setattr(config, "EMAILJS_PUBLIC_KEY", "public-key")
+    monkeypatch.setattr(config, "EMAILJS_PRIVATE_KEY", "private-key")
+
+
+def test_emailjs_request(monkeypatch):
+    # Checks the request that goes to EmailJS, without sending it.
     request_sent = {}
 
     class FakeResponse:
@@ -209,21 +217,53 @@ def test_brevo_request(monkeypatch):
             return False
 
         def read(self):
-            return b'{"messageId": "<test>"}'
+            return b"OK"
 
     def fake_urlopen(request, timeout):
         request_sent["url"] = request.full_url
+        request_sent["method"] = request.get_method()
         request_sent["headers"] = {name.lower(): value for name, value in request.header_items()}
         request_sent["body"] = json.loads(request.data)
         return FakeResponse()
 
-    monkeypatch.setattr(config, "BREVO_API_KEY", "test-key")
-    monkeypatch.setattr(config, "EMAIL_SENDER", "mamar@example.com")
+    set_emailjs(monkeypatch)
     monkeypatch.setattr(email.urllib.request, "urlopen", fake_urlopen)
     email.send_passcode("sara@example.com", "042917")
 
-    assert request_sent["url"] == "https://api.brevo.com/v3/smtp/email"
-    assert request_sent["headers"]["api-key"] == "test-key"
-    assert request_sent["body"]["sender"] == {"name": "MAMAR", "email": "mamar@example.com"}
-    assert request_sent["body"]["to"] == [{"email": "sara@example.com"}]
-    assert "042917" in request_sent["body"]["textContent"]
+    assert request_sent["url"] == "https://api.emailjs.com/api/v1.0/email/send"
+    assert request_sent["method"] == "POST"
+    assert request_sent["headers"]["content-type"] == "application/json"
+    assert request_sent["body"] == {
+        "service_id": "service_test",
+        "template_id": "template_test",
+        "user_id": "public-key",
+        "accessToken": "private-key",
+        "template_params": {"to_email": "sara@example.com", "passcode": "042917"},
+    }
+
+
+def test_emailjs_error_is_explained(monkeypatch):
+    # When EmailJS refuses the request, its reason is kept in the error, so it shows in the server log.
+    def refusing_urlopen(request, timeout):
+        raise email.urllib.error.HTTPError(
+            request.full_url, 403, "Forbidden", {}, io.BytesIO(b"API calls are disabled for non-browser applications")
+        )
+
+    set_emailjs(monkeypatch)
+    monkeypatch.setattr(email.urllib.request, "urlopen", refusing_urlopen)
+    with pytest.raises(RuntimeError, match="EmailJS returned 403: API calls are disabled for non-browser applications"):
+        email.send_passcode("sara@example.com", "042917")
+
+
+def test_without_emailjs_the_passcode_is_written_in_the_log(monkeypatch, caplog):
+    # On a local computer without EmailJS, nothing is sent and the passcode is in the server log.
+    for name in ("EMAILJS_SERVICE_ID", "EMAILJS_TEMPLATE_ID", "EMAILJS_PUBLIC_KEY", "EMAILJS_PRIVATE_KEY"):
+        monkeypatch.setattr(config, name, "")
+
+    def no_network(request, timeout):
+        raise AssertionError("nothing should be sent")
+
+    monkeypatch.setattr(email.urllib.request, "urlopen", no_network)
+    with caplog.at_level("WARNING", logger="mamar.email"):
+        email.send_passcode("sara@example.com", "042917")
+    assert "The passcode for sara@example.com is 042917" in caplog.text
