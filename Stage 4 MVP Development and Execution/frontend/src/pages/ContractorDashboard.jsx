@@ -516,7 +516,6 @@ function ContractorDashboard() {
             <span>© 2026 MAMAR. All rights reserved.</span>
             <div className="cd-footer-links">
               <Link to="/data-disclaimer">Privacy &amp; Data</Link>
-              <Link to="/support">Help &amp; Support</Link>
             </div>
           </footer>
         </main>
