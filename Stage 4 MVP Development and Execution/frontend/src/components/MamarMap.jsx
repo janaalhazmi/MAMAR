@@ -1,30 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 
-import Graphic from "@arcgis/core/Graphic.js";
-import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer.js";
-
 import "@arcgis/map-components/components/arcgis-map";
 import "@arcgis/map-components/components/arcgis-zoom";
-import "@arcgis/map-components/components/arcgis-sketch";
 
 function MamarMap({
   onLocationSelect,
-  onPolygonSelect,
+  onAreaSelect,
   latitude = null,
   longitude = null,
   readOnly = false,
-<<<<<<< HEAD
   height = "100%",
   workZone = null,
   projectPoints = null,
-=======
-  enablePolygon = false,
->>>>>>> a23cbe8 (Update provider projects and project details)
 }) {
   const mapRef = useRef(null);
-  const sketchRef = useRef(null);
+  const viewRef = useRef(null);
   const markerRef = useRef(null);
-<<<<<<< HEAD
   const drawingGraphicsRef = useRef([]);
   const callbackRef = useRef(onLocationSelect);
   const areaCallbackRef = useRef(onAreaSelect);
@@ -34,151 +25,22 @@ function MamarMap({
   const projectPointsRef = useRef(projectPoints);
   const savedZoneRef = useRef(null);
   const projectGraphicsRef = useRef([]);
-=======
-  const workZoneLayerRef = useRef(null);
-  const currentPolygonRef = useRef(null);
->>>>>>> a23cbe8 (Update provider projects and project details)
 
-  const undoStackRef = useRef([]);
-  const redoStackRef = useRef([]);
-  const committedGeometryRef = useRef(null);
-
-  const locationCallbackRef = useRef(onLocationSelect);
-  const polygonCallbackRef = useRef(onPolygonSelect);
-
-  const [canUndo, setCanUndo] = useState(false);
-  const [canRedo, setCanRedo] = useState(false);
-  const [canDelete, setCanDelete] = useState(false);
+  const [drawMode, setDrawMode] = useState(false);
+  const [drawingPoints, setDrawingPoints] = useState([]);
+  const [hasArea, setHasArea] = useState(false);
 
   useEffect(() => {
-    locationCallbackRef.current = onLocationSelect;
+    callbackRef.current = onLocationSelect;
   }, [onLocationSelect]);
 
   useEffect(() => {
-    polygonCallbackRef.current = onPolygonSelect;
-  }, [onPolygonSelect]);
+    areaCallbackRef.current = onAreaSelect;
+  }, [onAreaSelect]);
 
-  const updateButtons = () => {
-    setCanUndo(undoStackRef.current.length > 0);
-    setCanRedo(redoStackRef.current.length > 0);
-    setCanDelete(currentPolygonRef.current !== null);
-  };
-
-  const sendPolygon = (geometry) => {
-    if (!geometry || !polygonCallbackRef.current) return;
-
-    polygonCallbackRef.current({
-      rings: geometry.rings,
-      spatialReference:
-        geometry.spatialReference?.toJSON?.() ??
-        geometry.spatialReference,
-    });
-  };
-
-  const restoreGeometry = (geometry) => {
-    const layer = workZoneLayerRef.current;
-
-    if (!layer || !geometry) return;
-
-    if (currentPolygonRef.current) {
-      currentPolygonRef.current.geometry = geometry.clone();
-    } else {
-      const graphic = new Graphic({
-        geometry: geometry.clone(),
-        symbol: {
-          type: "simple-fill",
-          color: [255, 204, 0, 0.25],
-          outline: {
-            color: [255, 204, 0, 1],
-            width: 3,
-          },
-        },
-      });
-
-      layer.add(graphic);
-      currentPolygonRef.current = graphic;
-    }
-
-    committedGeometryRef.current = geometry.clone();
-    sendPolygon(geometry);
-  };
-
-  const handleCustomUndo = () => {
-    const previous = undoStackRef.current.pop();
-
-    if (!previous) return;
-
-    if (committedGeometryRef.current) {
-      redoStackRef.current.push(
-        committedGeometryRef.current.clone()
-      );
-    } else {
-      redoStackRef.current.push(null);
-    }
-
-    if (previous === null) {
-      if (currentPolygonRef.current) {
-        workZoneLayerRef.current?.remove(
-          currentPolygonRef.current
-        );
-      }
-
-      currentPolygonRef.current = null;
-      committedGeometryRef.current = null;
-    } else {
-      restoreGeometry(previous);
-    }
-
-    updateButtons();
-  };
-
-  const handleCustomRedo = () => {
-    const next = redoStackRef.current.pop();
-
-    if (next === undefined) return;
-
-    undoStackRef.current.push(
-      committedGeometryRef.current
-        ? committedGeometryRef.current.clone()
-        : null
-    );
-
-    if (next === null) {
-      if (currentPolygonRef.current) {
-        workZoneLayerRef.current?.remove(
-          currentPolygonRef.current
-        );
-      }
-
-      currentPolygonRef.current = null;
-      committedGeometryRef.current = null;
-    } else {
-      restoreGeometry(next);
-    }
-
-    updateButtons();
-  };
-
-  const handleDeletePolygon = () => {
-    if (!currentPolygonRef.current) return;
-
-    undoStackRef.current.push(
-      committedGeometryRef.current
-        ? committedGeometryRef.current.clone()
-        : null
-    );
-
-    redoStackRef.current = [];
-
-    workZoneLayerRef.current?.remove(
-      currentPolygonRef.current
-    );
-
-    currentPolygonRef.current = null;
-    committedGeometryRef.current = null;
-
-    updateButtons();
-  };
+  useEffect(() => {
+    drawModeRef.current = drawMode;
+  }, [drawMode]);
 
   useEffect(() => {
     workZoneRef.current = workZone;
@@ -190,30 +52,28 @@ function MamarMap({
 
   useEffect(() => {
     const mapElement = mapRef.current;
-    const sketchElement = sketchRef.current;
 
     if (!mapElement) return;
 
-    let clickHandler = null;
-    let createHandler = null;
-    let updateHandler = null;
+    let clickHandler;
     let cancelled = false;
 
-    async function setupMap() {
+    async function initializeMap() {
       try {
         await mapElement.viewOnReady();
 
         if (cancelled) return;
 
         const view = mapElement.view;
+        viewRef.current = view;
 
         if (
           latitude !== null &&
           longitude !== null &&
-          !Number.isNaN(Number(latitude)) &&
-          !Number.isNaN(Number(longitude))
+          Number.isFinite(Number(latitude)) &&
+          Number.isFinite(Number(longitude))
         ) {
-          const existingMarker = view.graphics.add({
+          const marker = {
             geometry: {
               type: "point",
               latitude: Number(latitude),
@@ -229,20 +89,17 @@ function MamarMap({
                 width: 2,
               },
             },
-          });
+          };
 
-          markerRef.current = existingMarker;
+          view.graphics.add(marker);
+          markerRef.current = marker;
 
           await view.goTo({
-            center: [
-              Number(longitude),
-              Number(latitude),
-            ],
+            center: [Number(longitude), Number(latitude)],
             zoom: 15,
           });
         }
 
-<<<<<<< HEAD
         // Saved work zone (Review / Services maps) and project points (dashboard)
         await renderSavedZone(view);
         await renderProjectPoints(view);
@@ -253,208 +110,120 @@ function MamarMap({
           const point = view.toMap({
             x: event.x,
             y: event.y,
-=======
-        if (enablePolygon && sketchElement) {
-          const workZoneLayer = new GraphicsLayer({
-            title: "MAMAR Work Zone",
->>>>>>> a23cbe8 (Update provider projects and project details)
           });
 
-          workZoneLayerRef.current = workZoneLayer;
-          view.map.add(workZoneLayer);
+          if (!point) return;
 
-          await sketchElement.componentOnReady();
+          const selectedPoint = {
+            latitude: Number(point.latitude.toFixed(6)),
+            longitude: Number(point.longitude.toFixed(6)),
+          };
 
-          sketchElement.view = view;
-          sketchElement.layer = workZoneLayer;
-          sketchElement.availableCreateTools = ["polygon"];
-          sketchElement.creationMode = "update";
+          if (drawModeRef.current) {
+            const updatedPoints = [
+              ...drawingPointsRef.current,
+              selectedPoint,
+            ];
 
-          sketchElement.polygonSymbol = {
-            type: "simple-fill",
-            color: [255, 204, 0, 0.25],
-            outline: {
-              color: [255, 204, 0, 1],
-              width: 3,
+            drawingPointsRef.current = updatedPoints;
+            setDrawingPoints(updatedPoints);
+
+            renderDrawing(view, updatedPoints);
+
+            return;
+          }
+
+          if (markerRef.current) {
+            view.graphics.remove(markerRef.current);
+          }
+
+          const marker = {
+            geometry: {
+              type: "point",
+              latitude: selectedPoint.latitude,
+              longitude: selectedPoint.longitude,
+              spatialReference: point.spatialReference,
+            },
+            symbol: {
+              type: "simple-marker",
+              style: "circle",
+              color: "#ffcc00",
+              size: "16px",
+              outline: {
+                color: "#222222",
+                width: 2,
+              },
             },
           };
 
-          sketchElement.defaultUpdateOptions = {
-            tool: "reshape",
-            enableRotation: false,
-            enableScaling: true,
-            multipleSelectionEnabled: false,
-          };
+          view.graphics.add(marker);
+          markerRef.current = marker;
 
-          createHandler = (event) => {
-            const detail = event.detail;
-
-            if (
-              detail?.state !== "complete" ||
-              !detail?.graphic ||
-              detail.graphic.geometry?.type !== "polygon"
-            ) {
-              return;
-            }
-
-            if (
-              currentPolygonRef.current &&
-              currentPolygonRef.current !== detail.graphic
-            ) {
-              workZoneLayer.remove(
-                currentPolygonRef.current
-              );
-            }
-
-            undoStackRef.current.push(
-              committedGeometryRef.current
-                ? committedGeometryRef.current.clone()
-                : null
-            );
-
-            redoStackRef.current = [];
-
-            currentPolygonRef.current = detail.graphic;
-            committedGeometryRef.current =
-              detail.graphic.geometry.clone();
-
-            sendPolygon(detail.graphic.geometry);
-            updateButtons();
-          };
-
-          updateHandler = (event) => {
-            const detail = event.detail;
-
-            if (
-              detail?.state !== "complete" ||
-              !detail?.graphics?.length
-            ) {
-              return;
-            }
-
-            const graphic = detail.graphics[0];
-
-            if (graphic.geometry?.type !== "polygon") {
-              return;
-            }
-
-            if (committedGeometryRef.current) {
-              undoStackRef.current.push(
-                committedGeometryRef.current.clone()
-              );
-            }
-
-            redoStackRef.current = [];
-
-            currentPolygonRef.current = graphic;
-            committedGeometryRef.current =
-              graphic.geometry.clone();
-
-            sendPolygon(graphic.geometry);
-            updateButtons();
-          };
-
-          sketchElement.addEventListener(
-            "arcgisCreate",
-            createHandler
-          );
-
-          sketchElement.addEventListener(
-            "arcgisUpdate",
-            updateHandler
-          );
-        }
-
-        if (!readOnly) {
-          clickHandler = view.on("click", (event) => {
-            if (
-              enablePolygon &&
-              sketchElement?.activeTool
-            ) {
-              return;
-            }
-
-            const point = view.toMap({
-              x: event.x,
-              y: event.y,
-            });
-
-            if (!point) return;
-
-            const selectedLatitude = Number(
-              point.latitude.toFixed(6)
-            );
-
-            const selectedLongitude = Number(
-              point.longitude.toFixed(6)
-            );
-
-            if (markerRef.current) {
-              view.graphics.remove(markerRef.current);
-            }
-
-            const marker = view.graphics.add({
-              geometry: point,
-              symbol: {
-                type: "simple-marker",
-                style: "circle",
-                color: "#ffcc00",
-                size: "16px",
-                outline: {
-                  color: "#222222",
-                  width: 2,
-                },
-              },
-            });
-
-            markerRef.current = marker;
-
-            if (locationCallbackRef.current) {
-              locationCallbackRef.current({
-                latitude: selectedLatitude,
-                longitude: selectedLongitude,
-              });
-            }
-          });
-        }
+          if (callbackRef.current) {
+            callbackRef.current(selectedPoint);
+          }
+        });
       } catch (error) {
-        console.error(
-          "Could not initialize MAMAR map:",
-          error
-        );
+        console.error("Could not initialize MAMAR map:", error);
       }
     }
 
-    setupMap();
+    initializeMap();
 
     return () => {
       cancelled = true;
 
-      clickHandler?.remove();
-
-      if (sketchElement && createHandler) {
-        sketchElement.removeEventListener(
-          "arcgisCreate",
-          createHandler
-        );
+      if (clickHandler) {
+        clickHandler.remove();
       }
 
-      if (sketchElement && updateHandler) {
-        sketchElement.removeEventListener(
-          "arcgisUpdate",
-          updateHandler
-        );
-      }
-
-      const layer = workZoneLayerRef.current;
-
-      if (layer && mapElement.view?.map) {
-        mapElement.view.map.remove(layer);
-      }
-
-      workZoneLayerRef.current = null;
+      viewRef.current = null;
     };
-<<<<<<< HEAD
+  }, []);
+
+  useEffect(() => {
+    const view = viewRef.current;
+
+    if (
+      !view ||
+      latitude === null ||
+      longitude === null ||
+      !Number.isFinite(Number(latitude)) ||
+      !Number.isFinite(Number(longitude))
+    ) {
+      return;
+    }
+
+    view.goTo({
+      center: [Number(longitude), Number(latitude)],
+      zoom: 15,
+    }).catch((error) => {
+      if (error.name !== "AbortError") {
+        console.error("Could not move map:", error);
+      }
+    });
+
+    if (markerRef.current) {
+      view.graphics.remove(markerRef.current);
+    }
+
+    const marker = {
+      geometry: {
+        type: "point",
+        latitude: Number(latitude),
+        longitude: Number(longitude),
+      },
+      symbol: {
+        type: "simple-marker",
+        style: "circle",
+        color: "#ffcc00",
+        size: "16px",
+        outline: {
+          color: "#222222",
+          width: 2,
+        },
+      },
+    };
 
     view.graphics.add(marker);
     markerRef.current = marker;
@@ -758,45 +527,76 @@ function MamarMap({
       areaCallbackRef.current([]);
     }
   }
-=======
-  }, [
-    latitude,
-    longitude,
-    readOnly,
-    enablePolygon,
-  ]);
->>>>>>> a23cbe8 (Update provider projects and project details)
 
   return (
-    <div className="mamar-map-container">
-      {enablePolygon && !readOnly && (
-        <div className="work-zone-history-tools">
-          <button
-            type="button"
-            onClick={handleCustomUndo}
-            disabled={!canUndo}
-            title="Undo"
-          >
-            ↶
-          </button>
+    <div
+      className="mamar-map-container"
+      style={{
+        width: "100%",
+        height,
+        position: "relative",
+      }}
+    >
+      {!readOnly && (
+        <div className="mamar-map-tools">
+          {!drawMode && !hasArea && (
+            <button
+              type="button"
+              className="mamar-map-tool-button"
+              onClick={startDrawing}
+            >
+              Draw Work Zone
+            </button>
+          )}
 
-          <button
-            type="button"
-            onClick={handleCustomRedo}
-            disabled={!canRedo}
-            title="Redo"
-          >
-            ↷
-          </button>
+          {drawMode && (
+            <>
+              <span className="mamar-map-drawing-hint">
+                Click to add boundary points ({drawingPoints.length})
+              </span>
 
-          <button
-            type="button"
-            onClick={handleDeletePolygon}
-            disabled={!canDelete}
-            title="Delete Work Zone"
-          >
-            ✕
-          </button>
+              <button
+                type="button"
+                className="mamar-map-tool-button"
+                onClick={finishDrawing}
+                disabled={drawingPoints.length < 3}
+              >
+                Finish Drawing
+              </button>
+
+              <button
+                type="button"
+                className="mamar-map-tool-button secondary"
+                onClick={clearDrawing}
+              >
+                Cancel
+              </button>
+            </>
+          )}
+
+          {hasArea && !drawMode && (
+            <>
+              <span className="mamar-map-drawing-hint">
+                Work zone saved
+              </span>
+
+              <button
+                type="button"
+                className="mamar-map-tool-button"
+                onClick={startDrawing}
+              >
+                Redraw Area
+              </button>
+
+              <button
+                type="button"
+                className="mamar-map-tool-button secondary"
+                onClick={clearDrawing}
+              >
+                Clear Area
+              </button>
+            </>
+          )}
         </div>
       )}
 
@@ -804,26 +604,9 @@ function MamarMap({
         ref={mapRef}
         item-id="7371729f1ff240038c3a8155edebfeda"
         className="mamar-map"
+        style={{ width: "100%", height: "100%" }}
       >
         <arcgis-zoom slot="top-left" />
-
-        {enablePolygon && !readOnly && (
-          <arcgis-sketch
-            ref={sketchRef}
-            slot="top-right"
-            creation-mode="update"
-            hide-delete-button
-            hide-duplicate-button
-            hide-undo-redo-menu
-            hide-selection-tools-lasso-selection
-            hide-selection-tools-rectangle-selection
-            hide-settings-menu
-            hide-snapping-controls
-            hide-labels-toggle
-            hide-selection-count-label
-            hide-tooltips-toggle
-          />
-        )}
       </arcgis-map>
     </div>
   );
