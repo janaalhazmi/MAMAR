@@ -2,10 +2,14 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../assets/mamar-logo.svg";
+<<<<<<< HEAD
 import {
   registerUser,
   sendPasscode,
 } from "../services/api";
+=======
+import { registerUser as registerAccount, sendPasscode } from "../services/api";
+>>>>>>> 7456479 (Update registration pages)
 
 function WorkerVerificationPage() {
   const navigate = useNavigate();
