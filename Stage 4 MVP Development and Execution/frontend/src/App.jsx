@@ -14,6 +14,7 @@ import ProjectLocationPage from "./pages/ProjectLocationPage";
 import CreateProjectPage from "./pages/CreateProjectPage";
 import ServicesPage from "./pages/ServicesPage";
 import ReviewPage from "./pages/ReviewPage";
+import Helpandsupport from "./pages/Helpandsupport";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/help" element={<Helpandsupport />} />
 
       <Route
         path="/register/verify"
