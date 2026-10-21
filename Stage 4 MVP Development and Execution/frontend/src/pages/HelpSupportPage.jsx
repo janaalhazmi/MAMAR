@@ -372,7 +372,7 @@ function HelpSupportPage() {
           ))}
 
           <Link
-            to="/support"
+            to="/help"
             className="hs-nav-current"
             aria-current="page"
             onClick={() => setMenuOpen(false)}
@@ -749,8 +749,8 @@ function HelpSupportPage() {
 
           <div className="hs-footer-column">
             <strong>Company</strong>
-            <span>About Us</span>
-            <span>Resources</span>
+            <Link to={ROUTES.home}>About Us</Link>
+            <Link to={ROUTES.home}>Resources</Link>
           </div>
         </div>
       </footer>
