@@ -16,6 +16,7 @@ function Footer() {
         <a href="#how-mamar-works">How it works</a>
         <Link to="/register">Contractors</Link>
         <Link to="/register">Providers</Link>
+        <Link to="/support">Help &amp; Support</Link>
       </div>
 
       <div className="mamar-footer-bottom">
