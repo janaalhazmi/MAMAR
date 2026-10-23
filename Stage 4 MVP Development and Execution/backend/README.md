@@ -149,6 +149,7 @@ The problems we met while setting up the project, and how we solved them.
 | `git clone` or `git checkout` on Windows fails with `error: invalid path 'Stage 4: MVP Development and Execution/...'` | Windows does not allow `:` in folder names, and the Stage folders had `:` in their names | The Stage folders were renamed without `:`, for example `Stage 4 MVP Development and Execution`. Clone the repository again, or pull the latest changes |
 | `fatal: Unable to create '.git/index.lock': File exists` | A git command stopped in the middle and left its lock file behind | Close the other terminals and editors that use git, then delete the lock file with `Remove-Item .git\index.lock` |
 | The Render deploy fails with `Could not open requirements file` after the folders were renamed | The Render Build and Start commands still used the old folder name | The commands now use `cd "Stage 4 MVP Development and Execution/backend"`, see [Deploy on Render](#deploy-on-render) |
+| The deployed site shows "Unable to connect to the server" on the login and register pages, while `https://mamar-api.onrender.com/health` works | `FRONTEND_ORIGINS` on Render had the Vercel share link `https://mammar-blush.vercel.app?_vercel_share=...` instead of the site address. The browser sends the origin `https://mammar-blush.vercel.app`, which did not match, so CORS blocked every request from the site | `FRONTEND_ORIGINS` on Render was set back to the site address. `config.py` now keeps only the site address (`scheme://host:port`) of each origin, so a copied link still works |
 
 ## Environment Variables
 
@@ -156,7 +157,7 @@ The problems we met while setting up the project, and how we solved them.
 | --- | --- | --- |
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:your_password@localhost:5432/mamar` |
 | `SECRET_KEY` | Long random value that signs the login tokens (JWT). Every computer and Render has its own | Output of `python -c "import secrets; print(secrets.token_urlsafe(32))"` |
-| `FRONTEND_ORIGINS` | Frontend addresses allowed to call the API, separated by commas | `http://localhost:5173,http://127.0.0.1:5173` |
+| `FRONTEND_ORIGINS` | Frontend addresses allowed to call the API, separated by commas. Only the site address of each one is used, so a copied link with a path or `?...` still works | `http://localhost:5173,http://127.0.0.1:5173` |
 | `EMAIL_VERIFICATION` | `on` or `off`. Optional, `off` by default | `off` |
 | `EMAILJS_SERVICE_ID` | EmailJS Gmail service that sends the passcode emails. Optional: without the four EmailJS values, the passcode is written in the server log | Empty on a local computer |
 | `EMAILJS_TEMPLATE_ID` | EmailJS template of the passcode email | `template_xxxxxxx` |
@@ -494,6 +495,7 @@ pytest
 | `test_root_opens_the_api_documentation` | Opening the server address goes to `/docs` |
 | `test_frontend_origin_is_allowed` | The React frontend on port 5173 is allowed by CORS |
 | `test_unknown_origin_is_not_allowed` | Other websites are not allowed |
+| `test_frontend_origins_keep_only_the_site_address` | A copied link with a path, a `/` or `?...` in `FRONTEND_ORIGINS` is cut to the site address that the browser sends |
 | `test_tables_and_columns_match_the_er_diagram` | The six tables have the same columns as the Stage 3 database schema |
 | `test_foreign_keys_match_the_relationships` | The foreign keys match the Stage 3 relationships table |
 | `test_unique_rules` | `email`, one quote per provider per request, and one assignment per worker per project are unique |
