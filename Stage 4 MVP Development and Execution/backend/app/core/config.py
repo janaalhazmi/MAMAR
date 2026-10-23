@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 
@@ -15,8 +16,19 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
     raise RuntimeError("SECRET_KEY is not set. Copy .env.example to .env and fill it in.")
 
+
+def normalize_origin(value: str) -> str:
+    # The browser sends only the origin, scheme://host:port. A copied link like
+    # https://mammar-blush.vercel.app/?_vercel_share=... is cut to that origin, so CORS still matches.
+    value = value.strip()
+    parsed = urlparse(value)
+    if parsed.scheme and parsed.netloc:
+        return f"{parsed.scheme}://{parsed.netloc}"
+    return value.rstrip("/")
+
+
 FRONTEND_ORIGINS = [
-    origin.strip()
+    normalize_origin(origin)
     for origin in os.getenv("FRONTEND_ORIGINS", "http://localhost:5173").split(",")
     if origin.strip()
 ]
