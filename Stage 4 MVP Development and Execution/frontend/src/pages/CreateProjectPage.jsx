@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../assets/mamar-logo.svg";
-import { getSession } from "../services/auth";
+import { getSession, logout } from "../services/auth";
 
 function CreateProjectPage() {
   const displayName = getSession()?.user?.full_name || "User";
@@ -139,7 +139,7 @@ function CreateProjectPage() {
             Help &amp; Support
           </Link>
 
-          <Link to="/login">
+          <Link to="/login" onClick={logout}>
             <span>→</span>
             Log out
           </Link>
