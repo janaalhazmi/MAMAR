@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { loginUser } from "../services/api";
 import { logout, saveSession } from "../services/auth";
@@ -34,6 +34,9 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
+  // A message from the page that opened the login page, for example after
+  // creating an account or when the session has ended.
+  const notice = useLocation().state?.message;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -153,6 +156,7 @@ function LoginPage() {
             </div>
 
             {error && <p role="alert">{error}</p>}
+            {!error && notice && <p role="status">{notice}</p>}
             <Button
               disabled={loading}
               type="submit"
