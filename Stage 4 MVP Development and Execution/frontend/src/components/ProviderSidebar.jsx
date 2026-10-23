@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import logo from "../assets/mamar-logo.svg";
+import { logout } from "../services/auth";
 
 const providerNavigation = [
   {
@@ -77,7 +78,7 @@ function ProviderSidebar() {
           <span>Help & Support</span>
         </Link>
 
-        <Link to="/login">
+        <Link to="/login" onClick={logout}>
           <LogOut size={18} />
           <span>Log out</span>
         </Link>
