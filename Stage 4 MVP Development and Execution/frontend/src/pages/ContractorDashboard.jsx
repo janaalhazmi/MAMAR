@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
+import { logout } from "../services/auth";
 
 /* Small inline icon set (outlined, 24x24) so no new dependency is needed. */
 const ICON_PATHS = {
@@ -289,7 +290,7 @@ function ContractorDashboard() {
               <span>Help &amp; Support</span>
             </Link>
 
-            <Link to="/login">
+            <Link to="/login" onClick={logout}>
               <Icon name="logout" />
               <span>Log out</span>
             </Link>
