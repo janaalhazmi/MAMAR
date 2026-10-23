@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.core import config
 from app.core.email import send_passcode
-from app.core.security import create_access_token
+from app.core.security import create_access_token, get_current_user
 from app.db.database import get_db
 from app.models import EmailPasscode, Provider, User
 from app.models.user import password_hasher
@@ -48,6 +48,9 @@ REGISTER_ERRORS = {
 LOGIN_ERRORS = {
     401: {"model": ErrorResponse, "description": "The email or password is wrong"},
     422: {"model": ErrorResponse, "description": "A field is missing or not valid"},
+}
+ME_ERRORS = {
+    401: {"model": ErrorResponse, "description": "The token is missing, not valid or expired"},
 }
 SEND_PASSCODE_ERRORS = {
     409: {"model": ErrorResponse, "description": "The email is already registered"},
@@ -179,3 +182,10 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
             "provider_id": user.provider_id,
         },
     }
+
+
+@router.get("/me", response_model=UserResponse, responses=ME_ERRORS)
+def current_user(user: User = Depends(get_current_user)):
+    # Returns the signed-in user. The frontend calls it to check that its saved token is still
+    # valid: a wrong, changed or expired token, or a deactivated account, returns 401.
+    return user.to_dict()

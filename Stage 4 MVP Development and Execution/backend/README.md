@@ -7,7 +7,12 @@ This folder covers the Sprint 1 backend tasks:
 - Set up FastAPI backend and PostgreSQL database.
 - Begin frontend and backend API integration.
 
-The six database models follow the approved Stage 3 ER diagram. The two `auth` endpoints from Stage 3, `POST /auth/register` and `POST /auth/login`, are ready, with the token check that the other endpoints use. The three [projects endpoints](#projects-endpoints), `GET`, `POST` and `PATCH /projects`, are ready too (Sprint 1, T09). The other 7 endpoints are added in the next sprints. [Email verification](#email-verification) with a 6-digit passcode is ready too, and it stays off until the frontend sends the passcode.
+And the backend part of the Sprint 2 tasks:
+
+- Finalize Authentication API and Database Integration.
+- Implement Logout and Session Management, see [Session and Logout](#session-and-logout).
+
+The six database models follow the approved Stage 3 ER diagram. The two `auth` endpoints from Stage 3, `POST /auth/register` and `POST /auth/login`, are ready, with the token check that the other endpoints use. The three [projects endpoints](#projects-endpoints), `GET`, `POST` and `PATCH /projects`, are ready too (Sprint 1, T09). The other 7 endpoints are added in the next sprints. [Email verification](#email-verification) with a 6-digit passcode is ready too, and it stays off until the frontend sends the passcode. `GET /auth/me` checks a saved login token, see [Session and Logout](#session-and-logout).
 
 ## Folder Structure
 
@@ -45,6 +50,7 @@ backend/
     test_health.py         # Health check and CORS tests
     test_models.py         # Checks the tables against the Stage 3 database schema
     test_projects.py       # Projects endpoints tests
+    test_session.py        # GET /auth/me (session check) tests
   .env.example             # Example settings, without real passwords
   .gitignore
   README.md
@@ -143,6 +149,7 @@ The problems we met while setting up the project, and how we solved them.
 | `git clone` or `git checkout` on Windows fails with `error: invalid path 'Stage 4: MVP Development and Execution/...'` | Windows does not allow `:` in folder names, and the Stage folders had `:` in their names | The Stage folders were renamed without `:`, for example `Stage 4 MVP Development and Execution`. Clone the repository again, or pull the latest changes |
 | `fatal: Unable to create '.git/index.lock': File exists` | A git command stopped in the middle and left its lock file behind | Close the other terminals and editors that use git, then delete the lock file with `Remove-Item .git\index.lock` |
 | The Render deploy fails with `Could not open requirements file` after the folders were renamed | The Render Build and Start commands still used the old folder name | The commands now use `cd "Stage 4 MVP Development and Execution/backend"`, see [Deploy on Render](#deploy-on-render) |
+| The deployed site shows "Unable to connect to the server" on the login and register pages, while `https://mamar-api.onrender.com/health` works | `FRONTEND_ORIGINS` on Render had the Vercel share link `https://mammar-blush.vercel.app?_vercel_share=...` instead of the site address. The browser sends the origin `https://mammar-blush.vercel.app`, which did not match, so CORS blocked every request from the site | `FRONTEND_ORIGINS` on Render was set back to the site address. `config.py` now keeps only the site address (`scheme://host:port`) of each origin, so a copied link still works |
 
 ## Environment Variables
 
@@ -150,7 +157,7 @@ The problems we met while setting up the project, and how we solved them.
 | --- | --- | --- |
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:your_password@localhost:5432/mamar` |
 | `SECRET_KEY` | Long random value that signs the login tokens (JWT). Every computer and Render has its own | Output of `python -c "import secrets; print(secrets.token_urlsafe(32))"` |
-| `FRONTEND_ORIGINS` | Frontend addresses allowed to call the API, separated by commas | `http://localhost:5173,http://127.0.0.1:5173` |
+| `FRONTEND_ORIGINS` | Frontend addresses allowed to call the API, separated by commas. Only the site address of each one is used, so a copied link with a path or `?...` still works | `http://localhost:5173,http://127.0.0.1:5173` |
 | `EMAIL_VERIFICATION` | `on` or `off`. Optional, `off` by default | `off` |
 | `EMAILJS_SERVICE_ID` | EmailJS Gmail service that sends the passcode emails. Optional: without the four EmailJS values, the passcode is written in the server log | Empty on a local computer |
 | `EMAILJS_TEMPLATE_ID` | EmailJS template of the passcode email | `template_xxxxxxx` |
@@ -172,7 +179,7 @@ The error follows the Stage 3 error format `{"detail": "message"}`.
 
 ## Auth Endpoints
 
-The two `auth` endpoints follow Stage 3 (sections 4.2.3 and 4.2.4). They are the only endpoints that do not need a token.
+The two `auth` endpoints follow Stage 3 (sections 4.2.3 and 4.2.4). They do not need a token, and neither does `POST /auth/send-passcode`. `GET /auth/me` needs the token, see [Session and Logout](#session-and-logout).
 
 ### Register
 
@@ -294,12 +301,29 @@ While verification is on, `provider` and `worker` accounts receive the passcode 
 
 ### Token for the Other Endpoints
 
-Every endpoint except `/health` and the `auth` endpoints needs the header `Authorization: Bearer <token>`. The [projects endpoints](#projects-endpoints) and the other 7 endpoints in Stage 3 use `get_current_user()` from `app/core/security.py`, which returns the signed-in user:
+Every endpoint except `/health`, `POST /auth/register`, `POST /auth/login` and `POST /auth/send-passcode` needs the header `Authorization: Bearer <token>`. The [projects endpoints](#projects-endpoints) and the other 7 endpoints in Stage 3 use `get_current_user()` from `app/core/security.py`, which returns the signed-in user:
 
 | Case | Status code | Response |
 | --- | --- | --- |
 | No token | 401 | `{"detail": "Token is missing"}` |
 | Wrong, expired or changed token | 401 | `{"detail": "Token is not valid"}` |
+
+### Session and Logout
+
+`GET /auth/me` returns the signed-in user, with the same fields as the register response. It is an addition to the Stage 3 API for the Sprint 2 task "Implement Logout and Session Management". The frontend sends it with the saved token when a protected page opens, so a token is not trusted only because it is saved in the browser. A changed token, a token signed with another key, an expired token, or the token of a deactivated or deleted account returns 401.
+
+```text
+GET /auth/me
+Authorization: Bearer <token>
+```
+
+| Case | Status code | Response |
+| --- | --- | --- |
+| Valid token | 200 | The user as JSON, for example `{"user_id": 7, "full_name": "Sara Ahmed", "email": "sara@example.com", "phone": null, "role": "contractor", "provider_id": null, "is_active": true, "created_at": "2026-10-23T10:00:00"}` |
+| No token | 401 | `{"detail": "Token is missing"}` |
+| Wrong, changed or expired token, or the account is deactivated or deleted | 401 | `{"detail": "Token is not valid"}` |
+
+Logout happens in the frontend. The token is a JWT, so the server does not keep a list of sessions: logging out removes the saved token from the browser, and every token stops working by itself 60 minutes after login. When `GET /auth/me` or any other endpoint returns 401, the frontend removes the saved token and opens the login page.
 
 ## Projects Endpoints
 
@@ -435,6 +459,7 @@ export async function createProject(project, accessToken) {
 | Test endpoint | `GET /health` |
 | Register endpoint | `POST /auth/register` |
 | Login endpoint | `POST /auth/login` |
+| Session check | `GET /auth/me` with the token. 401 means the saved token must be removed |
 | Projects endpoints | `GET /projects`, `POST /projects` and `PATCH /projects/{id}`, for contractors only |
 | Token header for the other endpoints | `Authorization: Bearer <token>` |
 | Success response | `{"status": "ok", "database": "connected"}` |
@@ -470,6 +495,7 @@ pytest
 | `test_root_opens_the_api_documentation` | Opening the server address goes to `/docs` |
 | `test_frontend_origin_is_allowed` | The React frontend on port 5173 is allowed by CORS |
 | `test_unknown_origin_is_not_allowed` | Other websites are not allowed |
+| `test_frontend_origins_keep_only_the_site_address` | A copied link with a path, a `/` or `?...` in `FRONTEND_ORIGINS` is cut to the site address that the browser sends |
 | `test_tables_and_columns_match_the_er_diagram` | The six tables have the same columns as the Stage 3 database schema |
 | `test_foreign_keys_match_the_relationships` | The foreign keys match the Stage 3 relationships table |
 | `test_unique_rules` | `email`, one quote per provider per request, and one assignment per worker per project are unique |
@@ -493,6 +519,12 @@ pytest
 | `test_login_with_an_unknown_email_returns_401` | An email that is not registered returns the same 401 |
 | `test_protected_endpoint_accepts_the_login_token` | The login token opens an endpoint that needs a token |
 | `test_protected_endpoint_without_a_valid_token_returns_401` | No token, a wrong token, an expired token and a token signed with another key all return 401 |
+| `test_me_returns_the_signed_in_user` | `GET /auth/me` with the login token returns the user, with the same fields as register |
+| `test_me_without_a_token_returns_401` | `GET /auth/me` without a token returns 401 |
+| `test_me_with_an_invalid_or_expired_token_returns_401` | A wrong, changed or expired token, and a token signed with another key, return 401 |
+| `test_me_after_the_account_is_deactivated_returns_401` | The token of a deactivated account stops working |
+| `test_me_after_the_account_is_deleted_returns_401` | The token of a deleted account stops working |
+| `test_frontend_can_check_the_token` | The browser can send the token to `GET /auth/me` from the React frontend (CORS) |
 | `test_verification_is_off_by_default` | With the switch off, register works without a passcode, as before |
 | `test_register_with_the_right_passcode_creates_the_account` | The right passcode creates the account, it can log in, and the passcode is used once |
 | `test_register_without_a_passcode_returns_422` | With the switch on, `passcode` is required |
