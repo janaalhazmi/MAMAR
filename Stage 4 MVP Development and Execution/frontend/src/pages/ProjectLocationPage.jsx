@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
-import { getSession } from "../services/auth";
+import { getSession, logout } from "../services/auth";
 
 // Riyadh city centre as "x,y" (lon,lat): ranks nearby matches first
 // without hiding matches elsewhere.
@@ -225,7 +225,7 @@ function ProjectLocationPage() {
             Help &amp; Support
           </Link>
 
-          <Link to="/login">
+          <Link to="/login" onClick={logout}>
             <span>➜</span>
             Log out
           </Link>

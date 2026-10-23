@@ -116,9 +116,24 @@ function App() {
           </ProtectedRoute>
         }
       />
-            <Route path="/provider/projects" element={<ProviderProjects />} />
-        <Route path="/provider/projects/:projectId" element={<ProviderProjectDetails />} />
-</Routes>
+      <Route
+        path="/provider/projects"
+        element={
+          <ProtectedRoute roles={["provider"]}>
+            <ProviderProjects />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/provider/projects/:projectId"
+        element={
+          <ProtectedRoute roles={["provider"]}>
+            <ProviderProjectDetails />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   );
 }
 

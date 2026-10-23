@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
-import { getSession } from "../services/auth";
+import { getSession, logout } from "../services/auth";
 
 const SERVICE_OPTIONS = [
   {
@@ -148,7 +148,7 @@ function ServicesPage() {
         <div className="services-sidebar-bottom">
           <Link to="/data-disclaimer">ⓘ Data Disclaimer</Link>
           <Link to="/support">ⓘ Help &amp; Support</Link>
-          <Link to="/login">➜ Log out</Link>
+          <Link to="/login" onClick={logout}>➜ Log out</Link>
         </div>
       </aside>
 

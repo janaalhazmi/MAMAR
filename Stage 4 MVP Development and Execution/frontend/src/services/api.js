@@ -37,7 +37,10 @@ async function request(path, options = {}) {
         "The verification email could not be sent. Please try again.";
     }
 
-    throw new Error(message);
+    // The status lets the caller tell a refused token (401) from other errors.
+    const error = new Error(message);
+    error.status = response.status;
+    throw error;
   }
 
   if (data === null) {
@@ -82,6 +85,15 @@ export function registerUser(user, passcode) {
   };
 
   return post("/auth/register", payload);
+}
+
+export function getCurrentUser(accessToken) {
+  // Checks the saved login token with the backend (GET /auth/me).
+  return request("/auth/me", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
 }
 
 export function loginUser(email, password) {
