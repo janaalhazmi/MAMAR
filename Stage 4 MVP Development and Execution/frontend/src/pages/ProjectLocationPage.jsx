@@ -13,6 +13,7 @@ function ProjectLocationPage() {
   });
 
   const [error, setError] = useState("");
+  const [workZonePolygon, setWorkZonePolygon] = useState(null);
 
   const handleMapLocationSelect = (coordinates) => {
     setLocation((previous) => ({
@@ -22,6 +23,7 @@ function ProjectLocationPage() {
       address: `${coordinates.latitude}, ${coordinates.longitude}`,
     }));
 
+    setWorkZonePolygon(coordinates.polygon ?? null);
     setError("");
   };
 
@@ -36,6 +38,13 @@ function ProjectLocationPage() {
 
   const handleContinue = (event) => {
     event.preventDefault();
+
+    if (!workZonePolygon) {
+      setError(
+        "Please draw and finish the work zone polygon before continuing."
+      );
+      return;
+    }
 
     if (location.latitude === null || location.longitude === null) {
       setError("Please select a location on the map before continuing.");
@@ -60,6 +69,7 @@ function ProjectLocationPage() {
         location: location.address,
         latitude: location.latitude,
         longitude: location.longitude,
+        workZonePolygon: workZonePolygon,
       })
     );
 
@@ -236,13 +246,12 @@ function ProjectLocationPage() {
                 </p>
               )}
 
-              {location.latitude !== null &&
-                location.longitude !== null && (
-                  <div className="location-selected-message">
-                    <span>✓</span>
-                    Location selected successfully
-                  </div>
-                )}
+              {workZonePolygon && (
+                <div className="location-selected-message">
+                  <span>✓</span>
+                  Work zone polygon completed successfully
+                </div>
+              )}
             </section>
 
             {/* Location Details */}
@@ -280,8 +289,8 @@ function ProjectLocationPage() {
                 </span>
 
                 <strong>
-                  {location.latitude !== null
-                    ? "Location selected"
+                  {workZonePolygon
+                    ? "Work zone defined"
                     : "Calculated automatically"}
                 </strong>
               </div>
@@ -295,7 +304,9 @@ function ProjectLocationPage() {
 
                 <p>
                   <span className="location-zone-dot" />
-                  Work zone
+                  {workZonePolygon
+                    ? "Polygon completed"
+                    : "Work zone"}
                 </p>
               </div>
             </aside>
