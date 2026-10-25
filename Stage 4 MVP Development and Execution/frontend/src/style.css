@@ -8618,3 +8618,327 @@ textarea {
     grid-column: 1 / -1;
   }
 }
+
+
+.contractor-guide-page {
+  min-height: 100vh;
+  background: #f7f8f8;
+  color: #292c28;
+}
+
+.contractor-guide-header {
+  height: 60px;
+  background: #ffffff;
+  border-bottom: 1px solid #e7e7e7;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.contractor-guide-logo {
+  display: inline-flex;
+  align-items: center;
+}
+
+.contractor-guide-logo img {
+  width: 74px;
+  display: block;
+}
+
+.contractor-guide-content {
+  padding: 58px 46px 30px;
+}
+
+.contractor-guide-hero {
+  min-height: 205px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 34px 38px;
+  display: grid;
+  grid-template-columns: 1.2fr 0.9fr;
+  align-items: center;
+  gap: 55px;
+}
+
+.contractor-guide-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 22px;
+  border-radius: 999px;
+  background: #fff3cf;
+  color: #987515;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.contractor-guide-hero h1 {
+  margin: 15px 0 10px;
+  font-size: 39px;
+  line-height: 1.1;
+  color: #272a26;
+}
+
+.contractor-guide-hero h1 span {
+  color: #f0ab00;
+}
+
+.contractor-guide-hero-copy > p {
+  margin: 0;
+  max-width: 640px;
+  color: #747570;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.contractor-guide-highlights {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px 32px;
+}
+
+.contractor-guide-highlights > div {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.guide-highlight-icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.guide-highlight-icon.yellow {
+  color: #d49b00;
+  background: #fff3cf;
+}
+
+.guide-highlight-icon.green {
+  color: #70aa80;
+  background: #eaf5ef;
+}
+
+.guide-highlight-icon.blue {
+  color: #8096bb;
+  background: #eef2f9;
+}
+
+.guide-highlight-icon.gray {
+  color: #8c9087;
+  background: #f1f1ed;
+}
+
+.contractor-guide-highlights strong {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+.contractor-guide-highlights p {
+  margin: 0;
+  color: #969892;
+  font-size: 11px;
+}
+
+.contractor-guide-how {
+  margin-top: 46px;
+}
+
+.contractor-guide-section-label {
+  display: block;
+  color: #a0a19b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.contractor-guide-how h2,
+.contractor-guide-benefits h2 {
+  margin: 9px 0 25px;
+  font-size: 27px;
+}
+
+.contractor-guide-steps {
+  display: flex;
+  align-items: stretch;
+}
+
+.contractor-guide-step-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.contractor-guide-step {
+  position: relative;
+  width: 100%;
+  min-height: 205px;
+  padding: 24px 18px;
+  background: #ffffff;
+  border-radius: 15px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contractor-guide-step-number {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #fff0b7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.contractor-guide-step-icon {
+  color: #252823;
+  margin-top: 26px;
+  margin-bottom: 15px;
+}
+
+.contractor-guide-step:nth-child(1) .contractor-guide-step-icon {
+  stroke-width: 1.7;
+}
+
+.contractor-guide-step h3 {
+  margin: 0 0 10px;
+  font-size: 15px;
+}
+
+.contractor-guide-step p {
+  margin: 0;
+  color: #83857f;
+  font-size: 12px;
+  line-height: 1.5;
+  max-width: 190px;
+}
+
+.contractor-guide-arrow {
+  color: #c5c7c2;
+  flex-shrink: 0;
+  margin: 0 8px;
+}
+
+.contractor-guide-benefits {
+  margin-top: 38px;
+  padding: 26px 28px 31px;
+  background: #fff9e8;
+  border-radius: 20px;
+}
+
+.contractor-guide-benefits .benefit-label {
+  color: #a08b43;
+}
+
+.contractor-guide-benefits h2 {
+  margin-bottom: 26px;
+  font-size: 25px;
+}
+
+.contractor-guide-benefit-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 35px;
+}
+
+.contractor-guide-benefit {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.contractor-guide-benefit > span {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contractor-guide-benefit h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.contractor-guide-benefit p {
+  margin: 0;
+  color: #83857f;
+  font-size: 11px;
+}
+
+.contractor-guide-cta {
+  margin-top: 27px;
+  min-height: 74px;
+  padding: 13px 30px;
+  border-radius: 16px;
+  background: #ddd9c8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.contractor-guide-cta h2 {
+  margin: 0 0 6px;
+  font-size: 19px;
+}
+
+.contractor-guide-cta p {
+  margin: 0;
+  font-size: 12px;
+}
+
+.contractor-guide-cta-button {
+  min-width: 164px;
+  height: 43px;
+  padding: 0 18px;
+  border-radius: 8px;
+  background: #ffc400;
+  color: #30332d;
+  text-decoration: none;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+@media (max-width: 1100px) {
+  .contractor-guide-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .contractor-guide-steps {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .contractor-guide-step-wrap {
+    display: block;
+  }
+
+  .contractor-guide-arrow {
+    display: none;
+  }
+
+  .contractor-guide-benefit-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -1,5 +1,5 @@
-import ProtectedRoute from "./components/ProtectedRoute";
 import { Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
@@ -8,6 +8,7 @@ import RegisterVerificationPage from "./pages/RegisterVerificationPage";
 import WorkerVerificationPage from "./pages/WorkerVerificationPage";
 
 import ContractorDashboard from "./pages/ContractorDashboard";
+import ContractorGuide from "./pages/ContractorGuide";
 import ProviderDashboard from "./pages/ProviderDashboard";
 import PrepareQuotation from "./pages/PrepareQuotation";
 import ProjectLocationPage from "./pages/ProjectLocationPage";
@@ -25,6 +26,7 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/help" element={<HelpSupportPage />} />
+      <Route path="/contractor-guide" element={<ContractorGuide />} />
 
       <Route
         path="/register/verify"
@@ -116,6 +118,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/provider/projects"
         element={
