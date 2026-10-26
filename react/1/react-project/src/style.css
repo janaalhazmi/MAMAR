@@ -1,0 +1,26 @@
+.h1 {
+    color: rgb(81, 42, 172);
+    background-color: lightgray;
+    padding: 10px;
+    font-size: 28px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+
+}
+
+.p {
+    color: green;
+    text-align: center;
+    font-size: 18px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.footer {
+    background-color: #f1f1f1;
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+    color: #274f94;
+}
+
