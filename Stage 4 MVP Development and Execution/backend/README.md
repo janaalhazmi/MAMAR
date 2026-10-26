@@ -12,7 +12,7 @@ And the backend part of the Sprint 2 tasks:
 - Finalize Authentication API and Database Integration.
 - Implement Logout and Session Management, see [Session and Logout](#session-and-logout).
 
-The six database models follow the approved Stage 3 ER diagram. The two `auth` endpoints from Stage 3, `POST /auth/register` and `POST /auth/login`, are ready, with the token check that the other endpoints use. The three [projects endpoints](#projects-endpoints), `GET`, `POST` and `PATCH /projects`, are ready too (Sprint 1, T09). The other 7 endpoints are added in the next sprints. [Email verification](#email-verification) with a 6-digit passcode is ready too, and it stays off until the frontend sends the passcode. `GET /auth/me` checks a saved login token, see [Session and Logout](#session-and-logout).
+The six database models follow the approved Stage 3 ER diagram. The two `auth` endpoints from Stage 3, `POST /auth/register` and `POST /auth/login`, are ready, with the token check that the other endpoints use. The three [projects endpoints](#projects-endpoints), `GET`, `POST` and `PATCH /projects`, are ready too (Sprint 1, T09). The other 7 endpoints of the provider workflow are ready too, see [Requests, Quotes and Assignments](#requests-quotes-and-assignments), so all 12 MVP endpoints of Stage 3 are implemented. [Email verification](#email-verification) with a 6-digit passcode is ready too, and it stays off until the frontend sends the passcode. `GET /auth/me` checks a saved login token, see [Session and Logout](#session-and-logout).
 
 ## Folder Structure
 
@@ -38,12 +38,22 @@ backend/
       auth.py              # POST /auth/send-passcode, /auth/register and /auth/login
       health.py            # GET /health
       projects.py          # GET /projects, POST /projects and PATCH /projects/{id}
+      service_requests.py  # POST /projects/{id}/requests, GET /requests and POST /requests/{id}/award
+      quotes.py            # POST and GET /requests/{id}/quotes
+      assignments.py       # POST /projects/{id}/assignments and GET /assignments
     schemas/
       auth.py              # Request and response formats of the auth endpoints
       error.py             # The error format {"detail": "message"}
       project.py           # Request and response formats of the projects endpoints
+      service_request.py   # Request and response formats of the requests endpoints
+      quote.py             # Request and response formats of the quotes endpoints
+      assignment.py        # Request and response formats of the assignments endpoints
     main.py                # Creates the FastAPI app, allows the frontend (CORS) and adds the routers
   tests/
+    conftest.py            # The api fixture: accounts, projects, requests and quotes for the provider workflow tests
+    test_assignments.py    # Assignments endpoints tests
+    test_quotes.py         # Quotes endpoints tests
+    test_service_requests.py # Requests endpoints tests
     test_auth.py           # Register, login and token tests
     test_demo_providers.py # Demo providers tests
     test_email_verification.py # Email verification tests
@@ -91,7 +101,7 @@ A provider that already exists is not changed. New providers start from `provide
 
 The company email is the domain of the provider's `website`, without `www.`. A `provider` or `worker` account of a company must register with that email, see [Register](#register).
 
-The `User` methods from Stage 3 are ready: `set_password()` hashes the password with Argon2 and saves only the hash, `check_password()` compares a password with the saved hash, and `to_dict()` returns the user without the password hash. The `Project` methods are ready too: `update_status(status)` moves `project_status` between `draft`, `active`, `completed` and `cancelled`, and `to_dict()` returns the project as JSON. The methods of the other classes, such as `award()`, are added with their endpoints in the next sprints.
+The `User` methods from Stage 3 are ready: `set_password()` hashes the password with Argon2 and saves only the hash, `check_password()` compares a password with the saved hash, and `to_dict()` returns the user without the password hash. The `Project` methods are ready too: `update_status(status)` moves `project_status` between `draft`, `active`, `completed` and `cancelled`, and `to_dict()` returns the project as JSON. The methods of the other classes are ready too: `ServiceRequest.award(quote_id)` accepts the chosen quote, rejects the others and marks the request as `awarded`, `close()` closes an open request, `Quote.accept()` and `reject()` are only called from `award()`, and `Assignment.complete()` marks an active assignment as `completed`. Each one has `to_dict()`.
 
 ## Requirements
 
@@ -395,6 +405,38 @@ The work zone polygon is not saved in PostgreSQL. As in Stage 3 (sections 2.3 an
 | `closure_type` | The layer accepts `No Closure`, `Partial Closure` or `Full Closure`. The API accepts any text up to 50 characters, so the frontend can send the same value to both |
 | `project_status` | The API saves `draft`. The layer's values are `Draft`, `RFQ`, `Active`, `Completed` and `Cancelled`, so the frontend writes `Draft` in the layer |
 
+## Requests, Quotes and Assignments
+
+The provider workflow from Stage 3, sections 3.2, 4.2.8 to 4.2.14. All of them need the token, and every error is `{"detail": "message"}`.
+
+| Endpoint | Who | What it does |
+| --- | --- | --- |
+| `POST /projects/{id}/requests` | Contractor of the project | Creates a service request as `open`. Body: `title`, `required_by`, and optional `details` |
+| `GET /requests` | Contractor, provider | A contractor sees the requests of their projects. A provider sees the open requests. Optional `?status=` and `?project_id=`. Newest first |
+| `POST /requests/{id}/quotes` | Provider | Sends a quote as `pending`. Body: `price`, `duration_days`, and optional `notes`. `provider_id` comes from the token |
+| `GET /requests/{id}/quotes` | Contractor of the request, provider | The contractor sees all the quotes, cheapest first. A provider sees only the quote of their company |
+| `POST /requests/{id}/award` | Contractor of the request | Body `{"quote_id": 54}`. Accepts that quote, rejects the others and marks the request as `awarded` |
+| `POST /projects/{id}/assignments` | Provider that won a request of the project | Body `{"worker_id": 15}`. Assigns a field worker of the same company as `active` |
+| `GET /assignments` | Provider, field worker | A worker sees their own assignments. A provider sees the assignments of their company. Optional `?status=` and `?project_id=`. Newest first |
+
+The workflow: the contractor creates a request, providers send quotes, the contractor awards one quote, then the winning provider assigns its field workers.
+
+| Case | Status code | `detail` |
+| --- | --- | --- |
+| Wrong role (for example a worker on `GET /requests`) | 403 | `Only contractors and providers can view service requests` |
+| Request or quote of another contractor | 403 | `This request belongs to another contractor` |
+| Project or request that does not exist | 404 | `Project not found` or `Request not found` |
+| Quote for a request that is awarded or closed | 400 | `The request is awarded, quotes are only sent to open requests` |
+| A second quote from the same company | 409 | `Your company already sent a quote for this request` |
+| Awarding a request that is not open | 400 | `The request is already awarded` |
+| `quote_id` of another request | 404 | `Quote not found for this request` |
+| Assigning without an accepted quote on the project | 403 | `Your company did not win a request for this project` |
+| A worker of another company, or a user that is not a worker | 404 | `Worker not found in your company` |
+| The same worker twice on a project | 409 | `This worker is already assigned to this project` |
+| `price` not above 0 or with more than 2 decimals, `duration_days` below 1, `title` empty | 422 | `price: ...`, `duration_days: ...`, `title: ...` |
+
+`price` is in SAR and is a number in JSON, for example `18500.0`. One quote per company per request is also a `UNIQUE` rule in the `quotes` table, and one assignment per worker per project is a `UNIQUE` rule in the `assignments` table.
+
 ## Frontend Integration
 
 The React frontend runs on Vite at `http://localhost:5173`, which is allowed in `FRONTEND_ORIGINS`. CORS allows the methods used by the API (`GET`, `POST` and `PATCH`) and the `Authorization` and `Content-Type` headers, so the frontend can send JSON and the token. The deployed frontend, `https://mammar-blush.vercel.app`, is also allowed in `FRONTEND_ORIGINS` on Render.
@@ -461,6 +503,7 @@ export async function createProject(project, accessToken) {
 | Login endpoint | `POST /auth/login` |
 | Session check | `GET /auth/me` with the token. 401 means the saved token must be removed |
 | Projects endpoints | `GET /projects`, `POST /projects` and `PATCH /projects/{id}`, for contractors only |
+| Provider workflow | Requests, quotes, award and assignments, see [Requests, Quotes and Assignments](#requests-quotes-and-assignments) |
 | Token header for the other endpoints | `Authorization: Bearer <token>` |
 | Success response | `{"status": "ok", "database": "connected"}` |
 | Error response | `{"detail": "message"}`, so the frontend can show `detail` to the user |
@@ -559,6 +602,28 @@ pytest
 | `test_patch_an_unknown_project_returns_404` | A project that does not exist returns 404 |
 | `test_update_status_accepts_only_the_four_statuses` | `update_status()` accepts only the four Stage 3 statuses |
 | `test_frontend_can_send_a_patch_with_the_token` | The browser can send `PATCH` with the token from the React frontend (CORS) |
+| `test_create_request_returns_201_as_open` | A contractor creates a request with the Stage 3 example. It returns 201 with the Stage 3 fields as `open` |
+| `test_create_request_without_details` | `details` is optional, and empty details are saved as `null` |
+| `test_create_request_with_an_invalid_body_returns_422` | An empty or too long title and a wrong or missing date return 422 (4 cases) |
+| `test_create_request_rules` | No token 401, another contractor's project 403, a provider 403, an unknown project 404 |
+| `test_contractor_sees_only_the_requests_of_their_projects` | A contractor sees only their own requests, newest first, and `?project_id=` filters them |
+| `test_provider_sees_only_open_requests` | A provider sees the open requests only |
+| `test_list_requests_rules` | No token 401, a worker 403, an unknown status 422 |
+| `test_award_accepts_one_quote_and_rejects_the_others` | Award accepts the chosen quote, rejects the other one and returns the Stage 3 response |
+| `test_award_rules` | Another contractor 403, a provider 403, unknown request 404, quote of another request 404, missing `quote_id` 422, awarding twice 400 |
+| `test_award_and_close_methods` | `award()` and `close()` change the statuses and refuse a request that is not open |
+| `test_frontend_can_send_a_request_with_the_token` | The browser can send `POST` with the token from the React frontend (CORS) |
+| `test_provider_submits_a_quote` | A provider sends a quote. It returns 201 with the Stage 3 fields, `pending`, the provider of the token and a number price |
+| `test_a_worker_of_the_provider_cannot_send_a_quote_and_provider_id_is_not_taken_from_the_body` | A worker and a contractor get 403, and a `provider_id` in the body is ignored |
+| `test_one_quote_per_company` | A second employee of the same company gets 409 |
+| `test_quote_rules` | No token 401, unknown request 404, a request that is already awarded 400 |
+| `test_quote_with_an_invalid_body_returns_422` | A price of 0, below 0, with 3 decimals or too big, a missing price, and a wrong `duration_days` return 422 (7 cases) |
+| `test_who_sees_the_quotes` | The contractor sees all the quotes cheapest first, a provider sees only their own, another contractor and a worker get 403, an unknown request 404 |
+| `test_the_winning_provider_assigns_its_worker` | The winning provider assigns its worker. It returns 201 with the Stage 3 fields as `active` |
+| `test_assignment_rules` | No token 401, a worker 403, a provider that lost 403, unknown project 404, a worker of another company, a contractor or an unknown user 404, missing `worker_id` 422, the same worker twice 409 |
+| `test_a_provider_with_a_rejected_or_pending_quote_cannot_assign` | Only an accepted quote on an awarded request allows assignments |
+| `test_who_sees_the_assignments` | A provider sees its company's assignments newest first, a worker sees only their own, another provider sees none, a contractor 403, no token 401, an unknown status 422 |
+| `test_complete_method` | `complete()` finishes an active assignment and refuses a finished one |
 
 ## Deploy on Render
 
