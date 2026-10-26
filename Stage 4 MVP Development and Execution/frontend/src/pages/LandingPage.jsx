@@ -1,6 +1,7 @@
-import { Link } from "react-router-dom";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import Button from "../components/Button";
 
-import logo from "../assets/mamar-logo.svg";
 import hero from "../assets/hero.jpg";
 
 import tcm from "../assets/provider-tcm.jpg";
@@ -8,47 +9,88 @@ import safetyArabia from "../assets/provider-safety-arabia.jpg";
 import shawahid from "../assets/provider-shawahid.jpg";
 import safetyTriangle from "../assets/provider-safety-triangle.jpg";
 
+const steps = [
+  {
+    number: "1",
+    title: "Define Your Project",
+    description:
+      "Tell us about your project, scope, timeline, and traffic-control needs.",
+  },
+  {
+    number: "2",
+    title: "Map Work Zone",
+    description:
+      "Define the project work zone using MAMAR's map-based tools.",
+  },
+  {
+    number: "3",
+    title: "Request & Compare Quotes",
+    description:
+      "Request services and compare quotations from qualified providers.",
+  },
+  {
+    number: "4",
+    title: "Manage & Verify Execution",
+    description:
+      "Follow project execution and verify field installations.",
+  },
+];
+
+const providers = [
+  {
+    image: tcm,
+    alt: "TCM",
+    name: "TCM",
+    description: "Traffic and Construction Management",
+  },
+  {
+    image: safetyArabia,
+    alt: "Safety Arabia",
+    name: "Safety Arabia Co. LTD",
+  },
+  {
+    image: shawahid,
+    alt: "Shawahid Roads",
+    name: "Shawahid Roads Industrial Co.",
+  },
+  {
+    image: safetyTriangle,
+    alt: "Safety Triangle",
+    name: "Safety Triangle Company",
+  },
+];
+
+const benefits = [
+  {
+    title: "Location-Based Coordination",
+    description:
+      "Manage project work zones and roadwork locations through map-based coordination.",
+  },
+  {
+    title: "Qualified Providers",
+    description:
+      "Connect contractors with traffic-control service providers.",
+  },
+  {
+    title: "Smarter Procurement",
+    description:
+      "Request, compare, and select provider quotations in one workflow.",
+  },
+  {
+    title: "Verified Field Execution",
+    description:
+      "Support field verification using device location and installation evidence.",
+  },
+];
+
 function LandingPage() {
   return (
     <div className="landing-page">
-
-      {/* Navbar */}
-      <header className="navbar">
-
-        <Link to="/" className="brand">
-          <img
-            src={logo}
-            alt="MAMAR Logo"
-            className="brand-logo"
-          />
-        </Link>
-
-        <div className="nav-buttons">
-
-          <Link
-            to="/login"
-            className="nav-btn sign-in"
-          >
-            Sign in <span>→</span>
-          </Link>
-
-          <Link
-            to="/register"
-            className="nav-btn get-started"
-          >
-            Get Started
-          </Link>
-
-        </div>
-
-      </header>
-
+      <Header />
 
       <main>
-
         {/* Hero */}
         <section className="hero">
-
           <img
             src={hero}
             alt="Roadwork"
@@ -56,7 +98,6 @@ function LandingPage() {
           />
 
           <div className="hero-content">
-
             <h1>
               <span className="hero-gray">
                 Manage Roadwork
@@ -68,301 +109,107 @@ function LandingPage() {
             </h1>
 
             <div className="hero-actions">
-
-              <Link
-                to="/register"
-                className="primary-btn"
-              >
-                Start a Project <span>→</span>
-              </Link>
+              <Button to="/register">
+                Start a Project →
+              </Button>
 
               <a
                 href="#how-mamar-works"
                 className="outline-btn"
               >
-                Explore MAMAR <span>→</span>
+                Explore MAMAR →
               </a>
-
             </div>
-
           </div>
-
         </section>
-
 
         {/* How MAMAR Works */}
         <section
           className="how-section"
           id="how-mamar-works"
         >
-
           <div className="how-title">
-            How <span>MAMAR</span> Works
+            <span className="how-title-text">How</span>
+            <span className="how-title-highlight">MAMAR</span>
+            <span className="how-title-text">Works</span>
           </div>
 
-          <div className="steps-box">
+  <div className="steps-box">
+    {steps.map((step) => (
+      <article
+        className="step-card"
+        key={step.number}
+      >
+        <span className="step-number">
+          {step.number}
+        </span>
 
-            <article className="step-card">
-              <span className="step-number">1</span>
+        <h3>{step.title}</h3>
+        <p>{step.description}</p>
+      </article>
+    ))}
+  </div>
+</section>
 
-              <h3>
-                Define Your Project
-              </h3>
-
-              <p>
-                Tell us about your project, scope,
-                timeline, and traffic-control needs.
-              </p>
-            </article>
-
-
-            <article className="step-card">
-              <span className="step-number">2</span>
-
-              <h3>
-                Map Work Zone
-              </h3>
-
-              <p>
-                Define the project work zone using
-                MAMAR's map-based tools.
-              </p>
-            </article>
-
-
-            <article className="step-card">
-              <span className="step-number">3</span>
-
-              <h3>
-                Request & Compare Quotes
-              </h3>
-
-              <p>
-                Request services and compare quotations
-                from qualified providers.
-              </p>
-            </article>
-
-
-            <article className="step-card">
-              <span className="step-number">4</span>
-
-              <h3>
-                Manage & Verify Execution
-              </h3>
-
-              <p>
-                Follow project execution and verify
-                field installations.
-              </p>
-            </article>
-
-          </div>
-
-        </section>
-
-
-        {/* Providers */}
-        <section className="providers-section">
-
+{/* Providers */}
+<section className="providers-section">
           <div className="providers-title">
             Featured Service Providers
           </div>
 
           <div className="providers-grid">
+            {providers.map((provider) => (
+              <article
+                className="provider-card"
+                key={provider.name}
+              >
+                <img
+                  src={provider.image}
+                  alt={provider.alt}
+                />
 
-            <article className="provider-card">
-              <img
-                src={tcm}
-                alt="TCM"
-              />
+                <h3>{provider.name}</h3>
 
-              <h3>
-                TCM
-              </h3>
-
-              <p>
-                Traffic and Construction Management
-              </p>
-            </article>
-
-
-            <article className="provider-card">
-              <img
-                src={safetyArabia}
-                alt="Safety Arabia"
-              />
-
-              <h3>
-                Safety Arabia Co. LTD
-              </h3>
-            </article>
-
-
-            <article className="provider-card">
-              <img
-                src={shawahid}
-                alt="Shawahid Roads"
-              />
-
-              <h3>
-                Shawahid Roads Industrial Co.
-              </h3>
-            </article>
-
-
-            <article className="provider-card">
-              <img
-                src={safetyTriangle}
-                alt="Safety Triangle"
-              />
-
-              <h3>
-                Safety Triangle Company
-              </h3>
-            </article>
-
+                {provider.description && (
+                  <p>{provider.description}</p>
+                )}
+              </article>
+            ))}
           </div>
-
         </section>
 
+       {/* Why MAMAR */}
+<section className="why-section">
+  <h2>
+    Why <span>MAMAR?</span>
+  </h2>
 
-        {/* Why MAMAR */}
-        <section className="why-section">
-
-          <h2>
-            Why <span>MAMAR?</span>
-          </h2>
-
-          <div className="why-grid">
-
-            <article>
-              <h3>
-                Location-Based Coordination
-              </h3>
-
-              <p>
-                Manage project work zones and roadwork
-                locations through map-based coordination.
-              </p>
-            </article>
-
-
-            <article>
-              <h3>
-                Qualified Providers
-              </h3>
-
-              <p>
-                Connect contractors with traffic-control
-                service providers.
-              </p>
-            </article>
-
-
-            <article>
-              <h3>
-                Smarter Procurement
-              </h3>
-
-              <p>
-                Request, compare, and select provider
-                quotations in one workflow.
-              </p>
-            </article>
-
-
-            <article>
-              <h3>
-                Verified Field Execution
-              </h3>
-
-              <p>
-                Support field verification using device
-                location and installation evidence.
-              </p>
-            </article>
-
-          </div>
-
-        </section>
-
+  <div className="why-grid">
+    {benefits.map((benefit) => (
+      <article key={benefit.title}>
+        <h3>{benefit.title}</h3>
+        <p>{benefit.description}</p>
+      </article>
+    ))}
+  </div>
+</section>
 
         {/* CTA */}
         <section className="cta-section">
-
           <div>
             <h2>
               Coordinate your next project with confidence.
             </h2>
           </div>
 
-          <Link
-            to="/register"
-            className="primary-btn"
-          >
-            Start a Project <span>→</span>
-          </Link>
-
+          <Button to="/register">
+            Start a Project →
+          </Button>
         </section>
 
       </main>
 
-
-      {/* Footer */}
-      <footer className="footer">
-
-        <div className="footer-brand">
-
-          <img
-            src={logo}
-            alt="MAMAR Logo"
-          />
-
-          <p>
-            Temporary Traffic Control Coordination Platform
-          </p>
-
-        </div>
-
-
-        <div className="footer-columns">
-
-          <div>
-            <h4>Product</h4>
-            <a href="#how-mamar-works">
-              How it works
-            </a>
-          </div>
-
-
-          <div>
-            <h4>For</h4>
-            <Link to="/register">
-              Contractors
-            </Link>
-            <Link to="/register">
-              Providers
-            </Link>
-          </div>
-
-
-          <div>
-            <h4>Company</h4>
-            <a href="#">
-              About
-            </a>
-          </div>
-
-        </div>
-
-
-        <div className="footer-bottom">
-          © 2026 MAMAR. All rights reserved.
-        </div>
-
-      </footer>
-
+      <Footer/>
     </div>
   );
 }

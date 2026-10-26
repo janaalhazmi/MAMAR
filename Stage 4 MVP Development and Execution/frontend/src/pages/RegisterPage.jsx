@@ -2,56 +2,88 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../assets/mamar-logo.svg";
+import { sendPasscode } from "../services/api";
 
 function RegisterPage() {
   const [role, setRole] = useState("");
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setError("");
 
     if (!role) {
-      alert("Please select your account type.");
+      setError("Please select your account type.");
       return;
     }
 
-    const email = event.target.registerEmail.value.trim().toLowerCase();
-    const password = event.target.registerPassword.value;
+    const form = event.currentTarget;
 
-    const savedUsers = JSON.parse(
-      localStorage.getItem("mamarUsers") || "[]"
-    );
+    const fullName = form.elements.registerFullName.value.trim();
+    const email = form.elements.registerEmail.value.trim().toLowerCase();
+    const password = form.elements.registerPassword.value;
+    const providerId = form.elements.registerProviderId?.value;
 
-    const existingUser = savedUsers.find(
-      (user) => user.email === email
-    );
-
-    if (existingUser) {
-      alert("An account with this email already exists.");
+    if (!fullName || !email || !password) {
+      setError("Please complete all required fields.");
       return;
     }
 
-    const newUser = {
+    if (password.length < 6) {
+      setError("Password must contain at least 6 characters.");
+      return;
+    }
+
+    if (
+      (role === "provider" || role === "worker") &&
+      (!Number.isSafeInteger(Number(providerId)) ||
+        Number(providerId) < 1)
+    ) {
+      setError("Please enter a valid provider ID.");
+      return;
+    }
+
+    const registration = {
+      full_name: fullName,
       email,
       password,
       role,
+      provider_id:
+        role === "contractor" ? null : Number(providerId),
     };
 
-    savedUsers.push(newUser);
+    setIsSending(true);
 
-    localStorage.setItem("mamarUsers", JSON.stringify(savedUsers));
+    try {
+      await sendPasscode(email);
 
-    alert("Account created successfully!");
+      sessionStorage.setItem(
+        "mamarPendingRegistration",
+        JSON.stringify(registration)
+      );
 
-    navigate("/login");
+      if (role === "worker") {
+        navigate("/register/worker-verification");
+      } else {
+        navigate("/register/verify");
+      }
+    } catch (requestError) {
+      setError(
+        requestError.message || "Unable to send the verification passcode."
+      );
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
     <div className="signup-page">
       <header className="signup-header">
-        <Link to="/">
+        <Link to="/" aria-label="MAMAR Home">
           <img
             src={logo}
             alt="MAMAR Logo"
@@ -59,30 +91,22 @@ function RegisterPage() {
           />
         </Link>
 
-        <div className="signup-header-buttons">
-          <Link
-            to="/login"
-            className="signup-nav-btn signup-signin"
-          >
+        <nav className="signup-header-buttons">
+          <Link to="/login" className="signup-nav-btn signup-signin">
             Sign in →
           </Link>
 
-          <Link
-            to="/register"
-            className="signup-nav-btn signup-start"
-          >
+          <Link to="/register" className="signup-nav-btn signup-start">
             Get Started
           </Link>
-        </div>
+        </nav>
       </header>
 
       <main className="signup-main">
         <section className="signup-card">
           <h1>Create Account</h1>
 
-          <p className="signup-subtitle">
-            Get started with MAMAR
-          </p>
+          <p className="signup-subtitle">Get started with MAMAR</p>
 
           <div className="signup-role-buttons">
             <button
@@ -90,7 +114,10 @@ function RegisterPage() {
               className={`signup-role-btn ${
                 role === "contractor" ? "active" : ""
               }`}
-              onClick={() => setRole("contractor")}
+              onClick={() => {
+                setRole("contractor");
+                setError("");
+              }}
             >
               Contractor
             </button>
@@ -100,7 +127,10 @@ function RegisterPage() {
               className={`signup-role-btn ${
                 role === "provider" ? "active" : ""
               }`}
-              onClick={() => setRole("provider")}
+              onClick={() => {
+                setRole("provider");
+                setError("");
+              }}
             >
               Provider
             </button>
@@ -108,88 +138,112 @@ function RegisterPage() {
             <button
               type="button"
               className={`signup-role-btn ${
-                role === "field-worker" ? "active" : ""
+                role === "worker" ? "active" : ""
               }`}
-              onClick={() => setRole("field-worker")}
+              onClick={() => {
+                setRole("worker");
+                setError("");
+              }}
             >
               Field Worker
             </button>
           </div>
 
-          {role === "field-worker" && (
+          {role === "worker" && (
             <p className="field-worker-message">
               Enter the email address sent to you by your service provider.
             </p>
           )}
 
-          <form
-            className="signup-form"
-            onSubmit={handleSubmit}
-          >
+          <form className="signup-form" onSubmit={handleSubmit}>
             <div className="signup-field">
-              <label htmlFor="registerEmail">
-                Email
-              </label>
+              <label htmlFor="registerFullName">Full name</label>
+
+              <input
+                id="registerFullName"
+                name="registerFullName"
+                type="text"
+                autoComplete="name"
+                maxLength={100}
+                placeholder="Enter your full name"
+                required
+              />
+            </div>
+
+            {(role === "provider" || role === "worker") && (
+              <div className="signup-field">
+                <label htmlFor="registerProviderId">Provider ID</label>
+
+                <input
+                  id="registerProviderId"
+                  name="registerProviderId"
+                  type="number"
+                  min="1"
+                  step="1"
+                  placeholder="Enter your existing provider ID"
+                  required
+                />
+              </div>
+            )}
+
+            <div className="signup-field">
+              <label htmlFor="registerEmail">Email</label>
 
               <input
                 id="registerEmail"
                 name="registerEmail"
                 type="email"
-                placeholder="you@gmail.com"
                 autoComplete="email"
+                placeholder="you@gmail.com"
                 required
               />
             </div>
 
             <div className="signup-field">
-              <label htmlFor="registerPassword">
-                Password
-              </label>
+              <label htmlFor="registerPassword">Password</label>
 
               <div className="signup-password-wrapper">
                 <input
                   id="registerPassword"
                   name="registerPassword"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Create your password"
                   autoComplete="new-password"
-                  required
+                  placeholder="Create your password"
                   minLength={6}
+                  required
                 />
 
                 <button
                   type="button"
                   className="signup-eye-btn"
                   aria-label={
-                    showPassword
-                      ? "Hide password"
-                      : "Show password"
+                    showPassword ? "Hide password" : "Show password"
                   }
-                  onClick={() =>
-                    setShowPassword(!showPassword)
-                  }
+                  onClick={() => setShowPassword((current) => !current)}
                 >
                   ◉
                 </button>
               </div>
             </div>
 
+            {error && (
+              <p className="signup-error" role="alert">
+                {error}
+              </p>
+            )}
+
             <button
               type="submit"
               className="signup-submit"
+              disabled={isSending}
             >
-              Create Account →
+              {isSending ? "Sending passcode..." : "Create Account →"}
             </button>
           </form>
 
-          <p className="signup-existing">
-            Already have an account?
-          </p>
+          <p className="signup-existing">Already have an account?</p>
 
-          <Link
-            to="/login"
-            className="signup-login-link"
-          >
+          <Link to="/login" className="signup-login-link">
             Sign in
           </Link>
         </section>

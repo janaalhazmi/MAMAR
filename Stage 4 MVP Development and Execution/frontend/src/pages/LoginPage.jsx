@@ -1,82 +1,77 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
+import { loginUser } from "../services/api";
+import { logout, saveSession } from "../services/auth";
+import Header from "../components/Header";
+import Button from "../components/Button";
 import logo from "../assets/mamar-logo.svg";
+
+const roles = [
+  {
+    id: "contractor",
+    label: "Contractor",
+  },
+  {
+    id: "provider",
+    label: "Provider",
+  },
+  {
+    id: "worker",
+    label: "Field Worker",
+  },
+];
+
+const dashboardRoutes = {
+  contractor: "/contractor-dashboard",
+  provider: "/provider-dashboard",
+};
 
 function LoginPage() {
   const [role, setRole] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
+  // A message from the page that opened the login page, for example after
+  // creating an account or when the session has ended.
+  const notice = useLocation().state?.message;
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-
+    if (loading) return;
+    setError("");
     if (!role) {
-      alert("Please select your account type.");
+      setError("Please select your account type.");
       return;
     }
-
-    const email = event.target.loginEmail.value.trim().toLowerCase();
-    const password = event.target.loginPassword.value;
-
-    const savedUsers = JSON.parse(
-      localStorage.getItem("mamarUsers") || "[]"
-    );
-
-    const user = savedUsers.find(
-      (savedUser) =>
-        savedUser.email === email &&
-        savedUser.password === password
-    );
-
-    if (!user) {
-      alert("Invalid email or password.");
-      return;
+    const form = event.currentTarget;
+    const email = form.loginEmail.value.trim().toLowerCase();
+    const password = form.loginPassword.value;
+    setLoading(true);
+    try {
+      logout();
+      const data = await loginUser(email, password);
+      if (data.user.role !== role) {
+        throw new Error("The selected account type does not match your account.");
+      }
+      if (!dashboardRoutes[data.user.role]) {
+        throw new Error("The Field Worker dashboard is not available yet.");
+      }
+      saveSession(data);
+      navigate(dashboardRoutes[data.user.role], { replace: true });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-
-    if (user.role !== role) {
-      alert("The selected account type does not match your account.");
-      return;
-    }
-
-    if (user.role !== "contractor") {
-      alert(
-        "Access denied. Only Contractor accounts can access this dashboard."
-      );
-      return;
-    }
-
-    navigate("/contractor-dashboard");
   };
+
 
   return (
     <div className="login-page">
-      <header className="login-header">
-        <Link to="/">
-          <img
-            src={logo}
-            alt="MAMAR Logo"
-            className="login-header-logo"
-          />
-        </Link>
-
-        <div className="login-header-buttons">
-          <Link
-            to="/login"
-            className="login-nav-btn signin-btn"
-          >
-            Sign in →
-          </Link>
-
-          <Link
-            to="/register"
-            className="login-nav-btn start-btn"
-          >
-            Get Started
-          </Link>
-        </div>
-      </header>
+      <Header />
 
       <main className="login-main">
         <section className="login-card">
@@ -89,35 +84,18 @@ function LoginPage() {
           <h1>Welcome back</h1>
 
           <div className="role-buttons">
-            <button
-              type="button"
-              className={`role-btn ${
-                role === "contractor" ? "active" : ""
-              }`}
-              onClick={() => setRole("contractor")}
-            >
-              Contractor
-            </button>
-
-            <button
-              type="button"
-              className={`role-btn ${
-                role === "provider" ? "active" : ""
-              }`}
-              onClick={() => setRole("provider")}
-            >
-              Provider
-            </button>
-
-            <button
-              type="button"
-              className={`role-btn ${
-                role === "field-worker" ? "active" : ""
-              }`}
-              onClick={() => setRole("field-worker")}
-            >
-              Field Worker
-            </button>
+            {roles.map((accountRole) => (
+              <button
+                key={accountRole.id}
+                type="button"
+                className={`role-btn ${
+                  role === accountRole.id ? "active" : ""
+                }`}
+                onClick={() => setRole(accountRole.id)}
+              >
+                {accountRole.label}
+              </button>
+            ))}
           </div>
 
           <form
@@ -169,7 +147,7 @@ function LoginPage() {
                       : "Show password"
                   }
                   onClick={() =>
-                    setShowPassword(!showPassword)
+                    setShowPassword((current) => !current)
                   }
                 >
                   ◉
@@ -177,12 +155,15 @@ function LoginPage() {
               </div>
             </div>
 
-            <button
+            {error && <p role="alert">{error}</p>}
+            {!error && notice && <p role="status">{notice}</p>}
+            <Button
+              disabled={loading}
               type="submit"
               className="login-submit"
             >
-              Login now
-            </button>
+              {loading ? "Signing in..." : "Login now"}
+            </Button>
           </form>
 
           <div className="login-or">
