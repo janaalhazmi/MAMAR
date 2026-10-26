@@ -1,26 +1,9 @@
 import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
-import { getSession, logout } from "../services/auth";
-
-// Riyadh city centre as "x,y" (lon,lat): ranks nearby matches first
-// without hiding matches elsewhere.
-const RIYADH_BIAS = "46.6753,24.7136";
-
-const RESULT_TYPE_LABELS = {
-  StreetName: "Road",
-  StreetAddress: "Address",
-  StreetInt: "Intersection",
-  PointAddress: "Address",
-  POI: "Place",
-  Locality: "Area",
-  Postal: "Postal code",
-};
 
 function ProjectLocationPage() {
-  const displayName = getSession()?.user?.full_name || "User";
   const navigate = useNavigate();
 
   const mapDrawingRef = useRef(null);
@@ -35,10 +18,8 @@ function ProjectLocationPage() {
     polygon: null,
   });
 
-  const [workZone, setWorkZone] = useState([]);
   const [error, setError] = useState("");
-  const [searching, setSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState([]);
+  const [workZonePolygon, setWorkZonePolygon] = useState(null);
 
   // Receive the completed polygon from the map.
   const handleMapLocationSelect = (coordinates) => {
@@ -59,6 +40,9 @@ function ProjectLocationPage() {
       ...previous,
       latitude: coordinates.latitude,
       longitude: coordinates.longitude,
+      address: `${coordinates.latitude}, ${coordinates.longitude}`,
+      area: coordinates.area,
+      polygon: coordinates.polygon,
     }));
 
     setWorkZonePolygon(coordinates.polygon ?? null);
@@ -72,94 +56,37 @@ function ProjectLocationPage() {
       address: event.target.value,
     }));
 
-    setSearchResults([]);
     setError("");
   };
 
-  const selectCandidate = (candidate) => {
-    setLocation({
-      address: candidate.address,
-      latitude: candidate.location.y,
-      longitude: candidate.location.x,
-    });
-
-    setError("");
-  };
-
-  const handleLocationSearch = async (event) => {
-    event.preventDefault();
-
-    const query = location.address.trim();
-
-    if (!query) {
-      setError("Please enter a neighborhood name.");
+  // Start drawing the project work zone.
+  const handleStartDrawing = () => {
+    if (!mapDrawingRef.current) {
+      setError("Map drawing tools are not ready yet.");
       return;
     }
 
-    setSearching(true);
+    mapDrawingRef.current.startDrawing();
+
+    setDrawing(true);
     setError("");
+  };
 
-    try {
-      const searchQuery =
-        /الرياض|riyadh/i.test(query)
-          ? query
-          : `${query}, Riyadh, Saudi Arabia`;
+  // Finish the polygon.
+  const handleFinishDrawing = () => {
+    if (!mapDrawingRef.current) return;
 
-      const params = new URLSearchParams({
-        SingleLine: searchQuery,
-        countryCode: "SA",
-        location: RIYADH_BIAS,
-        outFields: "Addr_type,Match_addr",
-        maxLocations: "8",
-        f: "json",
-      });
+    mapDrawingRef.current.finishDrawing();
+  };
 
-      const response = await fetch(
-        `https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?${params}`
-      );
+  // Cancel drawing and remove the selected work zone.
+  const handleCancelDrawing = () => {
+    if (!mapDrawingRef.current) return;
 
-      if (!response.ok) {
-        throw new Error("Location search failed. Please try again.");
-      }
+    mapDrawingRef.current.cancelDrawing();
 
-      const data = await response.json();
-
-      const seen = new Set();
-
-      const candidates = (data.candidates || [])
-        .filter(
-          (candidate) =>
-            candidate.score >= 70 &&
-            Number.isFinite(candidate.location?.x) &&
-            Number.isFinite(candidate.location?.y)
-        )
-        .filter((candidate) => {
-          if (seen.has(candidate.address)) return false;
-
-          seen.add(candidate.address);
-
-          return true;
-        })
-        .slice(0, 6);
-
-      if (candidates.length === 0) {
-        setSearchResults([]);
-        setError(
-          "Location not found. Try the English road or neighborhood name, or add Riyadh."
-        );
-        return;
-      }
-
-      // Jump to the best match, and keep the others selectable
-      selectCandidate(candidates[0]);
-      setSearchResults(candidates);
-    } catch (searchError) {
-      setError(
-        searchError.message || "Unable to find this neighborhood."
-      );
-    } finally {
-      setSearching(false);
-    }
+    setDrawing(false);
+    setError("");
   };
 
   const handleContinue = (event) => {
@@ -183,32 +110,30 @@ function ProjectLocationPage() {
       return;
     }
 
-    if (workZone.length < 3) {
-      setError("Please draw and finish the project work zone on the map.");
-      return;
-    }
-
     const savedProject = sessionStorage.getItem("mamarNewProject");
 
-    try {
-      const project = savedProject ? JSON.parse(savedProject) : {};
+    let project = {};
 
-      sessionStorage.setItem(
-        "mamarNewProject",
-        JSON.stringify({
-          ...project,
-          location: location.address,
-          latitude: location.latitude,
-          longitude: location.longitude,
-          workZone,
-        })
-      );
+    try {
+      project = savedProject ? JSON.parse(savedProject) : {};
     } catch {
       setError("Unable to load the project details. Please try again.");
       return;
     }
 
-    navigate("/select-service");
+    sessionStorage.setItem(
+      "mamarNewProject",
+      JSON.stringify({
+        ...project,
+        location: location.address,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        area: location.area,
+        polygon: location.polygon,
+      })
+    );
+
+    navigate("/services");
   };
 
   const handleBack = () => {
@@ -217,6 +142,7 @@ function ProjectLocationPage() {
 
   return (
     <div className="location-screen">
+      {/* Sidebar */}
       <aside className="location-sidebar">
         <Link to="/" className="location-sidebar-logo">
           <img src={logo} alt="MAMAR" />
@@ -233,7 +159,10 @@ function ProjectLocationPage() {
             <span>My Projects</span>
           </Link>
 
-          <Link to="/create-project" className="location-nav-active">
+          <Link
+            to="/create-project"
+            className="location-nav-active"
+          >
             <span className="location-nav-icon">⊕</span>
             <span>Create Project</span>
           </Link>
@@ -260,24 +189,24 @@ function ProjectLocationPage() {
             Help &amp; Support
           </Link>
 
-          <Link to="/login" onClick={logout}>
+          <Link to="/login">
             <span>➜</span>
             Log out
           </Link>
         </div>
       </aside>
 
+      {/* Main */}
       <div className="location-main">
+        {/* Header */}
         <header className="location-header">
           <div className="location-header-spacer" />
 
           <div className="location-user">
-            <div className="location-avatar">
-              {displayName.charAt(0).toUpperCase()}
-            </div>
+            <div className="location-avatar">K</div>
 
             <div className="location-user-info">
-              <strong>{displayName}</strong>
+              <strong>Kayan</strong>
               <span>Contractor</span>
             </div>
 
@@ -286,114 +215,172 @@ function ProjectLocationPage() {
         </header>
 
         <main className="location-content">
+          {/* Page Heading */}
           <div className="location-page-heading">
             <h1>Select Project Location</h1>
+
             <p>
-              Search for your neighborhood, then draw the work zone on the map.
+              Find your project location and draw the work zone on the map.
             </p>
           </div>
 
+          {/* Progress */}
           <div className="location-progress">
             <div className="location-progress-step completed">
               <span className="location-progress-number">✓</span>
-              <span className="location-progress-label">Project Details</span>
+
+              <span className="location-progress-label">
+                Project Details
+              </span>
             </div>
 
             <div className="location-progress-line completed-line" />
 
             <div className="location-progress-step active">
               <span className="location-progress-number">2</span>
-              <span className="location-progress-label">Location</span>
+
+              <span className="location-progress-label">
+                Location
+              </span>
             </div>
 
             <div className="location-progress-line" />
 
             <div className="location-progress-step">
               <span className="location-progress-number">3</span>
-              <span className="location-progress-label">Service</span>
+
+              <span className="location-progress-label">
+                Service
+              </span>
             </div>
 
             <div className="location-progress-line" />
 
             <div className="location-progress-step">
               <span className="location-progress-number">4</span>
-              <span className="location-progress-label">Review</span>
+
+              <span className="location-progress-label">
+                Review
+              </span>
             </div>
           </div>
 
+          {/* Location Workspace */}
           <div className="location-workspace">
+            {/* Map Panel */}
             <section className="location-map-panel">
               <div className="location-map-panel-heading">
                 <h2>Project Location</h2>
+
                 <p>
-                  Search for a neighborhood, select a location, and draw your
-                  project work zone.
+                  Search for a location, then draw the project work zone
+                  directly on the map.
                 </p>
               </div>
 
-              <form
-                className="location-search"
-                onSubmit={handleLocationSearch}
+              {/* Drawing Controls - OUTSIDE the map */}
+              <div
+                className="location-drawing-controls"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: "10px",
+                  marginTop: "16px",
+                  marginBottom: "14px",
+                  position: "relative",
+                  zIndex: 2,
+                }}
               >
-                <span className="location-search-icon">⌕</span>
-
-                <input
-                  type="text"
-                  placeholder="Search neighborhood or road, e.g. King Fahd Road"
-                  value={location.address}
-                  onChange={handleAddressChange}
-                  aria-label="Search neighborhood or road"
-                />
-
-                <button type="submit" disabled={searching}>
-                  {searching ? "Searching..." : "Search"}
-                </button>
-              </form>
-
-              {searchResults.length > 1 && (
-                <ul
-                  className="location-search-results"
-                  aria-label="Search results"
+                <button
+                  type="button"
+                  onClick={handleStartDrawing}
+                  disabled={drawing}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    padding: "11px 18px",
+                    borderRadius: "9px",
+                    border: "1px solid #ffbf00",
+                    backgroundColor: "#ffbf00",
+                    color: "#111827",
+                    fontFamily: "inherit",
+                    fontSize: "13px",
+                    fontWeight: 700,
+                    cursor: drawing ? "not-allowed" : "pointer",
+                    opacity: drawing ? 0.55 : 1,
+                  }}
                 >
-                  {searchResults.map((candidate) => {
-                    const isSelected =
-                      candidate.location.y === location.latitude &&
-                      candidate.location.x === location.longitude;
+                  <span aria-hidden="true">✎</span>
+                  Draw Work Zone
+                </button>
 
-                    return (
-                      <li
-                        key={`${candidate.address}-${candidate.location.x}-${candidate.location.y}`}
-                      >
-                        <button
-                          type="button"
-                          className={isSelected ? "selected" : ""}
-                          onClick={() => selectCandidate(candidate)}
-                        >
-                          <span className="location-result-name">
-                            {candidate.address}
-                          </span>
+                <button
+                  type="button"
+                  onClick={handleFinishDrawing}
+                  disabled={!drawing}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    padding: "11px 18px",
+                    borderRadius: "9px",
+                    border: "1px solid #111827",
+                    backgroundColor: "#111827",
+                    color: "#ffffff",
+                    fontFamily: "inherit",
+                    fontSize: "13px",
+                    fontWeight: 700,
+                    cursor: !drawing ? "not-allowed" : "pointer",
+                    opacity: !drawing ? 0.45 : 1,
+                  }}
+                >
+                  <span aria-hidden="true">✓</span>
+                  Finish Drawing
+                </button>
 
-                          <span className="location-result-type">
-                            {RESULT_TYPE_LABELS[
-                              candidate.attributes?.Addr_type
-                            ] ||
-                              candidate.attributes?.Addr_type ||
-                              ""}
-                          </span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
+                <button
+                  type="button"
+                  onClick={handleCancelDrawing}
+                  disabled={
+                    !drawing && location.polygon === null
+                  }
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    padding: "11px 18px",
+                    borderRadius: "9px",
+                    border: "1px solid #d7dce5",
+                    backgroundColor: "#ffffff",
+                    color: "#374151",
+                    fontFamily: "inherit",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    cursor:
+                      !drawing && location.polygon === null
+                        ? "not-allowed"
+                        : "pointer",
+                    opacity:
+                      !drawing && location.polygon === null
+                        ? 0.45
+                        : 1,
+                  }}
+                >
+                  <span aria-hidden="true">×</span>
+                  Cancel
+                </button>
+              </div>
 
+              {/* Map */}
               <div className="location-map-frame">
                 <MamarMap
-                  height="100%"
-                  latitude={location.latitude}
-                  longitude={location.longitude}
+                  ref={mapDrawingRef}
                   onLocationSelect={handleMapLocationSelect}
-                  onAreaSelect={setWorkZone}
                 />
               </div>
 
@@ -404,22 +391,15 @@ function ProjectLocationPage() {
                 </p>
               )}
 
-              {location.latitude !== null &&
-                location.longitude !== null && (
-                  <div className="location-selected-message">
-                    <span>✓</span>
-                    Location selected successfully
-                  </div>
-                )}
-
-              {workZone.length >= 3 && (
+              {workZonePolygon && (
                 <div className="location-selected-message">
                   <span>✓</span>
-                  Work zone drawn ({workZone.length} boundary points)
+                  Work zone polygon completed successfully
                 </div>
               )}
             </section>
 
+            {/* Location Details */}
             <aside className="location-details-panel">
               <h2>Location Details</h2>
 
@@ -434,7 +414,7 @@ function ProjectLocationPage() {
 
                 <strong>
                   {location.latitude !== null
-                    ? location.address || "Selected Map Location"
+                    ? "Selected Map Location"
                     : location.address.trim() || "No location selected"}
                 </strong>
 
@@ -454,25 +434,30 @@ function ProjectLocationPage() {
                 </span>
 
                 <strong>
-                  {workZone.length >= 3
-                    ? `${workZone.length} boundary points`
-                    : "Draw a work zone on the map"}
+                  {location.area !== null
+                    ? `${location.area.toLocaleString()} m²`
+                    : "Calculated automatically"}
                 </strong>
               </div>
 
               <div className="location-details-divider" />
 
               <div className="location-work-zone">
-                <span className="location-detail-label">WORK ZONE</span>
+                <span className="location-detail-label">
+                  WORK ZONE
+                </span>
 
                 <p>
                   <span className="location-zone-dot" />
-                  {workZone.length >= 3 ? "Zone defined" : "Not defined yet"}
+                  {workZonePolygon
+                    ? "Polygon completed"
+                    : "Work zone"}
                 </p>
               </div>
             </aside>
           </div>
 
+          {/* Navigation Buttons */}
           <div className="location-page-actions">
             <button
               type="button"

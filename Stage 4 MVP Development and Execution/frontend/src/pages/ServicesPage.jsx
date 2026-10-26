@@ -1,8 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
-import MamarMap from "../components/MamarMap";
-import { getSession, logout } from "../services/auth";
 
 const SERVICE_OPTIONS = [
   {
@@ -17,7 +15,8 @@ const SERVICE_OPTIONS = [
     id: "cones-barriers",
     icon: "▥",
     title: "Traffic Cones & Barriers",
-    description: "Supply and installation of traffic cones and barriers.",
+    description:
+      "Supply and installation of traffic cones and barriers.",
     tags: ["Cones", "Road Barriers"],
   },
   {
@@ -30,7 +29,7 @@ const SERVICE_OPTIONS = [
   },
 ];
 
-function readProject() {
+function getSavedProject() {
   try {
     return JSON.parse(sessionStorage.getItem("mamarNewProject")) || {};
   } catch {
@@ -39,42 +38,38 @@ function readProject() {
 }
 
 function ServicesPage() {
-  const displayName = getSession()?.user?.full_name || "User";
-
   const navigate = useNavigate();
 
-  const [project] = useState(readProject);
+  const [project, setProject] = useState(getSavedProject);
 
   const [selectedServices, setSelectedServices] = useState(() => {
-    const saved = readProject();
-
-    return Array.isArray(saved.services)
-      ? saved.services
-      : ["ttc-plan", "road-signs"];
+    const saved = getSavedProject();
+    return Array.isArray(saved.services) ? saved.services : [
+      "ttc-plan",
+      "road-signs",
+    ];
   });
 
-  const [error, setError] = useState("");
+  useEffect(() => {
+    setProject(getSavedProject());
+  }, []);
 
-  function toggleService(serviceId) {
-    setSelectedServices((current) => {
-      if (current.includes(serviceId)) {
-        return current.filter((id) => id !== serviceId);
-      }
+  const toggleService = (serviceId) => {
+    setSelectedServices((current) =>
+      current.includes(serviceId)
+        ? current.filter((id) => id !== serviceId)
+        : [...current, serviceId]
+    );
+  };
 
-      return [...current, serviceId];
-    });
-
-    setError("");
-  }
-
-  function handleNext() {
+  const handleNext = () => {
     if (selectedServices.length === 0) {
-      setError("Please select at least one service.");
+      window.alert("Please select at least one service.");
       return;
     }
 
     const updatedProject = {
-      ...readProject(),
+      ...getSavedProject(),
       services: selectedServices,
     };
 
@@ -84,9 +79,12 @@ function ServicesPage() {
     );
 
     navigate("/review");
-  }
+  };
 
-  function formatDate(value) {
+  const projectName = project.name || "King Fahd Road – Water Line";
+  const projectType = project.type || "Infrastructure (Water Line)";
+
+  const formatDate = (value) => {
     if (!value) return "";
 
     const date = new Date(`${value}T00:00:00`);
@@ -98,15 +96,12 @@ function ServicesPage() {
       month: "short",
       year: "numeric",
     });
-  }
-
-  const projectName = project.name || "King Fahd Road – Water Line";
-  const projectType = project.type || "Road Maintenance";
+  };
 
   const projectDates =
     project.startDate && project.endDate
       ? `${formatDate(project.startDate)} – ${formatDate(project.endDate)}`
-      : "2 Oct 2026 – 23 Oct 2026";
+      : "10 Sep 2026 – 20 Sep 2026";
 
   return (
     <div className="services-page">
@@ -148,20 +143,19 @@ function ServicesPage() {
         <div className="services-sidebar-bottom">
           <Link to="/data-disclaimer">ⓘ Data Disclaimer</Link>
           <Link to="/support">ⓘ Help &amp; Support</Link>
-          <Link to="/login" onClick={logout}>➜ Log out</Link>
+          <Link to="/login">➜ Log out</Link>
         </div>
       </aside>
 
       {/* Main */}
       <main className="services-main">
+        {/* Header */}
         <header className="services-header">
           <div className="services-account">
-            <div className="services-avatar">
-              {displayName.charAt(0).toUpperCase()}
-            </div>
+            <div className="services-avatar">K</div>
 
             <div className="services-user-info">
-              <strong>{displayName}</strong>
+              <strong>Kayan</strong>
               <span>Contractor</span>
             </div>
 
@@ -169,8 +163,8 @@ function ServicesPage() {
           </div>
         </header>
 
+        {/* Content */}
         <div className="services-content">
-          {/* Heading */}
           <div className="services-page-heading">
             <h1>Select Traffic-Control Service</h1>
             <p>
@@ -181,24 +175,13 @@ function ServicesPage() {
 
           {/* Progress */}
           <div className="services-progress">
-            <ProgressStep
-              number="✓"
-              label="Project Details"
-              status="completed"
-            />
-
+            <ProgressStep number="✓" label="Project Details" status="completed" />
             <div className="services-progress-line completed-line" />
 
-            <ProgressStep
-              number="✓"
-              label="Location"
-              status="completed"
-            />
-
+            <ProgressStep number="✓" label="Location" status="completed" />
             <div className="services-progress-line completed-line" />
 
             <ProgressStep number="3" label="Service" status="active" />
-
             <div className="services-progress-line" />
 
             <ProgressStep number="4" label="Review" status="" />
@@ -206,6 +189,7 @@ function ServicesPage() {
 
           {/* Workspace */}
           <div className="services-workspace">
+            {/* Available Services */}
             <section className="services-list-panel">
               <div className="services-panel-heading">
                 <h2>Available Services</h2>
@@ -251,8 +235,6 @@ function ServicesPage() {
                   );
                 })}
               </div>
-
-              {error && <p className="services-error">{error}</p>}
             </section>
 
             {/* Project Summary */}
@@ -264,11 +246,11 @@ function ServicesPage() {
               </p>
 
               <div className="services-summary-map">
-                <MamarMap
-                  latitude={project.latitude ?? null}
-                  longitude={project.longitude ?? null}
-                  workZone={project.workZone}
-                  readOnly
+                <iframe
+                  src="https://arcg.is/0r90n00"
+                  title="Project location map"
+                  loading="lazy"
+                  allowFullScreen
                 />
               </div>
 
@@ -287,7 +269,7 @@ function ServicesPage() {
             </aside>
           </div>
 
-          {/* Actions */}
+          {/* Bottom Buttons */}
           <div className="services-actions">
             <button
               type="button"

@@ -2,36 +2,9 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../assets/mamar-logo.svg";
-import { getSession, logout } from "../services/auth";
 
 function CreateProjectPage() {
-  const displayName = getSession()?.user?.full_name || "User";
-
   const navigate = useNavigate();
-
-  const getToday = () => {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-  };
-
-  const getNextDate = (dateString) => {
-    if (!dateString) return getToday();
-
-    const date = new Date(`${dateString}T00:00:00`);
-    date.setDate(date.getDate() + 1);
-
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-  };
-
-  const today = getToday();
 
   const [project, setProject] = useState({
     name: "",
@@ -46,22 +19,10 @@ function CreateProjectPage() {
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    setProject((previousProject) => {
-      const updatedProject = {
-        ...previousProject,
-        [name]: value,
-      };
-
-      if (
-        name === "startDate" &&
-        updatedProject.endDate &&
-        updatedProject.endDate <= value
-      ) {
-        updatedProject.endDate = "";
-      }
-
-      return updatedProject;
-    });
+    setProject((previousProject) => ({
+      ...previousProject,
+      [name]: value,
+    }));
 
     setError("");
   };
@@ -80,13 +41,8 @@ function CreateProjectPage() {
       return;
     }
 
-    if (project.startDate < today) {
-      setError("Start date cannot be in the past.");
-      return;
-    }
-
-    if (project.endDate <= project.startDate) {
-      setError("End date must be at least one day after the start date.");
+    if (project.endDate < project.startDate) {
+      setError("End date must be after the start date.");
       return;
     }
 
@@ -139,7 +95,7 @@ function CreateProjectPage() {
             Help &amp; Support
           </Link>
 
-          <Link to="/login" onClick={logout}>
+          <Link to="/login">
             <span>→</span>
             Log out
           </Link>
@@ -155,12 +111,10 @@ function CreateProjectPage() {
           </Link>
 
           <div className="create-project-user">
-            <div className="create-project-avatar">
-              {displayName.charAt(0).toUpperCase()}
-            </div>
+            <div className="create-project-avatar">K</div>
 
             <div>
-              <strong>{displayName}</strong>
+              <strong>Kayan</strong>
               <span>Contractor</span>
             </div>
 
@@ -284,7 +238,6 @@ function CreateProjectPage() {
                     id="project-start-date"
                     name="startDate"
                     type="date"
-                    min={today}
                     value={project.startDate}
                     onChange={handleChange}
                     required
@@ -300,7 +253,7 @@ function CreateProjectPage() {
                     id="project-end-date"
                     name="endDate"
                     type="date"
-                    min={getNextDate(project.startDate)}
+                    min={project.startDate || undefined}
                     value={project.endDate}
                     onChange={handleChange}
                     required
