@@ -1,23 +1,39 @@
-
 import { useEffect, useRef, useState } from "react";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  useImperativeHandle,
-  forwardRef,
-} from "react";
-
-import SketchViewModel from "@arcgis/core/widgets/Sketch/SketchViewModel.js";
-import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer.js";
-import * as geometryEngine from "@arcgis/core/geometry/geometryEngine.js";
-
+import Graphic from "@arcgis/core/Graphic.js";
 
 import "@arcgis/map-components/components/arcgis-map";
 import "@arcgis/map-components/components/arcgis-zoom";
 import "@arcgis/map-components/components/arcgis-search";
 
+function isValidPoint(point) {
+  return (
+    point &&
+    Number.isFinite(Number(point.latitude)) &&
+    Number.isFinite(Number(point.longitude))
+  );
+}
+
+function createMarker(latitude, longitude, spatialReference) {
+  return new Graphic({
+    geometry: {
+      type: "point",
+      latitude: Number(latitude),
+      longitude: Number(longitude),
+      ...(spatialReference ? { spatialReference } : {}),
+    },
+    symbol: {
+      type: "simple-marker",
+      style: "circle",
+      color: "#ffcc00",
+      size: "16px",
+      outline: {
+        color: "#222222",
+        width: 2,
+      },
+    },
+  });
+}
 
 function MamarMap({
   onLocationSelect,
@@ -31,15 +47,6 @@ function MamarMap({
 }) {
   const mapRef = useRef(null);
   const viewRef = useRef(null);
-
-const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
-  const mapRef = useRef(null);
-  const sketchRef = useRef(null);
-  const [drawing, setDrawing] = useState(false);
-  const [points, setPoints] = useState([]);
-  const pointsRef = useRef([]);
-  const polygonRef = useRef(null);
-  const drawingRef = useRef(false);
 
   const markerRef = useRef(null);
   const drawingGraphicsRef = useRef([]);
@@ -56,12 +63,11 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
   const [drawingPoints, setDrawingPoints] = useState([]);
   const [hasArea, setHasArea] = useState(false);
 
-  // Keep the latest callback without reinitializing the map.
+  // Keep the latest values in refs without reinitializing the map.
   useEffect(() => {
     callbackRef.current = onLocationSelect;
   }, [onLocationSelect]);
 
-  // Initialize the map and polygon drawing functionality.
   useEffect(() => {
     areaCallbackRef.current = onAreaSelect;
   }, [onAreaSelect]);
@@ -78,14 +84,13 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
     projectPointsRef.current = projectPoints;
   }, [projectPoints]);
 
+  // Initialize the map once.
   useEffect(() => {
     const mapElement = mapRef.current;
 
     if (!mapElement) return;
 
-    let sketch = null;
-    let sketchHandle = null;
-    let graphicsLayer = null;
+    let clickHandle = null;
     let cancelled = false;
 
     async function initializeMap() {
@@ -97,29 +102,8 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
         const view = mapElement.view;
         viewRef.current = view;
 
-        if (
-          latitude !== null &&
-          longitude !== null &&
-          Number.isFinite(Number(latitude)) &&
-          Number.isFinite(Number(longitude))
-        ) {
-          const marker = {
-            geometry: {
-              type: "point",
-              latitude: Number(latitude),
-              longitude: Number(longitude),
-            },
-            symbol: {
-              type: "simple-marker",
-              style: "circle",
-              color: "#ffcc00",
-              size: "16px",
-              outline: {
-                color: "#222222",
-                width: 2,
-              },
-            },
-          };
+        if (isValidPoint({ latitude, longitude })) {
+          const marker = createMarker(latitude, longitude);
 
           view.graphics.add(marker);
           markerRef.current = marker;
@@ -136,23 +120,19 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
 
         if (cancelled || readOnly) return;
 
-        graphicsLayer = new GraphicsLayer({
-          title: "Project Work Zone",
-        });
+        clickHandle = view.on("click", (event) => {
+          const point = event.mapPoint;
 
-        view.map.add(graphicsLayer);
-
+          if (!point) return;
 
           const selectedPoint = {
             latitude: Number(point.latitude.toFixed(6)),
             longitude: Number(point.longitude.toFixed(6)),
           };
 
+          // Drawing a work zone: every click adds a boundary point.
           if (drawModeRef.current) {
-            const updatedPoints = [
-              ...drawingPointsRef.current,
-              selectedPoint,
-            ];
+            const updatedPoints = [...drawingPointsRef.current, selectedPoint];
 
             drawingPointsRef.current = updatedPoints;
             setDrawingPoints(updatedPoints);
@@ -162,95 +142,26 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
             return;
           }
 
-        sketch = new SketchViewModel({
-          view,
-          layer: graphicsLayer,
+          // Otherwise: pick a single project location.
+          if (markerRef.current) {
+            view.graphics.remove(markerRef.current);
+          }
 
-
-          polygonSymbol: {
-            type: "simple-fill",
-            color: [255, 204, 0, 0.35],
-
-
-          const marker = {
-            geometry: {
-              type: "point",
-              latitude: selectedPoint.latitude,
-              longitude: selectedPoint.longitude,
-              spatialReference: point.spatialReference,
-            },
-            symbol: {
-              type: "simple-marker",
-              style: "circle",
-              color: "#ffcc00",
-              size: "16px",
-              outline: {
-                color: "#222222",
-                width: 2,
-              },
-            },
-          };
+          const marker = createMarker(
+            selectedPoint.latitude,
+            selectedPoint.longitude,
+            point.spatialReference
+          );
 
           view.graphics.add(marker);
           markerRef.current = marker;
 
           if (callbackRef.current) {
             callbackRef.current(selectedPoint);
-
-            outline: {
-              color: [255, 180, 0],
-              width: 2,
-            },
-          },
-
-          defaultCreateOptions: {
-            mode: "click",
-          },
-
-          defaultUpdateOptions: {
-            enableRotation: false,
-            enableScaling: false,
-          },
-        });
-
-        sketchRef.current = sketch;
-
-        sketchHandle = sketch.on("create", (event) => {
-          if (event.state !== "complete") return;
-
-          const polygon = event.graphic?.geometry;
-
-          if (!polygon) return;
-
-          const center = polygon.centroid;
-
-          if (!center) return;
-
-          const latitude = Number(center.latitude.toFixed(6));
-          const longitude = Number(center.longitude.toFixed(6));
-
-          const area = Math.abs(
-            geometryEngine.geodesicArea(polygon, "square-meters")
-          );
-
-          if (callbackRef.current) {
-            callbackRef.current({
-              latitude,
-              longitude,
-              area: Number(area.toFixed(2)),
-              polygon: polygon.toJSON(),
-            });
-
           }
         });
-
-        // Drawing starts only when the user clicks Draw Work Zone.
       } catch (error) {
-
         console.error("Could not initialize MAMAR map:", error);
-
-        console.error("Could not initialize polygon drawing:", error);
-
       }
     }
 
@@ -259,72 +170,43 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
     return () => {
       cancelled = true;
 
-      if (sketchHandle) {
-        sketchHandle.remove();
+      if (clickHandle) {
+        clickHandle.remove();
       }
-
-      if (sketch) {
-        sketch.destroy();
-      }
-
-      if (graphicsLayer && mapElement.view?.map) {
-        mapElement.view.map.remove(graphicsLayer);
-      }
-
 
       viewRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Move the marker when latitude / longitude props change.
   useEffect(() => {
     const view = viewRef.current;
 
-    if (
-      !view ||
-      latitude === null ||
-      longitude === null ||
-      !Number.isFinite(Number(latitude)) ||
-      !Number.isFinite(Number(longitude))
-    ) {
-      return;
-    }
+    if (!view || !isValidPoint({ latitude, longitude })) return;
 
-    view.goTo({
-      center: [Number(longitude), Number(latitude)],
-      zoom: 15,
-    }).catch((error) => {
-      if (error.name !== "AbortError") {
-        console.error("Could not move map:", error);
-      }
-    });
+    view
+      .goTo({
+        center: [Number(longitude), Number(latitude)],
+        zoom: 15,
+      })
+      .catch((error) => {
+        if (error.name !== "AbortError") {
+          console.error("Could not move map:", error);
+        }
+      });
 
     if (markerRef.current) {
       view.graphics.remove(markerRef.current);
     }
 
-    const marker = {
-      geometry: {
-        type: "point",
-        latitude: Number(latitude),
-        longitude: Number(longitude),
-      },
-      symbol: {
-        type: "simple-marker",
-        style: "circle",
-        color: "#ffcc00",
-        size: "16px",
-        outline: {
-          color: "#222222",
-          width: 2,
-        },
-      },
-    };
+    const marker = createMarker(latitude, longitude);
 
     view.graphics.add(marker);
     markerRef.current = marker;
   }, [latitude, longitude]);
 
-  // Redraw when the saved zone / project points change after the map is ready
+  // Redraw when the saved zone / project points change after the map is ready.
   const workZoneKey = JSON.stringify(workZone ?? null);
   const projectPointsKey = JSON.stringify(projectPoints ?? null);
 
@@ -332,21 +214,15 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
     const view = viewRef.current;
 
     if (view) renderSavedZone(view);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workZoneKey]);
 
   useEffect(() => {
     const view = viewRef.current;
 
     if (view) renderProjectPoints(view);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectPointsKey]);
-
-  function isValidPoint(point) {
-    return (
-      point &&
-      Number.isFinite(Number(point.latitude)) &&
-      Number.isFinite(Number(point.longitude))
-    );
-  }
 
   // Shows a previously drawn work zone (read-only display, no editing).
   async function renderSavedZone(view) {
@@ -368,7 +244,7 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
 
     ring.push(ring[0]);
 
-    view.graphics.add({
+    const graphic = new Graphic({
       geometry: {
         type: "polygon",
         rings: [ring],
@@ -376,7 +252,7 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
       },
       symbol: {
         type: "simple-fill",
-        color: [255, 204, 0, 45],
+        color: [255, 204, 0, 0.18],
         outline: {
           color: "#ffcc00",
           width: 2,
@@ -384,9 +260,7 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
       },
     });
 
-    // view.graphics autocasts plain objects, so keep the stored instance
-    const graphic = view.graphics.getItemAt(view.graphics.length - 1);
-
+    view.graphics.add(graphic);
     savedZoneRef.current = graphic;
 
     try {
@@ -419,7 +293,7 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
         longitude: Number(point.longitude),
       };
 
-      view.graphics.add({
+      const marker = new Graphic({
         geometry,
         symbol: {
           type: "simple-marker",
@@ -437,13 +311,12 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
         },
       });
 
-      const marker = view.graphics.getItemAt(view.graphics.length - 1);
-
+      view.graphics.add(marker);
       markers.push(marker);
       projectGraphicsRef.current.push(marker);
 
       if (point.name) {
-        view.graphics.add({
+        const label = new Graphic({
           geometry,
           symbol: {
             type: "text",
@@ -460,9 +333,8 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
           },
         });
 
-        projectGraphicsRef.current.push(
-          view.graphics.getItemAt(view.graphics.length - 1)
-        );
+        view.graphics.add(label);
+        projectGraphicsRef.current.push(label);
       }
     });
 
@@ -495,71 +367,66 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
     const graphics = [];
 
     points.forEach((point) => {
-      graphics.push({
-        geometry: {
-          type: "point",
-          latitude: point.latitude,
-          longitude: point.longitude,
-        },
-        symbol: {
-          type: "simple-marker",
-          color: "#ffcc00",
-          size: "8px",
-          outline: {
-            color: "#222222",
-            width: 1,
+      graphics.push(
+        new Graphic({
+          geometry: {
+            type: "point",
+            latitude: point.latitude,
+            longitude: point.longitude,
           },
-        },
-      });
+          symbol: {
+            type: "simple-marker",
+            color: "#ffcc00",
+            size: "8px",
+            outline: {
+              color: "#222222",
+              width: 1,
+            },
+          },
+        })
+      );
     });
 
     if (points.length >= 2) {
-      graphics.push({
-        geometry: {
-          type: "polyline",
-          paths: [
-            points.map((point) => [
-              point.longitude,
-              point.latitude,
-            ]),
-          ],
-          spatialReference: { wkid: 4326 },
-        },
-        symbol: {
-          type: "simple-line",
-          color: "#ffcc00",
-          width: 3,
-        },
-      });
+      graphics.push(
+        new Graphic({
+          geometry: {
+            type: "polyline",
+            paths: [points.map((p) => [p.longitude, p.latitude])],
+            spatialReference: { wkid: 4326 },
+          },
+          symbol: {
+            type: "simple-line",
+            color: "#ffcc00",
+            width: 3,
+          },
+        })
+      );
     }
 
     if (points.length >= 3) {
-      graphics.push({
-        geometry: {
-          type: "polygon",
-          rings: [
-            [
-              ...points.map((point) => [
-                point.longitude,
-                point.latitude,
-              ]),
+      graphics.push(
+        new Graphic({
+          geometry: {
+            type: "polygon",
+            rings: [
               [
-                points[0].longitude,
-                points[0].latitude,
+                ...points.map((p) => [p.longitude, p.latitude]),
+                [points[0].longitude, points[0].latitude],
               ],
             ],
-          ],
-          spatialReference: { wkid: 4326 },
-        },
-        symbol: {
-          type: "simple-fill",
-          color: [255, 204, 0, 45],
-          outline: {
-            color: "#ffcc00",
-            width: 2,
+            spatialReference: { wkid: 4326 },
           },
-        },
-      });
+          symbol: {
+            type: "simple-fill",
+            color: [255, 204, 0, 0.18],
+            outline: {
+              color: "#ffcc00",
+              width: 2,
+            },
+          },
+        })
+      );
     }
 
     graphics.forEach((graphic) => {
@@ -623,62 +490,6 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
     }
   }
 
-      sketchRef.current = null;
-    };
-  }, []);
-
-  // Start drawing a new work zone.
-  const startDrawing = () => {
-    const sketch = sketchRef.current;
-
-    if (!sketch) {
-      console.warn("Map drawing tools are not ready yet.");
-      return;
-    }
-
-    sketch.cancel();
-    sketch.layer.removeAll();
-
-    if (callbackRef.current) {
-      callbackRef.current(null);
-    }
-
-    sketch.create("polygon");
-  };
-
-  // Finish the current polygon.
-  const finishDrawing = () => {
-    const sketch = sketchRef.current;
-
-    if (!sketch) return;
-
-    if (sketch.state === "active") {
-      sketch.complete();
-    }
-  };
-
-  // Cancel drawing and clear the work zone.
-  const cancelDrawing = () => {
-    const sketch = sketchRef.current;
-
-    if (!sketch) return;
-
-    sketch.cancel();
-    sketch.layer.removeAll();
-
-    if (callbackRef.current) {
-      callbackRef.current(null);
-    }
-  };
-
-  // Allow buttons in ProjectLocationPage to control drawing.
-  useImperativeHandle(ref, () => ({
-    startDrawing,
-    finishDrawing,
-    cancelDrawing,
-  }));
-
-
   return (
     <div
       className="mamar-map-container"
@@ -727,9 +538,7 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
 
           {hasArea && !drawMode && (
             <>
-              <span className="mamar-map-drawing-hint">
-                Work zone saved
-              </span>
+              <span className="mamar-map-drawing-hint">Work zone saved</span>
 
               <button
                 type="button"
@@ -762,6 +571,6 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
       </arcgis-map>
     </div>
   );
-});
+}
 
 export default MamarMap;
