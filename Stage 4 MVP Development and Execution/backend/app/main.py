@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 
 from app.core.config import FRONTEND_ORIGINS
 from app.db.init_db import add_demo_providers, create_tables
-from app.routers import auth, health, projects
+from app.routers import assignments, auth, health, projects, quotes, service_requests
 
 
 @asynccontextmanager
@@ -30,6 +30,9 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(projects.router)
+app.include_router(service_requests.router)
+app.include_router(quotes.router)
+app.include_router(assignments.router)
 
 
 @app.exception_handler(RequestValidationError)
