@@ -15,7 +15,12 @@ import "@arcgis/map-components/components/arcgis-search";
 
 const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
   const mapRef = useRef(null);
-  const sketchRef = useRef(null);
+  const [drawing, setDrawing] = useState(false);
+  const [points, setPoints] = useState([]);
+  const pointsRef = useRef([]);
+  const polygonRef = useRef(null);
+  const drawingRef = useRef(false);
+  const markerRef = useRef(null);
   const callbackRef = useRef(onLocationSelect);
 
   // Keep the latest callback without reinitializing the map.
@@ -182,14 +187,19 @@ const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
 
   return (
     <div className="mamar-map-container">
-    <arcgis-map
-  ref={mapRef}
-  item-id="7371729f1ff240038c3a8155edebfeda"
-  className="mamar-map"
->
-  <arcgis-zoom slot="top-left" />
-  <arcgis-search slot="top-right" />
-</arcgis-map>
+      <div style={{display:"flex",gap:"10px",marginBottom:"10px",position:"relative",zIndex:10}}>
+        <button type="button" onClick={startDrawing}>Draw Polygon</button>
+        <button type="button" onClick={finishDrawing}>Finish Drawing</button>
+        <button type="button" onClick={cancelDrawing}>Cancel</button>
+        {drawing && <span>Points: {points.length}</span>}
+      </div>
+      <arcgis-map
+        ref={mapRef}
+        item-id="7371729f1ff240038c3a8155edebfeda"
+        className="mamar-map"
+      >
+        <arcgis-zoom slot="top-left" />
+      </arcgis-map>
     </div>
   );
 });

@@ -19,6 +19,7 @@ function ProjectLocationPage() {
   });
 
   const [error, setError] = useState("");
+  const [workZonePolygon, setWorkZonePolygon] = useState(null);
 
   // Receive the completed polygon from the map.
   const handleMapLocationSelect = (coordinates) => {
@@ -44,6 +45,7 @@ function ProjectLocationPage() {
       polygon: coordinates.polygon,
     }));
 
+    setWorkZonePolygon(coordinates.polygon ?? null);
     setDrawing(false);
     setError("");
   };
@@ -89,6 +91,13 @@ function ProjectLocationPage() {
 
   const handleContinue = (event) => {
     event.preventDefault();
+
+    if (!workZonePolygon) {
+      setError(
+        "Please draw and finish the work zone polygon before continuing."
+      );
+      return;
+    }
 
     if (
       location.latitude === null ||
@@ -382,14 +391,12 @@ function ProjectLocationPage() {
                 </p>
               )}
 
-              {/* Success Message */}
-              {location.latitude !== null &&
-                location.longitude !== null && (
-                  <div className="location-selected-message">
-                    <span>✓</span>
-                    Work zone selected successfully
-                  </div>
-                )}
+              {workZonePolygon && (
+                <div className="location-selected-message">
+                  <span>✓</span>
+                  Work zone polygon completed successfully
+                </div>
+              )}
             </section>
 
             {/* Location Details */}
@@ -442,7 +449,9 @@ function ProjectLocationPage() {
 
                 <p>
                   <span className="location-zone-dot" />
-                  Work zone
+                  {workZonePolygon
+                    ? "Polygon completed"
+                    : "Work zone"}
                 </p>
               </div>
             </aside>
