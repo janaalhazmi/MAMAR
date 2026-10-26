@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
@@ -6,22 +6,47 @@ import MamarMap from "../components/MamarMap";
 function ProjectLocationPage() {
   const navigate = useNavigate();
 
+  const mapDrawingRef = useRef(null);
+
+  const [drawing, setDrawing] = useState(false);
+
   const [location, setLocation] = useState({
     address: "",
     latitude: null,
     longitude: null,
+    area: null,
+    polygon: null,
   });
 
   const [error, setError] = useState("");
+  const [workZonePolygon, setWorkZonePolygon] = useState(null);
 
+  // Receive the completed polygon from the map.
   const handleMapLocationSelect = (coordinates) => {
+    if (!coordinates) {
+      setLocation((previous) => ({
+        ...previous,
+        latitude: null,
+        longitude: null,
+        area: null,
+        polygon: null,
+      }));
+
+      setDrawing(false);
+      return;
+    }
+
     setLocation((previous) => ({
       ...previous,
       latitude: coordinates.latitude,
       longitude: coordinates.longitude,
       address: `${coordinates.latitude}, ${coordinates.longitude}`,
+      area: coordinates.area,
+      polygon: coordinates.polygon,
     }));
 
+    setWorkZonePolygon(coordinates.polygon ?? null);
+    setDrawing(false);
     setError("");
   };
 
@@ -34,11 +59,54 @@ function ProjectLocationPage() {
     setError("");
   };
 
+  // Start drawing the project work zone.
+  const handleStartDrawing = () => {
+    if (!mapDrawingRef.current) {
+      setError("Map drawing tools are not ready yet.");
+      return;
+    }
+
+    mapDrawingRef.current.startDrawing();
+
+    setDrawing(true);
+    setError("");
+  };
+
+  // Finish the polygon.
+  const handleFinishDrawing = () => {
+    if (!mapDrawingRef.current) return;
+
+    mapDrawingRef.current.finishDrawing();
+  };
+
+  // Cancel drawing and remove the selected work zone.
+  const handleCancelDrawing = () => {
+    if (!mapDrawingRef.current) return;
+
+    mapDrawingRef.current.cancelDrawing();
+
+    setDrawing(false);
+    setError("");
+  };
+
   const handleContinue = (event) => {
     event.preventDefault();
 
-    if (location.latitude === null || location.longitude === null) {
-      setError("Please select a location on the map before continuing.");
+    if (!workZonePolygon) {
+      setError(
+        "Please draw and finish the work zone polygon before continuing."
+      );
+      return;
+    }
+
+    if (
+      location.latitude === null ||
+      location.longitude === null ||
+      !location.polygon
+    ) {
+      setError(
+        "Please draw and finish the project work zone before continuing."
+      );
       return;
     }
 
@@ -60,10 +128,12 @@ function ProjectLocationPage() {
         location: location.address,
         latitude: location.latitude,
         longitude: location.longitude,
+        area: location.area,
+        polygon: location.polygon,
       })
     );
 
-    navigate("/select-service");
+    navigate("/services");
   };
 
   const handleBack = () => {
@@ -208,41 +278,125 @@ function ProjectLocationPage() {
                 </p>
               </div>
 
-              <form
-                className="location-search"
-                onSubmit={(event) => event.preventDefault()}
+              {/* Drawing Controls - OUTSIDE the map */}
+              <div
+                className="location-drawing-controls"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: "10px",
+                  marginTop: "16px",
+                  marginBottom: "14px",
+                  position: "relative",
+                  zIndex: 2,
+                }}
               >
-                <span className="location-search-icon">⌕</span>
+                <button
+                  type="button"
+                  onClick={handleStartDrawing}
+                  disabled={drawing}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    padding: "11px 18px",
+                    borderRadius: "9px",
+                    border: "1px solid #ffbf00",
+                    backgroundColor: "#ffbf00",
+                    color: "#111827",
+                    fontFamily: "inherit",
+                    fontSize: "13px",
+                    fontWeight: 700,
+                    cursor: drawing ? "not-allowed" : "pointer",
+                    opacity: drawing ? 0.55 : 1,
+                  }}
+                >
+                  <span aria-hidden="true">✎</span>
+                  Draw Work Zone
+                </button>
 
-                <input
-                  type="text"
-                  placeholder="Search location e.g. King Fahd Road, Riyadh"
-                  value={location.address}
-                  onChange={handleAddressChange}
-                  aria-label="Search project location"
-                />
-              </form>
+                <button
+                  type="button"
+                  onClick={handleFinishDrawing}
+                  disabled={!drawing}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    padding: "11px 18px",
+                    borderRadius: "9px",
+                    border: "1px solid #111827",
+                    backgroundColor: "#111827",
+                    color: "#ffffff",
+                    fontFamily: "inherit",
+                    fontSize: "13px",
+                    fontWeight: 700,
+                    cursor: !drawing ? "not-allowed" : "pointer",
+                    opacity: !drawing ? 0.45 : 1,
+                  }}
+                >
+                  <span aria-hidden="true">✓</span>
+                  Finish Drawing
+                </button>
 
+                <button
+                  type="button"
+                  onClick={handleCancelDrawing}
+                  disabled={
+                    !drawing && location.polygon === null
+                  }
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    padding: "11px 18px",
+                    borderRadius: "9px",
+                    border: "1px solid #d7dce5",
+                    backgroundColor: "#ffffff",
+                    color: "#374151",
+                    fontFamily: "inherit",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    cursor:
+                      !drawing && location.polygon === null
+                        ? "not-allowed"
+                        : "pointer",
+                    opacity:
+                      !drawing && location.polygon === null
+                        ? 0.45
+                        : 1,
+                  }}
+                >
+                  <span aria-hidden="true">×</span>
+                  Cancel
+                </button>
+              </div>
+
+              {/* Map */}
               <div className="location-map-frame">
                 <MamarMap
-                  height="100%"
+                  ref={mapDrawingRef}
                   onLocationSelect={handleMapLocationSelect}
                 />
               </div>
 
+              {/* Error */}
               {error && (
                 <p className="location-error" role="alert">
                   {error}
                 </p>
               )}
 
-              {location.latitude !== null &&
-                location.longitude !== null && (
-                  <div className="location-selected-message">
-                    <span>✓</span>
-                    Location selected successfully
-                  </div>
-                )}
+              {workZonePolygon && (
+                <div className="location-selected-message">
+                  <span>✓</span>
+                  Work zone polygon completed successfully
+                </div>
+              )}
             </section>
 
             {/* Location Details */}
@@ -280,8 +434,8 @@ function ProjectLocationPage() {
                 </span>
 
                 <strong>
-                  {location.latitude !== null
-                    ? "Location selected"
+                  {location.area !== null
+                    ? `${location.area.toLocaleString()} m²`
                     : "Calculated automatically"}
                 </strong>
               </div>
@@ -295,7 +449,9 @@ function ProjectLocationPage() {
 
                 <p>
                   <span className="location-zone-dot" />
-                  Work zone
+                  {workZonePolygon
+                    ? "Polygon completed"
+                    : "Work zone"}
                 </p>
               </div>
             </aside>

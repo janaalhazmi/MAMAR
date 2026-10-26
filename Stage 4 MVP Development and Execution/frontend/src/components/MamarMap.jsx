@@ -1,26 +1,47 @@
-import { useEffect, useRef } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
+
+import SketchViewModel from "@arcgis/core/widgets/Sketch/SketchViewModel.js";
+import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer.js";
+import * as geometryEngine from "@arcgis/core/geometry/geometryEngine.js";
 
 import "@arcgis/map-components/components/arcgis-map";
 import "@arcgis/map-components/components/arcgis-zoom";
+import "@arcgis/map-components/components/arcgis-search";
 
-function MamarMap({ onLocationSelect }) {
+const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
   const mapRef = useRef(null);
+  const sketchRef = useRef(null);
+  const [drawing, setDrawing] = useState(false);
+  const [points, setPoints] = useState([]);
+  const pointsRef = useRef([]);
+  const polygonRef = useRef(null);
+  const drawingRef = useRef(false);
   const markerRef = useRef(null);
   const callbackRef = useRef(onLocationSelect);
 
+  // Keep the latest callback without reinitializing the map.
   useEffect(() => {
     callbackRef.current = onLocationSelect;
   }, [onLocationSelect]);
 
+  // Initialize the map and polygon drawing functionality.
   useEffect(() => {
     const mapElement = mapRef.current;
 
     if (!mapElement) return;
 
-    let clickHandler;
+    let sketch = null;
+    let sketchHandle = null;
+    let graphicsLayer = null;
     let cancelled = false;
 
-    async function addPinFeature() {
+    async function initializeMap() {
       try {
         await mapElement.viewOnReady();
 
@@ -28,83 +49,143 @@ function MamarMap({ onLocationSelect }) {
 
         const view = mapElement.view;
 
-        clickHandler = view.on("click", (event) => {
-          const point = view.toMap({
-            x: event.x,
-            y: event.y,
-          });
+        graphicsLayer = new GraphicsLayer({
+          title: "Project Work Zone",
+        });
 
-          if (!point) return;
+        view.map.add(graphicsLayer);
 
-          const latitude = Number(point.latitude.toFixed(6));
-          const longitude = Number(point.longitude.toFixed(6));
+        sketch = new SketchViewModel({
+          view,
+          layer: graphicsLayer,
 
-          if (markerRef.current) {
-            view.graphics.remove(markerRef.current);
-          }
+          polygonSymbol: {
+            type: "simple-fill",
+            color: [255, 204, 0, 0.35],
 
-          // Create a yellow pin without changing the original map.
-          const marker = document.createElement("arcgis-graphic");
-
-          marker.geometry = {
-            type: "point",
-            latitude,
-            longitude,
-            spatialReference: point.spatialReference,
-          };
-
-          marker.symbol = {
-            type: "simple-marker",
-            style: "circle",
-            color: "#ffcc00",
-            size: "16px",
             outline: {
-              color: "#222222",
+              color: [255, 180, 0],
               width: 2,
             },
-          };
+          },
 
-          // Use the map's existing graphics collection.
-          view.graphics.add({
-            geometry: point,
-            symbol: {
-              type: "simple-marker",
-              style: "circle",
-              color: "#ffcc00",
-              size: "16px",
-              outline: {
-                color: "#222222",
-                width: 2,
-              },
-            },
-          });
+          defaultCreateOptions: {
+            mode: "click",
+          },
 
-          markerRef.current = view.graphics.getItemAt(
-            view.graphics.length - 1
+          defaultUpdateOptions: {
+            enableRotation: false,
+            enableScaling: false,
+          },
+        });
+
+        sketchRef.current = sketch;
+
+        sketchHandle = sketch.on("create", (event) => {
+          if (event.state !== "complete") return;
+
+          const polygon = event.graphic?.geometry;
+
+          if (!polygon) return;
+
+          const center = polygon.centroid;
+
+          if (!center) return;
+
+          const latitude = Number(center.latitude.toFixed(6));
+          const longitude = Number(center.longitude.toFixed(6));
+
+          const area = Math.abs(
+            geometryEngine.geodesicArea(polygon, "square-meters")
           );
 
           if (callbackRef.current) {
             callbackRef.current({
               latitude,
               longitude,
+              area: Number(area.toFixed(2)),
+              polygon: polygon.toJSON(),
             });
           }
         });
+
+        // Drawing starts only when the user clicks Draw Work Zone.
       } catch (error) {
-        console.error("Could not enable map pin:", error);
+        console.error("Could not initialize polygon drawing:", error);
       }
     }
 
-    addPinFeature();
+    initializeMap();
 
     return () => {
       cancelled = true;
 
-      if (clickHandler) {
-        clickHandler.remove();
+      if (sketchHandle) {
+        sketchHandle.remove();
       }
+
+      if (sketch) {
+        sketch.destroy();
+      }
+
+      if (graphicsLayer && mapElement.view?.map) {
+        mapElement.view.map.remove(graphicsLayer);
+      }
+
+      sketchRef.current = null;
     };
   }, []);
+
+  // Start drawing a new work zone.
+  const startDrawing = () => {
+    const sketch = sketchRef.current;
+
+    if (!sketch) {
+      console.warn("Map drawing tools are not ready yet.");
+      return;
+    }
+
+    sketch.cancel();
+    sketch.layer.removeAll();
+
+    if (callbackRef.current) {
+      callbackRef.current(null);
+    }
+
+    sketch.create("polygon");
+  };
+
+  // Finish the current polygon.
+  const finishDrawing = () => {
+    const sketch = sketchRef.current;
+
+    if (!sketch) return;
+
+    if (sketch.state === "active") {
+      sketch.complete();
+    }
+  };
+
+  // Cancel drawing and clear the work zone.
+  const cancelDrawing = () => {
+    const sketch = sketchRef.current;
+
+    if (!sketch) return;
+
+    sketch.cancel();
+    sketch.layer.removeAll();
+
+    if (callbackRef.current) {
+      callbackRef.current(null);
+    }
+  };
+
+  // Allow buttons in ProjectLocationPage to control drawing.
+  useImperativeHandle(ref, () => ({
+    startDrawing,
+    finishDrawing,
+    cancelDrawing,
+  }));
 
   return (
     <div className="mamar-map-container">
@@ -114,9 +195,10 @@ function MamarMap({ onLocationSelect }) {
         className="mamar-map"
       >
         <arcgis-zoom slot="top-left" />
+        <arcgis-search slot="top-right" />
       </arcgis-map>
     </div>
   );
-}
+});
 
 export default MamarMap;
