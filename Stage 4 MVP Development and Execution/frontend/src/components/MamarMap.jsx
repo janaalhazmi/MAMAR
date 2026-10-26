@@ -1,7 +1,23 @@
+
 import { useEffect, useRef, useState } from "react";
+
+import {
+  useEffect,
+  useRef,
+  useState,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
+
+import SketchViewModel from "@arcgis/core/widgets/Sketch/SketchViewModel.js";
+import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer.js";
+import * as geometryEngine from "@arcgis/core/geometry/geometryEngine.js";
+
 
 import "@arcgis/map-components/components/arcgis-map";
 import "@arcgis/map-components/components/arcgis-zoom";
+import "@arcgis/map-components/components/arcgis-search";
+
 
 function MamarMap({
   onLocationSelect,
@@ -15,6 +31,16 @@ function MamarMap({
 }) {
   const mapRef = useRef(null);
   const viewRef = useRef(null);
+
+const MamarMap = forwardRef(function MamarMap({ onLocationSelect }, ref) {
+  const mapRef = useRef(null);
+  const sketchRef = useRef(null);
+  const [drawing, setDrawing] = useState(false);
+  const [points, setPoints] = useState([]);
+  const pointsRef = useRef([]);
+  const polygonRef = useRef(null);
+  const drawingRef = useRef(false);
+
   const markerRef = useRef(null);
   const drawingGraphicsRef = useRef([]);
   const callbackRef = useRef(onLocationSelect);
@@ -30,10 +56,12 @@ function MamarMap({
   const [drawingPoints, setDrawingPoints] = useState([]);
   const [hasArea, setHasArea] = useState(false);
 
+  // Keep the latest callback without reinitializing the map.
   useEffect(() => {
     callbackRef.current = onLocationSelect;
   }, [onLocationSelect]);
 
+  // Initialize the map and polygon drawing functionality.
   useEffect(() => {
     areaCallbackRef.current = onAreaSelect;
   }, [onAreaSelect]);
@@ -55,7 +83,9 @@ function MamarMap({
 
     if (!mapElement) return;
 
-    let clickHandler;
+    let sketch = null;
+    let sketchHandle = null;
+    let graphicsLayer = null;
     let cancelled = false;
 
     async function initializeMap() {
@@ -106,13 +136,12 @@ function MamarMap({
 
         if (cancelled || readOnly) return;
 
-        clickHandler = view.on("click", (event) => {
-          const point = view.toMap({
-            x: event.x,
-            y: event.y,
-          });
+        graphicsLayer = new GraphicsLayer({
+          title: "Project Work Zone",
+        });
 
-          if (!point) return;
+        view.map.add(graphicsLayer);
+
 
           const selectedPoint = {
             latitude: Number(point.latitude.toFixed(6)),
@@ -133,9 +162,15 @@ function MamarMap({
             return;
           }
 
-          if (markerRef.current) {
-            view.graphics.remove(markerRef.current);
-          }
+        sketch = new SketchViewModel({
+          view,
+          layer: graphicsLayer,
+
+
+          polygonSymbol: {
+            type: "simple-fill",
+            color: [255, 204, 0, 0.35],
+
 
           const marker = {
             geometry: {
@@ -161,10 +196,61 @@ function MamarMap({
 
           if (callbackRef.current) {
             callbackRef.current(selectedPoint);
+
+            outline: {
+              color: [255, 180, 0],
+              width: 2,
+            },
+          },
+
+          defaultCreateOptions: {
+            mode: "click",
+          },
+
+          defaultUpdateOptions: {
+            enableRotation: false,
+            enableScaling: false,
+          },
+        });
+
+        sketchRef.current = sketch;
+
+        sketchHandle = sketch.on("create", (event) => {
+          if (event.state !== "complete") return;
+
+          const polygon = event.graphic?.geometry;
+
+          if (!polygon) return;
+
+          const center = polygon.centroid;
+
+          if (!center) return;
+
+          const latitude = Number(center.latitude.toFixed(6));
+          const longitude = Number(center.longitude.toFixed(6));
+
+          const area = Math.abs(
+            geometryEngine.geodesicArea(polygon, "square-meters")
+          );
+
+          if (callbackRef.current) {
+            callbackRef.current({
+              latitude,
+              longitude,
+              area: Number(area.toFixed(2)),
+              polygon: polygon.toJSON(),
+            });
+
           }
         });
+
+        // Drawing starts only when the user clicks Draw Work Zone.
       } catch (error) {
+
         console.error("Could not initialize MAMAR map:", error);
+
+        console.error("Could not initialize polygon drawing:", error);
+
       }
     }
 
@@ -173,9 +259,18 @@ function MamarMap({
     return () => {
       cancelled = true;
 
-      if (clickHandler) {
-        clickHandler.remove();
+      if (sketchHandle) {
+        sketchHandle.remove();
       }
+
+      if (sketch) {
+        sketch.destroy();
+      }
+
+      if (graphicsLayer && mapElement.view?.map) {
+        mapElement.view.map.remove(graphicsLayer);
+      }
+
 
       viewRef.current = null;
     };
@@ -528,6 +623,62 @@ function MamarMap({
     }
   }
 
+      sketchRef.current = null;
+    };
+  }, []);
+
+  // Start drawing a new work zone.
+  const startDrawing = () => {
+    const sketch = sketchRef.current;
+
+    if (!sketch) {
+      console.warn("Map drawing tools are not ready yet.");
+      return;
+    }
+
+    sketch.cancel();
+    sketch.layer.removeAll();
+
+    if (callbackRef.current) {
+      callbackRef.current(null);
+    }
+
+    sketch.create("polygon");
+  };
+
+  // Finish the current polygon.
+  const finishDrawing = () => {
+    const sketch = sketchRef.current;
+
+    if (!sketch) return;
+
+    if (sketch.state === "active") {
+      sketch.complete();
+    }
+  };
+
+  // Cancel drawing and clear the work zone.
+  const cancelDrawing = () => {
+    const sketch = sketchRef.current;
+
+    if (!sketch) return;
+
+    sketch.cancel();
+    sketch.layer.removeAll();
+
+    if (callbackRef.current) {
+      callbackRef.current(null);
+    }
+  };
+
+  // Allow buttons in ProjectLocationPage to control drawing.
+  useImperativeHandle(ref, () => ({
+    startDrawing,
+    finishDrawing,
+    cancelDrawing,
+  }));
+
+
   return (
     <div
       className="mamar-map-container"
@@ -607,9 +758,10 @@ function MamarMap({
         style={{ width: "100%", height: "100%" }}
       >
         <arcgis-zoom slot="top-left" />
+        <arcgis-search slot="top-right" />
       </arcgis-map>
     </div>
   );
-}
+});
 
 export default MamarMap;

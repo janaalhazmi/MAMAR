@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../assets/mamar-logo.svg";
@@ -23,10 +23,16 @@ function ProjectLocationPage() {
   const displayName = getSession()?.user?.full_name || "User";
   const navigate = useNavigate();
 
+  const mapDrawingRef = useRef(null);
+
+  const [drawing, setDrawing] = useState(false);
+
   const [location, setLocation] = useState({
     address: "",
     latitude: null,
     longitude: null,
+    area: null,
+    polygon: null,
   });
 
   const [workZone, setWorkZone] = useState([]);
@@ -34,13 +40,29 @@ function ProjectLocationPage() {
   const [searching, setSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
 
+  // Receive the completed polygon from the map.
   const handleMapLocationSelect = (coordinates) => {
+    if (!coordinates) {
+      setLocation((previous) => ({
+        ...previous,
+        latitude: null,
+        longitude: null,
+        area: null,
+        polygon: null,
+      }));
+
+      setDrawing(false);
+      return;
+    }
+
     setLocation((previous) => ({
       ...previous,
       latitude: coordinates.latitude,
       longitude: coordinates.longitude,
     }));
 
+    setWorkZonePolygon(coordinates.polygon ?? null);
+    setDrawing(false);
     setError("");
   };
 
@@ -143,8 +165,21 @@ function ProjectLocationPage() {
   const handleContinue = (event) => {
     event.preventDefault();
 
-    if (location.latitude === null || location.longitude === null) {
-      setError("Please select a location on the map before continuing.");
+    if (!workZonePolygon) {
+      setError(
+        "Please draw and finish the work zone polygon before continuing."
+      );
+      return;
+    }
+
+    if (
+      location.latitude === null ||
+      location.longitude === null ||
+      !location.polygon
+    ) {
+      setError(
+        "Please draw and finish the project work zone before continuing."
+      );
       return;
     }
 
@@ -362,6 +397,7 @@ function ProjectLocationPage() {
                 />
               </div>
 
+              {/* Error */}
               {error && (
                 <p className="location-error" role="alert">
                   {error}
