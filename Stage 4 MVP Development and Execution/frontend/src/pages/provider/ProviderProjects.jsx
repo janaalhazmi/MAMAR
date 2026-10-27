@@ -5,7 +5,7 @@ import {
   Clock3,
   Search,
 } from "lucide-react";
-import ProviderSidebar from "../components/ProviderSidebar";
+import ProviderSidebar from "../../components/ProviderSidebar";
 import { useNavigate } from "react-router-dom";
 
 const projects = [

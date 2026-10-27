@@ -102,3 +102,12 @@ export function loginUser(email, password) {
     password,
   });
 }
+
+
+export function getServiceRequests(accessToken) {
+  return request("/requests?status=open", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}

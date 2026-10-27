@@ -9,15 +9,17 @@ import WorkerVerificationPage from "./pages/WorkerVerificationPage";
 
 import ContractorDashboard from "./pages/ContractorDashboard";
 import ContractorGuide from "./pages/ContractorGuide";
-import ProviderDashboard from "./pages/ProviderDashboard";
-import PrepareQuotation from "./pages/PrepareQuotation";
+
+import ProviderDashboard from "./pages/provider/ProviderDashboard";
+import PrepareQuotation from "./pages/provider/PrepareQuotation";
+import ProviderProjects from "./pages/provider/ProviderProjects";
+import ProviderProjectDetails from "./pages/provider/ProviderProjectDetails";
+
 import ProjectLocationPage from "./pages/ProjectLocationPage";
 import CreateProjectPage from "./pages/CreateProjectPage";
 import ServicesPage from "./pages/ServicesPage";
 import ReviewPage from "./pages/ReviewPage";
 import HelpSupportPage from "./pages/HelpSupportPage";
-import ProviderProjects from "./pages/ProviderProjects";
-import ProviderProjectDetails from "./pages/ProviderProjectDetails";
 
 function App() {
   return (

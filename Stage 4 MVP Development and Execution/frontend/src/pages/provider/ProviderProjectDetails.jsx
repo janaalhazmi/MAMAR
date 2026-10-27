@@ -6,8 +6,8 @@ import {
   Users,
   Wrench,
 } from "lucide-react";
-import ProviderSidebar from "../components/ProviderSidebar";
-import MamarMap from "../components/MamarMap";
+import ProviderSidebar from "../../components/ProviderSidebar";
+import MamarMap from "../../components/MamarMap";
 
 const projects = {
   "PRJ-001": {
