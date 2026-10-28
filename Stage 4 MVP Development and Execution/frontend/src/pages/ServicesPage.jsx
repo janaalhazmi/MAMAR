@@ -254,7 +254,7 @@ function ServicesPage() {
 
         <div className="services-sidebar-bottom">
           <Link to="/data-disclaimer">ⓘ Data Disclaimer</Link>
-          <Link to="/support">ⓘ Help &amp; Support</Link>
+          <Link to="/help">ⓘ Help &amp; Support</Link>
           <Link to="/login" onClick={logout}>➜ Log out</Link>
         </div>
       </aside>
