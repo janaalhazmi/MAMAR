@@ -250,11 +250,6 @@ function ServicesPage() {
             <Icon name="providers" />
             Providers
           </Link>
-
-          <Link to="/quotations">
-            <Icon name="quotations" />
-            Quotations
-          </Link>
         </nav>
 
         <div className="services-sidebar-bottom">
