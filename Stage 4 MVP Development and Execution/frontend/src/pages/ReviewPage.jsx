@@ -149,8 +149,12 @@ const SERVICE_OPTIONS = [
       "Installation and rental of road signs and variable message signs.",
   },
 ];
-
+const navIcon = (name) =>
+    function NavIcon({ size }) {
+    return <Icon name={name} size={size} />;
+  };
 const SIDEBAR_ITEMS = [
+
   {
     label: "Dashboard",
     path: "/contractor-dashboard",
