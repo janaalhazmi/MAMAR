@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
 import { logout } from "../services/auth";
+import { getSession } from "../services/auth";
 
 /* Small inline icon set (outlined, 24x24) so no new dependency is needed. */
 const ICON_PATHS = {
@@ -124,10 +125,10 @@ function ContractorDashboard() {
    * existing session/auth mechanism. Until it is wired, the UI falls back
    * to a neutral greeting instead of a hardcoded person's name.
    */
-  const sessionUser = null;
+  const sessionUser = getSession()?.user;
+  const rawName = sessionUser?.full_name || sessionUser?.name || "";
   const displayName =
-    (typeof sessionUser?.name === "string" ? sessionUser.name.trim() : "") ||
-    "there";
+     (typeof rawName === "string" ? rawName.trim() : "") || "there";
   const userInitial = displayName.charAt(0).toUpperCase();
 
   const statistics = [
@@ -303,7 +304,7 @@ function ContractorDashboard() {
           <section className="cd-welcome">
             <div>
               <h1>
-                Welcome Back, {displayName}{" "}
+                Welcome Back, {displayName.split(" ")[0]}{" "}
                 <span role="img" aria-label="waving hand">
                   👋
                 </span>
