@@ -220,31 +220,26 @@ function Icon({ name, size = 20 }) {
 
         <nav className="create-project-navigation">
           <Link to="/contractor-dashboard">
-            <span>▦</span>
             <Icon name="dashboard" />
             Dashboard
           </Link>
 
           <Link to="/contractor-dashboard#projects">
-            <span>▣</span>
             <Icon name="projects" />
             My Projects
           </Link>
 
           <Link to="/create-project" className="active">
-            <span>⊕</span>
             <Icon name="create" />
             Create Project
           </Link>
 
           <Link to="/providers">
-            <span>♧</span>
             <Icon name="providers" />
             Providers
           </Link>
 
           <Link to="/contractor-dashboard#quotations">
-            <span>▤</span>
             <Icon name="quotations" />
             Quotations
           </Link>
@@ -252,12 +247,12 @@ function Icon({ name, size = 20 }) {
 
         <div className="create-project-sidebar-bottom">
           <Link to="/help">
-            <span>ⓘ</span>
             Help &amp; Support
           </Link>
 
           <Link to="/login" onClick={logout}>
             <span>→</span>
+            <Icon name="logout" />
             Log out
           </Link>
         </div>
