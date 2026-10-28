@@ -544,3 +544,4 @@ function ProjectLocationPage() {
     </div>
   );
 }
+export default ProjectLocationPage;
