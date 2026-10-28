@@ -10,3 +10,5 @@ import * as geometryEngine from "@arcgis/core/geometry/geometryEngine.js";
 import "@arcgis/map-components/components/arcgis-map";
 import "@arcgis/map-components/components/arcgis-zoom";
 import "@arcgis/map-components/components/arcgis-search";
+
+export default MamarMap;
