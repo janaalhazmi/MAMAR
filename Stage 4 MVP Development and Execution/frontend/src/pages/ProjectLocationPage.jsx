@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../assets/mamar-logo.svg";
@@ -67,49 +67,6 @@ const ICON_PATHS = {
     </>
   ),
   logout: <path d="M4 12h16M14 6l6 6-6 6" />,
-  plus: <path d="M12 5v14M5 12h14" />,
-  list: (
-    <>
-      <rect x="4" y="4" width="16" height="16" rx="2" />
-      <path d="M4 9h16M4 14h16" />
-    </>
-  ),
-  clock: (
-    <>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3 2" />
-    </>
-  ),
-  check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
-  dots: (
-    <>
-      <circle cx="9" cy="10" r="1" />
-      <circle cx="15" cy="10" r="1" />
-      <circle cx="12" cy="16" r="1" />
-    </>
-  ),
-  triangle: <path d="M12 4l8 15H4z" />,
-  target: (
-    <>
-      <circle cx="12" cy="12" r="5" />
-      <path d="M12 3v4M12 17v4M3 12h4M17 12h4" />
-    </>
-  ),
-  square: <rect x="6" y="6" width="12" height="12" rx="2" />,
-  pin: (
-    <>
-      <path d="M12 21s-6-5.5-6-11a6 6 0 1 1 12 0c0 5.5-6 11-6 11z" />
-      <circle cx="12" cy="10" r="2" />
-    </>
-  ),
-  chevron: <path d="M9 6l6 6-6 6" />,
-  more: (
-    <>
-      <circle cx="12" cy="5" r="1.2" />
-      <circle cx="12" cy="12" r="1.2" />
-      <circle cx="12" cy="19" r="1.2" />
-    </>
-  ),
 };
 
 function Icon({ name, size = 20 }) {
@@ -135,46 +92,39 @@ function ProjectLocationPage() {
   const displayName = getSession()?.user?.full_name || "User";
   const navigate = useNavigate();
 
-  const mapDrawingRef = useRef(null);
-
-  const [drawing, setDrawing] = useState(false);
-
   const [location, setLocation] = useState({
     address: "",
     latitude: null,
     longitude: null,
-    area: null,
-    polygon: null,
+  });
+
+  // Where the map should move to (set only by search, not by drawing).
+  const [mapCenter, setMapCenter] = useState({
+    latitude: null,
+    longitude: null,
   });
 
   const [workZone, setWorkZone] = useState([]);
+  const [workZonePolygon, setWorkZonePolygon] = useState(null);
   const [error, setError] = useState("");
   const [searching, setSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
 
-  // Receive the completed polygon from the map.
-  const handleMapLocationSelect = (coordinates) => {
-    if (!coordinates) {
-      setLocation((previous) => ({
-        ...previous,
-        latitude: null,
-        longitude: null,
-        area: null,
-        polygon: null,
-      }));
-
-      setDrawing(false);
+  // Called by the map when a polygon is finished (data) or cleared (null).
+  const handleMapLocationSelect = (data) => {
+    if (!data) {
+      setWorkZone([]);
       return;
     }
 
     setLocation((previous) => ({
       ...previous,
-      latitude: coordinates.latitude,
-      longitude: coordinates.longitude,
+      latitude: data.latitude,
+      longitude: data.longitude,
     }));
 
-    setWorkZonePolygon(coordinates.polygon ?? null);
-    setDrawing(false);
+    setWorkZone(Array.isArray(data.workZone) ? data.workZone : []);
+    setWorkZonePolygon(data.polygon ?? null);
     setError("");
   };
 
@@ -189,12 +139,16 @@ function ProjectLocationPage() {
   };
 
   const selectCandidate = (candidate) => {
+    const latitude = candidate.location.y;
+    const longitude = candidate.location.x;
+
     setLocation({
       address: candidate.address,
-      latitude: candidate.location.y,
-      longitude: candidate.location.x,
+      latitude,
+      longitude,
     });
 
+    setMapCenter({ latitude, longitude });
     setError("");
   };
 
@@ -212,10 +166,9 @@ function ProjectLocationPage() {
     setError("");
 
     try {
-      const searchQuery =
-        /الرياض|riyadh/i.test(query)
-          ? query
-          : `${query}, Riyadh, Saudi Arabia`;
+      const searchQuery = /الرياض|riyadh/i.test(query)
+        ? query
+        : `${query}, Riyadh, Saudi Arabia`;
 
       const params = new URLSearchParams({
         SingleLine: searchQuery,
@@ -262,13 +215,11 @@ function ProjectLocationPage() {
         return;
       }
 
-      // Jump to the best match, and keep the others selectable
+      // Jump to the best match, and keep the others selectable.
       selectCandidate(candidates[0]);
       setSearchResults(candidates);
     } catch (searchError) {
-      setError(
-        searchError.message || "Unable to find this neighborhood."
-      );
+      setError(searchError.message || "Unable to find this neighborhood.");
     } finally {
       setSearching(false);
     }
@@ -280,17 +231,6 @@ function ProjectLocationPage() {
     if (!workZonePolygon) {
       setError(
         "Please draw and finish the work zone polygon before continuing."
-      );
-      return;
-    }
-
-    if (
-      location.latitude === null ||
-      location.longitude === null ||
-      !location.polygon
-    ) {
-      setError(
-        "Please draw and finish the project work zone before continuing."
       );
       return;
     }
@@ -313,6 +253,7 @@ function ProjectLocationPage() {
           latitude: location.latitude,
           longitude: location.longitude,
           workZone,
+          workZonePolygon: workZonePolygon,
         })
       );
     } catch {
@@ -340,7 +281,7 @@ function ProjectLocationPage() {
             <span>Dashboard</span>
           </Link>
 
-          <Link to="/contractor-dashboard">
+          <Link to="/contractor-dashboard#projects">
             <Icon name="projects" />
             <span>My Projects</span>
           </Link>
@@ -363,18 +304,18 @@ function ProjectLocationPage() {
 
         <div className="location-sidebar-bottom">
           <Link to="/data-disclaimer">
-            <Icon name="disclaimer" />
-            Data Disclaimer
+            <Icon name="info" />
+            <span>Data Disclaimer</span>
           </Link>
 
-          <Link to="/support">
-            <Icon name="support" />
-            Help &amp; Support
+          <Link to="/help">
+            <Icon name="help" />
+            <span>Help &amp; Support</span>
           </Link>
 
           <Link to="/login" onClick={logout}>
             <Icon name="logout" />
-            Log out
+            <span>Log out</span>
           </Link>
         </div>
       </aside>
@@ -502,32 +443,29 @@ function ProjectLocationPage() {
               <div className="location-map-frame">
                 <MamarMap
                   height="100%"
-                  latitude={location.latitude}
-                  longitude={location.longitude}
+                  latitude={mapCenter.latitude}
+                  longitude={mapCenter.longitude}
                   onLocationSelect={handleMapLocationSelect}
-                  onAreaSelect={setWorkZone}
                 />
               </div>
 
-              {/* Error */}
               {error && (
                 <p className="location-error" role="alert">
                   {error}
                 </p>
               )}
 
-              {location.latitude !== null &&
-                location.longitude !== null && (
-                  <div className="location-selected-message">
-                    <span>✓</span>
-                    Location selected successfully
-                  </div>
-                )}
-
-              {workZone.length >= 3 && (
+              {location.latitude !== null && location.longitude !== null && (
                 <div className="location-selected-message">
                   <span>✓</span>
-                  Work zone drawn ({workZone.length} boundary points)
+                  Location selected successfully
+                </div>
+              )}
+
+              {workZonePolygon && (
+                <div className="location-selected-message">
+                  <span>✓</span>
+                  Work zone polygon completed successfully
                 </div>
               )}
             </section>
@@ -540,9 +478,7 @@ function ProjectLocationPage() {
               </p>
 
               <div className="location-detail-section">
-                <span className="location-detail-label">
-                  PROJECT LOCATION
-                </span>
+                <span className="location-detail-label">PROJECT LOCATION</span>
 
                 <strong>
                   {location.latitude !== null
@@ -550,25 +486,22 @@ function ProjectLocationPage() {
                     : location.address.trim() || "No location selected"}
                 </strong>
 
-                {location.latitude !== null &&
-                  location.longitude !== null && (
-                    <p className="location-detail-subtext">
-                      Latitude: {location.latitude.toFixed(6)}
-                      <br />
-                      Longitude: {location.longitude.toFixed(6)}
-                    </p>
-                  )}
+                {location.latitude !== null && location.longitude !== null && (
+                  <p className="location-detail-subtext">
+                    Latitude: {location.latitude.toFixed(6)}
+                    <br />
+                    Longitude: {location.longitude.toFixed(6)}
+                  </p>
+                )}
               </div>
 
               <div className="location-detail-section">
-                <span className="location-detail-label">
-                  WORK ZONE AREA
-                </span>
+                <span className="location-detail-label">WORK ZONE AREA</span>
 
                 <strong>
-                  {workZone.length >= 3
-                    ? `${workZone.length} boundary points`
-                    : "Draw a work zone on the map"}
+                  {workZonePolygon
+                    ? "Work zone defined"
+                    : "Calculated automatically"}
                 </strong>
               </div>
 
@@ -579,7 +512,9 @@ function ProjectLocationPage() {
 
                 <p>
                   <span className="location-zone-dot" />
-                  {workZone.length >= 3 ? "Zone defined" : "Not defined yet"}
+                  {workZonePolygon
+                    ? "Polygon completed"
+                    : "Work zone"}
                 </p>
               </div>
             </aside>
