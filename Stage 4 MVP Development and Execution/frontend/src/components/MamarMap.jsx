@@ -1,11 +1,6 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-} from "react";
 
 import SketchViewModel from "@arcgis/core/widgets/Sketch/SketchViewModel.js";
 import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer.js";
