@@ -5,8 +5,6 @@ import {
   useEffect,
   useRef,
   useState,
-  useImperativeHandle,
-  forwardRef,
 } from "react";
 
 import SketchViewModel from "@arcgis/core/widgets/Sketch/SketchViewModel.js";
