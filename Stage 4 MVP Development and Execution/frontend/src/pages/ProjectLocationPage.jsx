@@ -114,6 +114,7 @@ function ProjectLocationPage() {
   const handleMapLocationSelect = (data) => {
     if (!data) {
       setWorkZone([]);
+      setWorkZonePolygon(null);
       return;
     }
 
@@ -227,6 +228,7 @@ function ProjectLocationPage() {
 
   const handleContinue = (event) => {
     event.preventDefault();
+  
 
     if (!workZonePolygon) {
       setError(
@@ -542,5 +544,3 @@ function ProjectLocationPage() {
     </div>
   );
 }
-
-export default ProjectLocationPage;
