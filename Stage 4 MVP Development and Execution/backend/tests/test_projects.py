@@ -296,3 +296,87 @@ def test_frontend_can_send_a_patch_with_the_token(client):
     assert response.status_code == 200
     assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
     assert "PATCH" in response.headers["access-control-allow-methods"]
+
+
+# The five project types of the Create Project form (frontend/src/pages/CreateProjectPage.jsx).
+FORM_PROJECT_TYPES = [
+    "Infrastructure",
+    "Road Maintenance",
+    "Construction",
+    "Utility Work",
+    "Event Traffic Control",
+]
+
+
+def form_to_body(form):
+    # The same mapping as the frontend: name, type, startDate, endDate, description.
+    return {
+        "project_name": form["name"],
+        "closure_type": form["type"],
+        "start_date": form["startDate"],
+        "end_date": form["endDate"],
+        "description": form["description"],
+    }
+
+
+@pytest.mark.parametrize("project_type", FORM_PROJECT_TYPES)
+def test_create_project_form_is_saved_and_listed(client, sign_in, project_type):
+    # Issue #28: the Create Project form is saved in PostgreSQL for the signed-in
+    # contractor, returns a project_id, and GET /projects returns it.
+    user_id, headers = sign_in()
+    form = {
+        "name": "  King Fahd Road – Water Line  ",
+        "type": project_type,
+        "startDate": "2026-11-01",
+        "endDate": "2026-11-20",
+        "description": "Water line work on the right lane",
+    }
+    response = client.post("/projects", json=form_to_body(form), headers=headers)
+    assert response.status_code == 201
+    project = response.json()
+    assert isinstance(project["project_id"], int) and project["project_id"] > 0
+    assert project["project_name"] == "King Fahd Road – Water Line"
+    assert project["closure_type"] == project_type
+
+    with SessionLocal() as db:
+        saved = db.get(Project, project["project_id"])
+        assert saved.contractor_id == user_id
+        assert saved.project_name == "King Fahd Road – Water Line"
+        assert saved.closure_type == project_type
+        assert str(saved.start_date) == "2026-11-01"
+        assert str(saved.end_date) == "2026-11-20"
+        assert saved.description == "Water line work on the right lane"
+        assert saved.project_status == "draft"
+
+    listed = client.get("/projects", headers=headers).json()
+    assert listed[0] == project
+
+
+def test_going_back_to_step_1_updates_the_same_project(client, sign_in):
+    # When the contractor goes back to Project Details, the frontend sends PATCH with the
+    # saved project_id, so no second project is created.
+    user_id, headers = sign_in()
+    project = create_project(client, headers)
+    changes = {"project_name": "King Fahd Road – Phase 2", "closure_type": "Utility Work"}
+    response = client.patch(f"/projects/{project['project_id']}", json=changes, headers=headers)
+    assert response.status_code == 200
+    assert response.json()["project_id"] == project["project_id"]
+    assert count_projects(user_id) == 1
+    assert client.get("/projects", headers=headers).json()[0]["project_name"] == "King Fahd Road – Phase 2"
+
+
+@pytest.mark.parametrize("method", ["POST", "GET"])
+def test_frontend_can_create_and_list_projects_with_the_token(client, method):
+    # The browser asks first (CORS preflight) because the request has the Authorization header.
+    response = client.options(
+        "/projects",
+        headers={
+            "Origin": "http://localhost:5173",
+            "Access-Control-Request-Method": method,
+            "Access-Control-Request-Headers": "Authorization, Content-Type",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
+    assert method in response.headers["access-control-allow-methods"]
+    assert "authorization" in response.headers["access-control-allow-headers"].lower()
