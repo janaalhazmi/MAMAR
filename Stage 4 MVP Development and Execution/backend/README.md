@@ -492,6 +492,50 @@ export async function createProject(project, accessToken) {
 }
 ```
 
+### Project Creation Integration (Issue #28)
+
+How the Create Project form (`frontend/src/pages/CreateProjectPage.jsx`) maps to `POST /projects`:
+
+| Form field | API field | Rule |
+| --- | --- | --- |
+| Project Name (`name`) | `project_name` | Required, up to 150 characters, spaces at the ends are removed |
+| Project Type (`type`) | `closure_type` | Required, up to 50 characters. The five form types are accepted as they are |
+| Start Date (`startDate`) | `start_date` | Required, `YYYY-MM-DD` (the value of `<input type="date">`) |
+| End Date (`endDate`) | `end_date` | Required, the same day as `start_date` or later |
+| Description (`description`) | `description` | Optional in the API, an empty text is saved as `null` |
+
+The flow the API supports:
+
+1. **Project Details → Next**: `POST /projects` with `Authorization: Bearer <access_token>` from the saved session. Keep `project_id` from the response in `mamarNewProject` in `sessionStorage`.
+2. **Back to Project Details → Next again**: if `mamarNewProject` already has a `project_id`, send `PATCH /projects/{project_id}` instead, so no second project is created.
+3. **Location step**: save the work zone polygon in `MAMAR_Projects` with the same `project_id` (see [Work Zone Polygon](#work-zone-polygon)).
+4. **Dashboard (My Projects)**: `GET /projects` with the token returns the contractor's projects, newest first.
+
+| Response | What the page shows |
+| --- | --- |
+| 201 | Go to the next step with `project_id` |
+| 401 | The session ended: remove the session and open the login page |
+| 403 | Only contractor accounts can create projects |
+| 422 | `detail`, for example `end_date: cannot be before start_date` |
+| Network error | `Unable to connect to the server. Please try again.` (the free Render server can take about a minute to wake up) |
+
+Integration results (backend):
+
+| Check | Result |
+| --- | --- |
+| The form data is saved in PostgreSQL with the signed-in contractor's `user_id` and status `draft` | Passed, `test_create_project_form_is_saved_and_listed` |
+| `POST /projects` returns a valid `project_id` | Passed |
+| A new project is returned by `GET /projects`, newest first, only to its contractor | Passed |
+| Going back to step 1 updates the same project | Passed, `test_going_back_to_step_1_updates_the_same_project` |
+| The browser can send `POST`, `GET` and `PATCH` with the token (CORS) | Passed |
+| Missing or invalid fields, wrong dates, no token and non-contractor accounts return clear `detail` messages | Passed |
+
+Remaining issues (frontend side of issue #28):
+
+- `CreateProjectPage` still saves the form only in `sessionStorage` and does not send `POST /projects` yet.
+- The My Projects table and the statistics on `ContractorDashboard` still show sample projects instead of `GET /projects`.
+- The end-to-end test in the deployed application can run after these two changes are deployed on Vercel.
+
 ### Integration Notes
 
 | Item | Value |
@@ -602,6 +646,9 @@ pytest
 | `test_patch_an_unknown_project_returns_404` | A project that does not exist returns 404 |
 | `test_update_status_accepts_only_the_four_statuses` | `update_status()` accepts only the four Stage 3 statuses |
 | `test_frontend_can_send_a_patch_with_the_token` | The browser can send `PATCH` with the token from the React frontend (CORS) |
+| `test_create_project_form_is_saved_and_listed` | The Create Project form, with each of its five project types, is saved in PostgreSQL for the signed-in contractor, returns a `project_id`, and `GET /projects` returns it first (5 cases) |
+| `test_going_back_to_step_1_updates_the_same_project` | `PATCH` with the saved `project_id` changes the same project, so going back to Project Details does not create a second one |
+| `test_frontend_can_create_and_list_projects_with_the_token` | The browser can send `POST` and `GET /projects` with the token from the React frontend (CORS) (2 cases) |
 | `test_create_request_returns_201_as_open` | A contractor creates a request with the Stage 3 example. It returns 201 with the Stage 3 fields as `open` |
 | `test_create_request_without_details` | `details` is optional, and empty details are saved as `null` |
 | `test_create_request_with_an_invalid_body_returns_422` | An empty or too long title and a wrong or missing date return 422 (4 cases) |
