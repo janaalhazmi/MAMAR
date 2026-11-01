@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
 import { getSession, logout } from "../services/auth";
+import Icon from "../components/Icons";
 
 // Riyadh city centre as "x,y" (lon,lat): ranks nearby matches first
 // without hiding matches elsewhere.
@@ -19,74 +20,7 @@ const RESULT_TYPE_LABELS = {
   Postal: "Postal code",
 };
 
-const ICON_PATHS = {
-  dashboard: (
-    <>
-      <rect x="3" y="3" width="7" height="7" rx="2" />
-      <rect x="14" y="3" width="7" height="7" rx="2" />
-      <rect x="3" y="14" width="7" height="7" rx="2" />
-      <rect x="14" y="14" width="7" height="7" rx="2" />
-    </>
-  ),
-  projects: (
-    <>
-      <rect x="3" y="7" width="18" height="13" rx="2" />
-      <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18" />
-    </>
-  ),
-  create: (
-    <>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 8v8M8 12h8" />
-    </>
-  ),
-  providers: (
-    <>
-      <circle cx="9" cy="8" r="3.5" />
-      <path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6" />
-      <circle cx="17" cy="9" r="2.5" />
-      <path d="M17 14c2.8 0 4.5 2 4.5 5" />
-    </>
-  ),
-  quotations: (
-    <>
-      <path d="M6 3h9l4 4v14H6z" />
-      <path d="M9 8h3M9 12h7M9 16h7" />
-    </>
-  ),
-  info: (
-    <>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 11v6M12 7.5v.5" />
-    </>
-  ),
-  help: (
-    <>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17v.5" />
-    </>
-  ),
-  logout: <path d="M4 12h16M14 6l6 6-6 6" />,
-};
 
-function Icon({ name, size = 20 }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width={size}
-      height={size}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      focusable="false"
-    >
-      {ICON_PATHS[name]}
-    </svg>
-  );
-}
 
 function ProjectLocationPage() {
   const displayName = getSession()?.user?.full_name || "User";
