@@ -58,7 +58,7 @@ const serviceFilters = [
   "Site Safety",
 ];
 
-function ProvidersPage() {
+function ProviderPage() {
   const navigate = useNavigate();
 
   const sessionUser = getSession()?.user;
@@ -338,4 +338,4 @@ function ProvidersPage() {
   );
 }
 
-export default ProvidersPage;
+export default ProviderPage;

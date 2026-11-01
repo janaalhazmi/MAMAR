@@ -18,6 +18,7 @@ import ReviewPage from "./pages/ReviewPage";
 import HelpSupportPage from "./pages/HelpSupportPage";
 import ProviderProjects from "./pages/ProviderProjects";
 import ProviderProjectDetails from "./pages/ProviderProjectDetails";
+import ProviderPage from "./pages/ProviderPage";
 
 function App() {
   return (
@@ -27,6 +28,13 @@ function App() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/help" element={<HelpSupportPage />} />
       <Route path="/contractor-guide" element={<ContractorGuide />} />
+      <Route path="/providers"
+             element={
+               <ProtectedRoute roles={["contractor"]}>
+                 <ProviderPage />
+               </ProtectedRoute>
+             }
+      />  
 
       <Route
         path="/register/verify"
