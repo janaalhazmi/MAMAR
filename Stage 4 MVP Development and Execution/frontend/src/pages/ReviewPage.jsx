@@ -447,6 +447,7 @@ function ReviewPage() {
               </Button>
 
               <Button onClick={handleConfirm}>
+                <link to ="/providers" />
                 Confirm &amp; Find Providers →
               </Button>
             </div>
