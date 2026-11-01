@@ -4521,7 +4521,7 @@ body {
 
 /* =========================
    LOCATION SEARCH RESULTS (road / neighborhood matches)
-   Append at the END of style.css.
+   
 ========================= */
 
 .location-search-results {
@@ -6075,6 +6075,59 @@ body {
 
 .quantity-input:focus {
   border-color: #c7aa34;
+}
+
+.work-zone-card {
+  padding: 20px 28px 24px;
+}
+
+.work-zone-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.work-zone-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.work-zone-header p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #74776c;
+}
+
+.work-zone-close {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #dcded8;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #30332d;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.work-zone-close:hover {
+  background: #f4f4f1;
+}
+
+/* the map's size and clipping live here */
+.work-zone-map {
+  position: relative;
+  height: 340px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e7e7e7;
+}
+
+/* make the map fill this box instead of its own size */
+.work-zone-map > * {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* =================================================

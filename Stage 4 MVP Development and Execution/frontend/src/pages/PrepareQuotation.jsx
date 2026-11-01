@@ -267,6 +267,37 @@ function PrepareQuotation() {
               </small>
             </section>
 
+            {showWorkZone && (
+              <section className="quotation-card work-zone-card">
+                <div className="work-zone-header">
+                <div>
+                   <h2>Project Work Zone</h2>
+                   <p>Al Mursalat, Riyadh</p>
+               </div>
+
+                  <button
+                   type="button"
+                   className="work-zone-close"
+                   onClick={() => setShowWorkZone(false)}
+                   aria-label="Close map"
+                  >
+                  ×
+                 </button>
+               </div>
+
+               <div className="work-zone-map">
+               <MamarMap
+                enablePolygon
+                onLocationSelect={setSelectedLocation}
+                onPolygonSelect={(polygon) => {
+                setWorkZone(polygon);
+                handleWorkZoneSelect(polygon);
+                  }}
+                />
+             </div>
+          </section>
+         )}
+
             <section className="quotation-card quotation-notes">
               <h2>Notes and Inclusions</h2>
 
