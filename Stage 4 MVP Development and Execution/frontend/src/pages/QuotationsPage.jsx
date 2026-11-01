@@ -11,7 +11,6 @@ import {
   rejectQuotation,
   saveSelectedQuotation,
 } from "../services/projectFlow";
-import "../styles/project-flow.css";
 
 function QuotationsPage() {
   const navigate = useNavigate();

@@ -12,7 +12,6 @@ import {
   getQuotationById,
   getSelectedQuotationId,
 } from "../services/projectFlow";
-import "../styles/project-flow.css";
 
 const NEXT_STEPS = [
   {

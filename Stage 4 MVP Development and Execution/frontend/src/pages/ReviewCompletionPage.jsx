@@ -12,7 +12,6 @@ import {
   getQuotationById,
   requestChanges,
 } from "../services/projectFlow";
-import "../styles/project-flow.css";
 
 function ReviewCompletionPage() {
   const navigate = useNavigate();
