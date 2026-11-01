@@ -19,6 +19,10 @@ import HelpSupportPage from "./pages/HelpSupportPage";
 import ProviderProjects from "./pages/ProviderProjects";
 import ProviderProjectDetails from "./pages/ProviderProjectDetails";
 import ProviderPage from "./pages/ProviderPage";
+import QuotationsPage from "./pages/QuotationsPage";
+import SelectProviderPage from "./pages/SelectProviderPage";
+import ProjectMonitoringPage from "./pages/ProjectMonitoringPage";
+import ReviewCompletionPage from "./pages/ReviewCompletionPage";
 
 function App() {
   return (
@@ -32,9 +36,12 @@ function App() {
              element={
                <ProtectedRoute roles={["contractor"]}>
                  <ProviderPage />
-               </ProtectedRoute>
-             }
-      />  
+               </ProtectedRoute>}/>
+      <Route path="/quotations" element={<ProtectedRoute roles={["contractor"]}><QuotationsPage /></ProtectedRoute>} />
+      <Route path="/quotations/select" element={<ProtectedRoute roles={["contractor"]}><SelectProviderPage /></ProtectedRoute>} />
+      <Route path="/project-monitoring" element={<ProtectedRoute roles={["contractor"]}><ProjectMonitoringPage /></ProtectedRoute>} />
+      <Route path="/review-completion" element={<ProtectedRoute roles={["contractor"]}><ReviewCompletionPage /></ProtectedRoute>} />
+      <Route path="*" element={<div>Page not found</div>} />  
 
       <Route
         path="/register/verify"
