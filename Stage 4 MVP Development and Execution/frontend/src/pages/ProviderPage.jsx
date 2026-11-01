@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
-import tcmLogo from "../assets/tcm-logo.svg";
-import safetyArabiaLogo from "../assets/safety-arabia-logo.svg";
-import shawahidLogo from "../assets/shawahid-logo.svg";
-import safetyTriangleLogo from "../assets/safety-triangle-logo.svg";
+import tcmLogo from "../assets/provider-tcm.jpg";
+import safetyArabiaLogo from "../assets/provider-safety-arabia.jpg";
+import shawahidLogo from "../assets/provider-shawahid.jpg";
+import safetyTriangleLogo from "../assets/provider-safety-triangle.jpg";
 import { logout, getSession } from "../services/auth";
 import Icon from "../components/Icons";
 

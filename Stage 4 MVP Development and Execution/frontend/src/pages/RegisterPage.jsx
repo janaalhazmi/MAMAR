@@ -9,6 +9,39 @@ function RegisterPage() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+
+  const handleUsernameChange = (event) => {
+    const value = event.target.value;
+    setUsername(value);
+    if (value.length < 5) {
+      setError("Username must be at least 5 characters long.");
+    } else if (!/^[a-zA-Z0-9]+$/.test(value)) {
+      setError("Username can only contain letters and numbers.");
+    } else if (!/^[a-zA-Z]/.test(value)) {
+      setError("Username must start with a letter.");
+    } else if (value.length > 20) {
+      setError("Username must be no more than 20 characters long.");
+    } else {
+      setError("");
+    }
+  };
+
+  const handlePasswordChange = (event) => {
+  const value = event.target.value;
+  setPassword(value);
+  if (value.length < 8 ||
+      !/[A-Z]/.test(value) ||
+      !/[a-z]/.test(value) ||
+      !/[0-9]/.test(value) ||
+      !/[^A-Za-z0-9]/.test(value)) {
+    setError("Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, a number, and a special character.");
+  } else {
+    setError("");
+  }
+};
+
 
   const navigate = useNavigate();
 
@@ -33,8 +66,12 @@ function RegisterPage() {
       return;
     }
 
-    if (password.length < 6) {
-      setError("Password must contain at least 6 characters.");
+    if (password.length < 8 ||
+        !/[A-Z]/.test(password) ||
+        !/[a-z]/.test(password) ||
+        !/[0-9]/.test(password) ||
+        !/[^A-Za-z0-9]/.test(password)) {
+      setError("Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, a number, and a special character.");
       return;
     }
 
@@ -209,7 +246,9 @@ function RegisterPage() {
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   placeholder="Create your password"
-                  minLength={6}
+                  value={password}
+                  onChange={handlePasswordChange}
+                  minLength={8}
                   required
                 />
 

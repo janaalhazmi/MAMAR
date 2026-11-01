@@ -32,7 +32,6 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
   const navigate = useNavigate();
   // A message from the page that opened the login page, for example after
   // creating an account or when the session has ended.

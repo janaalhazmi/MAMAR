@@ -197,7 +197,6 @@ function ReviewPage() {
     setProject(confirmedProject);
     setError("");
 
-    // Provider matching will be connected here.
     navigate("/providers", {
       state: { project: confirmedProject },
     });
@@ -447,7 +446,6 @@ function ReviewPage() {
               </Button>
 
               <Button onClick={handleConfirm}>
-                <link to ="/providers" />
                 Confirm &amp; Find Providers →
               </Button>
             </div>
