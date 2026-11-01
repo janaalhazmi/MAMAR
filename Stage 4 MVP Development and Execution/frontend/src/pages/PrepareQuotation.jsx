@@ -376,37 +376,6 @@ function PrepareQuotation() {
           Sample project and prices for the design preview.
         </small>
       </main>
-      {showWorkZone && (
-  <div className="work-zone-overlay">
-    <div className="work-zone-modal">
-      <div className="work-zone-modal-header">
-        <div>
-          <h2>Project Work Zone</h2>
-          <p>Al Mursalat, Riyadh</p>
-        </div>
-
-        <button
-          type="button"
-          className="work-zone-close"
-          onClick={() => setShowWorkZone(false)}
-        >
-          ×
-        </button>
-      </div>
-
-      <div className="work-zone-map">
-        <MamarMap
-          enablePolygon
-          onLocationSelect={setSelectedLocation}
-          onPolygonSelect={(polygon) => {
-            setWorkZone(polygon);
-            handleWorkZoneSelect(polygon);
-          }}
-        />
-      </div>
-    </div>
-  </div>
-)}
     </div>
   );
 }
