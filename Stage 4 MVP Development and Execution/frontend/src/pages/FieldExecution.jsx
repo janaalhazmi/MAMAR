@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import FieldWorkerShell from "../../components/FieldWorkerShell";
-import MamarMap from "../../components/MamarMap";
-import Icon from "../../components/Icons";
+import FieldWorkerShell from "../components/FieldWorkerShell";
+import MamarMap from "../components/MamarMap";
+import Icon from "../components/Icons";
 import {
   SITE_STATUSES,
   fileToDataUrl,
@@ -11,7 +11,7 @@ import {
   siteCheckIn,
   updateSiteStatus,
   uploadSitePhotos,
-} from "../../services/fieldWork";
+} from "../services/fieldWork";
 
 function FieldExecution() {
   const navigate = useNavigate();
