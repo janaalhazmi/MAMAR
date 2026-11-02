@@ -50,6 +50,27 @@ def create_tables():
     Base.metadata.create_all(bind=engine)
 
 
+# Columns added after the first deploy. create_all() does not change a table that already
+# exists, so they are added here. IF NOT EXISTS makes it safe to run on every start.
+NEW_COLUMNS = [
+    "ALTER TABLE projects ADD COLUMN IF NOT EXISTS services JSON NOT NULL DEFAULT '[]'",
+    "ALTER TABLE projects ADD COLUMN IF NOT EXISTS site_status VARCHAR(30) NOT NULL DEFAULT 'Not Started'",
+    "ALTER TABLE projects ADD COLUMN IF NOT EXISTS last_check_in TIMESTAMP",
+    "ALTER TABLE projects ADD COLUMN IF NOT EXISTS completion_submitted BOOLEAN NOT NULL DEFAULT false",
+    "ALTER TABLE projects ADD COLUMN IF NOT EXISTS submitted_at TIMESTAMP",
+    "ALTER TABLE projects ADD COLUMN IF NOT EXISTS change_note TEXT",
+    "ALTER TABLE quotes ADD COLUMN IF NOT EXISTS start_date DATE",
+    "ALTER TABLE quotes ADD COLUMN IF NOT EXISTS services JSON",
+]
+
+
+def upgrade_tables():
+    # Adds the new columns to the tables of an existing database (the one on Render).
+    with engine.begin() as connection:
+        for statement in NEW_COLUMNS:
+            connection.execute(text(statement))
+
+
 def add_demo_providers():
     # Adds the demo providers that are missing. A provider_id that already exists
     # is skipped and not changed, so this is safe to run every time the server starts.

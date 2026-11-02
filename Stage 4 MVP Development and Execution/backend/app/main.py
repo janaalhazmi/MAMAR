@@ -6,14 +6,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 
 from app.core.config import FRONTEND_ORIGINS
-from app.db.init_db import add_demo_providers, create_tables
-from app.routers import assignments, auth, health, projects, quotes, service_requests
+from app.db.init_db import add_demo_providers, create_tables, upgrade_tables
+from app.routers import assignments, auth, devices, field_work, health, projects, quotes, service_requests, workflow
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Runs once when the server starts.
     create_tables()
+    upgrade_tables()
     add_demo_providers()
     yield
 
@@ -33,6 +34,9 @@ app.include_router(projects.router)
 app.include_router(service_requests.router)
 app.include_router(quotes.router)
 app.include_router(assignments.router)
+app.include_router(workflow.router)
+app.include_router(field_work.router)
+app.include_router(devices.router)
 
 
 @app.exception_handler(RequestValidationError)

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.access import can_view_project, get_project
 from app.core.security import get_current_user
 from app.db.database import get_db
 from app.models import Project, User
@@ -55,6 +56,27 @@ def list_projects(
     return [project.to_dict() for project in projects]
 
 
+VIEW_ERRORS = {
+    401: TOKEN_ERRORS[401],
+    403: {"model": ErrorResponse, "description": "The user cannot view this project"},
+    404: {"model": ErrorResponse, "description": "The project does not exist"},
+}
+
+
+@router.get("/{project_id}", response_model=ProjectResponse, responses=VIEW_ERRORS)
+def get_one_project(
+    project_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    # One project: for its contractor, for providers who can quote on it or won it, and for
+    # the field workers assigned to it.
+    project = get_project(db, project_id)
+    if not can_view_project(db, project, user):
+        raise HTTPException(status_code=403, detail="You cannot view this project")
+    return project.to_dict()
+
+
 @router.post("", status_code=201, response_model=ProjectResponse, responses=CREATE_ERRORS)
 def create_project(
     data: ProjectCreate,
@@ -88,7 +110,7 @@ def update_project(
     if not changes:
         raise HTTPException(
             status_code=422,
-            detail="Send at least one of: project_name, project_status, closure_type, start_date, end_date, description",
+            detail="Send at least one of: project_name, project_status, closure_type, start_date, end_date, description, services",
         )
     # The dates are checked together, also when only one of them is sent.
     if changes.get("end_date", project.end_date) < changes.get("start_date", project.start_date):
