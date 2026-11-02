@@ -1,32 +1,37 @@
 // src/services/projectFlow.js
 // ---------------------------------------------------------------------------
 // ONE PLACE for every call in the flow:
-//   Providers -> Quotations -> Select Provider -> Project Monitoring -> Review Completion
+//   Review -> Providers -> Quotations -> Select Provider -> Project Monitoring -> Review Completion
 //
-// Every function below returns MOCK data right now. Each one has a
-//   "TODO(API)"  comment showing exactly where the real backend call goes.
-// When the backend is ready, replace only the body of the function. The pages
-// do not need to change as long as you return the same shape.
+// Every function calls the FastAPI backend (see backend/README.md) and returns
+// the same shape the pages used with the mock data, so the pages did not change.
+// The work zone polygon is saved in ArcGIS Online (services/workZoneLayer.js).
 // ---------------------------------------------------------------------------
+
+import { apiRequest, parseApiDate, photoUrl } from "./api";
+import { getSession } from "./auth";
+import { getWorkZone, saveWorkZone } from "./workZoneLayer";
 
 import tcmLogo from "../assets/provider-tcm.jpg";
 import safetyArabiaLogo from "../assets/provider-safety-arabia.jpg";
 import shawahidLogo from "../assets/provider-shawahid.jpg";
 import safetyTriangleLogo from "../assets/provider-safety-triangle.jpg";
 
-// Mock site photos: swap for the real URLs your provider uploads.
-import photoOne from "../assets/david-klein-KXM2z8Werl0-unsplash.jpg";
-import photoTwo from "../assets/mika-baumeister-74tW4FXP4Hw-unsplash.jpg";
-import photoThree from "../assets/jay-openiano-CxwBBqxBfuk-unsplash.jpg";
-
-const delay = (ms = 250) => new Promise((resolve) => setTimeout(resolve, ms));
+// The logos of the demo providers (provider_id 1-4 in the backend).
+export const PROVIDER_LOGOS = {
+  1: tcmLogo,
+  2: safetyArabiaLogo,
+  3: shawahidLogo,
+  4: safetyTriangleLogo,
+};
 
 /* ------------------------------------------------------------------ */
 /* sessionStorage keys shared by the pages                             */
 /* ------------------------------------------------------------------ */
 export const KEYS = {
-  project: "mamarNewProject", // written by the Create Project flow
+  project: "mamarNewProject", // written by the Create Project flow (has project_id once saved)
   providerIds: "selectedProviders", // written by ProviderPage
+  requestId: "quotationRequestId", // the service request that asks the providers for quotes
   quotationId: "selectedQuotationId", // written by QuotationsPage (Accept)
   confirmed: "confirmedQuotation", // written by SelectProviderPage (Confirm)
 };
@@ -40,38 +45,85 @@ function readJSON(key, fallback = null) {
   }
 }
 
+function writeJSON(key, value) {
+  sessionStorage.setItem(key, JSON.stringify(value));
+}
+
+function requireProjectId(projectId) {
+  if (projectId == null) {
+    throw new Error("Create the project first, then come back to this page.");
+  }
+  return projectId;
+}
+
 /* ------------------------------------------------------------------ */
 /* PROJECT                                                             */
 /* ------------------------------------------------------------------ */
-const MOCK_PROJECT = {
-  id: "proj-001",
-  name: "King Fahd Road – Water Line",
-  type: "Infrastructure Project",
-  location: "Riyadh, Saudi Arabia",
-  latitude: 24.7136,
-  longitude: 46.6753,
-  startDate: "2026-09-10",
-  endDate: "2026-09-20",
-  services: ["ttc-plan", "road-signs"],
-};
-
 export const SERVICE_LABELS = {
   "ttc-plan": "Temporary Traffic Control Plan (TTC) Service",
   "cones-barriers": "Traffic Cones & Barriers",
   "road-signs": "Road Signs & Variable Message Signs",
 };
 
+const STATUS_LABELS = {
+  draft: "Draft",
+  active: "In Progress",
+  completed: "Completed",
+  cancelled: "Cancelled",
+};
+
 export function getCurrentProject() {
-  // TODO(API): GET /api/projects/:projectId  (use the id saved after
-  // "Confirm & Find Providers"). For now we read what the Create Project
-  // flow saved in sessionStorage and fall back to the mock project.
+  // The project of the current flow, saved in sessionStorage by the Create Project pages.
+  // id is the backend project_id (null until the project is confirmed on the Review page).
   const saved = readJSON(KEYS.project, {});
-  return { ...MOCK_PROJECT, ...saved };
+  return {
+    name: "",
+    type: "",
+    location: "Riyadh, Saudi Arabia",
+    services: [],
+    ...saved,
+    id: saved.project_id ?? null,
+  };
+}
+
+function toProjectBody(project) {
+  return {
+    project_name: (project.name || "").trim(),
+    closure_type: project.type,
+    start_date: project.startDate,
+    end_date: project.endDate,
+    description: (project.description || "").trim() || null,
+    services: Array.isArray(project.services) ? project.services : [],
+  };
+}
+
+export async function submitProject(project) {
+  // Review page > Confirm: saves the project in PostgreSQL (POST, or PATCH if it was already
+  // saved) and its work zone in ArcGIS. Returns { project, mapError }: the project is saved
+  // even when the map cannot be updated, and mapError explains why.
+  const saved = project.project_id
+    ? await apiRequest(`/projects/${project.project_id}`, { method: "PATCH", body: toProjectBody(project) })
+    : await apiRequest("/projects", { method: "POST", body: toProjectBody(project) });
+
+  const updated = { ...project, project_id: saved.project_id, project_status: saved.project_status };
+  writeJSON(KEYS.project, updated);
+
+  let mapError = "";
+  try {
+    await saveWorkZone({
+      projectId: saved.project_id,
+      contractorId: getSession()?.user?.user_id,
+      project,
+    });
+  } catch (error) {
+    mapError = error.message;
+  }
+  return { project: updated, mapError };
 }
 
 export function formatDate(value) {
   if (!value) return "Not specified";
-  const date = new Date(`${value}T00:00:00`);
+  const date = new Date(`${String(value).slice(0, 10)}T00:00:00`);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleDateString("en-GB", {
     day: "numeric",
@@ -89,94 +141,119 @@ export function formatPrice(amount) {
   return `SAR ${Number(amount).toLocaleString("en-US")}`;
 }
 
+function formatTime(value) {
+  // "2026-11-02T10:30:00" -> "2 Nov 2026 • 10:30 AM"
+  if (!value) return "Not yet";
+  const date = parseApiDate(value);
+  if (Number.isNaN(date.getTime())) return value;
+  const day = date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  const time = date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  return `${day} • ${time}`;
+}
+
 /* ------------------------------------------------------------------ */
 /* QUOTATIONS                                                          */
 /* ------------------------------------------------------------------ */
-// providerId matches the ids in ProviderPage.jsx (1-4).
-const MOCK_QUOTATIONS = [
-  {
-    id: "q-1",
-    providerId: 1,
-    providerName: "TCM",
-    providerDescription: "Traffic and Construction Management",
-    providerLogo: tcmLogo,
-    totalPrice: 18500,
-    durationDays: 15,
-    startDate: "2026-09-10",
-    services: ["ttc-plan", "road-signs"],
-    status: "received",
-  },
-  {
-    id: "q-2",
-    providerId: 2,
-    providerName: "Safety Arabia Co. LTD",
-    providerDescription: "Traffic safety service provider",
-    providerLogo: safetyArabiaLogo,
-    totalPrice: 21000,
-    durationDays: 6,
-    startDate: "2026-09-10",
-    services: ["ttc-plan", "road-signs"],
-    status: "received",
-  },
-  {
-    id: "q-3",
-    providerId: 3,
-    providerName: "Shawahid Roads Industrial Co.",
-    providerDescription: "Road safety and traffic-control solutions",
-    providerLogo: shawahidLogo,
-    totalPrice: 16800,
-    durationDays: 12,
-    startDate: "2026-09-12",
-    services: ["road-signs"],
-    status: "received",
-  },
-  {
-    id: "q-4",
-    providerId: 4,
-    providerName: "Safety Triangle Company",
-    providerDescription: "Road safety and road traffic-control solutions",
-    providerLogo: safetyTriangleLogo,
-    totalPrice: 19900,
-    durationDays: 9,
-    startDate: "2026-09-11",
-    services: ["ttc-plan", "road-signs"],
-    status: "received",
-  },
-];
+// The quote statuses of the backend, as the Quotations page shows them.
+const QUOTE_STATUSES = { pending: "received", accepted: "accepted", rejected: "rejected" };
+
+function toProvider(provider) {
+  if (!provider) return null;
+  return {
+    providerId: provider.provider_id,
+    providerName: provider.company_name,
+    providerDescription: provider.service_type,
+    providerLogo: PROVIDER_LOGOS[provider.provider_id],
+  };
+}
+
+function toQuotation(quote) {
+  return {
+    id: quote.quote_id,
+    ...toProvider(quote.provider),
+    totalPrice: quote.price,
+    durationDays: quote.duration_days,
+    startDate: quote.start_date,
+    services: quote.services || [],
+    notes: quote.notes,
+    status: QUOTE_STATUSES[quote.status] || quote.status,
+  };
+}
 
 export function getSelectedProviderIds() {
-  return readJSON(KEYS.providerIds, [1, 2]);
+  return readJSON(KEYS.providerIds, []);
+}
+
+export async function requestQuotes(projectId, providerIds) {
+  // Providers page > Request Quotes: opens one service request for the project, so the
+  // providers can send their quotations. Asking again does not open a second request.
+  requireProjectId(projectId);
+  writeJSON(KEYS.providerIds, providerIds);
+
+  const saved = readJSON(KEYS.requestId, null);
+  if (saved?.projectId === projectId) return saved.requestId;
+
+  const project = getCurrentProject();
+  const request = await apiRequest(`/projects/${projectId}/requests`, {
+    method: "POST",
+    body: {
+      title: `Quotation request: ${project.name}`.slice(0, 150),
+      details: (project.services || []).map((id) => SERVICE_LABELS[id] || id).join(", ") || null,
+      required_by: project.startDate,
+    },
+  });
+  writeJSON(KEYS.requestId, { projectId, requestId: request.request_id });
+  return request.request_id;
 }
 
 export async function getQuotations(projectId, providerIds = []) {
-  await delay();
-  // TODO(API): GET /api/projects/:projectId/quotations
-  // The backend should return one quotation per provider the contractor
-  // requested quotes from (providerIds), with the provider's real price,
-  // duration, start date and included services. Keep this shape:
-  //   { id, providerId, providerName, providerDescription, providerLogo,
-  //     totalPrice, durationDays, startDate, services: [serviceId], status }
-  return MOCK_QUOTATIONS.filter(
-    (quotation) =>
-      providerIds.length === 0 || providerIds.includes(quotation.providerId)
-  );
+  // GET /projects/:projectId/quotations, only from the providers the contractor asked.
+  const quotes = await apiRequest(`/projects/${requireProjectId(projectId)}/quotations`);
+  return quotes
+    .map(toQuotation)
+    .filter(
+      (quotation) =>
+        providerIds.length === 0 || providerIds.includes(quotation.providerId)
+    );
 }
 
 export async function getQuotationById(quotationId) {
-  await delay(100);
-  // TODO(API): GET /api/quotations/:quotationId
-  return MOCK_QUOTATIONS.find((quotation) => quotation.id === quotationId) || null;
+  const quotations = await getQuotations(getCurrentProject().id);
+  return quotations.find((quotation) => String(quotation.id) === String(quotationId)) || null;
 }
 
 export async function rejectQuotation(quotationId) {
-  await delay(150);
-  // TODO(API): POST /api/quotations/:quotationId/reject
-  return { id: quotationId, status: "rejected" };
+  const quote = await apiRequest(`/quotes/${quotationId}/reject`, { method: "POST" });
+  return { id: quote.quote_id, status: QUOTE_STATUSES[quote.status] };
+}
+
+export async function submitQuotation({ projectId, totalPrice, notes }) {
+  // Provider > Prepare Quotation: POST /quotations. The quote covers the project's dates,
+  // so the start date and the duration come from the project.
+  if (!projectId) {
+    throw new Error("Open this page from a project that asks for quotations.");
+  }
+  const project = await apiRequest(`/projects/${projectId}`);
+  const days =
+    Math.round(
+      (new Date(`${project.end_date}T00:00:00`) - new Date(`${project.start_date}T00:00:00`)) / 86400000
+    ) + 1;
+  return apiRequest("/quotations", {
+    method: "POST",
+    body: {
+      project_id: Number(projectId),
+      price: Math.round(Number(totalPrice) * 100) / 100,
+      duration_days: Math.max(1, days),
+      start_date: project.start_date,
+      services: project.services,
+      notes: notes || null,
+    },
+  });
 }
 
 export function saveSelectedQuotation(quotationId) {
   // Only the id is stored. SelectProviderPage re-fetches the full quotation.
-  sessionStorage.setItem(KEYS.quotationId, JSON.stringify(quotationId));
+  writeJSON(KEYS.quotationId, quotationId);
 }
 
 export function getSelectedQuotationId() {
@@ -184,11 +261,13 @@ export function getSelectedQuotationId() {
 }
 
 export async function confirmProvider(projectId, quotationId) {
-  await delay(400);
-  // TODO(API): POST /api/projects/:projectId/confirm-provider  { quotationId }
-  // Backend should: assign the provider, notify them, set project status to
-  // "in_progress", and return the updated project.
-  sessionStorage.setItem(KEYS.confirmed, JSON.stringify(quotationId));
+  // Accepts the quote, rejects the others and moves the project to active.
+  const result = await apiRequest(`/projects/${requireProjectId(projectId)}/confirm-provider`, {
+    method: "POST",
+    body: { quote_id: Number(quotationId) },
+  });
+  writeJSON(KEYS.confirmed, quotationId);
+  writeJSON(KEYS.project, { ...readJSON(KEYS.project, {}), project_status: result.project.project_status });
   return { projectId, quotationId, status: "provider_confirmed" };
 }
 
@@ -199,89 +278,129 @@ export function getConfirmedQuotationId() {
 /* ------------------------------------------------------------------ */
 /* PROJECT MONITORING                                                  */
 /* ------------------------------------------------------------------ */
-export async function getMonitoringData(projectId) {
-  await delay();
-  // TODO(API): GET /api/projects/:projectId/monitoring
-  // Progress, team size, milestones and photos come from the provider's
-  // field app (updated by the field worker). Keep this shape.
+function toPhoto(photo) {
   return {
-    status: "In Progress",
-    overallProgress: 35,
-    fieldTeamCount: 6,
-    executionStatus: "Work in Progress",
-    latestUpdate: {
-      title: "Road signs installed",
-      text: "Work zone signs and barriers have been installed successfully.",
-      time: "Today • 10:30 AM",
-    },
-    milestones: [
-      { id: 1, title: "Site Preparation", note: "Completed", state: "done" },
-      {
-        id: 2,
-        title: "Traffic Control Installation",
-        note: "In Progress • 35%",
-        state: "active",
-      },
-      { id: 3, title: "Final Site Check", note: "Pending", state: "pending" },
-    ],
-    photos: [
-      { id: 1, src: photoOne, caption: "Work Zone Setup", time: "Today • 9:45 AM" },
-    ],
-    // Set to true by the backend when the provider submits the final work.
-    // The "Review Completion" button is only enabled when this is true.
-    // MOCK: true so you can click through the whole flow.
-    completionSubmitted: true,
+    id: photo.photo_id,
+    src: photoUrl(photo.url),
+    caption: photo.caption,
+    time: formatTime(photo.created_at),
   };
+}
+
+function milestones(data) {
+  const started = data.site_status !== "Not Started";
+  const installed = data.site_status === "Completed" || data.project_status === "completed";
+  return [
+    { id: 1, title: "Site Preparation", note: started ? "Completed" : "Pending", state: started ? "done" : "pending" },
+    {
+      id: 2,
+      title: "Traffic Control Installation",
+      note: installed ? "Completed" : started ? `${data.site_status} • ${data.progress}%` : "Pending",
+      state: installed ? "done" : started ? "active" : "pending",
+    },
+    {
+      id: 3,
+      title: "Final Site Check",
+      note: data.project_status === "completed" ? "Completed" : data.completion_submitted ? "Waiting for your review" : "Pending",
+      state: data.project_status === "completed" ? "done" : data.completion_submitted ? "active" : "pending",
+    },
+  ];
+}
+
+function latestUpdate(data) {
+  if (data.change_note && !data.completion_submitted) {
+    return { title: "Changes requested", text: data.change_note, time: formatTime(data.last_check_in) };
+  }
+  return {
+    title: data.site_status,
+    text: data.last_check_in
+      ? "The field team checked in at the site."
+      : "The field team has not checked in yet.",
+    time: formatTime(data.last_check_in),
+  };
+}
+
+async function withWorkZone(data, projectId) {
+  // The page shows the map from the saved project; fill it from ArcGIS when missing.
+  const project = getCurrentProject();
+  if (project.workZone?.length >= 3) return data;
+  try {
+    const zone = await getWorkZone(projectId);
+    if (zone) writeJSON(KEYS.project, { ...readJSON(KEYS.project, {}), ...zone });
+  } catch {
+    /* the map stays empty */
+  }
+  return data;
+}
+
+export async function getMonitoringData(projectId) {
+  // GET /projects/:projectId/monitoring: progress, team and photos from the field worker.
+  const data = await apiRequest(`/projects/${requireProjectId(projectId)}/monitoring`);
+  return withWorkZone(
+    {
+      status: STATUS_LABELS[data.project_status] || data.project_status,
+      overallProgress: data.progress,
+      fieldTeamCount: data.field_team_count,
+      executionStatus: data.site_status,
+      latestUpdate: latestUpdate(data),
+      milestones: milestones(data),
+      photos: data.photos.map(toPhoto),
+      provider: toProvider(data.provider),
+      // The "Review Completion" button is enabled when the field worker marks the site Completed.
+      completionSubmitted: data.completion_submitted,
+    },
+    projectId
+  );
 }
 
 /* ------------------------------------------------------------------ */
 /* REVIEW COMPLETION                                                   */
 /* ------------------------------------------------------------------ */
 export async function getCompletionData(projectId) {
-  await delay();
-  // TODO(API): GET /api/projects/:projectId/completion
-  // The provider's final submission: checklist, evidence photos, date.
-  return {
-    completionDate: "2026-09-18",
-    finalProgress: 100,
-    checklist: [
-      {
-        id: 1,
-        title: "Temporary Traffic Control (TTC) Service",
-        note: "Implementation completed and verified.",
-      },
-      {
-        id: 2,
-        title: "Road Signs & Variable Message Signs",
-        note: "Required road signs have been installed.",
-      },
-      {
-        id: 3,
-        title: "Final Site Inspection",
-        note: "Final field inspection submitted by the provider.",
-      },
-    ],
-    providerNote:
-      "Provider submission: All planned traffic-control activities have been completed.",
-    evidence: [
-      { id: 1, src: photoTwo },
-      { id: 2, src: photoThree },
-    ],
-    submittedOn: "2026-09-18",
-  };
+  // GET /projects/:projectId/completion: the work the field team submitted.
+  const data = await apiRequest(`/projects/${requireProjectId(projectId)}/completion`);
+  const provider = toProvider(data.provider);
+  const submitted = data.submitted_at ? String(data.submitted_at).slice(0, 10) : null;
+  return withWorkZone(
+    {
+      completionDate: submitted,
+      finalProgress: data.progress,
+      checklist: [
+        ...data.services.map((id, index) => ({
+          id: index + 1,
+          title: SERVICE_LABELS[id] || id,
+          note: "Marked completed by the field team.",
+        })),
+        {
+          id: data.services.length + 1,
+          title: "Final Site Inspection",
+          note: data.completion_submitted
+            ? "Final field inspection submitted by the provider."
+            : "Not submitted yet.",
+        },
+      ],
+      providerNote: data.completion_submitted
+        ? `${provider?.providerName || "The provider"} marked the site Completed on ${formatDate(submitted)}.`
+        : "The field team has not submitted the work yet.",
+      evidence: data.photos.map(toPhoto),
+      submittedOn: submitted,
+      provider,
+      completionSubmitted: data.completion_submitted,
+    },
+    projectId
+  );
 }
 
 export async function approveCompletion(projectId) {
-  await delay(400);
-  // TODO(API): POST /api/projects/:projectId/complete
-  // Backend should mark the project "completed" and notify the provider.
-  return { projectId, status: "completed" };
+  const project = await apiRequest(`/projects/${requireProjectId(projectId)}/complete`, { method: "POST" });
+  return { projectId, status: project.project_status };
 }
 
 export async function requestChanges(projectId, note) {
-  await delay(400);
-  // TODO(API): POST /api/projects/:projectId/request-changes  { note }
-  // Backend should send the note to the provider and set status back to
-  // "in_progress".
+  // Sends the note to the field team and sets the site back to Work in Progress.
+  await apiRequest(`/projects/${requireProjectId(projectId)}/request-changes`, {
+    method: "POST",
+    body: { note },
+  });
   return { projectId, status: "changes_requested", note };
 }

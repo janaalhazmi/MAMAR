@@ -3,12 +3,55 @@
 // Everything the FIELD WORKER pages need:
 //   Field Worker Dashboard -> Field Execution -> Device Verification
 //
-// All data is MOCK for now. Every "TODO(API)" comment marks where the real
-// backend call goes. Replace only the function bodies; the pages keep working
-// as long as the returned shape stays the same.
+// Every function calls the FastAPI backend (see backend/README.md) and returns
+// the same shape the pages used with the mock data. The work zone and the
+// planned device points come from ArcGIS Online (services/workZoneLayer.js).
 // ---------------------------------------------------------------------------
 
+import { apiRequest, parseApiDate, photoUrl } from "./api";
+import { getSession } from "./auth";
+import { getTrafficDevice, getWorkZone } from "./workZoneLayer";
+
 const delay = (ms = 250) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// The labels of the service ids saved with the project.
+const SERVICE_NAMES = {
+  "ttc-plan": "Temporary Traffic Control",
+  "cones-barriers": "Traffic Cones & Barriers",
+  "road-signs": "Road Signs & VMS",
+};
+
+// The project the worker opened last, so Field Execution and Device Verification
+// know which project to load.
+const CURRENT_KEY = "mamarFieldProjectId";
+
+export function getCurrentFieldProjectId() {
+  // ?project=12 in the address wins, then the project opened last.
+  const fromUrl = new URLSearchParams(window.location.search).get("project");
+  if (fromUrl) {
+    sessionStorage.setItem(CURRENT_KEY, fromUrl);
+    return Number(fromUrl);
+  }
+  const saved = sessionStorage.getItem(CURRENT_KEY);
+  return saved ? Number(saved) : null;
+}
+
+function setCurrentFieldProjectId(projectId) {
+  if (projectId != null) sessionStorage.setItem(CURRENT_KEY, String(projectId));
+}
+
+function formatTime(value) {
+  if (!value) return "Not yet";
+  const date = parseApiDate(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+}
+
+function projectStatusLabel(item) {
+  if (item.project.project_status === "completed") return "Completed";
+  if (item.site_status === "Not Started") return "Ready to Start";
+  return item.site_status === "Completed" ? "Submitted" : "Active";
+}
 
 /* ------------------------------------------------------------------ */
 /* SETTINGS YOU CAN CHANGE WHILE TESTING                               */
@@ -70,78 +113,111 @@ export function distanceInMeters(a, b) {
 /* DASHBOARD                                                           */
 /* ------------------------------------------------------------------ */
 export async function getFieldWorkerDashboard() {
-  await delay();
-  // TODO(API): GET /api/field-worker/dashboard
-  // Returns the projects the contractor / provider assigned to this worker.
+  // GET /field-worker/projects: the projects the provider assigned to this worker.
+  const items = await apiRequest("/field-worker/projects");
+  const open = items.filter((item) => item.project.project_status !== "completed");
+  const upcoming = open.filter((item) => item.site_status === "Not Started");
+  const active = open.filter((item) => item.site_status !== "Not Started");
+  const next = upcoming[0] || open[0] || null;
+  setCurrentFieldProjectId(next?.project.project_id);
+
   return {
-    stats: { assigned: 4, active: 2, upcoming: 1, completed: 1 },
-    newProject: {
-      id: "proj-001",
-      name: "King Fahd Road – Water Line",
-      type: "Infrastructure Project",
-      location: "King Fahd Road, Riyadh",
-      startDate: "2026-09-10",
-      endDate: "2026-09-20",
-      services: ["Temporary Traffic Control", "Road Signs & VMS"],
-      status: "Ready to Start",
+    stats: {
+      assigned: items.length,
+      active: active.length,
+      upcoming: upcoming.length,
+      completed: items.length - open.length,
     },
-    activeProjects: [
-      { id: "proj-002", name: "Northern Ring Road", location: "Riyadh", progress: 68, status: "Active" },
-      { id: "proj-003", name: "Olaya Road Works", location: "Riyadh", progress: 35, status: "Active" },
-    ],
-    overview: { workersActive: 6, sitesActive: 2 },
+    newProject: next && {
+      id: next.project.project_id,
+      name: next.project.project_name,
+      type: next.project.closure_type,
+      location: "Riyadh",
+      startDate: next.project.start_date,
+      endDate: next.project.end_date,
+      services: next.project.services.map((id) => SERVICE_NAMES[id] || id),
+      status: projectStatusLabel(next),
+    },
+    activeProjects: active.map((item) => ({
+      id: item.project.project_id,
+      name: item.project.project_name,
+      location: "Riyadh",
+      progress: item.progress,
+      status: projectStatusLabel(item),
+    })),
+    overview: {
+      workersActive: new Set(active.flatMap((item) => item.team.map((member) => member.user_id))).size,
+      sitesActive: active.length,
+    },
   };
 }
 
 /* ------------------------------------------------------------------ */
 /* FIELD EXECUTION                                                     */
 /* ------------------------------------------------------------------ */
-const PHOTO_KEY = "mamarFieldPhotos";
 
-export function getSitePhotos(projectId) {
-  // MOCK STORAGE: photos live in this browser's localStorage so you can see
-  // them again after a refresh. See uploadSitePhotos() for the real flow.
-  try {
-    const all = JSON.parse(localStorage.getItem(PHOTO_KEY)) || [];
-    return all.filter((photo) => photo.projectId === projectId);
-  } catch {
-    return [];
-  }
+function toPhoto(photo) {
+  return {
+    id: photo.photo_id,
+    projectId: null,
+    src: photoUrl(photo.url),
+    caption: photo.caption,
+    time: parseApiDate(photo.created_at).toLocaleString("en-GB"),
+  };
+}
+
+const TONES = ["yellow", "grey", "green"];
+
+function toExecution(item, planned) {
+  const myId = getSession()?.user?.user_id;
+  const team = item.team.map((member, index) => ({
+    id: member.user_id,
+    initials: member.full_name
+      .split(" ")
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase(),
+    name: member.user_id === myId ? "Me" : member.full_name,
+    role: "Field Worker",
+    tone: TONES[index % TONES.length],
+  }));
+  return {
+    project: {
+      id: item.project.project_id,
+      name: item.project.project_name,
+      type: item.project.closure_type,
+      location: "Riyadh",
+      startDate: item.project.start_date,
+      endDate: item.project.end_date,
+      servicesLabel: item.project.services.map((id) => SERVICE_NAMES[id] || id).join(" + ") || "Not specified",
+      progress: item.progress,
+      status: projectStatusLabel(item),
+    },
+    planned,
+    site: {
+      executionStatus: item.site_status,
+      teamCount: item.team.length,
+      todayCheckIn: formatTime(item.last_check_in),
+      lastUpdate: formatTime(item.last_check_in),
+    },
+    changeNote: item.change_note,
+    team: team.slice(0, 3),
+    moreTeamMembers: Math.max(0, team.length - 3),
+    photos: item.photos.map(toPhoto),
+  };
 }
 
 export async function getFieldExecution(projectId) {
-  await delay();
-  // TODO(API): GET /api/field-worker/projects/:projectId
-  // The planned location (latitude/longitude) and work zone are the ones the
-  // CONTRACTOR picked when creating the project. Do not let the worker edit
-  // them.
-  return {
-    project: {
-      id: projectId,
-      name: "King Fahd Road – Water Line",
-      type: "Project Execution",
-      location: "King Fahd Road, Riyadh",
-      startDate: "2026-09-10",
-      endDate: "2026-09-20",
-      servicesLabel: "TTC Plan + Road Signs",
-      progress: 35,
-      status: "In Progress",
-    },
-    planned: getPlannedLocation(),
-    site: {
-      executionStatus: "Work in Progress",
-      teamCount: 6,
-      todayCheckIn: "07:45 AM",
-      lastUpdate: "10:30 AM",
-    },
-    team: [
-      { id: 1, initials: "AM", name: "Ahmed M.", role: "Site Supervisor", tone: "yellow" },
-      { id: 2, initials: "KA", name: "Me", role: "Field Worker", tone: "grey" },
-      { id: 3, initials: "SA", name: "Saud A.", role: "Field Worker", tone: "green" },
-    ],
-    moreTeamMembers: 3,
-    photos: getSitePhotos(projectId),
-  };
+  // GET /field-worker/projects/:projectId. The planned location and work zone are the ones
+  // the CONTRACTOR drew, read from ArcGIS. The worker cannot edit them.
+  if (projectId == null) throw new Error("Open a project from your dashboard first.");
+  setCurrentFieldProjectId(projectId);
+  const [item, planned] = await Promise.all([
+    apiRequest(`/field-worker/projects/${projectId}`),
+    getPlannedLocation(projectId),
+  ]);
+  return toExecution(item, planned);
 }
 
 export const SITE_STATUSES = [
@@ -152,22 +228,17 @@ export const SITE_STATUSES = [
 ];
 
 export async function updateSiteStatus(projectId, status) {
-  await delay(200);
-  // TODO(API): PATCH /api/field-worker/projects/:projectId/status  { status }
-  // When status = "Completed" the backend should flag the project as
-  // "completion submitted" so the contractor can review it
-  // (see completionSubmitted in services/projectFlow.js).
-  return { projectId, status };
+  // Completed submits the work, and the contractor's Review Completion button turns on.
+  const item = await apiRequest(`/field-worker/projects/${projectId}/status`, {
+    method: "PATCH",
+    body: { status },
+  });
+  return { projectId, status: item.site_status };
 }
 
 export async function siteCheckIn(projectId) {
-  await delay(200);
-  // TODO(API): POST /api/field-worker/projects/:projectId/check-in
-  // Send the worker's GPS position too if you want to verify it server-side.
-  const now = new Date();
-  return {
-    time: now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
-  };
+  const item = await apiRequest(`/field-worker/projects/${projectId}/check-in`, { method: "POST" });
+  return { time: formatTime(item.last_check_in) };
 }
 
 // Shrinks a phone photo so it is small enough to store/send.
@@ -193,61 +264,50 @@ export function fileToDataUrl(file, maxSize = 900, quality = 0.72) {
 }
 
 export async function uploadSitePhotos(projectId, photos) {
-  await delay(500);
-  // TODO(API): POST /api/field-worker/projects/:projectId/photos
-  // Send the real files as multipart/form-data (use the File objects, not the
-  // shrunken data URLs). The backend stores them and the CONTRACTOR sees them
-  // in Project Monitoring > Latest Site Photos and Review Completion >
-  // Final Evidence. Return the saved photos, each with a public URL.
-  const saved = photos.map((photo, index) => ({
-    id: `photo-${Date.now()}-${index}`,
-    projectId,
-    src: photo.src,
-    caption: photo.caption || "Site photo",
-    time: new Date().toLocaleString("en-GB"),
-  }));
-
-  try {
-    const existing = JSON.parse(localStorage.getItem(PHOTO_KEY)) || [];
-    localStorage.setItem(PHOTO_KEY, JSON.stringify([...saved, ...existing]));
-  } catch {
-    throw new Error("Not enough storage for these photos. Send fewer photos.");
-  }
-  return saved;
+  // POST /field-worker/projects/:projectId/photos as multipart/form-data with the original
+  // files (not the small previews). The contractor sees them in Project Monitoring and
+  // Review Completion.
+  const form = new FormData();
+  photos.forEach((photo) => {
+    form.append("photos", photo.file);
+    form.append("captions", photo.caption || "Site photo");
+  });
+  const saved = await apiRequest(`/field-worker/projects/${projectId}/photos`, {
+    method: "POST",
+    form,
+  });
+  return saved.map(toPhoto);
 }
 
 /* ------------------------------------------------------------------ */
 /* DEVICE VERIFICATION                                                 */
 /* ------------------------------------------------------------------ */
-export function getPlannedLocation() {
-  // TODO(API): GET /api/projects/:projectId/location
-  // This is the point the CONTRACTOR selected on the map. Until the backend
-  // exists we read the project saved in this browser, then fall back to a
-  // sample point in Riyadh.
+// Used when the project has no work zone on the map yet.
+const RIYADH = { latitude: 24.7136, longitude: 46.6753 };
+
+export async function getPlannedLocation(projectId) {
+  // The work zone the CONTRACTOR drew, from the MAMAR Projects layer in ArcGIS.
   try {
-    const saved = JSON.parse(sessionStorage.getItem("mamarNewProject"));
-    if (saved?.latitude != null && saved?.longitude != null) {
-      return {
-        latitude: Number(saved.latitude),
-        longitude: Number(saved.longitude),
-        workZone: saved.workZone,
-      };
-    }
+    const zone = await getWorkZone(projectId);
+    if (zone) return zone;
   } catch {
-    /* ignore */
+    /* the map service is not reachable: show Riyadh */
   }
-  return { latitude: 24.7136, longitude: 46.6753 };
+  return { ...RIYADH, missing: true };
 }
 
 export async function getDevice(deviceId) {
-  await delay(150);
-  // TODO(API): GET /api/devices/:deviceId
+  // The device from the MAMAR Traffic Devices layer, with its planned point.
+  const device = await getTrafficDevice(deviceId);
+  if (!device) throw new Error(`Device ${deviceId} is not on the map.`);
   return {
     id: deviceId,
-    name: "Traffic Barrier",
-    projectId: "proj-001",
-    projectName: "Water Pipeline Installation",
-    status: "Pending Verification",
+    name: device.device_type,
+    code: device.device_code,
+    projectId: device.project_id,
+    projectName: `Project ${device.project_id}`,
+    status: device.device_status === "Verified" ? "Verified" : "Pending Verification",
+    planned: { latitude: device.latitude, longitude: device.longitude },
   };
 }
 
@@ -288,15 +348,21 @@ export function captureCurrentLocation(planned) {
 }
 
 export async function saveDeviceVerification(payload) {
-  await delay(400);
-  // TODO(API): POST /api/devices/:deviceId/verify
-  // payload = { deviceId, projectId, planned, captured, distanceMeters }
-  // The backend should ALSO re-check the distance (never trust the phone
-  // alone) and reject it when distanceMeters > MAX_DISTANCE_METERS.
+  // POST /devices/:deviceId/verify. The phone checks the distance first, then the server
+  // checks it again with the planned point from ArcGIS and refuses more than 50 m.
   if (payload.distanceMeters > MAX_DISTANCE_METERS) {
     throw new Error(
       `You are ${formatDistance(payload.distanceMeters)} from the planned location. Move within ${MAX_DISTANCE_METERS} m and capture again.`
     );
   }
-  return { ...payload, status: "Verified" };
+  const result = await apiRequest(`/devices/${encodeURIComponent(payload.deviceId)}/verify`, {
+    method: "POST",
+    body: {
+      project_id: Number(payload.projectId),
+      latitude: payload.captured.latitude,
+      longitude: payload.captured.longitude,
+      accuracy: payload.captured.accuracy ?? null,
+    },
+  });
+  return { ...payload, distanceMeters: result.distance_m, status: result.status };
 }
