@@ -20,12 +20,14 @@ The six database models follow the approved Stage 3 ER diagram. The two `auth` e
 backend/
   app/
     core/
+      access.py            # Who can see or change a project (contractor, provider, field worker)
+      arcgis.py            # Reads the planned device points from ArcGIS and measures distances
       config.py            # Reads the settings from the .env file
       email.py             # Sends the registration passcode with EmailJS
       security.py          # Login tokens (JWT) and the token check for protected endpoints
     db/
       database.py          # Database engine, sessions and the Base class for the models
-      init_db.py           # Creates the tables and adds the demo providers when the server starts
+      init_db.py           # Creates the tables, adds the new columns and the demo providers when the server starts
     models/
       user.py              # users table
       provider.py          # providers table
@@ -34,6 +36,7 @@ backend/
       quote.py             # quotes table
       assignment.py        # assignments table
       email_passcode.py    # email_passcodes table (email verification, extra to Stage 3)
+      site_photo.py        # site_photos table (field worker photos, extra to Stage 3)
     routers/
       auth.py              # POST /auth/send-passcode, /auth/register and /auth/login
       health.py            # GET /health
@@ -41,6 +44,9 @@ backend/
       service_requests.py  # POST /projects/{id}/requests, GET /requests and POST /requests/{id}/award
       quotes.py            # POST and GET /requests/{id}/quotes
       assignments.py       # POST /projects/{id}/assignments and GET /assignments
+      workflow.py          # Quotations, confirm provider, monitoring and completion (contractor pages)
+      field_work.py        # Field worker projects, status, check-in and photos, and GET /photos/{token}
+      devices.py           # POST /devices/{device}/verify
     schemas/
       auth.py              # Request and response formats of the auth endpoints
       error.py             # The error format {"detail": "message"}
@@ -48,6 +54,7 @@ backend/
       service_request.py   # Request and response formats of the requests endpoints
       quote.py             # Request and response formats of the quotes endpoints
       assignment.py        # Request and response formats of the assignments endpoints
+      workflow.py          # Request and response formats of the workflow, field work and devices endpoints
     main.py                # Creates the FastAPI app, allows the frontend (CORS) and adds the routers
   tests/
     conftest.py            # The api fixture: accounts, projects, requests and quotes for the provider workflow tests
@@ -61,6 +68,7 @@ backend/
     test_models.py         # Checks the tables against the Stage 3 database schema
     test_projects.py       # Projects endpoints tests
     test_session.py        # GET /auth/me (session check) tests
+    test_workflow.py       # Quotations, field work, photos, completion and device verification tests
   .env.example             # Example settings, without real passwords
   .gitignore
   README.md
@@ -82,7 +90,14 @@ Each class from the Stage 3 class design is a SQLAlchemy model with its own tabl
 | `Quote` | `quotes` | `status` is one of `pending`, `accepted`, `rejected`. One quote per provider per request |
 | `Assignment` | `assignments` | `status` is one of `active`, `completed`, `cancelled`. A worker is assigned to a project only once |
 
-The tables are created automatically when the server starts. Tables that already exist are not changed.
+The tables are created automatically when the server starts. For the frontend workflow, some columns were added after Stage 3. `upgrade_tables()` in `init_db.py` adds them to a database that already exists (the one on Render) with `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`, so nothing is lost and it is safe on every start:
+
+| Table | New columns |
+| --- | --- |
+| `projects` | `services` (the ids chosen on Select Service), `site_status`, `last_check_in`, `completion_submitted`, `submitted_at`, `change_note` |
+| `quotes` | `start_date`, `services` (optional) |
+
+A new table, `site_photos`, keeps the photos that field workers upload. They are saved in PostgreSQL because the free Render server deletes uploaded files on every deploy.
 
 One more table, `email_passcodes`, keeps the passcodes sent to emails that are not registered yet. It is extra to the Stage 3 schema and does not change the six tables, see [Email Verification](#email-verification).
 
@@ -345,7 +360,7 @@ The three `projects` endpoints follow Stage 3 (sections 4.2.5 to 4.2.7). Only a 
 | `POST /projects` | Creates a project as `draft` and returns it with its new `project_id` |
 | `PATCH /projects/{id}` | Changes only the fields that are sent, for example `{"project_status": "active"}` |
 
-`POST /projects` body. `description` is optional:
+`POST /projects` body. `description` is optional, and so is `services`, a list of `ttc-plan`, `cones-barriers` and `road-signs` (the Select Service page). The response has `services` too:
 
 ```json
 {
@@ -383,7 +398,7 @@ The three `projects` endpoints follow Stage 3 (sections 4.2.5 to 4.2.7). Only a 
 | `end_date` is before `start_date` | 422 | `{"detail": "end_date: cannot be before start_date"}` |
 | A field is missing or not valid | 422 | `{"detail": "project_name: Field required"}` |
 | `project_status` is not one of the four statuses | 422 | `{"detail": "project_status: Input should be 'draft', 'active', 'completed' or 'cancelled'"}` |
-| `PATCH` with none of the six fields | 422 | `{"detail": "Send at least one of: project_name, project_status, closure_type, start_date, end_date, description"}` |
+| `PATCH` with none of the six fields | 422 | `{"detail": "Send at least one of: project_name, project_status, closure_type, start_date, end_date, description, services"}` |
 
 | Rule | Source |
 | --- | --- |
@@ -436,6 +451,49 @@ The workflow: the contractor creates a request, providers send quotes, the contr
 | `price` not above 0 or with more than 2 decimals, `duration_days` below 1, `title` empty | 422 | `price: ...`, `duration_days: ...`, `title: ...` |
 
 `price` is in SAR and is a number in JSON, for example `18500.0`. One quote per company per request is also a `UNIQUE` rule in the `quotes` table, and one assignment per worker per project is a `UNIQUE` rule in the `assignments` table.
+
+## Frontend Workflow (Quotations to Completion)
+
+The endpoints that `frontend/src/services/projectFlow.js` and `fieldWork.js` call. All of them need the token except `GET /photos/{token}`, and every error is `{"detail": "message"}`.
+
+| Endpoint | Who | What it does |
+| --- | --- | --- |
+| `GET /projects/{id}` | Contractor of the project, a provider that can quote on it or won it, an assigned field worker | One project, with `services` |
+| `POST /quotations` | Provider | The Prepare Quotation page. Body: `project_id`, `price`, `duration_days`, optional `start_date`, `services`, `notes`. The quote goes to the open request of the project |
+| `GET /projects/{id}/quotations` | Contractor of the project | Every quote of the project with its `provider` (`provider_id`, `company_name`, `service_type`), cheapest first |
+| `POST /quotes/{id}/reject` | Contractor of the project | Rejects a `pending` quote |
+| `POST /projects/{id}/confirm-provider` | Contractor of the project | Body `{"quote_id": 54}`. Accepts the quote, rejects the others, marks the request `awarded` and the project `active` |
+| `GET /projects/{id}/monitoring` | Contractor of the project | `site_status`, `progress`, `field_team_count`, `last_check_in`, `completion_submitted`, `provider`, `quote` and `photos` |
+| `GET /projects/{id}/completion` | Contractor of the project | The same data, for Review Completion |
+| `POST /projects/{id}/complete` | Contractor of the project | After the field team submits: the project becomes `completed` and its assignments too |
+| `POST /projects/{id}/request-changes` | Contractor of the project | Body `{"note": "..."}`. Sends the work back: `Work in Progress`, and the worker sees the note |
+| `GET /field-worker/projects` | Field worker | The projects the worker is assigned to, newest first |
+| `GET /field-worker/projects/{id}` | Assigned field worker | The project, `site_status`, `progress`, `team`, `photos` and the contractor's `change_note` |
+| `PATCH /field-worker/projects/{id}/status` | Assigned field worker | Body `{"status": "Completed"}`. One of `Not Started`, `Work in Progress`, `Paused`, `Completed`. `Completed` turns on `completion_submitted` |
+| `POST /field-worker/projects/{id}/check-in` | Assigned field worker | Saves the check-in time. A site that was `Not Started` becomes `Work in Progress` |
+| `POST /field-worker/projects/{id}/photos` | Assigned field worker | `multipart/form-data`: one `photos` field per file and optional `captions`. JPEG, PNG or WebP, up to 5 MB each and 10 per upload |
+| `GET /photos/{token}` | Anyone with the link | The photo file. The URL has a random value, so `<img>` can show it without the token header |
+| `POST /devices/{device}/verify` | Assigned field worker | `device` is the `device_id` (3001) or `device_code` (TC-001) in the MAMAR Traffic Devices layer. Body: `project_id`, `latitude`, `longitude`, optional `accuracy`. The server reads the planned point from ArcGIS and refuses more than 50 m |
+
+`progress` comes from `site_status`: `Not Started` 0, `Work in Progress` and `Paused` 50, `Completed` 100, and 100 for a completed project. Photo URLs are paths like `/photos/3f2a...`, so the frontend adds the API address before them.
+
+| Case | Status code | `detail` |
+| --- | --- | --- |
+| A quotation for a project without an open request | 400 | `This project is not asking for quotations` |
+| A second quotation from the same company | 409 | `Your company already sent a quotation for this project` |
+| Rejecting a quote that is not pending | 400 | `The quote is already rejected` |
+| Confirming twice, or a rejected quote | 400 | `A provider is already confirmed for this project` or `The quote is rejected` |
+| A quote of another project | 404 | `Quote not found for this project` |
+| Complete or request changes before the worker submits | 400 | `The field team has not submitted the work yet` |
+| A worker who is not assigned to the project | 403 | `You are not assigned to this project` |
+| Changing a completed or cancelled project | 400 | `The project is completed` |
+| A photo that is not JPEG, PNG or WebP, no photo, or more than 10 | 422 | `notes.txt: only JPEG, PNG or WebP photos` |
+| A photo bigger than 5 MB | 413 | `big.jpg: the photo is bigger than 5 MB` |
+| The worker is more than 50 m from the device | 422 | `You are 200 m from the planned location. Move within 50 m and capture again.` |
+| The device is not in the layer for this project | 404 | `Device not found for this project` |
+| ArcGIS cannot be reached | 502 | `Could not read the planned device location: ...` |
+
+The work zone polygon is still saved in ArcGIS by the frontend, as in Stage 3 (see [Work Zone Polygon](#work-zone-polygon)). Saving needs **Create** and **Update** turned on for the MAMAR Projects layer in ArcGIS Online. Until then the project is saved in PostgreSQL and the Review page shows that the map copy could not be saved.
 
 ## Frontend Integration
 
@@ -532,9 +590,8 @@ Integration results (backend):
 
 Remaining issues (frontend side of issue #28):
 
-- `CreateProjectPage` still saves the form only in `sessionStorage` and does not send `POST /projects` yet.
+- The project is now saved when the contractor presses **Confirm & Find Providers** on the Review page (`submitProject()` in `projectFlow.js`), with the form fields above and `services`.
 - The My Projects table and the statistics on `ContractorDashboard` still show sample projects instead of `GET /projects`.
-- The end-to-end test in the deployed application can run after these two changes are deployed on Vercel.
 
 ### Integration Notes
 
@@ -583,7 +640,7 @@ pytest
 | `test_frontend_origin_is_allowed` | The React frontend on port 5173 is allowed by CORS |
 | `test_unknown_origin_is_not_allowed` | Other websites are not allowed |
 | `test_frontend_origins_keep_only_the_site_address` | A copied link with a path, a `/` or `?...` in `FRONTEND_ORIGINS` is cut to the site address that the browser sends |
-| `test_tables_and_columns_match_the_er_diagram` | The six tables have the same columns as the Stage 3 database schema |
+| `test_tables_and_columns_match_the_er_diagram` | The tables have the Stage 3 columns plus the new workflow columns, in the same order on a new and an upgraded database |
 | `test_foreign_keys_match_the_relationships` | The foreign keys match the Stage 3 relationships table |
 | `test_unique_rules` | `email`, one quote per provider per request, and one assignment per worker per project are unique |
 | `test_demo_providers_are_added_when_the_server_starts` | The four demo providers exist with the same data as the `MAMAR_Providers` layer |
@@ -671,6 +728,28 @@ pytest
 | `test_a_provider_with_a_rejected_or_pending_quote_cannot_assign` | Only an accepted quote on an awarded request allows assignments |
 | `test_who_sees_the_assignments` | A provider sees its company's assignments newest first, a worker sees only their own, another provider sees none, a contractor 403, no token 401, an unknown status 422 |
 | `test_complete_method` | `complete()` finishes an active assignment and refuses a finished one |
+| `test_project_saves_the_services_once` | `services` is saved without repeats, is `[]` by default, and can be changed with `PATCH` |
+| `test_unknown_service_returns_422` | A service id that is not on the Select Service page returns 422 |
+| `test_get_one_project_for_each_role` | `GET /projects/{id}` works for the contractor, the winning provider and the assigned worker, and returns 403 for others and 404 for an unknown project |
+| `test_provider_can_view_a_project_that_asks_for_quotations` | A provider can open a project with an open request |
+| `test_provider_sends_a_quotation_for_a_project` | `POST /quotations` saves the price, start date, services and notes as `pending`, and a second one returns 409 |
+| `test_quotation_errors` | No open request 400, unknown project 404, a contractor 403, a price of 0 returns 422 |
+| `test_contractor_sees_the_quotations_cheapest_first` | The quotations come with their company, cheapest first, and another contractor gets 403 |
+| `test_contractor_rejects_a_quotation` | A pending quote is rejected once. Another contractor 403, unknown quote 404 |
+| `test_confirm_provider_accepts_one_quote_and_activates_the_project` | The chosen quote is accepted, the others rejected, the project is `active`, and a second confirm returns 400 |
+| `test_confirm_provider_errors` | A rejected quote 400, a quote of another project 404, a provider 403 |
+| `test_field_worker_sees_only_assigned_projects` | A worker sees only their projects with the provider and team. Others get `[]` or 403 |
+| `test_check_in_and_status_reach_the_contractor` | Check-in and the status `Completed` show on the contractor's monitoring and completion data |
+| `test_worker_uploads_photos_that_the_contractor_can_open` | Uploaded photos are served at `/photos/{token}` with the right type and appear in monitoring |
+| `test_photo_upload_rules` | A text file 422, a photo over 5 MB 413, more than 10 photos 422, a worker of another project 403 |
+| `test_contractor_approves_the_completion` | Complete before submitting returns 400. After it, the project and its assignments are completed and the worker cannot change it |
+| `test_contractor_requests_changes` | The note reaches the worker, the site goes back to `Work in Progress`, and an empty note returns 422 |
+| `test_device_verified_within_50_m` | 20 m from the planned point is verified (ArcGIS is replaced by a fixed point in the test) |
+| `test_device_too_far_is_rejected_by_the_server` | 200 m away returns 422 even if the phone said it was close |
+| `test_device_errors` | Device not in the layer 404, ArcGIS offline 502, a worker of another project 403, a latitude of 95 returns 422 |
+| `test_device_found_by_code` | A device is found by its code, for example `TC-014` |
+| `test_device_filter_accepts_ids_and_codes_only` | Only a number or a code made of letters, digits, `-` and `_` reaches the ArcGIS query |
+| `test_haversine_matches_the_frontend` | The distance formula gives the same result as `distanceInMeters()` in the frontend |
 
 ## Deploy on Render
 

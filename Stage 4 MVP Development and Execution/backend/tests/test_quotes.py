@@ -3,7 +3,10 @@ import pytest
 from tests.conftest import QUOTE
 
 # The fields of one quote in Stage 3, section 4.2.10, in the same order.
-QUOTE_FIELDS = ["quote_id", "request_id", "provider_id", "price", "duration_days", "notes", "status", "created_at"]
+QUOTE_FIELDS = [
+    "quote_id", "request_id", "provider_id", "price", "duration_days", "notes",
+    "start_date", "services", "status", "created_at",
+]
 
 
 def test_provider_submits_a_quote(api):

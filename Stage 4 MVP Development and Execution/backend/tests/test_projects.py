@@ -12,7 +12,7 @@ from app.models.project import PROJECT_STATUSES
 # The fields of one project in Stage 3, section 4.2.5, in the same order.
 PROJECT_FIELDS = [
     "project_id", "contractor_id", "project_name", "project_status",
-    "closure_type", "start_date", "end_date", "description", "created_at",
+    "closure_type", "start_date", "end_date", "description", "created_at", "services",
 ]
 
 # The example body from Stage 3, section 4.2.6.

@@ -4,7 +4,8 @@ from sqlalchemy import inspect
 from app.db.database import engine
 from app.main import app
 
-# The six tables and their columns, in the same order as the Stage 3 database schema.
+# The tables and their columns: the Stage 3 database schema, then the columns added for the
+# frontend workflow (services, site execution, quote start date) and the site_photos table.
 EXPECTED_COLUMNS = {
     "users": [
         "user_id", "full_name", "email", "password_hash", "phone",
@@ -17,6 +18,7 @@ EXPECTED_COLUMNS = {
     "projects": [
         "project_id", "contractor_id", "project_name", "project_status",
         "closure_type", "start_date", "end_date", "description", "created_at",
+        "services", "site_status", "last_check_in", "completion_submitted", "submitted_at", "change_note",
     ],
     "service_requests": [
         "request_id", "project_id", "title", "details",
@@ -24,11 +26,15 @@ EXPECTED_COLUMNS = {
     ],
     "quotes": [
         "quote_id", "request_id", "provider_id", "price",
-        "duration_days", "notes", "status", "created_at",
+        "duration_days", "notes", "status", "created_at", "start_date", "services",
     ],
     "assignments": [
         "assignment_id", "project_id", "provider_id", "worker_id",
         "assigned_at", "status",
+    ],
+    "site_photos": [
+        "photo_id", "token", "project_id", "worker_id", "caption",
+        "content_type", "data", "created_at",
     ],
 }
 
@@ -42,6 +48,8 @@ EXPECTED_FOREIGN_KEYS = {
     ("assignments", "project_id"): "projects",
     ("assignments", "provider_id"): "providers",
     ("assignments", "worker_id"): "users",
+    ("site_photos", "project_id"): "projects",
+    ("site_photos", "worker_id"): "users",
 }
 
 
