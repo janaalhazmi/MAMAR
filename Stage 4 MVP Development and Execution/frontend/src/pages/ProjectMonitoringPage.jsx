@@ -5,10 +5,8 @@ import MamarMap from "../components/MamarMap";
 import Icon from "../components/Icons";
 import {
   formatDateRange,
-  getConfirmedQuotationId,
   getCurrentProject,
   getMonitoringData,
-  getQuotationById,
 } from "../services/projectFlow";
 
 
@@ -24,16 +22,13 @@ function ProjectMonitoringPage() {
     let active = true;
 
     getMonitoringData(project.id)
-      .then((result) => active && setData(result))
-      .catch(() => active && setError("Could not load project progress."));
-
-    // The provider confirmed on the previous step.
-    // TODO(API): the monitoring endpoint should return the assigned provider
-    // itself, then this second call can be removed.
-    const quotationId = getConfirmedQuotationId();
-    if (quotationId) {
-      getQuotationById(quotationId).then((q) => active && setProvider(q));
-    }
+      .then((result) => {
+        if (!active) return;
+        setData(result);
+        // The monitoring endpoint returns the confirmed provider.
+        setProvider(result.provider);
+      })
+      .catch((err) => active && setError(err.message || "Could not load project progress."));
 
     return () => {
       active = false;

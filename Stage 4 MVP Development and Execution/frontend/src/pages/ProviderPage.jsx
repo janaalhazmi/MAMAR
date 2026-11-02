@@ -6,6 +6,7 @@ import safetyArabiaLogo from "../assets/provider-safety-arabia.jpg";
 import shawahidLogo from "../assets/provider-shawahid.jpg";
 import safetyTriangleLogo from "../assets/provider-safety-triangle.jpg";
 import { logout, getSession } from "../services/auth";
+import { getCurrentProject, requestQuotes } from "../services/projectFlow";
 import Icon from "../components/Icons";
 
 const project = {
@@ -97,18 +98,19 @@ function ProviderPage() {
     );
   };
 
-  const handleRequestQuotes = () => {
+  const handleRequestQuotes = async () => {
     if (selectedIds.length === 0) {
       alert("Please select at least one provider.");
       return;
     }
 
-    sessionStorage.setItem(
-      "selectedProviders",
-      JSON.stringify(selectedIds)
-    );
-
-    navigate("/quotations");
+    try {
+      // Opens the quotation request of the project, so the providers can send prices.
+      await requestQuotes(getCurrentProject().id, selectedIds);
+      navigate("/quotations");
+    } catch (error) {
+      alert(error.message || "Could not request quotes. Please try again.");
+    }
   };
 
   return (

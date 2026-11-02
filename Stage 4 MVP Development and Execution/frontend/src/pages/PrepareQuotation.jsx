@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { submitQuotation } from "../services/projectFlow";
 import Button from "../components/Button";
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
@@ -26,6 +27,10 @@ const initialServices = [
 ];
 
 function PrepareQuotation() {
+  // /provider/quotation?projectId=12 (the project of the quotation request)
+  const [searchParams] = useSearchParams();
+  const projectId = searchParams.get("projectId");
+  const [submitting, setSubmitting] = useState(false);
   const [services, setServices] = useState(initialServices);
   const [delivery, setDelivery] = useState(1200);
   const [showWorkZone, setShowWorkZone] = useState(false);
@@ -99,7 +104,7 @@ function PrepareQuotation() {
     alert("Quotation draft saved successfully.");
   };
 
-  const handleSubmitQuotation = () => {
+  const handleSubmitQuotation = async () => {
     if (!selectedLocation) {
       alert("Please select the project location first.");
       return;
@@ -123,16 +128,20 @@ function PrepareQuotation() {
 
     const quotation = getQuotationData();
 
-    localStorage.setItem(
-      "submittedQuotationPreview",
-      JSON.stringify(quotation)
-    );
-
-    localStorage.removeItem("providerQuotationDraft");
-
-    alert(
-      "Quotation is ready to submit. Backend connection will be added when the API endpoint is available."
-    );
+    setSubmitting(true);
+    try {
+      await submitQuotation({
+        projectId,
+        totalPrice: quotation.total,
+        notes: quotation.notes,
+      });
+      localStorage.removeItem("providerQuotationDraft");
+      alert("Quotation submitted. The contractor can see it now.");
+    } catch (error) {
+      alert(error.message || "Could not submit the quotation. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -358,8 +367,9 @@ function PrepareQuotation() {
             <Button
               className="quotation-submit"
               onClick={handleSubmitQuotation}
+              disabled={submitting}
             >
-              Submit Quotation →
+              {submitting ? "Submitting…" : "Submit Quotation →"}
             </Button>
 
             <Button

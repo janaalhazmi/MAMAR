@@ -16,6 +16,7 @@ import Sidebar from "../components/Sidebar";
 import Button from "../components/Button";
 import MamarMap from "../components/MamarMap";
 import { getSession } from "../services/auth";
+import { submitProject } from "../services/projectFlow";
 import Icon from "../components/Icons";
 
 
@@ -108,6 +109,7 @@ function ReviewPage() {
 
   const [error, setError] = useState("");
   const [savedMessage, setSavedMessage] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const selectedServices = Array.isArray(project.services)
     ? project.services
@@ -154,7 +156,9 @@ function ReviewPage() {
     }
   }
 
-  function handleConfirm() {
+  async function handleConfirm() {
+    if (saving) return;
+
     if (
       !project.name ||
       !project.type ||
@@ -184,22 +188,32 @@ function ReviewPage() {
       return;
     }
 
-    const confirmedProject = {
-      ...project,
-      status: "submitted",
-    };
-
-    sessionStorage.setItem(
-      "mamarNewProject",
-      JSON.stringify(confirmedProject)
-    );
-
-    setProject(confirmedProject);
+    setSaving(true);
     setError("");
 
-    navigate("/providers", {
-      state: { project: confirmedProject },
-    });
+    try {
+      // Saves the project in PostgreSQL and its work zone in ArcGIS.
+      const { project: saved, mapError } = await submitProject(project);
+      const confirmedProject = { ...saved, status: "submitted" };
+
+      sessionStorage.setItem(
+        "mamarNewProject",
+        JSON.stringify(confirmedProject)
+      );
+      setProject(confirmedProject);
+
+      if (mapError) {
+        // The project is saved; only the map copy of the work zone is missing.
+        alert(`The project was saved. ${mapError}`);
+      }
+
+      navigate("/providers", {
+        state: { project: confirmedProject },
+      });
+    } catch (saveError) {
+      setError(saveError.message || "Could not save the project. Please try again.");
+      setSaving(false);
+    }
   }
 
   return (
@@ -445,8 +459,8 @@ function ReviewPage() {
                 Save Draft
               </Button>
 
-              <Button onClick={handleConfirm}>
-                Confirm &amp; Find Providers →
+              <Button onClick={handleConfirm} disabled={saving}>
+                {saving ? "Saving…" : <>Confirm &amp; Find Providers →</>}
               </Button>
             </div>
           </div>

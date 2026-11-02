@@ -9,7 +9,6 @@ import {
   distanceInMeters,
   formatDistance,
   getDevice,
-  getPlannedLocation,
   saveDeviceVerification,
 } from "../services/fieldWork";
 
@@ -17,12 +16,8 @@ const format = (n) => Number(n).toFixed(6);
 
 function DeviceVerification() {
   const [searchParams] = useSearchParams();
-  // e.g. /device-verification?deviceId=TC-014
-  const deviceId = searchParams.get("deviceId") || "TC-014";
-
-  // Planned point = the location the CONTRACTOR selected for the project.
-  // TODO(API): load it from the backend (see getPlannedLocation).
-  const planned = getPlannedLocation();
+  // e.g. /device-verification?deviceId=TC-001 (device_code or device_id in ArcGIS)
+  const deviceId = searchParams.get("deviceId") || "TC-001";
 
   const [device, setDevice] = useState(null);
   const [captured, setCaptured] = useState(null);
@@ -36,12 +31,14 @@ function DeviceVerification() {
     let active = true;
     getDevice(deviceId)
       .then((result) => active && setDevice(result))
-      .catch(() => active && setError("Could not load this device."));
+      .catch((err) => active && setError(err.message || "Could not load this device."));
     return () => {
       active = false;
     };
   }, [deviceId]);
 
+  // Planned point = where the device is planned in the MAMAR Traffic Devices layer.
+  const planned = device?.planned;
   const tooFar = distance != null && distance > MAX_DISTANCE_METERS;
   const canSave = captured && !tooFar && !verified && !saving;
 

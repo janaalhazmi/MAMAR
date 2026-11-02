@@ -7,6 +7,7 @@ import {
   SITE_STATUSES,
   fileToDataUrl,
   formatDateRange,
+  getCurrentFieldProjectId,
   getFieldExecution,
   siteCheckIn,
   updateSiteStatus,
@@ -25,18 +26,18 @@ function FieldExecution() {
   const [editingStatus, setEditingStatus] = useState(false);
   const [pending, setPending] = useState([]); // photos chosen but not sent yet
 
-  // Mock project id. TODO(API): take this from the route, e.g. /field-execution/:projectId
-  const projectId = "proj-001";
+  // The project opened from the dashboard, or /field-execution?project=12
+  const projectId = getCurrentFieldProjectId();
 
   useEffect(() => {
     let active = true;
     getFieldExecution(projectId)
       .then((result) => active && setData(result))
-      .catch(() => active && setError("Could not load this project."));
+      .catch((err) => active && setError(err.message || "Could not load this project."));
     return () => {
       active = false;
     };
-  }, []);
+  }, [projectId]);
 
   async function handleCheckIn() {
     setBusy(true);

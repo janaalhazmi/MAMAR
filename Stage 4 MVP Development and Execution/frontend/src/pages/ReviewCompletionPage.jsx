@@ -7,9 +7,7 @@ import {
   approveCompletion,
   formatDate,
   getCompletionData,
-  getConfirmedQuotationId,
   getCurrentProject,
-  getQuotationById,
   requestChanges,
 } from "../services/projectFlow";
 
@@ -28,14 +26,13 @@ function ReviewCompletionPage() {
     let active = true;
 
     getCompletionData(project.id)
-      .then((result) => active && setData(result))
-      .catch(() => active && setError("Could not load the completion details."));
-
-    // TODO(API): return the provider with the completion payload and drop this.
-    const quotationId = getConfirmedQuotationId();
-    if (quotationId) {
-      getQuotationById(quotationId).then((q) => active && setProvider(q));
-    }
+      .then((result) => {
+        if (!active) return;
+        setData(result);
+        // The completion endpoint returns the confirmed provider.
+        setProvider(result.provider);
+      })
+      .catch((err) => active && setError(err.message || "Could not load the completion details."));
 
     return () => {
       active = false;
