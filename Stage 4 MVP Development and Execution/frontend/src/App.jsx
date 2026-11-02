@@ -23,9 +23,9 @@ import QuotationsPage from "./pages/QuotationsPage";
 import SelectProviderPage from "./pages/SelectProviderPage";
 import ProjectMonitoringPage from "./pages/ProjectMonitoringPage";
 import ReviewCompletionPage from "./pages/ReviewCompletionPage";
-import FieldWorkerDashboard from "./pages/field-worker/FieldWorkerDashboard";
-import FieldExecution from "./pages/field-worker/FieldExecutionPage";
-import DeviceVerification from "./pages/field-worker/DeviceVerification";
+import FieldWorkerDashboard from "./pages/FieldWorkerDashboard";
+import FieldExecution from "./pages/FieldExecution";
+import DeviceVerification from "./pages/DeviceVerification";
 
 function App() {
   return (
