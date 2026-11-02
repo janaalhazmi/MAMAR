@@ -4,46 +4,38 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import { sendPasscode } from "../services/api";
 
+const NAME_REGEX = /^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/;
+
+const PASSWORD_MESSAGE =
+  "Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, a number, and a special character.";
+
+const NAME_MESSAGE =
+  "Please enter a valid full name using English letters only.";
+
+function isStrongPassword(value) {
+  return (
+    value.length >= 8 &&
+    /[A-Z]/.test(value) &&
+    /[a-z]/.test(value) &&
+    /[0-9]/.test(value) &&
+    /[^A-Za-z0-9]/.test(value)
+  );
+}
+
 function RegisterPage() {
+  const navigate = useNavigate();
+
   const [role, setRole] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
-
-  const handleUsernameChange = (event) => {
-    const value = event.target.value;
-    setUsername(value);
-    if (value.length < 5) {
-      setError("Username must be at least 5 characters long.");
-    } else if (!/^[a-zA-Z0-9]+$/.test(value)) {
-      setError("Username can only contain letters and numbers.");
-    } else if (!/^[a-zA-Z]/.test(value)) {
-      setError("Username must start with a letter.");
-    } else if (value.length > 20) {
-      setError("Username must be no more than 20 characters long.");
-    } else {
-      setError("");
-    }
-  };
 
   const handlePasswordChange = (event) => {
-  const value = event.target.value;
-  setPassword(value);
-  if (value.length < 8 ||
-      !/[A-Z]/.test(value) ||
-      !/[a-z]/.test(value) ||
-      !/[0-9]/.test(value) ||
-      !/[^A-Za-z0-9]/.test(value)) {
-    setError("Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, a number, and a special character.");
-  } else {
-    setError("");
-  }
-};
-
-
-  const navigate = useNavigate();
+    const value = event.target.value;
+    setPassword(value);
+    setError(value && !isStrongPassword(value) ? PASSWORD_MESSAGE : "");
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -58,7 +50,6 @@ function RegisterPage() {
 
     const fullName = form.elements.registerFullName.value.trim();
     const email = form.elements.registerEmail.value.trim().toLowerCase();
-    const password = form.elements.registerPassword.value;
     const providerId = form.elements.registerProviderId?.value;
 
     if (!fullName || !email || !password) {
@@ -66,19 +57,23 @@ function RegisterPage() {
       return;
     }
 
-    if (password.length < 8 ||
-        !/[A-Z]/.test(password) ||
-        !/[a-z]/.test(password) ||
-        !/[0-9]/.test(password) ||
-        !/[^A-Za-z0-9]/.test(password)) {
-      setError("Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, a number, and a special character.");
+    if (
+      fullName.length < 3 ||
+      fullName.length > 100 ||
+      !NAME_REGEX.test(fullName)
+    ) {
+      setError(NAME_MESSAGE);
+      return;
+    }
+
+    if (!isStrongPassword(password)) {
+      setError(PASSWORD_MESSAGE);
       return;
     }
 
     if (
       (role === "provider" || role === "worker") &&
-      (!Number.isSafeInteger(Number(providerId)) ||
-        Number(providerId) < 1)
+      (!Number.isSafeInteger(Number(providerId)) || Number(providerId) < 1)
     ) {
       setError("Please enter a valid provider ID.");
       return;
@@ -89,8 +84,7 @@ function RegisterPage() {
       email,
       password,
       role,
-      provider_id:
-        role === "contractor" ? null : Number(providerId),
+      provider_id: role === "contractor" ? null : Number(providerId),
     };
 
     setIsSending(true);
@@ -98,6 +92,9 @@ function RegisterPage() {
     try {
       await sendPasscode(email);
 
+      // NOTE: this stores the password until the verify step finishes.
+      // The verify page should remove "mamarPendingRegistration" from
+      // sessionStorage as soon as the account is created.
       sessionStorage.setItem(
         "mamarPendingRegistration",
         JSON.stringify(registration)
@@ -192,7 +189,7 @@ function RegisterPage() {
             </p>
           )}
 
-          <form className="signup-form" onSubmit={handleSubmit}>
+          <form className="signup-form" onSubmit={handleSubmit} noValidate>
             <div className="signup-field">
               <label htmlFor="registerFullName">Full name</label>
 
@@ -248,7 +245,6 @@ function RegisterPage() {
                   placeholder="Create your password"
                   value={password}
                   onChange={handlePasswordChange}
-                  minLength={8}
                   required
                 />
 

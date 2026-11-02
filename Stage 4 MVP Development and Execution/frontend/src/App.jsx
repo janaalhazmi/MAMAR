@@ -23,6 +23,9 @@ import QuotationsPage from "./pages/QuotationsPage";
 import SelectProviderPage from "./pages/SelectProviderPage";
 import ProjectMonitoringPage from "./pages/ProjectMonitoringPage";
 import ReviewCompletionPage from "./pages/ReviewCompletionPage";
+import FieldWorkerDashboard from "./pages/field-worker/FieldWorkerDashboard";
+import FieldExecution from "./pages/field-worker/FieldExecutionPage";
+import DeviceVerification from "./pages/field-worker/DeviceVerification";
 
 function App() {
   return (
@@ -42,6 +45,9 @@ function App() {
       <Route path="/project-monitoring" element={<ProtectedRoute roles={["contractor"]}><ProjectMonitoringPage /></ProtectedRoute>} />
       <Route path="/review-completion" element={<ProtectedRoute roles={["contractor"]}><ReviewCompletionPage /></ProtectedRoute>} />
       <Route path="*" element={<div>Page not found</div>} />  
+      <Route path="/field-worker-dashboard" element={<ProtectedRoute roles={["worker"]}><FieldWorkerDashboard /></ProtectedRoute>} />
+      <Route path="/field-execution" element={<ProtectedRoute roles={["worker"]}><FieldExecution /></ProtectedRoute>} />
+      <Route path="/device-verification" element={<ProtectedRoute roles={["worker"]}><DeviceVerification /></ProtectedRoute>} />
 
       <Route
         path="/register/verify"

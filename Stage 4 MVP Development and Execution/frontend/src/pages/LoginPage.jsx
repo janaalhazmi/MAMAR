@@ -25,6 +25,7 @@ const roles = [
 const dashboardRoutes = {
   contractor: "/contractor-dashboard",
   provider: "/provider-dashboard",
+  worker: "/field-worker-dashboard",
 };
 
 function LoginPage() {
@@ -55,16 +56,13 @@ function LoginPage() {
       if (data.user.role !== role) {
         throw new Error("The selected account type does not match your account.");
       }
-      if (!dashboardRoutes[data.user.role]) {
-        throw new Error("The Field Worker dashboard is not available yet.");
-      }
       saveSession(data);
       navigate(dashboardRoutes[data.user.role], { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
-    }
+  }
   };
 
 

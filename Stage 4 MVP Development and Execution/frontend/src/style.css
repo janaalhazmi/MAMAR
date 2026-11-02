@@ -10159,7 +10159,567 @@ textarea {
     transition: none;
   }
 }
- 
+ /* ==========================================================================
+   FIELD WORKER PAGES
+   Paste this at the VERY END of style.css (after the pf- block).
+   .fw-main defines the same variables as .pf-main, so the pf- classes
+   (pf-card, pf-btn, pf-pill, pf-bar, pf-map, pf-table...) work here too.
+   ========================================================================== */
+
+.fw-main {
+  --pf-yellow: #f5c518;
+  --pf-yellow-soft: #fff8e1;
+  --pf-yellow-text: #b8860b;
+  --pf-green: #22a05b;
+  --pf-green-soft: #e8f7ee;
+  --pf-red: #e5484d;
+  --pf-red-soft: #fdecec;
+  --pf-ink: #111827;
+  --pf-muted: #6b7280;
+  --pf-line: #eceef2;
+  --pf-card: #ffffff;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px 32px 40px;
+  color: var(--pf-ink);
+  overflow-y: auto;
+}
+
+.fw-main h1,
+.fw-main h2,
+.fw-main h3,
+.fw-main p {
+  margin: 0;
+}
+
+.fw-main h2 {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+/* ---------- shared bits ---------- */
+.fw-full {
+  width: 100%;
+}
+
+.fw-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--pf-yellow-text);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fw-link:hover {
+  text-decoration: underline;
+}
+
+.fw-link-block {
+  display: block;
+  margin-top: 14px;
+}
+
+.fw-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.fw-notice {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--pf-green-soft);
+  color: var(--pf-green);
+  font-size: 13px;
+}
+
+.fw-flat {
+  border: 0;
+  border-radius: 0;
+}
+
+.fw-two-col {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* tone colours used by icons and avatars */
+.fw-tone-yellow {
+  background: var(--pf-yellow-soft);
+  color: var(--pf-yellow-text);
+}
+.fw-tone-green {
+  background: var(--pf-green-soft);
+  color: var(--pf-green);
+}
+.fw-tone-blue {
+  background: #eaf0fb;
+  color: #5b7bb8;
+}
+.fw-tone-grey {
+  background: #eceff3;
+  color: #5b6475;
+}
+
+/* ==========================================================================
+   Dashboard
+   ========================================================================== */
+.fw-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.fw-stat {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+}
+
+.fw-stat-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.fw-assigned {
+  padding: 22px 26px;
+  border: 1.5px solid var(--pf-yellow);
+}
+
+.fw-assigned-title {
+  margin-top: 14px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.fw-assigned-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 220px));
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.fw-assigned-grid strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.fw-assigned-bottom {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 32px;
+  margin-top: 22px;
+}
+
+.fw-assigned-bottom .pf-btn {
+  margin-left: auto;
+}
+
+.fw-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fw-chip {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #f4f4f1;
+  color: #4b5563;
+  font-size: 12px;
+}
+
+.fw-overview {
+  display: flex;
+  flex-direction: column;
+  margin: 14px 0 18px;
+  padding: 0;
+  list-style: none;
+}
+
+.fw-overview li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--pf-line);
+}
+
+.fw-overview strong {
+  font-size: 13.5px;
+}
+
+/* ==========================================================================
+   Field Execution
+   ========================================================================== */
+.fw-block {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--pf-line);
+}
+
+.fw-block strong {
+  font-size: 13.5px;
+}
+
+.fw-times {
+  display: flex;
+  gap: 40px;
+  margin: 14px 0 16px;
+}
+
+.fw-times strong {
+  font-size: 14px;
+}
+
+.fw-status-edit {
+  margin-bottom: 14px;
+}
+
+.fw-status-edit label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.fw-status-edit select {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--pf-line);
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+}
+
+.fw-button-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.fw-team {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.fw-team li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--pf-line);
+}
+
+.fw-team strong {
+  display: block;
+  font-size: 13px;
+}
+
+.fw-team small {
+  font-size: 11.5px;
+  color: var(--pf-muted);
+}
+
+.fw-avatar {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.fw-thumbs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.fw-thumbs figure {
+  margin: 0;
+}
+
+.fw-thumbs img {
+  display: block;
+  width: 100%;
+  height: 84px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.fw-thumbs figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--pf-muted);
+}
+
+.fw-remove {
+  padding: 2px 6px;
+  border: 0;
+  background: transparent;
+  color: var(--pf-red);
+  cursor: pointer;
+}
+
+.fw-upload {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px;
+  border: 1.5px dashed #d5d9e0;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--pf-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.fw-upload:hover:not(:disabled) {
+  border-color: var(--pf-yellow);
+  background: #fffdf5;
+}
+
+.fw-upload:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.fw-upload strong {
+  display: block;
+  font-size: 13px;
+}
+
+.fw-upload small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: var(--pf-muted);
+}
+
+.fw-upload-plus {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: #f1f3f5;
+  color: #9aa3b2;
+}
+
+/* ==========================================================================
+   Device Verification
+   ========================================================================== */
+.fw-device {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 22px;
+}
+
+.fw-device-icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--pf-yellow-soft);
+  color: var(--pf-yellow-text);
+}
+
+.fw-device-info {
+  min-width: 0;
+}
+
+.fw-device-info:nth-of-type(2) {
+  flex: 1;
+}
+
+.fw-device .pf-pill {
+  margin-left: auto;
+}
+
+.fw-verify-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.fw-map-tall {
+  height: 300px;
+}
+
+.fw-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--pf-line);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--pf-muted);
+}
+
+.fw-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fw-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.fw-dot-red {
+  background: #ef4444;
+}
+
+.fw-dot-blue {
+  background: #3b82f6;
+}
+
+.fw-capture {
+  margin-top: 16px;
+}
+
+.fw-coords {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--pf-line);
+}
+
+.fw-coords strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.fw-coords small {
+  font-size: 11.5px;
+  color: var(--pf-muted);
+}
+
+.fw-distance {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 16px 0;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #f7f7f4;
+}
+
+.fw-distance span,
+.fw-distance small {
+  font-size: 12px;
+  color: var(--pf-muted);
+}
+
+.fw-distance strong {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.fw-distance-ok {
+  background: var(--pf-green-soft);
+}
+
+.fw-distance-ok strong {
+  color: var(--pf-green);
+}
+
+.fw-distance-bad {
+  background: var(--pf-red-soft);
+}
+
+.fw-distance-bad strong {
+  color: var(--pf-red);
+}
+
+.fw-verify-grid .pf-alert,
+.fw-verify-grid .fw-notice {
+  margin-bottom: 14px;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width: 1100px) {
+  .fw-two-col,
+  .fw-verify-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fw-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .fw-main {
+    padding: 20px 16px 32px;
+  }
+
+  .fw-stats,
+  .fw-assigned-grid,
+  .fw-button-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fw-assigned-bottom {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .fw-assigned-bottom .pf-btn {
+    margin-left: 0;
+  }
+
+  .fw-device {
+    flex-wrap: wrap;
+  }
+
+  .fw-device .pf-pill {
+    margin-left: 0;
+  }
+}
 
 
 
