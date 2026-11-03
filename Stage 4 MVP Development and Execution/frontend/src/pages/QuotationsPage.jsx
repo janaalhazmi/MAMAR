@@ -4,13 +4,15 @@ import ContractorShell from "../components/ContractorShell";
 import Icon from "../components/Icons";
 import {
   SERVICE_LABELS,
+  formatDate,
   formatPrice,
   getCurrentProject,
   getQuotations,
-  getSelectedProviderIds,
   rejectQuotation,
   saveSelectedQuotation,
 } from "../services/projectFlow";
+
+const REFRESH_MS = 30000;
 
 function QuotationsPage() {
   const navigate = useNavigate();
@@ -24,19 +26,34 @@ function QuotationsPage() {
   useEffect(() => {
     let active = true;
 
-    // Providers chosen on the Providers page ("Request Quotes").
-    const providerIds = getSelectedProviderIds();
+    if (project.id == null) {
+      setLoading(false);
+      return undefined;
+    }
 
-    getQuotations(project.id, providerIds)
-      .then((data) => active && setQuotations(data))
-      .catch(() => active && setError("Could not load quotations. Please try again."))
-      .finally(() => active && setLoading(false));
+    // silent = background refresh: do not show errors or the loading text.
+    const load = (silent) =>
+      getQuotations(project.id)
+        .then((data) => {
+          if (!active) return;
+          setQuotations(data);
+          setError("");
+        })
+        .catch((err) => {
+          if (active && !silent) {
+            setError(err.message || "Could not load quotations. Please try again.");
+          }
+        })
+        .finally(() => active && setLoading(false));
+
+    load(false);
+    const timer = setInterval(() => load(true), REFRESH_MS);
 
     return () => {
       active = false;
+      clearInterval(timer);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [project.id]);
 
   const received = quotations.filter((q) => q.status === "received");
   const requestedCount = quotations.length;
@@ -49,14 +66,35 @@ function QuotationsPage() {
           q.id === quotation.id ? { ...q, status: "rejected" } : q
         )
       );
-    } catch {
-      setError("Could not reject this quotation. Please try again.");
+    } catch (err) {
+      setError(err.message || "Could not reject this quotation. Please try again.");
     }
   }
 
   function handleAccept(quotation) {
     saveSelectedQuotation(quotation.id);
     navigate("/quotations/select");
+  }
+
+  // Opened from the sidebar without a project.
+  if (project.id == null) {
+    return (
+      <ContractorShell activeKey="quotations">
+        <section className="pf-heading">
+          <h1>Quotations</h1>
+          <p>Open a project from My Projects to see its quotations.</p>
+        </section>
+        <div className="pf-actions">
+          <button
+            type="button"
+            className="pf-btn pf-btn-primary"
+            onClick={() => navigate("/my-projects")}
+          >
+            Go to My Projects
+          </button>
+        </div>
+      </ContractorShell>
+    );
   }
 
   return (
@@ -93,7 +131,7 @@ function QuotationsPage() {
         <h2>Received Quotations</h2>
         <p className="pf-sub">
           Prices and estimated durations are provided by each provider based on
-          project requirements.
+          project requirements. This page refreshes automatically.
         </p>
       </section>
 
@@ -107,7 +145,8 @@ function QuotationsPage() {
         <p className="pf-empty">Loading quotations…</p>
       ) : quotations.length === 0 ? (
         <p className="pf-empty">
-          No quotations yet. Go back and request quotes from providers.
+          No quotations yet. Providers will appear here as soon as they send a
+          price.
         </p>
       ) : (
         <div className="pf-quote-grid">
@@ -120,11 +159,28 @@ function QuotationsPage() {
                 className={`pf-card pf-quote ${rejected ? "pf-quote-rejected" : ""}`}
               >
                 <div className="pf-quote-head">
-                  <img
-                    className="pf-logo"
-                    src={quotation.providerLogo}
-                    alt={`${quotation.providerName} logo`}
-                  />
+                  {quotation.providerLogo ? (
+                    <img
+                      className="pf-logo"
+                      src={quotation.providerLogo}
+                      alt={`${quotation.providerName} logo`}
+                    />
+                  ) : (
+                    <div
+                      className="pf-logo"
+                      aria-hidden="true"
+                      style={{
+                        display: "grid",
+                        placeItems: "center",
+                        background: "#fff8e1",
+                        color: "#b8860b",
+                        fontSize: 22,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {quotation.providerName.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   <div>
                     <h3>{quotation.providerName}</h3>
                     <p>{quotation.providerDescription}</p>
@@ -162,6 +218,18 @@ function QuotationsPage() {
                   </ul>
                 </div>
 
+                {quotation.notes && (
+                  <div className="pf-quote-services">
+                    <span className="pf-label">Price Breakdown &amp; Notes</span>
+                    <p
+                      className="pf-muted"
+                      style={{ whiteSpace: "pre-line", marginTop: 6 }}
+                    >
+                      {quotation.notes}
+                    </p>
+                  </div>
+                )}
+
                 <div className="pf-quote-actions">
                   <button
                     type="button"
@@ -191,70 +259,3 @@ function QuotationsPage() {
           <div>
             <h2>Compare Quotations</h2>
             <p>Compare price, duration and included services before selecting a provider.</p>
-          </div>
-          <button
-            type="button"
-            className="pf-btn pf-btn-primary"
-            onClick={() => setShowCompare((value) => !value)}
-          >
-            {showCompare ? "Hide Comparison" : "Compare Quotes →"}
-          </button>
-        </section>
-      )}
-
-      {showCompare && received.length > 1 && (
-        <div className="pf-table-wrap">
-          <table className="pf-table">
-            <thead>
-              <tr>
-                <th>Provider</th>
-                <th>Total price</th>
-                <th>Duration</th>
-                <th>Start date</th>
-                <th>Services</th>
-              </tr>
-            </thead>
-            <tbody>
-              {received.map((q) => (
-                <tr key={q.id}>
-                  <td>{q.providerName}</td>
-                  <td>{formatPrice(q.totalPrice)}</td>
-                  <td>{q.durationDays} days</td>
-                  <td>{q.startDate}</td>
-                  <td>{q.services.length}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      <section className="pf-section">
-        <h2>Quote Requests</h2>
-        <div className="pf-card pf-request-row">
-          <span>
-            <Icon name="check" size={14} />
-            {received.length} of {requestedCount} quotations received
-          </span>
-          <span className="pf-muted">
-            {received.length === requestedCount && requestedCount > 0
-              ? "Request completed"
-              : "Waiting for providers"}
-          </span>
-        </div>
-      </section>
-
-      <div className="pf-actions">
-        <button
-          type="button"
-          className="pf-btn pf-btn-secondary"
-          onClick={() => navigate("/providers")}
-        >
-          ← Back
-        </button>
-      </div>
-    </ContractorShell>
-  );
-}
-
-export default QuotationsPage;
