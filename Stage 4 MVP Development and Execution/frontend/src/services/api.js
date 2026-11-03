@@ -155,7 +155,7 @@ export const getFieldProjects = (t) => authed("/field-worker/projects", t);
 export const getFieldProject = (t, id) => authed(`/field-worker/projects/${id}`, t);
 export const patchSiteStatus = (t, id, status) =>
   authed(`/field-worker/projects/${id}/status`, t, { method: "PATCH", headers: JSON_H, body: JSON.stringify({ status }) });
-export const postCheckIn = (t, id) => authed(`/field-worker/projects/${id}/check-in`, t, { method: "POST" });
+
 
 export const verifyDevice = (t, device, body) =>
   authed(`/devices/${device}/verify`, t, { method: "POST", headers: JSON_H, body: JSON.stringify(body) });
