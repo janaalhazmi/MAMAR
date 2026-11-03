@@ -102,3 +102,30 @@ export function loginUser(email, password) {
     password,
   });
 }
+function authed(path, accessToken, options = {}) {
+  return request(path, {
+    ...options,
+    headers: { ...(options.headers || {}), Authorization: `Bearer ${accessToken}` },
+  });
+}
+
+export function getProjects(accessToken, projectStatus) {
+  const query = projectStatus ? `?project_status=${encodeURIComponent(projectStatus)}` : "";
+  return authed(`/projects${query}`, accessToken);
+}
+
+export function createProject(accessToken, project) {
+  return authed("/projects", accessToken, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(project),
+  });
+}
+
+export function updateProject(accessToken, projectId, changes) {
+  return authed(`/projects/${projectId}`, accessToken, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(changes),
+  });
+}
