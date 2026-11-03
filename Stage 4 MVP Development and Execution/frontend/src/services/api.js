@@ -153,8 +153,6 @@ export const listAssignments = (t) => authed("/assignments", t);
 // worker
 export const getFieldProjects = (t) => authed("/field-worker/projects", t);
 export const getFieldProject = (t, id) => authed(`/field-worker/projects/${id}`, t);
-
-
 export const verifyDevice = (t, device, body) =>
   authed(`/devices/${device}/verify`, t, { method: "POST", headers: JSON_H, body: JSON.stringify(body) });
 
