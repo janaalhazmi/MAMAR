@@ -1,47 +1,54 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import ProviderSidebar from "../components/ProviderSidebar";
 import Button from "../components/Button";
-
-const summaryCards = [
-  {
-    label: "Assigned Projects",
-    value: "4",
-    icon: "＋",
-    color: "yellow",
-  },
-  {
-    label: "Active Execution",
-    value: "2",
-    icon: "✓",
-    color: "green",
-  },
-  {
-    label: "Upcoming",
-    value: "1",
-    icon: "□",
-    color: "blue",
-  },
-  {
-    label: "Completed Projects",
-    value: "1",
-    icon: "✓",
-    color: "gray",
-  },
-];
-
-const activeProjects = [
-  {
-    name: "Northern Ring Road",
-    location: "Riyadh",
-    progress: 68,
-  },
-  {
-    name: "Olaya Road Works",
-    location: "Riyadh",
-    progress: 35,
-  },
-];
+import { getSession } from "../services/auth";
+import { formatDate } from "../services/projectFlow";
+import { getProviderDashboard } from "../services/providerQuotes";
 
 function ProviderDashboard() {
+  const user = getSession()?.user;
+  const displayName = user?.full_name || "Provider";
+  const initials = displayName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join("");
+
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    getProviderDashboard()
+      .then((result) => active && setData(result))
+      .catch(
+        (err) => active && setError(err.message || "Could not load your dashboard.")
+      )
+      .finally(() => active && setLoading(false));
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const stats = data?.stats || { assigned: 0, active: 0, upcoming: 0, completed: 0 };
+
+  const summaryCards = [
+    { label: "Assigned Projects", value: stats.assigned, icon: "＋", color: "yellow" },
+    { label: "Active Execution", value: stats.active, icon: "✓", color: "green" },
+    { label: "Upcoming", value: stats.upcoming, icon: "□", color: "blue" },
+    { label: "Completed Projects", value: stats.completed, icon: "✓", color: "gray" },
+  ];
+
+  const newRequests = data?.newRequests || [];
+  const newProject = data?.newProject || null;
+  const activeProjects = data?.activeProjects || [];
+  const overview = data?.overview || { workersActive: 0, sitesActive: 0 };
+
   return (
     <div className="provider-dashboard-page">
       <ProviderSidebar />
@@ -51,10 +58,10 @@ function ProviderDashboard() {
           <div />
 
           <div className="provider-account">
-            <div className="provider-avatar">TC</div>
+            <div className="provider-avatar">{initials || "P"}</div>
 
             <div>
-              <strong>TCM</strong>
+              <strong>{displayName}</strong>
               <span>Service Provider</span>
             </div>
           </div>
@@ -70,21 +77,22 @@ function ProviderDashboard() {
             </p>
           </section>
 
+          {error && (
+            <p className="review-error" role="alert">
+              {error}
+            </p>
+          )}
+
           <section className="provider-summary-grid">
             {summaryCards.map((card) => (
-              <article
-                className="provider-summary-card"
-                key={card.label}
-              >
-                <div
-                  className={`provider-summary-icon ${card.color}`}
-                >
+              <article className="provider-summary-card" key={card.label}>
+                <div className={`provider-summary-icon ${card.color}`}>
                   {card.icon}
                 </div>
 
                 <div>
                   <span>{card.label}</span>
-                  <strong>{card.value}</strong>
+                  <strong>{loading ? "–" : card.value}</strong>
                 </div>
               </article>
             ))}
@@ -93,84 +101,96 @@ function ProviderDashboard() {
           <section className="provider-section">
             <h2>New Service Request</h2>
 
-            <article className="service-request-card">
-              <span className="request-badge">
-                ● &nbsp; NEW REQUEST
-              </span>
-
-              <h3>King Fahd Road – Water Line</h3>
-
-              <p className="request-company">
-                Al Noor Contracting · Infrastructure Project
+            {loading ? (
+              <p className="pf-empty">Loading requests…</p>
+            ) : newRequests.length === 0 ? (
+              <p className="pf-empty">
+                No new service requests right now. New requests from
+                contractors will appear here.
               </p>
+            ) : (
+              newRequests.map((request) => (
+                <article
+                  className="service-request-card"
+                  key={request.id}
+                  style={{ marginBottom: 16 }}
+                >
+                  <span className="request-badge">● &nbsp; NEW REQUEST</span>
 
-              <div className="request-details">
-                <div>
-                  <span>LOCATION</span>
-                  <strong>King Fahd Road, Riyadh</strong>
-                </div>
+                  <h3>{request.name}</h3>
 
-                <div>
-                  <span>START DATE</span>
-                  <strong>18 Oct 2026</strong>
-                </div>
+                  <p className="request-company">{request.type}</p>
 
-                <div>
-                  <span>END DATE</span>
-                  <strong>24 Oct 2026</strong>
-                </div>
+                  <div className="request-details">
+                    <div>
+                      <span>LOCATION</span>
+                      <strong>{request.location}</strong>
+                    </div>
 
-                <div>
-                  <span>STATUS</span>
-                  <strong className="request-status">
-                    Awaiting Your Quote
-                  </strong>
-                </div>
-              </div>
+                    <div>
+                      <span>START DATE</span>
+                      <strong>{formatDate(request.startDate)}</strong>
+                    </div>
 
-              <div className="request-footer">
-                <div className="request-tags">
-                  <span>Traffic Barriers</span>
-                  <span>Traffic Cones</span>
-                  <span>Road Signs</span>
-                </div>
+                    <div>
+                      <span>END DATE</span>
+                      <strong>{formatDate(request.endDate)}</strong>
+                    </div>
 
-                <Button to="/provider/quotation">
-                  Prepare Quotation →
-                </Button>
-              </div>
-            </article>
+                    <div>
+                      <span>STATUS</span>
+                      <strong className="request-status">{request.status}</strong>
+                    </div>
+                  </div>
+
+                  <div className="request-footer">
+                    <div className="request-tags">
+                      {request.services.map((service) => (
+                        <span key={service}>{service}</span>
+                      ))}
+                    </div>
+
+                    <Button to={`/provider/quotation?requestId=${request.id}`}>
+                      Prepare Quotation →
+                    </Button>
+                  </div>
+                </article>
+              ))
+            )}
           </section>
 
           <section className="provider-section">
             <h2>New Assigned Project</h2>
 
-            <article className="assigned-project-card">
-              <div>
-                <span className="accepted-badge">
-                  QUOTE ACCEPTED
-                </span>
+            {loading ? (
+              <p className="pf-empty">Loading…</p>
+            ) : !newProject ? (
+              <p className="pf-empty">
+                No new assigned projects. A project appears here when a
+                contractor accepts your quotation.
+              </p>
+            ) : (
+              <article className="assigned-project-card">
+                <div>
+                  <span className="accepted-badge">QUOTE ACCEPTED</span>
 
-                <h3>Al Mursalat – Road Maintenance</h3>
+                  <h3>{newProject.name}</h3>
 
-                <p>Riyadh · 25–30 Oct 2026</p>
+                  <p>{newProject.subtitle}</p>
 
-                <span className="ready-status">
-                  Ready to Start
-                </span>
-              </div>
+                  <span className="ready-status">{newProject.status}</span>
+                </div>
 
-              <Button to="/provider/projects">
-                View Project →
-              </Button>
-            </article>
+                <Button to="/provider/projects">View Project →</Button>
+              </article>
+            )}
           </section>
 
           <section className="provider-bottom-grid">
             <article className="provider-bottom-card">
               <div className="provider-card-heading">
                 <h2>Active Projects</h2>
-                <a href="#projects">View All</a>
+                <Link to="/provider/projects">View All</Link>
               </div>
 
               <div className="active-project-header">
@@ -180,29 +200,24 @@ function ProviderDashboard() {
                 <span>STATUS</span>
               </div>
 
+              {!loading && activeProjects.length === 0 && (
+                <p className="pf-empty">No active projects.</p>
+              )}
+
               {activeProjects.map((project) => (
-                <div
-                  className="active-project-row"
-                  key={project.name}
-                >
+                <div className="active-project-row" key={project.id}>
                   <span>{project.name}</span>
-                  <span>{project.location}</span>
+                  <span>{project.city}</span>
 
                   <div className="progress-area">
                     <div className="progress-bar">
-                      <div
-                        style={{
-                          width: `${project.progress}%`,
-                        }}
-                      />
+                      <div style={{ width: `${project.progress}%` }} />
                     </div>
 
                     <span>{project.progress}%</span>
                   </div>
 
-                  <span className="active-badge">
-                    Active
-                  </span>
+                  <span className="active-badge">Active</span>
                 </div>
               ))}
             </article>
@@ -211,30 +226,24 @@ function ProviderDashboard() {
               <h2>Execution Overview</h2>
 
               <div className="execution-item">
-                <span className="execution-icon yellow">
-                  ✓
-                </span>
+                <span className="execution-icon yellow">✓</span>
 
                 <div>
                   <small>FIELD TEAM</small>
-                  <p>6 Workers Active</p>
+                  <p>{overview.workersActive} Workers Active</p>
                 </div>
               </div>
 
               <div className="execution-item">
-                <span className="execution-icon green">
-                  ✓
-                </span>
+                <span className="execution-icon green">✓</span>
 
                 <div>
                   <small>SITE EXECUTION</small>
-                  <p>2 Sites Active</p>
+                  <p>{overview.sitesActive} Sites Active</p>
                 </div>
               </div>
 
-              <a href="#execution">
-                View Execution Details →
-              </a>
+              <Link to="/provider/projects">View Execution Details →</Link>
             </article>
           </section>
         </main>
