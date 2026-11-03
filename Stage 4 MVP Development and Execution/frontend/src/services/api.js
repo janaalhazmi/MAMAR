@@ -129,3 +129,36 @@ export function updateProject(accessToken, projectId, changes) {
     body: JSON.stringify(changes),
   });
 }
+// contractor
+export const createRequest = (t, projectId, body) =>
+  authed(`/projects/${projectId}/requests`, t, { method: "POST", headers: JSON_H, body: JSON.stringify(body) });
+export const getProjectQuotations = (t, id) => authed(`/projects/${id}/quotations`, t);
+export const rejectQuote = (t, quoteId) => authed(`/quotes/${quoteId}/reject`, t, { method: "POST" });
+export const confirmProvider = (t, id, quote_id) =>
+  authed(`/projects/${id}/confirm-provider`, t, { method: "POST", headers: JSON_H, body: JSON.stringify({ quote_id }) });
+export const getMonitoring = (t, id) => authed(`/projects/${id}/monitoring`, t);
+export const getCompletion = (t, id) => authed(`/projects/${id}/completion`, t);
+export const approveCompletion = (t, id) => authed(`/projects/${id}/complete`, t, { method: "POST" });
+export const requestChanges = (t, id, note) =>
+  authed(`/projects/${id}/request-changes`, t, { method: "POST", headers: JSON_H, body: JSON.stringify({ note }) });
+
+// provider
+export const listRequests = (t, status = "open") => authed(`/requests?status=${status}`, t);
+export const submitQuotation = (t, body) =>
+  authed("/quotations", t, { method: "POST", headers: JSON_H, body: JSON.stringify(body) });
+export const assignWorker = (t, projectId, worker_id) =>
+  authed(`/projects/${projectId}/assignments`, t, { method: "POST", headers: JSON_H, body: JSON.stringify({ worker_id }) });
+export const listAssignments = (t) => authed("/assignments", t);
+
+// worker
+export const getFieldProjects = (t) => authed("/field-worker/projects", t);
+export const getFieldProject = (t, id) => authed(`/field-worker/projects/${id}`, t);
+export const patchSiteStatus = (t, id, status) =>
+  authed(`/field-worker/projects/${id}/status`, t, { method: "PATCH", headers: JSON_H, body: JSON.stringify({ status }) });
+export const postCheckIn = (t, id) => authed(`/field-worker/projects/${id}/check-in`, t, { method: "POST" });
+export const postPhotos = (t, id, formData) =>
+  authed(`/field-worker/projects/${id}/photos`, t, { method: "POST", body: formData }); // بدون Content-Type
+export const verifyDevice = (t, device, body) =>
+  authed(`/devices/${device}/verify`, t, { method: "POST", headers: JSON_H, body: JSON.stringify(body) });
+
+const JSON_H = { "Content-Type": "application/json" };
