@@ -1,51 +1,54 @@
 // src/services/fieldWork.js
 // ---------------------------------------------------------------------------
-// Everything the FIELD WORKER pages need:
+// Field worker pages connected to the REAL backend:
 //   Field Worker Dashboard -> Field Execution -> Device Verification
 //
-// All data is MOCK for now. Every "TODO(API)" comment marks where the real
-// backend call goes. Replace only the function bodies; the pages keep working
-// as long as the returned shape stays the same.
+// Same exported names and shapes as the old mock version.
 // ---------------------------------------------------------------------------
 
-const delay = (ms = 250) => new Promise((resolve) => setTimeout(resolve, ms));
+import { getSession } from "./auth";
+import {
+  fetchFieldProject,
+  fetchFieldProjects,
+  patchSiteStatus,
+  postCheckIn,
+  postDeviceVerify,
+  postPhotos,
+} from "./api";
+import { getProjectMeta } from "./projects";
+import {
+  SERVICE_LABELS,
+  formatDate,
+  formatDateRange,
+  formatDateTime,
+  formatTime,
+  toUiPhoto,
+} from "./projectFlow";
+
+export { formatDate, formatDateRange };
+
+function token() {
+  const accessToken = getSession()?.access_token;
+  if (!accessToken) throw new Error("Please sign in to continue.");
+  return accessToken;
+}
 
 /* ------------------------------------------------------------------ */
-/* SETTINGS YOU CAN CHANGE WHILE TESTING                               */
+/* SETTINGS                                                            */
 /* ------------------------------------------------------------------ */
 
-// How close (in metres) the worker must be to the planned location.
-// Further than this => "too far" error and Save Verification is blocked.
+// The backend rejects (422) a worker who is further than 50 m from the device.
 export const MAX_DISTANCE_METERS = 50;
 
-// "mock" = pretend the phone is MOCK_OFFSET_METERS away from the planned spot.
-// "real" = use the phone's real GPS (needs HTTPS or localhost + permission).
-// Set to "real" before going live.
-export const LOCATION_MODE = "mock";
-
-// Used only when LOCATION_MODE = "mock".
-// 8 = passes. Try 200 to see the "too far" error.
+// "real" = the phone's GPS (needs HTTPS or localhost + permission).
+// "mock" = fake position next to the planned point. It only works when the
+// planned point is known in this browser, so use it only for UI tests.
+export const LOCATION_MODE = "real";
 export const MOCK_OFFSET_METERS = 8;
 
 /* ------------------------------------------------------------------ */
 /* Helpers                                                             */
 /* ------------------------------------------------------------------ */
-export function formatDate(value) {
-  if (!value) return "Not specified";
-  const date = new Date(`${value}T00:00:00`);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
-export function formatDateRange(start, end) {
-  if (!start || !end) return "Not specified";
-  return `${formatDate(start)} – ${formatDate(end)}`;
-}
-
 export function formatDistance(meters) {
   if (meters == null) return "–";
   if (meters < 1000) return `${Math.round(meters)} m`;
@@ -66,111 +69,173 @@ export function distanceInMeters(a, b) {
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
+const SHORT_SERVICE_LABELS = {
+  "ttc-plan": "Temporary Traffic Control",
+  "cones-barriers": "Cones & Barriers",
+  "road-signs": "Road Signs & VMS",
+};
+
+const PROJECT_STATUS_LABELS = {
+  draft: "Pending",
+  active: "In Progress",
+  completed: "Completed",
+  cancelled: "Cancelled",
+};
+
+const TONES = ["yellow", "grey", "green", "blue"];
+
+function initials(name = "") {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  return (parts[0][0] + (parts[1]?.[0] || "")).toUpperCase();
+}
+
+function locationOf(projectId) {
+  return getProjectMeta(projectId).location || "Not specified";
+}
+
 /* ------------------------------------------------------------------ */
 /* DASHBOARD                                                           */
 /* ------------------------------------------------------------------ */
+const isDone = (p) =>
+  p.project.project_status === "completed" || p.site_status === "Completed";
+const isActive = (p) =>
+  !isDone(p) && (p.site_status === "Work in Progress" || p.site_status === "Paused");
+const isUpcoming = (p) => !isDone(p) && p.site_status === "Not Started";
+
+// GET /field-worker/projects
 export async function getFieldWorkerDashboard() {
-  await delay();
-  // TODO(API): GET /api/field-worker/dashboard
-  // Returns the projects the contractor / provider assigned to this worker.
+  const list = await fetchFieldProjects(token());
+
+  const active = list.filter(isActive);
+  const upcoming = list.filter(isUpcoming);
+  const next = upcoming[0];
+
+  const workerIds = new Set();
+  active.forEach((p) => p.team.forEach((member) => workerIds.add(member.user_id)));
+
   return {
-    stats: { assigned: 4, active: 2, upcoming: 1, completed: 1 },
-    newProject: {
-      id: "proj-001",
-      name: "King Fahd Road – Water Line",
-      type: "Infrastructure Project",
-      location: "King Fahd Road, Riyadh",
-      startDate: "2026-09-10",
-      endDate: "2026-09-20",
-      services: ["Temporary Traffic Control", "Road Signs & VMS"],
-      status: "Ready to Start",
+    stats: {
+      assigned: list.length,
+      active: active.length,
+      upcoming: upcoming.length,
+      completed: list.filter(isDone).length,
     },
-    activeProjects: [
-      { id: "proj-002", name: "Northern Ring Road", location: "Riyadh", progress: 68, status: "Active" },
-      { id: "proj-003", name: "Olaya Road Works", location: "Riyadh", progress: 35, status: "Active" },
-    ],
-    overview: { workersActive: 6, sitesActive: 2 },
+    newProject: next
+      ? {
+          id: next.project.project_id,
+          name: next.project.project_name,
+          type: next.project.closure_type,
+          location: locationOf(next.project.project_id),
+          startDate: next.project.start_date,
+          endDate: next.project.end_date,
+          services: (next.project.services || []).map(
+            (id) => SHORT_SERVICE_LABELS[id] || id
+          ),
+          status: "Ready to Start",
+        }
+      : null,
+    activeProjects: active.map((p) => ({
+      id: p.project.project_id,
+      name: p.project.project_name,
+      location: locationOf(p.project.project_id),
+      progress: p.progress,
+      status: "Active",
+    })),
+    overview: { workersActive: workerIds.size, sitesActive: active.length },
   };
 }
 
 /* ------------------------------------------------------------------ */
 /* FIELD EXECUTION                                                     */
 /* ------------------------------------------------------------------ */
-const PHOTO_KEY = "mamarFieldPhotos";
-
-export function getSitePhotos(projectId) {
-  // MOCK STORAGE: photos live in this browser's localStorage so you can see
-  // them again after a refresh. See uploadSitePhotos() for the real flow.
-  try {
-    const all = JSON.parse(localStorage.getItem(PHOTO_KEY)) || [];
-    return all.filter((photo) => photo.projectId === projectId);
-  } catch {
-    return [];
+// The backend does not store the map location yet, so the planned point comes
+// from what this browser saved (meta) and falls back to a sample point.
+export function getPlannedLocation(projectId) {
+  const meta = projectId != null ? getProjectMeta(projectId) : {};
+  if (meta.latitude != null && meta.longitude != null) {
+    return {
+      latitude: Number(meta.latitude),
+      longitude: Number(meta.longitude),
+      workZone: meta.workZone,
+    };
   }
+  try {
+    const saved = JSON.parse(sessionStorage.getItem("mamarNewProject"));
+    if (saved?.latitude != null && saved?.longitude != null) {
+      return {
+        latitude: Number(saved.latitude),
+        longitude: Number(saved.longitude),
+        workZone: saved.workZone,
+      };
+    }
+  } catch {
+    /* ignore */
+  }
+  return { latitude: 24.7136, longitude: 46.6753 };
 }
 
+// GET /field-worker/projects/{id}
 export async function getFieldExecution(projectId) {
-  await delay();
-  // TODO(API): GET /api/field-worker/projects/:projectId
-  // The planned location (latitude/longitude) and work zone are the ones the
-  // CONTRACTOR picked when creating the project. Do not let the worker edit
-  // them.
+  const r = await fetchFieldProject(token(), projectId);
+  const p = r.project;
+  const photos = (r.photos || []).map(toUiPhoto);
+
+  const services = (p.services || []).map((id) => SHORT_SERVICE_LABELS[id] || id);
+
   return {
     project: {
-      id: projectId,
-      name: "King Fahd Road – Water Line",
-      type: "Project Execution",
-      location: "King Fahd Road, Riyadh",
-      startDate: "2026-09-10",
-      endDate: "2026-09-20",
-      servicesLabel: "TTC Plan + Road Signs",
-      progress: 35,
-      status: "In Progress",
+      id: p.project_id,
+      name: p.project_name,
+      type: p.closure_type,
+      location: locationOf(p.project_id),
+      startDate: p.start_date,
+      endDate: p.end_date,
+      servicesLabel: services.join(" + ") || "Not specified",
+      progress: r.progress,
+      status: PROJECT_STATUS_LABELS[p.project_status] || p.project_status,
     },
-    planned: getPlannedLocation(),
+    planned: getPlannedLocation(p.project_id),
     site: {
-      executionStatus: "Work in Progress",
-      teamCount: 6,
-      todayCheckIn: "07:45 AM",
-      lastUpdate: "10:30 AM",
+      executionStatus: r.site_status,
+      teamCount: r.team.length,
+      todayCheckIn: r.last_check_in ? formatTime(r.last_check_in) : "Not yet",
+      lastUpdate: photos[0]?.time || (r.last_check_in ? formatDateTime(r.last_check_in) : "–"),
     },
-    team: [
-      { id: 1, initials: "AM", name: "Ahmed M.", role: "Site Supervisor", tone: "yellow" },
-      { id: 2, initials: "KA", name: "Me", role: "Field Worker", tone: "grey" },
-      { id: 3, initials: "SA", name: "Saud A.", role: "Field Worker", tone: "green" },
-    ],
-    moreTeamMembers: 3,
-    photos: getSitePhotos(projectId),
+    team: r.team.map((member, index) => ({
+      id: member.user_id,
+      initials: initials(member.full_name),
+      name: member.full_name,
+      role: "Field Worker",
+      tone: TONES[index % TONES.length],
+    })),
+    moreTeamMembers: 0,
+    photos,
   };
 }
 
-export const SITE_STATUSES = [
-  "Not Started",
-  "Work in Progress",
-  "Paused",
-  "Completed",
-];
+export const SITE_STATUSES = ["Not Started", "Work in Progress", "Paused", "Completed"];
 
+// PATCH /field-worker/projects/{id}/status  { status }
 export async function updateSiteStatus(projectId, status) {
-  await delay(200);
-  // TODO(API): PATCH /api/field-worker/projects/:projectId/status  { status }
-  // When status = "Completed" the backend should flag the project as
-  // "completion submitted" so the contractor can review it
-  // (see completionSubmitted in services/projectFlow.js).
+  await patchSiteStatus(token(), projectId, status);
   return { projectId, status };
 }
 
+// POST /field-worker/projects/{id}/check-in
 export async function siteCheckIn(projectId) {
-  await delay(200);
-  // TODO(API): POST /api/field-worker/projects/:projectId/check-in
-  // Send the worker's GPS position too if you want to verify it server-side.
-  const now = new Date();
-  return {
-    time: now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
-  };
+  const r = await postCheckIn(token(), projectId);
+  return { time: formatTime(r.last_check_in) || formatTime(new Date().toISOString()) };
 }
 
-// Shrinks a phone photo so it is small enough to store/send.
+/* ------------------------------------------------------------------ */
+/* PHOTOS                                                              */
+/* ------------------------------------------------------------------ */
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_BYTES = 5 * 1024 * 1024;
+const MAX_PHOTOS = 10;
+
+// Small preview shown in the page (not what is uploaded).
 export function fileToDataUrl(file, maxSize = 900, quality = 0.72) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -192,61 +257,81 @@ export function fileToDataUrl(file, maxSize = 900, quality = 0.72) {
   });
 }
 
-export async function uploadSitePhotos(projectId, photos) {
-  await delay(500);
-  // TODO(API): POST /api/field-worker/projects/:projectId/photos
-  // Send the real files as multipart/form-data (use the File objects, not the
-  // shrunken data URLs). The backend stores them and the CONTRACTOR sees them
-  // in Project Monitoring > Latest Site Photos and Review Completion >
-  // Final Evidence. Return the saved photos, each with a public URL.
-  const saved = photos.map((photo, index) => ({
-    id: `photo-${Date.now()}-${index}`,
-    projectId,
-    src: photo.src,
-    caption: photo.caption || "Site photo",
-    time: new Date().toLocaleString("en-GB"),
-  }));
+// Phone photos are often bigger than 5 MB: re-encode them as a JPEG.
+function toJpegFile(file, maxSize = 2000, quality = 0.85) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("This file is not a valid image."));
+    };
+    img.onload = () => {
+      const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(
+        (blob) =>
+          blob
+            ? resolve(
+                new File([blob], `${file.name.replace(/\.[^.]+$/, "")}.jpg`, {
+                  type: "image/jpeg",
+                })
+              )
+            : reject(new Error("Could not prepare the photo.")),
+        "image/jpeg",
+        quality
+      );
+    };
+    img.src = url;
+  });
+}
 
-  try {
-    const existing = JSON.parse(localStorage.getItem(PHOTO_KEY)) || [];
-    localStorage.setItem(PHOTO_KEY, JSON.stringify([...saved, ...existing]));
-  } catch {
-    throw new Error("Not enough storage for these photos. Send fewer photos.");
+async function prepareFile(file) {
+  if (ALLOWED_TYPES.includes(file.type) && file.size <= MAX_BYTES) return file;
+  return toJpegFile(file);
+}
+
+// POST /field-worker/projects/{id}/photos  (multipart: photos + captions)
+export async function uploadSitePhotos(projectId, photos) {
+  if (photos.length === 0) throw new Error("Add at least one photo first.");
+  if (photos.length > MAX_PHOTOS) {
+    throw new Error(`You can send up to ${MAX_PHOTOS} photos at a time.`);
   }
-  return saved;
+
+  const files = await Promise.all(photos.map((photo) => prepareFile(photo.file)));
+
+  const form = new FormData();
+  files.forEach((file) => form.append("photos", file));
+  photos.forEach((photo) => form.append("captions", photo.caption || "Site photo"));
+
+  const saved = await postPhotos(token(), projectId, form);
+  return saved.map(toUiPhoto);
 }
 
 /* ------------------------------------------------------------------ */
 /* DEVICE VERIFICATION                                                 */
 /* ------------------------------------------------------------------ */
-export function getPlannedLocation() {
-  // TODO(API): GET /api/projects/:projectId/location
-  // This is the point the CONTRACTOR selected on the map. Until the backend
-  // exists we read the project saved in this browser, then fall back to a
-  // sample point in Riyadh.
-  try {
-    const saved = JSON.parse(sessionStorage.getItem("mamarNewProject"));
-    if (saved?.latitude != null && saved?.longitude != null) {
-      return {
-        latitude: Number(saved.latitude),
-        longitude: Number(saved.longitude),
-        workZone: saved.workZone,
-      };
-    }
-  } catch {
-    /* ignore */
-  }
-  return { latitude: 24.7136, longitude: 46.6753 };
-}
+// There is no GET /devices/{id}: the project comes from the page address,
+//   /device-verification?deviceId=TC-014&projectId=12
+export async function getDevice(deviceId, projectId) {
+  let project = null;
 
-export async function getDevice(deviceId) {
-  await delay(150);
-  // TODO(API): GET /api/devices/:deviceId
+  if (projectId) {
+    project = (await fetchFieldProject(token(), projectId)).project;
+  } else {
+    const list = await fetchFieldProjects(token());
+    project = (list.find(isActive) || list[0])?.project || null;
+  }
+
   return {
     id: deviceId,
-    name: "Traffic Barrier",
-    projectId: "proj-001",
-    projectName: "Water Pipeline Installation",
+    name: "Installed Device",
+    projectId: project?.project_id ?? null,
+    projectName: project?.project_name || "Project",
     status: "Pending Verification",
   };
 }
@@ -258,16 +343,21 @@ const GEO_ERRORS = {
 };
 
 export function captureCurrentLocation(planned) {
-  // MOCK MODE: pretend the worker stands MOCK_OFFSET_METERS north of the spot.
   if (LOCATION_MODE === "mock") {
-    return delay(600).then(() => ({
-      latitude: planned.latitude + MOCK_OFFSET_METERS / 111320,
-      longitude: planned.longitude,
-      accuracy: 5,
-    }));
+    const base = planned || { latitude: 24.7136, longitude: 46.6753 };
+    return new Promise((resolve) =>
+      setTimeout(
+        () =>
+          resolve({
+            latitude: base.latitude + MOCK_OFFSET_METERS / 111320,
+            longitude: base.longitude,
+            accuracy: 5,
+          }),
+        600
+      )
+    );
   }
 
-  // REAL MODE: the phone's GPS.
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
       reject(new Error("This device does not support location services."));
@@ -287,16 +377,23 @@ export function captureCurrentLocation(planned) {
   });
 }
 
-export async function saveDeviceVerification(payload) {
-  await delay(400);
-  // TODO(API): POST /api/devices/:deviceId/verify
-  // payload = { deviceId, projectId, planned, captured, distanceMeters }
-  // The backend should ALSO re-check the distance (never trust the phone
-  // alone) and reject it when distanceMeters > MAX_DISTANCE_METERS.
-  if (payload.distanceMeters > MAX_DISTANCE_METERS) {
-    throw new Error(
-      `You are ${formatDistance(payload.distanceMeters)} from the planned location. Move within ${MAX_DISTANCE_METERS} m and capture again.`
-    );
-  }
-  return { ...payload, status: "Verified" };
+// POST /devices/{device}/verify  { project_id, latitude, longitude, accuracy }
+// The BACKEND measures the distance against the planned point (ArcGIS) and
+// answers 422 when the worker is further than 50 m: the message is shown as is.
+export async function saveDeviceVerification({ deviceId, projectId, captured }) {
+  const r = await postDeviceVerify(token(), deviceId, {
+    project_id: Number(projectId),
+    latitude: captured.latitude,
+    longitude: captured.longitude,
+    accuracy: captured.accuracy ?? null,
+  });
+
+  return {
+    deviceId: r.device,
+    projectId: r.project_id,
+    planned: { latitude: r.planned_latitude, longitude: r.planned_longitude },
+    distanceMeters: r.distance_m,
+    maxDistanceMeters: r.max_distance_m,
+    status: r.status,
+  };
 }
