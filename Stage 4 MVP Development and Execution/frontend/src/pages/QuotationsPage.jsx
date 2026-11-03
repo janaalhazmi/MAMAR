@@ -259,3 +259,68 @@ function QuotationsPage() {
           <div>
             <h2>Compare Quotations</h2>
             <p>Compare price, duration and included services before selecting a provider.</p>
+          </div>
+          <button
+            type="button"
+            className="pf-btn pf-btn-primary"
+            onClick={() => setShowCompare((value) => !value)}
+          >
+            {showCompare ? "Hide Comparison" : "Compare Quotes →"}
+          </button>
+        </section>
+      )}
+
+      {showCompare && received.length > 1 && (
+        <div className="pf-table-wrap">
+          <table className="pf-table">
+            <thead>
+              <tr>
+                <th>Provider</th>
+                <th>Total price</th>
+                <th>Duration</th>
+                <th>Start date</th>
+                <th>Services</th>
+              </tr>
+            </thead>
+            <tbody>
+              {received.map((q) => (
+                <tr key={q.id}>
+                  <td>{q.providerName}</td>
+                  <td>{formatPrice(q.totalPrice)}</td>
+                  <td>{q.durationDays} days</td>
+                  <td>{formatDate(q.startDate)}</td>
+                  <td>{q.services.length}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <section className="pf-section">
+        <h2>Quote Requests</h2>
+        <div className="pf-card pf-request-row">
+          <span>
+            <Icon name="check" size={14} />
+            {received.length} of {requestedCount} quotations still open
+          </span>
+          <span className="pf-muted">
+            {requestedCount === 0 ? "Waiting for providers" : "Review and decide"}
+          </span>
+        </div>
+      </section>
+
+      <div className="pf-actions">
+        <button
+          type="button"
+          className="pf-btn pf-btn-secondary"
+          onClick={() => navigate("/providers")}
+        >
+          ← Back
+        </button>
+      </div>
+    </ContractorShell>
+  );
+}
+
+export default QuotationsPage;
