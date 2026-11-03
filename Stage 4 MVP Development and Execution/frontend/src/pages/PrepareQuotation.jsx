@@ -100,15 +100,15 @@ function PrepareQuotation() {
   };
 
   const handleSubmitQuotation = () => {
-    if (!selectedLocation) {
-      alert("Please select the project location first.");
-      return;
-    }
+    // if (!selectedLocation) {
+    //   alert("Please select the project location first.");
+    //   return;
+    // }
 
-    if (!workZone) {
-      alert("Please draw the work zone polygon first.");
-      return;
-    }
+    // if (!workZone) {
+    //   alert("Please draw the work zone polygon first.");
+    //   return;
+    // }
 
     const hasInvalidService = services.some(
       (service) =>
@@ -287,12 +287,12 @@ function PrepareQuotation() {
 
                <div className="work-zone-map">
                <MamarMap
-                enablePolygon
-                onLocationSelect={setSelectedLocation}
-                onPolygonSelect={(polygon) => {
-                setWorkZone(polygon);
-                handleWorkZoneSelect(polygon);
-                  }}
+                // enablePolygon
+                // onLocationSelect={setSelectedLocation}
+                // onPolygonSelect={(polygon) => {
+                //   setWorkZone(polygon);
+                //   handleWorkZoneSelect(polygon);
+                // }}
                 />
              </div>
           </section>
