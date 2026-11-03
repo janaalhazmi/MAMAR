@@ -374,7 +374,7 @@ function ServicesPage() {
                 <MamarMap
                   latitude={project.latitude ?? null}
                   longitude={project.longitude ?? null}
-                  workZone={project.workZone}
+                  polygon={project.polygon ?? project.workZone ?? null}
                   readOnly
                 />
               </div>
@@ -382,6 +382,26 @@ function ServicesPage() {
               <SummaryItem label="Project Name" value={projectName} />
 
               <SummaryItem label="Project Type" value={projectType} />
+
+              <SummaryItem
+                label="Latitude"
+                value={project.latitude != null ? Number(project.latitude).toFixed(6) : "Not specified"}
+              />
+
+              <SummaryItem
+                label="Longitude"
+                value={project.longitude != null ? Number(project.longitude).toFixed(6) : "Not specified"}
+              />
+
+              <SummaryItem
+                label="Work Zone Area"
+                value={project.area != null ? `${Number(project.area).toLocaleString()} m²` : "Not specified"}
+              />
+
+              <SummaryItem
+                label="Work Zone"
+                value={project.polygon || project.workZone ? "Polygon completed" : "Not selected"}
+              />
 
               <SummaryItem label="Project Dates" value={projectDates} />
 

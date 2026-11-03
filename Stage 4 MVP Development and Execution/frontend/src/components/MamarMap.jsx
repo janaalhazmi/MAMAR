@@ -1,257 +1,293 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
 
+import SketchViewModel from "@arcgis/core/widgets/Sketch/SketchViewModel.js";
 import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer.js";
 import Graphic from "@arcgis/core/Graphic.js";
 import Polygon from "@arcgis/core/geometry/Polygon.js";
 import * as geometryEngine from "@arcgis/core/geometry/geometryEngine.js";
-import * as webMercatorUtils from "@arcgis/core/geometry/support/webMercatorUtils.js";
 
 import "@arcgis/map-components/components/arcgis-map";
 import "@arcgis/map-components/components/arcgis-zoom";
 import "@arcgis/map-components/components/arcgis-search";
-import "@arcgis/map-components/components/arcgis-sketch";
 
+// Yellow work zone polygon style
 const POLYGON_SYMBOL = {
   type: "simple-fill",
   color: [255, 204, 0, 0.35],
   outline: {
-    color: [255, 180, 0],
+    color: [255, 180, 0, 1],
     width: 2,
   },
 };
 
-// Turn a finished polygon into the data the page needs.
-function describePolygon(polygon) {
-  const center = polygon?.centroid;
+function normalizePolygon(value) {
+  if (!value) return null;
 
-  if (!center) return null;
+  // Support workZone objects containing a polygon property.
+  const geometry = value.polygon ?? value;
 
-  const area = Math.abs(
-    geometryEngine.geodesicArea(polygon, "square-meters")
-  );
-
-  // Boundary points as [lon, lat], without the closing duplicate.
-  const geographic = polygon.spatialReference?.isWebMercator
-    ? webMercatorUtils.webMercatorToGeographic(polygon)
-    : polygon;
-
-  const ring = (geographic.rings?.[0] || []).map(([x, y]) => [
-    Number(x.toFixed(6)),
-    Number(y.toFixed(6)),
-  ]);
-
-  if (
-    ring.length > 1 &&
-    ring[0][0] === ring[ring.length - 1][0] &&
-    ring[0][1] === ring[ring.length - 1][1]
-  ) {
-    ring.pop();
+  // Support an array of coordinate pairs.
+  if (Array.isArray(geometry)) {
+    return {
+      rings: [geometry],
+      spatialReference: { wkid: 4326 },
+    };
   }
 
-  return {
-    latitude: Number(center.latitude.toFixed(6)),
-    longitude: Number(center.longitude.toFixed(6)),
-    area: Number(area.toFixed(2)),
-    polygon: polygon.toJSON(),
-    workZone: ring,
-  };
+  // Support ArcGIS polygon JSON.
+  if (geometry?.rings) {
+    return geometry;
+  }
+
+  return null;
 }
 
-/*
- * Drawing uses Esri's own <arcgis-sketch> component.
- *
- * Props:
- *  - onLocationSelect(data | null): called when a polygon is finished or
- *    edited ({ latitude, longitude, area, polygon, workZone }) and with
- *    null when it is deleted or a new one is started.
- *  - latitude / longitude: moves the map to this point when they change.
- *  - workZone: array of [lon, lat] points, shown in readOnly mode.
- *  - readOnly: hides the sketch tools.
- *  - height: CSS height of the container (default "100%").
- */
-function MamarMap({
-  onLocationSelect,
-  latitude = null,
-  longitude = null,
-  workZone = null,
-  readOnly = false,
-  height = "100%",
-}) {
+const MamarMap = forwardRef(function MamarMap(
+  {
+    onLocationSelect,
+    polygon = null,
+    workZone = null,
+    latitude = null,
+    longitude = null,
+    readOnly = false,
+  },
+  ref
+) {
   const mapRef = useRef(null);
   const sketchRef = useRef(null);
-  const layerRef = useRef(null);
+  const graphicsLayerRef = useRef(null);
   const callbackRef = useRef(onLocationSelect);
 
-  const [ready, setReady] = useState(false);
-
-  // Keep the latest callback without reinitializing the map.
+  // Keep latest callback without rebuilding the map.
   useEffect(() => {
     callbackRef.current = onLocationSelect;
   }, [onLocationSelect]);
 
-  // Add the layer that holds the work zone once the map is ready.
+  // Keep latest location data available for map initialization.
+  const initialDataRef = useRef({
+    polygon,
+    workZone,
+    latitude,
+    longitude,
+    readOnly,
+  });
+
+  // Initialize map only once.
   useEffect(() => {
     const mapElement = mapRef.current;
 
     if (!mapElement) return;
 
     let cancelled = false;
+    let sketch = null;
+    let sketchHandle = null;
     let graphicsLayer = null;
 
-    mapElement
-      .viewOnReady()
-      .then(() => {
+    async function initializeMap() {
+      try {
+        await mapElement.viewOnReady();
+
         if (cancelled) return;
 
-        graphicsLayer = new GraphicsLayer({ title: "Project Work Zone" });
-        mapElement.view.map.add(graphicsLayer);
-        layerRef.current = graphicsLayer;
+        const view = mapElement.view;
 
-        setReady(true);
-      })
-      .catch((error) => {
-        console.error("Could not initialize the map:", error);
-      });
+        graphicsLayer = new GraphicsLayer({
+          title: "Project Work Zone",
+        });
+
+        view.map.add(graphicsLayer);
+        graphicsLayerRef.current = graphicsLayer;
+
+        const initial = initialDataRef.current;
+
+        const savedGeometry = normalizePolygon(
+          initial.polygon ?? initial.workZone
+        );
+
+        if (savedGeometry) {
+          const savedPolygon = Polygon.fromJSON(savedGeometry);
+
+          const graphic = new Graphic({
+            geometry: savedPolygon,
+            symbol: POLYGON_SYMBOL,
+          });
+
+          graphicsLayer.add(graphic);
+
+          if (savedPolygon.extent) {
+            await view.goTo(
+              savedPolygon.extent.expand(1.5),
+              { animate: false }
+            );
+          }
+        } else if (
+          initial.latitude != null &&
+          initial.longitude != null
+        ) {
+          await view.goTo(
+            {
+              center: [
+                Number(initial.longitude),
+                Number(initial.latitude),
+              ],
+              zoom: 15,
+            },
+            { animate: false }
+          );
+        }
+
+        if (cancelled || initial.readOnly) return;
+
+        sketch = new SketchViewModel({
+          view,
+          layer: graphicsLayer,
+
+          polygonSymbol: POLYGON_SYMBOL,
+
+          defaultCreateOptions: {
+            mode: "click",
+          },
+
+          defaultUpdateOptions: {
+            enableRotation: false,
+            enableScaling: false,
+          },
+        });
+
+        sketchRef.current = sketch;
+
+        sketchHandle = sketch.on("create", (event) => {
+          if (event.state !== "complete") return;
+
+          const completedPolygon = event.graphic?.geometry;
+
+          if (!completedPolygon) return;
+
+          const center = completedPolygon.centroid;
+
+          if (!center) return;
+
+          const latitude = Number(
+            center.latitude.toFixed(6)
+          );
+
+          const longitude = Number(
+            center.longitude.toFixed(6)
+          );
+
+          const calculatedArea = geometryEngine.geodesicArea(
+            completedPolygon,
+            "square-meters"
+          );
+
+          const area = Math.abs(calculatedArea);
+
+          callbackRef.current?.({
+            latitude,
+            longitude,
+            area: Number(area.toFixed(2)),
+            polygon: completedPolygon.toJSON(),
+          });
+        });
+      } catch (error) {
+        if (!cancelled) {
+          console.error(
+            "Could not initialize MAMAR map:",
+            error
+          );
+        }
+      }
+    }
+
+    initializeMap();
 
     return () => {
       cancelled = true;
+
+      sketchHandle?.remove();
+
+      if (sketch) {
+        sketch.destroy();
+      }
 
       if (graphicsLayer && mapElement.view?.map) {
         mapElement.view.map.remove(graphicsLayer);
       }
 
-      layerRef.current = null;
+      sketchRef.current = null;
+      graphicsLayerRef.current = null;
     };
   }, []);
 
-  // Connect Esri's Sketch component to the layer and listen to its events.
-  useEffect(() => {
+  // Start drawing a new polygon.
+  const startDrawing = () => {
     const sketch = sketchRef.current;
-    const layer = layerRef.current;
 
-    if (!ready || readOnly || !sketch || !layer) return;
-
-    sketch.layer = layer;
-    sketch.availableCreateTools = ["polygon"];
-    sketch.creationMode = "single";
-
-    const handleCreate = (event) => {
-      const { state, graphic } = event.detail || {};
-
-      // Keep a single work zone: clear the old one when a new one starts.
-      if (state === "start") {
-        layer.graphics.forEach((existing) => {
-          if (existing !== graphic) layer.remove(existing);
-        });
-
-        if (callbackRef.current) callbackRef.current(null);
-        return;
-      }
-
-      if (state !== "complete") return;
-
-      const data = describePolygon(graphic?.geometry);
-
-      if (data && callbackRef.current) callbackRef.current(data);
-    };
-
-    const handleUpdate = (event) => {
-      const { state, graphics } = event.detail || {};
-
-      if (state !== "complete") return;
-
-      const data = describePolygon(graphics?.[0]?.geometry);
-
-      if (data && callbackRef.current) callbackRef.current(data);
-    };
-
-    const handleDelete = () => {
-      if (callbackRef.current) callbackRef.current(null);
-    };
-
-    sketch.addEventListener("arcgisCreate", handleCreate);
-    sketch.addEventListener("arcgisUpdate", handleUpdate);
-    sketch.addEventListener("arcgisDelete", handleDelete);
-
-    return () => {
-      sketch.removeEventListener("arcgisCreate", handleCreate);
-      sketch.removeEventListener("arcgisUpdate", handleUpdate);
-      sketch.removeEventListener("arcgisDelete", handleDelete);
-    };
-  }, [ready, readOnly]);
-
-  const zoneKey = JSON.stringify(workZone || []);
-  const hasReadOnlyZone =
-    readOnly && Array.isArray(workZone) && workZone.length >= 3;
-
-  // Move the map to the searched location.
-  useEffect(() => {
-    const mapElement = mapRef.current;
-
-    if (
-      !mapElement ||
-      hasReadOnlyZone ||
-      !Number.isFinite(latitude) ||
-      !Number.isFinite(longitude)
-    ) {
+    if (!sketch || readOnly) {
+      console.warn("Map drawing tools are not ready.");
       return;
     }
 
-    let cancelled = false;
+    sketch.cancel();
 
-    mapElement
-      .viewOnReady()
-      .then(() => {
-        if (cancelled) return;
+    // Remove previous work zone before drawing again.
+    sketch.layer.removeAll();
 
-        return mapElement.view.goTo({
-          center: [longitude, latitude],
-          zoom: 15,
-        });
-      })
-      .catch(() => {});
+    callbackRef.current?.(null);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [latitude, longitude, hasReadOnlyZone]);
+    sketch.create("polygon");
+  };
 
-  // Read-only mode: show a saved work zone.
-  useEffect(() => {
-    const layer = layerRef.current;
-    const mapElement = mapRef.current;
+  // Finish the current polygon.
+  const finishDrawing = () => {
+    const sketch = sketchRef.current;
 
-    if (!ready || !layer || !hasReadOnlyZone) return;
+    if (!sketch || readOnly) return;
 
-    layer.removeAll();
+    if (sketch.state === "active") {
+      sketch.complete();
+    }
+  };
 
-    const graphic = new Graphic({
-      geometry: new Polygon({
-        rings: [[...workZone, workZone[0]]],
-        spatialReference: { wkid: 4326 },
-      }),
-      symbol: POLYGON_SYMBOL,
-    });
+  // Cancel drawing and clear the polygon.
+  const cancelDrawing = () => {
+    const sketch = sketchRef.current;
 
-    layer.add(graphic);
+    if (!sketch || readOnly) return;
 
-    mapElement?.view?.goTo(graphic).catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, zoneKey, hasReadOnlyZone]);
+    sketch.cancel();
+    sketch.layer.removeAll();
+
+    callbackRef.current?.(null);
+  };
+
+  // Allow ProjectLocationPage buttons to control drawing.
+  useImperativeHandle(ref, () => ({
+    startDrawing,
+    finishDrawing,
+    cancelDrawing,
+  }));
 
   return (
-    <div className="mamar-map-container" style={{ height }}>
+    <div className="mamar-map-container">
       <arcgis-map
         ref={mapRef}
         item-id="7371729f1ff240038c3a8155edebfeda"
         className="mamar-map"
       >
         <arcgis-zoom slot="top-left" />
-        <arcgis-search slot="top-right" />
-        {!readOnly && <arcgis-sketch ref={sketchRef} slot="top-right" />}
+
+        {!readOnly && (
+          <arcgis-search slot="top-right" />
+        )}
       </arcgis-map>
     </div>
   );
-}
+});
 
 export default MamarMap;

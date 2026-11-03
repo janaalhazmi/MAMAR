@@ -1,16 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  LayoutDashboard,
-  FolderKanban,
-  Plus,
-  Users,
-  FileText,
-  MapPin,
-  CalendarDays,
-  Pencil,
-  Check,
-} from "lucide-react";
+import { MapPin, CalendarDays, Pencil, Check } from "lucide-react";
 
 import Sidebar from "../components/Sidebar";
 import Button from "../components/Button";
@@ -133,7 +123,7 @@ function ReviewPage() {
   }
 
   function handleEditServices() {
-    navigate("/select-service");
+    navigate("/services");
   }
 
   function handleSaveDraft() {
@@ -328,7 +318,7 @@ function ReviewPage() {
                   <MamarMap
                     latitude={project.latitude}
                     longitude={project.longitude}
-                    workZone={project.workZone}
+                    polygon={project.polygon ?? project.workZone ?? null}
                     readOnly
                   />
                 ) : (
@@ -356,6 +346,20 @@ function ReviewPage() {
                     )}
                 </div>
               </div>
+
+              {project.area != null && (
+                <div className="review-field">
+                  <span>Work Zone Area</span>
+                  <strong>{Number(project.area).toLocaleString()} m²</strong>
+                </div>
+              )}
+
+              {(project.polygon || project.workZone) && (
+                <div className="review-field">
+                  <span>Work Zone</span>
+                  <strong>Polygon completed</strong>
+                </div>
+              )}
             </section>
 
             <section className="review-card review-services-card">
@@ -432,7 +436,7 @@ function ReviewPage() {
           <div className="review-actions">
             <Button
               variant="secondary"
-              onClick={() => navigate("/select-service")}
+              onClick={() => navigate("/services")}
             >
               ← Back
             </Button>
