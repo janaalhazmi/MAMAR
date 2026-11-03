@@ -1,117 +1,94 @@
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
 import { logout } from "../services/auth";
 import { getSession } from "../services/auth";
 import Icon from "../components/Icons";
-
-
+import { formatDate } from "../services/projectFlow";
+import {
+  buildActivity,
+  fetchProjects,
+  getStats,
+  nextStepFor,
+  openProjectInFlow,
+  startNewProject,
+  thumbTone,
+} from "../services/projects";
 
 function ContractorDashboard() {
   const navigate = useNavigate();
 
-  
   const sessionUser = getSession()?.user;
   const rawName = sessionUser?.full_name || sessionUser?.name || "";
   const displayName =
-     (typeof rawName === "string" ? rawName.trim() : "") || "there";
+    (typeof rawName === "string" ? rawName.trim() : "") || "there";
   const userInitial = displayName.charAt(0).toUpperCase();
 
+  // Real projects from the backend (GET /projects)
+  const [allProjects, setAllProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    fetchProjects()
+      .then((list) => active && setAllProjects(list))
+      .catch(
+        (err) =>
+          active && setError(err.message || "Could not load your projects.")
+      )
+      .finally(() => active && setLoading(false));
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const stats = getStats(allProjects);
+
   const statistics = [
-    { title: "Total Projects", value: "5", icon: "list" },
-    { title: "In Progress", value: "2", icon: "clock" },
-    { title: "Completed", value: "2", icon: "check" },
-    { title: "Pending Quotes", value: "1", icon: "dots" },
+    { title: "Total Projects", value: stats.total, icon: "list" },
+    { title: "In Progress", value: stats.inProgress, icon: "clock" },
+    { title: "Completed", value: stats.completed, icon: "check" },
+    { title: "Pending Quotes", value: stats.pendingQuotes, icon: "dots" },
   ];
 
-  const projects = [
-    {
-      name: "King Fahd Road – Water Line",
-      location: "Riyadh",
-      start: "10 Sep 2025",
-      end: "20 Sep 2025",
-      status: "In Progress",
-      statusClass: "cd-status-in-progress",
-      thumbClass: "cd-thumb-orange",
-    },
-    {
-      name: "Olaya Street – Maintenance",
-      location: "Riyadh",
-      start: "01 Oct 2025",
-      end: "15 Oct 2025",
-      status: "Pending Quotes",
-      statusClass: "cd-status-pending",
-      thumbClass: "cd-thumb-orange",
-    },
-    {
-      name: "Northern Ring Road",
-      location: "Riyadh",
-      start: "12 Oct 2025",
-      end: "05 Nov 2025",
-      status: "Completed",
-      statusClass: "cd-status-completed",
-      thumbClass: "cd-thumb-green",
-    },
-    {
-      name: "Al Yarmouk Intersection",
-      location: "Riyadh",
-      start: "20 Nov 2025",
-      end: "05 Dec 2025",
-      status: "Planned",
-      statusClass: "cd-status-planned",
-      thumbClass: "cd-thumb-grey",
-    },
-  ];
+  // The dashboard shows the 4 newest. "View all" opens the full page.
+  const projects = allProjects.slice(0, 4);
+  const activities = buildActivity(allProjects);
+
+  function handleCreateProject() {
+    startNewProject(); // so the form starts empty
+    navigate("/create-project");
+  }
+
+  function handleOpenProject(project) {
+    const step = nextStepFor(project);
+    if (!step) return;
+    openProjectInFlow(project);
+    navigate(step.to);
+  }
 
   const quickActions = [
     {
       title: "Create New Project",
       description: "Add a new road project",
       icon: "plus",
-      to: "/create-project",
+      onClick: handleCreateProject,
     },
     {
       title: "Browse Providers",
       description: "Compare traffic control companies",
       icon: "triangle",
-      to: "/providers",
+      onClick: () => navigate("/providers"),
     },
     {
       title: "Open Map",
       description: "Explore project locations",
       icon: "target",
-      to: "/project/location",
-    },
-  ];
-
-  const activities = [
-    {
-      icon: "list",
-      className: "cd-activity-yellow",
-      title: "New quote received",
-      description: "King Fahd Road – Water Line",
-      time: "2h ago",
-    },
-    {
-      icon: "check",
-      className: "cd-activity-green",
-      title: "Project status updated",
-      description: "Olaya Street – Maintenance",
-      time: "5h ago",
-    },
-    {
-      icon: "square",
-      className: "cd-activity-grey",
-      title: "Provider message",
-      description: "Safety Arabia Co. LTD",
-      time: "1d ago",
-    },
-    {
-      icon: "plus",
-      className: "cd-activity-yellow",
-      title: "Project created",
-      description: "Northern Ring Road",
-      time: "2d ago",
+      onClick: () => navigate("/project/location"),
     },
   ];
 
@@ -145,12 +122,12 @@ function ContractorDashboard() {
               <span>Dashboard</span>
             </Link>
 
-            <Link to="/contractor-dashboard#projects">
+            <Link to="/my-projects">
               <Icon name="projects" />
               <span>My Projects</span>
             </Link>
 
-            <Link to="/create-project">
+            <Link to="/create-project" onClick={startNewProject}>
               <Icon name="create" />
               <span>Create Project</span>
             </Link>
@@ -201,7 +178,7 @@ function ContractorDashboard() {
             <button
               type="button"
               className="cd-create-button"
-              onClick={() => navigate("/create-project")}
+              onClick={handleCreateProject}
             >
               <Icon name="plus" size={16} />
               Create New Project
@@ -216,7 +193,7 @@ function ContractorDashboard() {
                   <Icon name={statistic.icon} size={22} />
                 </div>
                 <div className="cd-stat-info">
-                  <strong>{statistic.value}</strong>
+                  <strong>{loading ? "–" : statistic.value}</strong>
                   <span>{statistic.title}</span>
                 </div>
               </article>
@@ -248,66 +225,83 @@ function ContractorDashboard() {
                 <div className="cd-panel-heading">
                   <h2>My Projects</h2>
 
-                  <Link
-                    to="/contractor-dashboard#projects"
-                    className="cd-link"
-                  >
+                  <Link to="/my-projects" className="cd-link">
                     View all →
                   </Link>
                 </div>
 
-                <div className="cd-table-wrapper">
-                  <table className="cd-table">
-                    <thead>
-                      <tr>
-                        <th>Project Name</th>
-                        <th>Location</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Status</th>
-                        <th className="cd-col-actions">Actions</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {projects.map((project) => (
-                        <tr key={project.name}>
-                          <td>
-                            <div className="cd-project-name">
-                              <span
-                                className={`cd-thumb ${project.thumbClass}`}
-                                aria-hidden="true"
-                              />
-                              <strong>{project.name}</strong>
-                            </div>
-                          </td>
-                          <td>
-                            <span className="cd-location">
-                              <Icon name="pin" size={12} />
-                              {project.location}
-                            </span>
-                          </td>
-                          <td>{project.start}</td>
-                          <td>{project.end}</td>
-                          <td>
-                            <span className={`cd-status ${project.statusClass}`}>
-                              {project.status}
-                            </span>
-                          </td>
-                          <td className="cd-col-actions">
-                            <button
-                              type="button"
-                              className="cd-row-menu"
-                              aria-label={`Actions for ${project.name}`}
-                            >
-                              <Icon name="more" size={18} />
-                            </button>
-                          </td>
+                {error ? (
+                  <p className="cd-empty" role="alert">
+                    {error}
+                  </p>
+                ) : loading ? (
+                  <p className="cd-empty">
+                    Loading your projects… the server can take a few seconds to
+                    wake up.
+                  </p>
+                ) : projects.length === 0 ? (
+                  <p className="cd-empty">
+                    You have no projects yet. Create your first project to see
+                    it here.
+                  </p>
+                ) : (
+                  <div className="cd-table-wrapper">
+                    <table className="cd-table">
+                      <thead>
+                        <tr>
+                          <th>Project Name</th>
+                          <th>Location</th>
+                          <th>Start Date</th>
+                          <th>End Date</th>
+                          <th>Status</th>
+                          <th className="cd-col-actions">Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+
+                      <tbody>
+                        {projects.map((project) => (
+                          <tr key={project.id}>
+                            <td>
+                              <div className="cd-project-name">
+                                <span
+                                  className={`cd-thumb cd-thumb-${thumbTone(project)}`}
+                                  aria-hidden="true"
+                                />
+                                <strong>{project.name}</strong>
+                              </div>
+                            </td>
+                            <td>
+                              <span className="cd-location">
+                                <Icon name="pin" size={12} />
+                                {project.location}
+                              </span>
+                            </td>
+                            <td>{formatDate(project.startDate)}</td>
+                            <td>{formatDate(project.endDate)}</td>
+                            <td>
+                              <span
+                                className={`cd-status cd-status-${project.statusTone}`}
+                              >
+                                {project.statusLabel}
+                              </span>
+                            </td>
+                            <td className="cd-col-actions">
+                              <button
+                                type="button"
+                                className="cd-row-menu"
+                                aria-label={`Open ${project.name}`}
+                                onClick={() => handleOpenProject(project)}
+                                disabled={!nextStepFor(project)}
+                              >
+                                <Icon name="more" size={18} />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </section>
             </div>
 
@@ -324,7 +318,7 @@ function ContractorDashboard() {
                       type="button"
                       className="cd-quick-action"
                       key={action.title}
-                      onClick={() => navigate(action.to)}
+                      onClick={action.onClick}
                     >
                       <span className="cd-quick-icon">
                         <Icon name={action.icon} size={18} />
@@ -345,32 +339,33 @@ function ContractorDashboard() {
                 <div className="cd-panel-heading">
                   <h2>Recent Activity</h2>
 
-                  <button
-                    type="button"
-                    className="cd-link"
-                    onClick={() => navigate("/contractor-dashboard")}
-                  >
+                  <Link to="/my-projects" className="cd-link">
                     View all →
-                  </button>
+                  </Link>
                 </div>
 
-                <div className="cd-activity-list">
-                  {activities.map((activity, index) => (
-                    <article
-                      className="cd-activity-item"
-                      key={`${activity.title}-${index}`}
-                    >
-                      <div className={`cd-activity-icon ${activity.className}`}>
-                        <Icon name={activity.icon} size={16} />
-                      </div>
-                      <div className="cd-activity-info">
-                        <strong>{activity.title}</strong>
-                        <p>{activity.description}</p>
-                      </div>
-                      <span className="cd-activity-time">{activity.time}</span>
-                    </article>
-                  ))}
-                </div>
+                {/* TODO(BACKEND): GET /activity for quotes, status changes and
+                    provider messages. For now: "Project created" only. */}
+                {activities.length === 0 ? (
+                  <p className="cd-empty">No activity yet.</p>
+                ) : (
+                  <div className="cd-activity-list">
+                    {activities.map((activity) => (
+                      <article className="cd-activity-item" key={activity.id}>
+                        <div
+                          className={`cd-activity-icon cd-activity-${activity.tone}`}
+                        >
+                          <Icon name="plus" size={16} />
+                        </div>
+                        <div className="cd-activity-info">
+                          <strong>{activity.title}</strong>
+                          <p>{activity.text}</p>
+                        </div>
+                        <span className="cd-activity-time">{activity.time}</span>
+                      </article>
+                    ))}
+                  </div>
+                )}
               </section>
             </div>
           </div>
