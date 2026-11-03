@@ -10727,6 +10727,26 @@ textarea {
   font-size: 13px;
 }
 
+.mamar-map-tools {
+  display: flex;
+  gap: 10px;
+  padding: 12px 0;
+}
+
+.mamar-map-tools button {
+  background: #ffc400;
+  color: #111827;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mamar-map-tools button:hover {
+  background: #e6b000;
+}
+
 
 
 
