@@ -6,10 +6,8 @@ import Sidebar from "../components/Sidebar";
 import Button from "../components/Button";
 import MamarMap from "../components/MamarMap";
 import { getSession } from "../services/auth";
+import { saveProjectToBackend } from "../services/projects";
 import Icon from "../components/Icons";
-
-
-
 
 const SERVICE_OPTIONS = [
   {
@@ -30,44 +28,43 @@ const SERVICE_OPTIONS = [
       "Installation and rental of road signs and variable message signs.",
   },
 ];
+
 const navIcon = (name) =>
-    function NavIcon({ size }) {
+  function NavIcon({ size }) {
     return <Icon name={name} size={size} />;
   };
-const SIDEBAR_ITEMS = [
 
+const SIDEBAR_ITEMS = [
   {
     label: "Dashboard",
     path: "/contractor-dashboard",
-    icon: navIcon('dashboard'),
+    icon: navIcon("dashboard"),
   },
   {
     label: "My Projects",
     path: "/my-projects",
-    icon: navIcon('projects'),
+    icon: navIcon("projects"),
   },
   {
     label: "Create Project",
     path: "/create-project",
-    icon: navIcon('create'),
+    icon: navIcon("create"),
   },
   {
     label: "Providers",
     path: "/providers",
-    icon: navIcon('providers'),
+    icon: navIcon("providers"),
   },
   {
     label: "Quotations",
     path: "/quotations",
-    icon: navIcon('quotations'),
+    icon: navIcon("quotations"),
   },
 ];
 
 function readProject() {
   try {
-    return JSON.parse(
-      sessionStorage.getItem("mamarNewProject")
-    ) || {};
+    return JSON.parse(sessionStorage.getItem("mamarNewProject")) || {};
   } catch {
     return {};
   }
@@ -98,6 +95,7 @@ function ReviewPage() {
 
   const [error, setError] = useState("");
   const [savedMessage, setSavedMessage] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const selectedServices = Array.isArray(project.services)
     ? project.services
@@ -109,9 +107,7 @@ function ReviewPage() {
 
   const projectDates =
     project.startDate && project.endDate
-      ? `${formatDate(project.startDate)} – ${formatDate(
-          project.endDate
-        )}`
+      ? `${formatDate(project.startDate)} – ${formatDate(project.endDate)}`
       : "Not specified";
 
   function handleEditDetails() {
@@ -126,25 +122,52 @@ function ReviewPage() {
     navigate("/services");
   }
 
-  function handleSaveDraft() {
-    try {
-      sessionStorage.setItem(
-        "mamarNewProject",
-        JSON.stringify({
-          ...project,
-          status: "draft",
-        })
-      );
+  // Saves the project in the backend (POST /projects the first time,
+  // PATCH /projects/:id after that) and remembers its project_id.
+  async function saveToBackend(status) {
+    const saved = await saveProjectToBackend(project);
 
-      setSavedMessage("Project draft saved successfully.");
-      setError("");
-    } catch {
-      setError("Unable to save the project draft. Please try again.");
+    const next = {
+      ...project,
+      id: saved.project_id,
+      projectId: saved.project_id,
+      status,
+    };
+
+    sessionStorage.setItem("mamarNewProject", JSON.stringify(next));
+    setProject(next);
+
+    return next;
+  }
+
+  async function handleSaveDraft() {
+    if (saving) return;
+
+    if (!project.name || !project.type || !project.startDate || !project.endDate) {
+      setError("Project details are incomplete. Please edit the project details.");
       setSavedMessage("");
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+    setSavedMessage("");
+
+    try {
+      await saveToBackend("draft");
+      setSavedMessage("Project draft saved successfully.");
+    } catch (err) {
+      setError(
+        err.message || "Unable to save the project draft. Please try again."
+      );
+    } finally {
+      setSaving(false);
     }
   }
 
-  function handleConfirm() {
+  async function handleConfirm() {
+    if (saving) return;
+
     if (
       !project.name ||
       !project.type ||
@@ -157,15 +180,18 @@ function ReviewPage() {
       return;
     }
 
+    if (project.type.length > 50) {
+      setError("Project type is too long (50 characters maximum).");
+      return;
+    }
+
     if (
       project.latitude === null ||
       project.latitude === undefined ||
       project.longitude === null ||
       project.longitude === undefined
     ) {
-      setError(
-        "Please select a project location before continuing."
-      );
+      setError("Please select a project location before continuing.");
       return;
     }
 
@@ -174,30 +200,25 @@ function ReviewPage() {
       return;
     }
 
-    const confirmedProject = {
-      ...project,
-      status: "submitted",
-    };
-
-    sessionStorage.setItem(
-      "mamarNewProject",
-      JSON.stringify(confirmedProject)
-    );
-
-    setProject(confirmedProject);
+    setSaving(true);
     setError("");
+    setSavedMessage("");
 
-    navigate("/providers", {
-      state: { project: confirmedProject },
-    });
+    try {
+      const confirmedProject = await saveToBackend("submitted");
+
+      navigate("/providers", {
+        state: { project: confirmedProject },
+      });
+    } catch (err) {
+      setError(err.message || "Unable to save the project. Please try again.");
+      setSaving(false);
+    }
   }
 
   return (
     <div className="review-page">
-      <Sidebar
-        items={SIDEBAR_ITEMS}
-        activePath="/create-project"
-      />
+      <Sidebar items={SIDEBAR_ITEMS} activePath="/create-project" />
 
       <main className="review-main">
         <header className="review-header">
@@ -249,11 +270,7 @@ function ReviewPage() {
 
             <div className="review-progress-line completed" />
 
-            <ProgressStep
-              number="4"
-              label="Review"
-              status="active"
-            />
+            <ProgressStep number="4" label="Review" status="active" />
           </div>
 
           <div className="review-grid">
@@ -284,10 +301,7 @@ function ReviewPage() {
                 value={project.type || "Not specified"}
               />
 
-              <ReviewField
-                label="Project Dates"
-                value={projectDates}
-              />
+              <ReviewField label="Project Dates" value={projectDates} />
 
               <ReviewField
                 label="Description"
@@ -313,12 +327,13 @@ function ReviewPage() {
               </div>
 
               <div className="review-map">
-                {project.latitude != null &&
-                project.longitude != null ? (
+                {project.latitude != null && project.longitude != null ? (
+                  /* MamarMap reads the saved zone from the "workZone" prop
+                     (a list of [lon, lat] points). It has no "polygon" prop. */
                   <MamarMap
                     latitude={project.latitude}
                     longitude={project.longitude}
-                    polygon={project.polygon ?? project.workZone ?? null}
+                    workZone={project.workZone}
                     readOnly
                   />
                 ) : (
@@ -334,16 +349,13 @@ function ReviewPage() {
 
                 <div>
                   <strong>Project Location</strong>
-                  <p>
-                    {project.location || "No location selected"}
-                  </p>
+                  <p>{project.location || "No location selected"}</p>
 
-                  {project.latitude != null &&
-                    project.longitude != null && (
-                      <small>
-                        {project.latitude}, {project.longitude}
-                      </small>
-                    )}
+                  {project.latitude != null && project.longitude != null && (
+                    <small>
+                      {project.latitude}, {project.longitude}
+                    </small>
+                  )}
                 </div>
               </div>
 
@@ -366,9 +378,7 @@ function ReviewPage() {
               <div className="review-card-heading">
                 <div>
                   <h2>Selected Services</h2>
-                  <p>
-                    Services requested for this project.
-                  </p>
+                  <p>Services requested for this project.</p>
                 </div>
 
                 <button
@@ -384,10 +394,7 @@ function ReviewPage() {
               {services.length > 0 ? (
                 <div className="review-services-list">
                   {services.map((service) => (
-                    <div
-                      className="review-service-item"
-                      key={service.id}
-                    >
+                    <div className="review-service-item" key={service.id}>
                       <span className="review-service-check">
                         <Check size={16} />
                       </span>
@@ -400,9 +407,7 @@ function ReviewPage() {
                   ))}
                 </div>
               ) : (
-                <p className="review-empty-services">
-                  No services selected.
-                </p>
+                <p className="review-empty-services">No services selected.</p>
               )}
             </section>
           </div>
@@ -415,8 +420,8 @@ function ReviewPage() {
             <div className="review-confirmation-text">
               <h2>Ready to continue?</h2>
               <p>
-                Confirm your project details to continue to the
-                provider selection process.
+                Confirm your project details to continue to the provider
+                selection process.
               </p>
             </div>
           </section>
@@ -437,6 +442,7 @@ function ReviewPage() {
             <Button
               variant="secondary"
               onClick={() => navigate("/services")}
+              disabled={saving}
             >
               ← Back
             </Button>
@@ -445,12 +451,13 @@ function ReviewPage() {
               <Button
                 variant="secondary"
                 onClick={handleSaveDraft}
+                disabled={saving}
               >
-                Save Draft
+                {saving ? "Saving…" : "Save Draft"}
               </Button>
 
-              <Button onClick={handleConfirm}>
-                Confirm &amp; Find Providers →
+              <Button onClick={handleConfirm} disabled={saving}>
+                {saving ? "Saving…" : "Confirm & Find Providers →"}
               </Button>
             </div>
           </div>
