@@ -186,7 +186,9 @@ export const postConfirmProvider = (token, projectId, quoteId) =>
     headers: JSON_H,
     body: asJson({ quote_id: Number(quoteId) }),
   });
- 
+export function fetchProject(accessToken, projectId) {
+  return authed(`/projects/${projectId}`, accessToken);
+}
 export const fetchMonitoring = (token, projectId) =>
   authed(`/projects/${projectId}/monitoring`, token);
  
