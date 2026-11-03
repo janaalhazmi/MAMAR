@@ -162,3 +162,100 @@ export const verifyDevice = (t, device, body) =>
   authed(`/devices/${device}/verify`, t, { method: "POST", headers: JSON_H, body: JSON.stringify(body) });
 
 const JSON_H = { "Content-Type": "application/json" };
+const JSON_H = { "Content-Type": "application/json" };
+const asJson = (body) => JSON.stringify(body);
+ 
+// تحتاجه لتركيب روابط الصور النسبية مثل /photos/abc
+export { API_BASE_URL };
+ 
+/* ---------- Contractor ---------- */
+ 
+export const postServiceRequest = (token, projectId, body) =>
+  authed(`/projects/${projectId}/requests`, token, {
+    method: "POST",
+    headers: JSON_H,
+    body: asJson(body), // { title, required_by, details }
+  });
+ 
+export const fetchProjectQuotations = (token, projectId) =>
+  authed(`/projects/${projectId}/quotations`, token);
+ 
+export const postRejectQuote = (token, quoteId) =>
+  authed(`/quotes/${quoteId}/reject`, token, { method: "POST" });
+ 
+export const postConfirmProvider = (token, projectId, quoteId) =>
+  authed(`/projects/${projectId}/confirm-provider`, token, {
+    method: "POST",
+    headers: JSON_H,
+    body: asJson({ quote_id: Number(quoteId) }),
+  });
+ 
+export const fetchMonitoring = (token, projectId) =>
+  authed(`/projects/${projectId}/monitoring`, token);
+ 
+export const fetchCompletion = (token, projectId) =>
+  authed(`/projects/${projectId}/completion`, token);
+ 
+export const postCompleteProject = (token, projectId) =>
+  authed(`/projects/${projectId}/complete`, token, { method: "POST" });
+ 
+export const postRequestChanges = (token, projectId, note) =>
+  authed(`/projects/${projectId}/request-changes`, token, {
+    method: "POST",
+    headers: JSON_H,
+    body: asJson({ note }),
+  });
+ 
+/* ---------- Provider ---------- */
+ 
+export const fetchOpenRequests = (token, status = "open") =>
+  authed(`/requests?status=${encodeURIComponent(status)}`, token);
+ 
+export const postQuotation = (token, body) =>
+  authed("/quotations", token, {
+    method: "POST",
+    headers: JSON_H,
+    body: asJson(body), // { project_id, price, duration_days, start_date, services, notes }
+  });
+ 
+export const fetchAssignments = (token, status) =>
+  authed(`/assignments${status ? `?status=${encodeURIComponent(status)}` : ""}`, token);
+ 
+export const postAssignment = (token, projectId, workerId) =>
+  authed(`/projects/${projectId}/assignments`, token, {
+    method: "POST",
+    headers: JSON_H,
+    body: asJson({ worker_id: Number(workerId) }),
+  });
+ 
+/* ---------- Field worker ---------- */
+ 
+export const fetchFieldProjects = (token) => authed("/field-worker/projects", token);
+ 
+export const fetchFieldProject = (token, projectId) =>
+  authed(`/field-worker/projects/${projectId}`, token);
+ 
+export const patchSiteStatus = (token, projectId, status) =>
+  authed(`/field-worker/projects/${projectId}/status`, token, {
+    method: "PATCH",
+    headers: JSON_H,
+    body: asJson({ status }),
+  });
+ 
+export const postCheckIn = (token, projectId) =>
+  authed(`/field-worker/projects/${projectId}/check-in`, token, { method: "POST" });
+ 
+// formData فيه الحقول: photos (ملفات) و captions. لا تحط Content-Type يدوي.
+export const postPhotos = (token, projectId, formData) =>
+  authed(`/field-worker/projects/${projectId}/photos`, token, {
+    method: "POST",
+    body: formData,
+  });
+ 
+export const postDeviceVerify = (token, device, body) =>
+  authed(`/devices/${encodeURIComponent(device)}/verify`, token, {
+    method: "POST",
+    headers: JSON_H,
+    body: asJson(body), // { project_id, latitude, longitude, accuracy }
+  });
+ 
