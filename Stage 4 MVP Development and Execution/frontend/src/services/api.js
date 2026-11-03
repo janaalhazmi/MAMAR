@@ -160,7 +160,7 @@ export const postCheckIn = (t, id) => authed(`/field-worker/projects/${id}/check
 export const verifyDevice = (t, device, body) =>
   authed(`/devices/${device}/verify`, t, { method: "POST", headers: JSON_H, body: JSON.stringify(body) });
 
-const JSON_H = { "Content-Type": "application/json" };
+
 const JSON_H = { "Content-Type": "application/json" };
 const asJson = (body) => JSON.stringify(body);
  
