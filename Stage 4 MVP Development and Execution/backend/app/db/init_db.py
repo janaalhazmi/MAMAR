@@ -61,6 +61,7 @@ NEW_COLUMNS = [
     "ALTER TABLE projects ADD COLUMN IF NOT EXISTS change_note TEXT",
     "ALTER TABLE quotes ADD COLUMN IF NOT EXISTS start_date DATE",
     "ALTER TABLE quotes ADD COLUMN IF NOT EXISTS services JSON",
+    "ALTER TABLE service_requests ADD COLUMN IF NOT EXISTS provider_ids JSON",
 ]
 
 

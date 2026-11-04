@@ -47,6 +47,7 @@ backend/
       workflow.py          # Quotations, confirm provider, monitoring and completion (contractor pages)
       field_work.py        # Field worker projects, status, check-in and photos, and GET /photos/{token}
       devices.py           # POST /devices/{device}/verify
+      provider.py          # GET /provider/requests, /provider/projects, /provider/projects/{id} and /provider/dashboard
     schemas/
       auth.py              # Request and response formats of the auth endpoints
       error.py             # The error format {"detail": "message"}
@@ -55,6 +56,7 @@ backend/
       quote.py             # Request and response formats of the quotes endpoints
       assignment.py        # Request and response formats of the assignments endpoints
       workflow.py          # Request and response formats of the workflow, field work and devices endpoints
+      provider_view.py     # Response formats of the provider pages
     main.py                # Creates the FastAPI app, allows the frontend (CORS) and adds the routers
   tests/
     conftest.py            # The api fixture: accounts, projects, requests and quotes for the provider workflow tests
@@ -69,6 +71,7 @@ backend/
     test_projects.py       # Projects endpoints tests
     test_session.py        # GET /auth/me (session check) tests
     test_workflow.py       # Quotations, field work, photos, completion and device verification tests
+    test_provider.py       # Provider requests, projects and dashboard tests
   .env.example             # Example settings, without real passwords
   .gitignore
   README.md
@@ -96,6 +99,7 @@ The tables are created automatically when the server starts. For the frontend wo
 | --- | --- |
 | `projects` | `services` (the ids chosen on Select Service), `site_status`, `last_check_in`, `completion_submitted`, `submitted_at`, `change_note` |
 | `quotes` | `start_date`, `services` (optional) |
+| `service_requests` | `provider_ids` (optional): the providers the contractor invited. `null` means every provider |
 
 A new table, `site_photos`, keeps the photos that field workers upload. They are saved in PostgreSQL because the free Render server deletes uploaded files on every deploy.
 
@@ -426,9 +430,9 @@ The provider workflow from Stage 3, sections 3.2, 4.2.8 to 4.2.14. All of them n
 
 | Endpoint | Who | What it does |
 | --- | --- | --- |
-| `POST /projects/{id}/requests` | Contractor of the project | Creates a service request as `open`. Body: `title`, `required_by`, and optional `details` |
-| `GET /requests` | Contractor, provider | A contractor sees the requests of their projects. A provider sees the open requests. Optional `?status=` and `?project_id=`. Newest first |
-| `POST /requests/{id}/quotes` | Provider | Sends a quote as `pending`. Body: `price`, `duration_days`, and optional `notes`. `provider_id` comes from the token |
+| `POST /projects/{id}/requests` | Contractor of the project | Creates a service request as `open`. Body: `title`, `required_by`, and optional `details` and `provider_ids` (the providers chosen on Select Provider, for example `[1, 3]`). Without `provider_ids` every provider sees the request |
+| `GET /requests` | Contractor, provider | A contractor sees the requests of their projects. A provider sees the open requests it was invited to, and with `?status=awarded` (or `closed`) the requests its company won. Optional `?status=` and `?project_id=`. Newest first |
+| `POST /requests/{id}/quotes` | Provider invited to the request | Sends a quote as `pending`. Body: `price`, `duration_days`, and optional `notes`. `provider_id` comes from the token |
 | `GET /requests/{id}/quotes` | Contractor of the request, provider | The contractor sees all the quotes, cheapest first. A provider sees only the quote of their company |
 | `POST /requests/{id}/award` | Contractor of the request | Body `{"quote_id": 54}`. Accepts that quote, rejects the others and marks the request as `awarded` |
 | `POST /projects/{id}/assignments` | Provider that won a request of the project | Body `{"worker_id": 15}`. Assigns a field worker of the same company as `active` |
@@ -443,6 +447,8 @@ The workflow: the contractor creates a request, providers send quotes, the contr
 | Project or request that does not exist | 404 | `Project not found` or `Request not found` |
 | Quote for a request that is awarded or closed | 400 | `The request is awarded, quotes are only sent to open requests` |
 | A second quote from the same company | 409 | `Your company already sent a quote for this request` |
+| A quote from a company the contractor did not invite | 403 | `The contractor did not invite your company to this request` |
+| A `provider_id` in `provider_ids` that does not exist, or an empty list | 422 | `provider_ids: provider 999 does not exist` |
 | Awarding a request that is not open | 400 | `The request is already awarded` |
 | `quote_id` of another request | 404 | `Quote not found for this request` |
 | Assigning without an accepted quote on the project | 403 | `Your company did not win a request for this project` |
@@ -481,6 +487,7 @@ The endpoints that `frontend/src/services/projectFlow.js` and `fieldWork.js` cal
 | --- | --- | --- |
 | A quotation for a project without an open request | 400 | `This project is not asking for quotations` |
 | A second quotation from the same company | 409 | `Your company already sent a quotation for this project` |
+| A quotation from a company the contractor did not invite | 403 | `The contractor did not invite your company to this project` |
 | Rejecting a quote that is not pending | 400 | `The quote is already rejected` |
 | Confirming twice, or a rejected quote | 400 | `A provider is already confirmed for this project` or `The quote is rejected` |
 | A quote of another project | 404 | `Quote not found for this project` |
@@ -494,6 +501,19 @@ The endpoints that `frontend/src/services/projectFlow.js` and `fieldWork.js` cal
 | ArcGIS cannot be reached | 502 | `Could not read the planned device location: ...` |
 
 The work zone polygon is still saved in ArcGIS by the frontend, as in Stage 3 (see [Work Zone Polygon](#work-zone-polygon)). Saving needs **Create** and **Update** turned on for the MAMAR Projects layer in ArcGIS Online. Until then the project is saved in PostgreSQL and the Review page shows that the map copy could not be saved.
+
+## Provider Pages
+
+The data of the provider's Dashboard, Service Requests and Projects pages. Only a `provider` token opens them (others get 403 `Only providers can view this page`), and each one returns only the data of the provider's own company (`provider_id` in the token). A new company gets `[]`, `null` and zeros, not an error.
+
+| Endpoint | What it returns |
+| --- | --- |
+| `GET /provider/requests` | The open requests the company was invited to, newest first. Each one has the request fields, `project` (name, dates, `closure_type`, `services`), `quoted` and `my_quote` (the company's quote or `null`). `?quoted=false` keeps only the requests still waiting for a quote |
+| `GET /provider/projects` | The projects the company won (its quote was accepted), without cancelled ones. Each one has `project`, `status` (`Active`, `Upcoming` or `Completed`), `site_status`, `progress`, `field_team_count`, `last_check_in`, `completion_submitted` and `quote`. `?status=Active` picks one tab |
+| `GET /provider/projects/{id}` | One won project with the same fields plus `submitted_at`, `change_note`, `team` and `photos`. 403 `Your company did not win this project` for other companies |
+| `GET /provider/dashboard` | `stats` (`assigned`, `active`, `upcoming`, `completed`), `pending_quotes`, `new_requests` (not quoted yet), `next_project` (the first upcoming one, or `null`), `active_projects` and `overview` (`workers_active`, `sites_active`, `field_workers`). Every number is counted by the server |
+
+`status` of a won project: `Completed` after the contractor approves it, `Active` when the start date came or the field team already checked in, otherwise `Upcoming`. Today is the date in Riyadh. `progress` is the same as on Project Monitoring.
 
 ## Frontend Integration
 
@@ -711,7 +731,9 @@ pytest
 | `test_create_request_with_an_invalid_body_returns_422` | An empty or too long title and a wrong or missing date return 422 (4 cases) |
 | `test_create_request_rules` | No token 401, another contractor's project 403, a provider 403, an unknown project 404 |
 | `test_contractor_sees_only_the_requests_of_their_projects` | A contractor sees only their own requests, newest first, and `?project_id=` filters them |
-| `test_provider_sees_only_open_requests` | A provider sees the open requests only |
+| `test_provider_sees_open_requests_and_the_requests_it_won` | A provider sees the open requests, and with `?status=awarded` only the requests its company won |
+| `test_provider_sees_only_the_requests_it_was_invited_to` | `provider_ids` is saved once per provider, only the invited companies see the request, and another company cannot quote it |
+| `test_create_request_with_unknown_or_empty_provider_ids_returns_422` | An unknown provider or an empty list returns 422 |
 | `test_list_requests_rules` | No token 401, a worker 403, an unknown status 422 |
 | `test_award_accepts_one_quote_and_rejects_the_others` | Award accepts the chosen quote, rejects the other one and returns the Stage 3 response |
 | `test_award_rules` | Another contractor 403, a provider 403, unknown request 404, quote of another request 404, missing `quote_id` 422, awarding twice 400 |
@@ -750,6 +772,15 @@ pytest
 | `test_device_found_by_code` | A device is found by its code, for example `TC-014` |
 | `test_device_filter_accepts_ids_and_codes_only` | Only a number or a code made of letters, digits, `-` and `_` reaches the ArcGIS query |
 | `test_haversine_matches_the_frontend` | The distance formula gives the same result as `distanceInMeters()` in the frontend |
+| `test_provider_pages_need_a_provider_token` | The four provider pages return 401 without a token and 403 for a contractor or a worker |
+| `test_new_provider_gets_empty_lists_and_zeros` | A company without projects gets `[]`, `null` and zeros |
+| `test_provider_requests_have_the_project_and_the_quoted_flag` | Each request has its project, and `quoted` and `my_quote` change after the quotation. `?quoted=` filters |
+| `test_provider_requests_follow_the_invitation` | Only the invited company sees the request, can open the project and can send a quotation |
+| `test_provider_projects_have_progress_and_tabs` | Won projects are `Active` or `Upcoming` with their progress and quote, `?status=` filters, and another company sees none of them |
+| `test_provider_project_detail_has_the_team_and_photos` | The detail has the team, check-in, photos and progress, and becomes `Completed` with 100 after approval |
+| `test_provider_project_detail_errors` | Another company gets 403 and a missing project 404 |
+| `test_provider_dashboard_counts_its_own_data` | The dashboard counts the company's projects, pending quotes, new requests and active workers |
+| `test_awarded_request_leaves_the_new_requests` | After the contractor confirms, the request leaves the new requests and appears in `?status=awarded` |
 
 ## Deploy on Render
 

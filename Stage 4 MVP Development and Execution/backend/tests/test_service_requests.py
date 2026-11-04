@@ -4,7 +4,7 @@ from app.models import Quote, ServiceRequest
 from tests.conftest import REQUEST
 
 # The fields of one service request in Stage 3, section 4.2.8, in the same order.
-REQUEST_FIELDS = ["request_id", "project_id", "title", "details", "required_by", "status", "created_at"]
+REQUEST_FIELDS = ["request_id", "project_id", "title", "details", "required_by", "status", "created_at", "provider_ids"]
 
 
 def test_create_request_returns_201_as_open(api):
@@ -68,9 +68,10 @@ def test_contractor_sees_only_the_requests_of_their_projects(api):
     assert [r["request_id"] for r in filtered] == [second["request_id"]]
 
 
-def test_provider_sees_only_open_requests(api):
+def test_provider_sees_open_requests_and_the_requests_it_won(api):
     _, contractor = api.account()
     _, provider = api.account("provider", 1)
+    _, other = api.account("provider", 2)
     project_id = api.project(contractor)
     open_request = api.request(contractor, project_id)
     awarded = api.request(contractor, project_id)
@@ -78,7 +79,37 @@ def test_provider_sees_only_open_requests(api):
     assert api.award(contractor, awarded["request_id"], quote["quote_id"]).status_code == 200
     ids = [r["request_id"] for r in api.client.get(f"/requests?project_id={project_id}", headers=provider).json()]
     assert ids == [open_request["request_id"]]
-    assert api.client.get(f"/requests?status=awarded&project_id={project_id}", headers=provider).json() == []
+    won = api.client.get(f"/requests?status=awarded&project_id={project_id}", headers=provider).json()
+    assert [r["request_id"] for r in won] == [awarded["request_id"]]
+    # Another company did not win it, so it sees nothing awarded.
+    assert api.client.get(f"/requests?status=awarded&project_id={project_id}", headers=other).json() == []
+
+
+def test_provider_sees_only_the_requests_it_was_invited_to(api):
+    _, contractor = api.account()
+    _, invited = api.account("provider", 1)
+    _, not_invited = api.account("provider", 2)
+    project_id = api.project(contractor)
+    request = api.request(contractor, project_id, provider_ids=[1, 3, 1])
+    assert request["provider_ids"] == [1, 3]
+    everyone = api.request(contractor, project_id)
+    assert everyone["provider_ids"] is None
+    seen = lambda headers: [r["request_id"] for r in api.client.get(f"/requests?project_id={project_id}", headers=headers).json()]  # noqa: E731
+    assert seen(invited) == [everyone["request_id"], request["request_id"]]
+    assert seen(not_invited) == [everyone["request_id"]]
+    # A provider that was not invited cannot quote or open the project through that request.
+    response = api.client.post(f"/requests/{request['request_id']}/quotes", json={"price": 100, "duration_days": 2}, headers=not_invited)
+    assert (response.status_code, response.json()) == (403, {"detail": "The contractor did not invite your company to this request"})
+    api.quote(invited, request["request_id"])
+
+
+def test_create_request_with_unknown_or_empty_provider_ids_returns_422(api):
+    _, contractor = api.account()
+    project_id = api.project(contractor)
+    response = api.client.post(f"/projects/{project_id}/requests", json={**REQUEST, "provider_ids": [1, 999]}, headers=contractor)
+    assert (response.status_code, response.json()) == (422, {"detail": "provider_ids: provider 999 does not exist"})
+    response = api.client.post(f"/projects/{project_id}/requests", json={**REQUEST, "provider_ids": []}, headers=contractor)
+    assert response.status_code == 422
 
 
 def test_list_requests_rules(api):

@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import CheckConstraint, ForeignKey, String, Text, func
+from sqlalchemy import JSON, CheckConstraint, ForeignKey, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.database import Base
@@ -22,6 +22,9 @@ class ServiceRequest(Base):
     required_by: Mapped[date]
     status: Mapped[str] = mapped_column(String(20))
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    # The providers the contractor invited on the Select Provider page. NULL means the request
+    # is open to every provider. Last, so a new and an upgraded database match.
+    provider_ids: Mapped[list[int] | None] = mapped_column(JSON(none_as_null=True))
     # The quotes that providers sent for this request, oldest first.
     quotes: Mapped[list["Quote"]] = relationship(order_by="Quote.quote_id")  # noqa: F821
 
@@ -41,6 +44,10 @@ class ServiceRequest(Base):
         self.status = "awarded"
         return chosen
 
+    def invites(self, provider_id: int | None) -> bool:
+        # True when this provider can see the request and send a quote for it.
+        return self.provider_ids is None or provider_id in self.provider_ids
+
     def close(self) -> None:
         # Marks an open request as closed when no more quotes are needed (Stage 3, section 2.2.4).
         if self.status != "open":
@@ -57,4 +64,5 @@ class ServiceRequest(Base):
             "required_by": self.required_by,
             "status": self.status,
             "created_at": self.created_at,
+            "provider_ids": self.provider_ids,
         }

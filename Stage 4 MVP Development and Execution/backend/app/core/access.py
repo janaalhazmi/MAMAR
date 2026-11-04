@@ -45,18 +45,20 @@ def assigned_project(db: Session, project_id: int, worker: User) -> Project:
 
 
 def can_view_project(db: Session, project: Project, user: User) -> bool:
-    # Contractor: their own projects. Provider: projects with an open request, or that their
+    # Contractor: their own projects. Provider: projects with an open request it was invited to, or that its
     # company quoted or won. Field worker: projects they are assigned to.
     if user.role == "contractor":
         return project.contractor_id == user.user_id
     if user.role == "worker":
         return is_assigned(db, project.project_id, user)
-    open_request = select(ServiceRequest).where(
-        ServiceRequest.project_id == project.project_id, ServiceRequest.status == "open"
+    open_requests = db.scalars(
+        select(ServiceRequest).where(ServiceRequest.project_id == project.project_id, ServiceRequest.status == "open")
     )
+    if any(request.invites(user.provider_id) for request in open_requests):
+        return True
     quoted = (
         select(Quote)
         .join(ServiceRequest)
         .where(ServiceRequest.project_id == project.project_id, Quote.provider_id == user.provider_id)
     )
-    return db.scalar(open_request) is not None or db.scalar(quoted) is not None
+    return db.scalar(quoted) is not None

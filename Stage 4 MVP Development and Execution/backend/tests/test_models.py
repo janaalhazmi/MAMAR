@@ -5,7 +5,7 @@ from app.db.database import engine
 from app.main import app
 
 # The tables and their columns: the Stage 3 database schema, then the columns added for the
-# frontend workflow (services, site execution, quote start date) and the site_photos table.
+# frontend workflow (services, site execution, quote start date, invited providers) and the site_photos table.
 EXPECTED_COLUMNS = {
     "users": [
         "user_id", "full_name", "email", "password_hash", "phone",
@@ -22,7 +22,7 @@ EXPECTED_COLUMNS = {
     ],
     "service_requests": [
         "request_id", "project_id", "title", "details",
-        "required_by", "status", "created_at",
+        "required_by", "status", "created_at", "provider_ids",
     ],
     "quotes": [
         "quote_id", "request_id", "provider_id", "price",

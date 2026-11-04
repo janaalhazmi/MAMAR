@@ -85,7 +85,7 @@ def site_progress(db: Session, project: Project) -> dict:
     responses={
         **TOKEN_ERROR,
         400: {"model": ErrorResponse, "description": "The project has no open request for quotations"},
-        403: {"model": ErrorResponse, "description": "The user is not a provider"},
+        403: {"model": ErrorResponse, "description": "The user is not a provider, or the contractor did not invite this provider"},
         404: {"model": ErrorResponse, "description": "The project does not exist"},
         409: {"model": ErrorResponse, "description": "The provider already sent a quotation for this project"},
         422: {"model": ErrorResponse, "description": "A field is missing or not valid"},
@@ -94,13 +94,16 @@ def site_progress(db: Session, project: Project) -> dict:
 def submit_quotation(data: QuotationCreate, user: User = Depends(provider_only), db: Session = Depends(get_db)):
     # The Prepare Quotation page: the quote is added to the newest open request of the project.
     get_project(db, data.project_id)
-    request = db.scalars(
+    open_requests = db.scalars(
         select(ServiceRequest)
         .where(ServiceRequest.project_id == data.project_id, ServiceRequest.status == "open")
         .order_by(ServiceRequest.request_id.desc())
-    ).first()
-    if request is None:
+    ).all()
+    if not open_requests:
         raise HTTPException(status_code=400, detail="This project is not asking for quotations")
+    request = next((item for item in open_requests if item.invites(user.provider_id)), None)
+    if request is None:
+        raise HTTPException(status_code=403, detail="The contractor did not invite your company to this project")
     already = select(Quote).where(Quote.request_id == request.request_id, Quote.provider_id == user.provider_id)
     if db.scalar(already) is not None:
         raise HTTPException(status_code=409, detail="Your company already sent a quotation for this project")
