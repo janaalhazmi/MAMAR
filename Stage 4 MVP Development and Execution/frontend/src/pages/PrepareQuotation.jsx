@@ -1,5 +1,9 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import {
+  getOpenRequestById,
+  submitProviderQuotation,
+} from "../services/providerQuotes";
 import Button from "../components/Button";
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
@@ -26,6 +30,9 @@ const initialServices = [
 ];
 
 function PrepareQuotation() {
+  const [searchParams] = useSearchParams();
+  const requestId = searchParams.get("requestId");
+  const submitting = useRef(false);
   const [services, setServices] = useState(initialServices);
   const [delivery, setDelivery] = useState(1200);
   const [showWorkZone, setShowWorkZone] = useState(false);
@@ -77,7 +84,7 @@ function PrepareQuotation() {
   const total = subtotal + Number(delivery || 0);
 
   const getQuotationData = () => ({
-    requestId: "REQ-024",
+    requestId,
     services,
     delivery,
     subtotal,
@@ -99,40 +106,64 @@ function PrepareQuotation() {
     alert("Quotation draft saved successfully.");
   };
 
-  const handleSubmitQuotation = () => {
-    // if (!selectedLocation) {
-    //   alert("Please select the project location first.");
-    //   return;
-    // }
+  const handleSubmitQuotation = async () => {
+    if (submitting.current) return;
 
-    // if (!workZone) {
-    //   alert("Please draw the work zone polygon first.");
-    //   return;
-    // }
-
-    const hasInvalidService = services.some(
-      (service) =>
-        Number(service.quantity) <= 0 ||
-        Number(service.unitPrice) <= 0
-    );
-
-    if (hasInvalidService) {
-      alert("Please enter a valid quantity and unit price for all services.");
+    if (!requestId) {
+      alert("Open this quotation from a service request.");
       return;
     }
 
     const quotation = getQuotationData();
-
-    localStorage.setItem(
-      "submittedQuotationPreview",
-      JSON.stringify(quotation)
+    const hasInvalidService = quotation.services.some(
+      ({ quantity, unitPrice }) =>
+        !Number.isFinite(quantity) || quantity <= 0 ||
+        !Number.isFinite(unitPrice) || unitPrice <= 0
     );
 
-    localStorage.removeItem("providerQuotationDraft");
+    if (hasInvalidService || !Number.isFinite(quotation.total) || quotation.total <= 0) {
+      alert("Please enter a valid quantity and unit price for all services.");
+      return;
+    }
 
-    alert(
-      "Quotation is ready to submit. Backend connection will be added when the API endpoint is available."
-    );
+    submitting.current = true;
+    try {
+      const request = await getOpenRequestById(requestId);
+      if (!request?.projectId) {
+        throw new Error("This request is no longer available for quotation.");
+      }
+
+      const start = Date.parse(request.startDate?.slice(0, 10) ?? "");
+      const end = Date.parse(request.endDate?.slice(0, 10) ?? "");
+      const durationDays = (end - start) / 86400000 + 1;
+
+      if (!Number.isInteger(durationDays) || durationDays < 1) {
+        throw new Error("The request needs valid start and end dates.");
+      }
+
+      const notes = [
+        quotation.notes,
+        ...quotation.services.map(
+          ({ name, quantity, unitPrice }) => name + ": " + quantity + " × SAR " + unitPrice
+        ),
+        "Delivery: SAR " + quotation.delivery,
+        quotation.validUntil && "Valid until: " + quotation.validUntil,
+      ].filter(Boolean).join("\n");
+
+      await submitProviderQuotation({
+        request,
+        price: quotation.total,
+        durationDays,
+        notes,
+      });
+
+      localStorage.removeItem("providerQuotationDraft");
+      alert("Quotation submitted successfully.");
+    } catch (error) {
+      alert(error.message || "Could not submit the quotation. Please try again.");
+    } finally {
+      submitting.current = false;
+    }
   };
 
   return (

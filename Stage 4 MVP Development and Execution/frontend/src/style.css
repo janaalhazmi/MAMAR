@@ -10825,3 +10825,16 @@ textarea {
   .pp-stats { grid-template-columns: 1fr; }
   .pp-panel { padding: 14px; }
 }
+
+/* Keep the Projects content beside the provider sidebar on desktop. */
+@media (min-width: 768px) {
+  .provider-projects-page {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .provider-projects-page > .provider-projects-main {
+    flex: 1;
+    min-width: 0;
+  }
+}
