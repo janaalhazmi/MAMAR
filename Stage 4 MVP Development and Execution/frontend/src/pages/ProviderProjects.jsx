@@ -38,10 +38,11 @@ export default function ProviderProjects({ projects = [] }) {
   });
 
   return (
-    <div className="provider-projects-page">
+    <div className="provider-dashboard-page">
       <ProviderSidebar />
-      <main className="provider-projects-main">
-        <section className="pp-page" aria-labelledby="pp-title">
+      <div className="provider-main-area">
+        <main className="provider-dashboard-content">
+        <section aria-labelledby="pp-title">
       <h1 id="pp-title">My Projects</h1>
       <p className="pp-description">
         View assigned projects and follow their execution progress.
@@ -178,6 +179,7 @@ export default function ProviderProjects({ projects = [] }) {
       </div>
         </section>
       </main>
+      </div>
     </div>
   );
 }
