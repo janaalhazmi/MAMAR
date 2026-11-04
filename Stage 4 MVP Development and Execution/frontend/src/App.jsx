@@ -1,3 +1,4 @@
+import { Navigate as ExecutionRedirect } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -17,7 +18,7 @@ import ServicesPage from "./pages/ServicesPage";
 import ReviewPage from "./pages/ReviewPage";
 import HelpSupportPage from "./pages/HelpSupportPage";
 import ProviderProjects from "./pages/ProviderProjects";
-import ProviderProjectDetails from "./pages/ProviderProjectDetails";
+import ProviderExecutionDetails from "./pages/ProviderExecutionDetails";
 import ProviderPage from "./pages/ProviderPage";
 import QuotationsPage from "./pages/QuotationsPage";
 import SelectProviderPage from "./pages/SelectProviderPage";
@@ -152,10 +153,19 @@ function App() {
       />
 
       <Route
+        path="/provider/execution"
+        element={
+          <ProtectedRoute roles={["provider"]}>
+            <ExecutionRedirect to="/provider/projects" replace />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/provider/projects/:projectId"
         element={
           <ProtectedRoute roles={["provider"]}>
-            <ProviderProjectDetails />
+            <ProviderExecutionDetails />
           </ProtectedRoute>
         }
       />

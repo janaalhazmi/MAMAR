@@ -10838,3 +10838,136 @@ textarea {
     min-width: 0;
   }
 }
+/* Provider — Execution Details */
+.pex-page {
+  min-width: 0;
+  color: #172033;
+  container-type: inline-size;
+}
+
+.pex-page > a {
+  color: #506078;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.pex-page > a:hover {
+  text-decoration: underline;
+}
+
+.pex-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 12px 0 20px;
+}
+
+.pex-heading h1 {
+  margin: 0;
+  font-size: clamp(24px, 3vw, 30px);
+}
+
+.pex-heading p {
+  margin: 4px 0 0;
+  color: #506078;
+}
+
+.pex-card {
+  min-width: 0;
+  margin: 0;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #e2e6ec;
+  border-radius: 14px;
+}
+
+.pex-card h2 {
+  margin: 0 0 12px;
+  font-size: 17px;
+}
+
+.pex-card p {
+  margin: 10px 0 0;
+}
+
+.pex-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.pex-summary dt {
+  color: #506078;
+  font-size: 12px;
+}
+
+.pex-summary dd {
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.pex-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.pex-grid-wide {
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+}
+
+.pex-status {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #e9f9ef;
+  color: #17643b;
+  font-size: 13px;
+}
+
+.pex-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pex-progress progress {
+  flex: 1;
+  min-width: 0;
+  accent-color: #ffcc00;
+}
+
+.pex-map-empty {
+  display: grid;
+  place-items: center;
+  min-height: 210px;
+  padding: 16px;
+  border-radius: 8px;
+  background: #f4f6f8;
+  color: #506078;
+  text-align: center;
+}
+
+.pex-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pex-list li {
+  padding: 12px 0;
+}
+
+.pex-list li + li {
+  border-top: 1px solid #e2e6ec;
+}
+
+@container (max-width: 640px) {
+  .pex-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
