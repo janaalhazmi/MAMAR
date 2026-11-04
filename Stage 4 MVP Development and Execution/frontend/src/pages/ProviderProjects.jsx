@@ -1,281 +1,183 @@
-import { useMemo, useState } from "react";
-import {
-  BriefcaseBusiness,
-  Check,
-  Clock3,
-  Search,
-} from "lucide-react";
 import ProviderSidebar from "../components/ProviderSidebar";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { BriefcaseBusiness, Check, Clock3, Search } from "lucide-react";
 
-const projects = [
-  {
-    id: "PRJ-001",
-    name: "Northern Ring Road",
-    city: "Riyadh",
-    dates: "01–15 Oct 2026",
-    duration: "15 days",
-    progress: 68,
-    status: "Active",
-  },
-  {
-    id: "PRJ-002",
-    name: "Olaya Road Works",
-    city: "Riyadh",
-    dates: "05–20 Oct 2026",
-    duration: "16 days",
-    progress: 35,
-    status: "Active",
-  },
-  {
-    id: "PRJ-003",
-    name: "Al Mursalat – Road Maintenance",
-    city: "Riyadh",
-    dates: "25–30 Oct 2026",
-    duration: "6 days",
-    progress: 0,
-    status: "Upcoming",
-  },
-  {
-    id: "PRJ-004",
-    name: "Qurtuba – Water Line",
-    city: "Riyadh",
-    dates: "15–25 Sep 2026",
-    duration: "11 days",
-    progress: 100,
-    status: "Completed",
-  },
-];
-
-const tabs = ["All Projects", "Active", "Upcoming", "Completed"];
-
-function ProviderProjects() {
-  const [activeTab, setActiveTab] = useState("All Projects");
-  const [search, setSearch] = useState("");
-  const navigate = useNavigate();
-
-  const filteredProjects = useMemo(() => {
-    return projects.filter((project) => {
-      const matchesTab =
-        activeTab === "All Projects" || project.status === activeTab;
-
-      const term = search.trim().toLowerCase();
-
-      const matchesSearch =
-        !term ||
-        project.name.toLowerCase().includes(term) ||
-        project.id.toLowerCase().includes(term) ||
-        project.city.toLowerCase().includes(term);
-
-      return matchesTab && matchesSearch;
-    });
-  }, [activeTab, search]);
-
-  const activeCount = projects.filter(
-    (project) => project.status === "Active"
-  ).length;
-
-  const upcomingCount = projects.filter(
-    (project) => project.status === "Upcoming"
-  ).length;
-
-  const completedCount = projects.filter(
-    (project) => project.status === "Completed"
-  ).length;
-
-  const handleProjectAction = (project) => {
-  navigate(`/provider/projects/${project.id}`);
+const statuses = {
+  active: "Active",
+  upcoming: "Upcoming",
+  completed: "Completed",
 };
+
+export default function ProviderProjects({ projects = [] }) {
+  const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
+
+  const counts = { all: projects.length, active: 0, upcoming: 0, completed: 0 };
+
+  for (const project of projects) {
+    if (Object.hasOwn(statuses, project.status)) {
+      counts[project.status] += 1;
+    }
+  }
+
+  const cards = [
+    { key: "all", label: "Total Assigned", Icon: BriefcaseBusiness },
+    { key: "active", label: "Active Projects", Icon: Check },
+    { key: "upcoming", label: "Upcoming", Icon: Clock3 },
+    { key: "completed", label: "Completed", Icon: Check },
+  ];
+
+  const query = search.trim().toLowerCase();
+  const visibleProjects = projects.filter((project) => {
+    const matchesStatus = filter === "all" || project.status === filter;
+    const matchesSearch = [project.name, project.reference, project.location]
+      .some((value) => String(value ?? "").toLowerCase().includes(query));
+
+    return matchesStatus && matchesSearch;
+  });
 
   return (
     <div className="provider-projects-page">
       <ProviderSidebar />
-
       <main className="provider-projects-main">
-        <section className="provider-projects-heading">
-          <h1>My Projects</h1>
-          <p>View assigned projects and follow their execution progress.</p>
-        </section>
+        <section className="pp-page" aria-labelledby="pp-title">
+      <h1 id="pp-title">My Projects</h1>
+      <p className="pp-description">
+        View assigned projects and follow their execution progress.
+      </p>
 
-        <section className="provider-project-stats">
-          <article className="provider-stat-card">
-            <div className="provider-stat-icon provider-stat-icon-yellow">
-              <BriefcaseBusiness size={20} />
-            </div>
+      <div className="pp-stats">
+        {cards.map(({ key, label, Icon }) => (
+          <div className="pp-card" key={key}>
+            <span className={`pp-icon pp-${key}`}>
+              <Icon size={19} aria-hidden="true" />
+            </span>
             <div>
-              <span>Total Assigned</span>
-              <strong>{String(projects.length).padStart(2)}</strong>
+              <span className="pp-muted">{label}</span>
+              <strong>{counts[key]}</strong>
             </div>
-          </article>
+          </div>
+        ))}
+      </div>
 
-          <article className="provider-stat-card">
-            <div className="provider-stat-icon provider-stat-icon-green">
-              <Check size={20} />
-            </div>
-            <div>
-              <span>Active Projects</span>
-              <strong>{String(activeCount).padStart(2)}</strong>
-            </div>
-          </article>
+      <div className="pp-panel">
+        <div className="pp-toolbar">
+          <div className="pp-filters" role="group" aria-label="Project status">
+            {cards.map(({ key }) => (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={filter === key}
+                onClick={() => setFilter(key)}
+              >
+                {key === "all" ? "All Projects" : statuses[key]} ({counts[key]})
+              </button>
+            ))}
+          </div>
 
-          <article className="provider-stat-card">
-            <div className="provider-stat-icon provider-stat-icon-yellow">
-              <Clock3 size={20} />
-            </div>
-            <div>
-              <span>Upcoming</span>
-              <strong>{String(upcomingCount).padStart(2)}</strong>
-            </div>
-          </article>
+          <label className="pp-search">
+            <Search size={17} aria-hidden="true" />
+            <input
+              type="search"
+              aria-label="Search projects"
+              placeholder="Search projects..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </label>
+        </div>
 
-          <article className="provider-stat-card">
-            <div className="provider-stat-icon provider-stat-icon-muted">
-              <Check size={20} />
-            </div>
-            <div>
-              <span>Completed</span>
-              <strong>{String(completedCount).padStart(2)}</strong>
-            </div>
-          </article>
-        </section>
+        <div className="pp-table-wrap">
+          <table className="pp-table" aria-label="Assigned projects">
+            <thead>
+              <tr>
+                <th scope="col">Project</th>
+                <th scope="col">Dates</th>
+                <th scope="col">Progress</th>
+                <th scope="col">Status</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {visibleProjects.length === 0 && (
+                <tr>
+                  <td className="pp-empty" colSpan={5}>
+                    {projects.length === 0 ? (
+                      <>
+                        <strong>No assigned projects yet</strong>
+                        <span>
+                          Projects appear here when a contractor accepts your
+                          quotation.
+                        </span>
+                      </>
+                    ) : (
+                      <strong>No projects match your search or filter.</strong>
+                    )}
+                  </td>
+                </tr>
+              )}
 
-        <section className="provider-projects-card">
-          <div className="provider-projects-toolbar">
-            <div className="provider-project-tabs">
-              {tabs.map((tab) => {
-                const count =
-                  tab === "All Projects"
-                    ? projects.length
-                    : projects.filter((project) => project.status === tab)
-                        .length;
+              {visibleProjects.map((project) => {
+                const progress = Number.isFinite(project.progress)
+                  ? Math.max(0, Math.min(100, project.progress))
+                  : null;
+                const completed = project.status === "completed";
 
                 return (
-                  <button
-                    key={tab}
-                    type="button"
-                    className={activeTab === tab ? "active" : ""}
-                    onClick={() => setActiveTab(tab)}
-                  >
-                    {tab} ({count})
-                  </button>
-                );
-              })}
-            </div>
-
-            <label className="provider-project-search">
-              <Search size={18} />
-              <input
-                type="text"
-                placeholder="Search projects..."
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-              />
-            </label>
-          </div>
-
-          <div className="provider-projects-table-wrap">
-            <table className="provider-projects-table">
-              <thead>
-                <tr>
-                  <th>PROJECT</th>
-                  <th>DATES</th>
-                  <th>PROGRESS</th>
-                  <th>STATUS</th>
-                  <th>ACTION</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredProjects.map((project) => (
                   <tr key={project.id}>
                     <td>
-                      <div className="provider-project-name">
-                        {project.name}
-                      </div>
-                      <div className="provider-project-meta">
-                        {project.id} · {project.city}
-                      </div>
+                      <strong>{project.name}</strong>
+                      <small>
+                        {[project.reference, project.location]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </small>
                     </td>
-
+                    <td>{project.dateLabel || "—"}</td>
                     <td>
-                      <div className="provider-project-date">
-                        {project.dates}
-                      </div>
-                      <div className="provider-project-meta">
-                        {project.duration}
-                      </div>
+                      {progress === null ? (
+                        <span className="pp-muted">—</span>
+                      ) : (
+                        <>
+                          <progress
+                            className={completed ? "pp-progress-complete" : ""}
+                            value={progress}
+                            max={100}
+                            aria-label={`${project.name} progress`}
+                          />
+                          <small>
+                            {progress === 0 ? "Not started" : `${progress}% complete`}
+                          </small>
+                        </>
+                      )}
                     </td>
-
                     <td>
-                      <div className="provider-progress-track">
-                        <div
-                          className={`provider-progress-fill ${
-                            project.status === "Completed"
-                              ? "completed"
-                              : project.status === "Upcoming"
-                                ? "upcoming"
-                                : ""
-                          }`}
-                          style={{ width: `${project.progress}%` }}
-                        />
-                      </div>
-
-                      <div className="provider-project-meta">
-                        {project.progress === 0
-                          ? "Not started"
-                          : `${project.progress}% complete`}
-                      </div>
-                    </td>
-
-                    <td>
-                      <span
-                        className={`provider-project-status ${project.status.toLowerCase()}`}
-                      >
-                        {project.status}
+                      <span className={`pp-badge pp-${project.status}`}>
+                        {statuses[project.status] ?? "Status unavailable"}
                       </span>
                     </td>
-
                     <td>
-                      <button
-                        type="button"
-                        className={`provider-project-action ${
-                          project.status === "Completed"
-                            ? "summary"
-                            : ""
-                        }`}
-                        onClick={() => handleProjectAction(project)}
+                      <Link
+                        className={`pp-link${completed ? " pp-summary" : ""}`}
+                        to={`/provider/projects/${encodeURIComponent(project.id)}`}
                       >
-                        {project.status === "Completed"
-                          ? "View Summary →"
-                          : "View Details →"}
-                      </button>
+                        {completed ? "View Summary" : "View Details"} →
+                      </Link>
                     </td>
                   </tr>
-                ))}
-
-                {filteredProjects.length === 0 && (
-                  <tr>
-                    <td colSpan="5" className="provider-projects-empty">
-                      No projects found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="provider-projects-footer">
-            <span>Showing {filteredProjects.length} assigned projects</span>
-            <button type="button">1</button>
-          </div>
-        </section>
-
-        <div className="provider-projects-breadcrumb">
-          Provider / Projects
+                );
+              })}
+            </tbody>
+          </table>
         </div>
+
+        <p className="pp-footer">
+          Showing {visibleProjects.length} of {projects.length} assigned projects
+        </p>
+      </div>
+        </section>
       </main>
     </div>
   );
 }
-
-export default ProviderProjects;
