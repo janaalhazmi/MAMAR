@@ -20,6 +20,7 @@ class ServiceRequestCreate(BaseModel):
                     "title": "Lane closure signs and barriers",
                     "details": "20 cones, 4 warning signs and 1 detour",
                     "required_by": "2026-11-25",
+                    "provider_ids": [1, 3],
                 }
             ]
         }
@@ -28,6 +29,18 @@ class ServiceRequestCreate(BaseModel):
     title: Title
     details: Details | None = None
     required_by: date
+    # The providers chosen on the Select Provider page. Left out or null: every provider sees it.
+    provider_ids: list[int] | None = None
+
+    @field_validator("provider_ids")
+    @classmethod
+    def check_provider_ids(cls, provider_ids: list[int] | None) -> list[int] | None:
+        if provider_ids is None:
+            return None
+        if not provider_ids:
+            raise ValueError("choose at least one provider, or leave provider_ids out")
+        # The same provider twice is saved once, in the order it was chosen.
+        return list(dict.fromkeys(provider_ids))
 
     @field_validator("details")
     @classmethod
@@ -45,6 +58,7 @@ class ServiceRequestResponse(BaseModel):
     required_by: date
     status: str
     created_at: datetime
+    provider_ids: list[int] | None
 
 
 class AwardRequest(BaseModel):

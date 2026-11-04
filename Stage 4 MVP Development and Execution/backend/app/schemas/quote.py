@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from typing import Annotated
 
@@ -34,5 +34,7 @@ class QuoteResponse(BaseModel):
     price: float
     duration_days: int
     notes: str | None
+    start_date: date | None
+    services: list[str]
     status: str
     created_at: datetime

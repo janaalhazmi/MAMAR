@@ -6,6 +6,14 @@ from pydantic import BaseModel, ConfigDict, StringConstraints, ValidationInfo, f
 # The four statuses of the projects table in Stage 3.
 ProjectStatus = Literal["draft", "active", "completed", "cancelled"]
 
+# The services of the Select Service page (SERVICE_IDS in app/models/project.py).
+ServiceId = Literal["ttc-plan", "cones-barriers", "road-signs"]
+
+
+def unique_services(services: list[str] | None) -> list[str] | None:
+    # The same service twice is saved once, in the order it was sent.
+    return None if services is None else list(dict.fromkeys(services))
+
 # The maximum lengths are the column sizes of the projects table.
 ProjectName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=150)]
 ClosureType = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=50)]
@@ -35,6 +43,12 @@ class ProjectCreate(BaseModel):
     start_date: date
     end_date: date
     description: Description | None = None
+    services: list[ServiceId] = []
+
+    @field_validator("services")
+    @classmethod
+    def check_services(cls, services: list[str]) -> list[str]:
+        return unique_services(services)
 
     @field_validator("end_date")
     @classmethod
@@ -62,8 +76,9 @@ class ProjectUpdate(BaseModel):
     start_date: date | None = None
     end_date: date | None = None
     description: Description | None = None
+    services: list[ServiceId] | None = None
 
-    @field_validator("project_name", "project_status", "closure_type", "start_date", "end_date")
+    @field_validator("project_name", "project_status", "closure_type", "start_date", "end_date", "services")
     @classmethod
     def check_not_null(cls, value):
         # These columns are NOT NULL, so they can be changed but not removed.
@@ -88,3 +103,4 @@ class ProjectResponse(BaseModel):
     end_date: date
     description: str | None
     created_at: datetime
+    services: list[str]

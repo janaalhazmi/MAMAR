@@ -5,6 +5,7 @@ from app.models.project import Project
 from app.models.provider import Provider
 from app.models.quote import Quote
 from app.models.service_request import ServiceRequest
+from app.models.site_photo import SitePhoto
 from app.models.user import User
 
-__all__ = ["Assignment", "EmailPasscode", "Project", "Provider", "Quote", "ServiceRequest", "User"]
+__all__ = ["Assignment", "EmailPasscode", "Project", "Provider", "Quote", "ServiceRequest", "SitePhoto", "User"]

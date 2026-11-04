@@ -6,7 +6,7 @@ from sqlalchemy import delete, or_, select
 
 from app.db.database import SessionLocal
 from app.main import app
-from app.models import Assignment, Project, Quote, ServiceRequest, User
+from app.models import Assignment, Project, Quote, ServiceRequest, SitePhoto, User
 
 # The examples from Stage 3, sections 4.2.6, 4.2.8 and 4.2.10.
 PROJECT = {
@@ -73,6 +73,7 @@ class Api:
             user_ids = select(User.user_id).where(User.email.in_(self.emails))
             project_ids = select(Project.project_id).where(Project.contractor_id.in_(user_ids))
             request_ids = select(ServiceRequest.request_id).where(ServiceRequest.project_id.in_(project_ids))
+            db.execute(delete(SitePhoto).where(or_(SitePhoto.project_id.in_(project_ids), SitePhoto.worker_id.in_(user_ids))))
             db.execute(delete(Assignment).where(or_(Assignment.project_id.in_(project_ids), Assignment.worker_id.in_(user_ids))))
             db.execute(delete(Quote).where(Quote.request_id.in_(request_ids)))
             db.execute(delete(ServiceRequest).where(ServiceRequest.project_id.in_(project_ids)))

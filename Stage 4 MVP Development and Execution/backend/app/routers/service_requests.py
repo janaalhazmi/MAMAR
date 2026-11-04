@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.core.security import allow_roles
 from app.db.database import get_db
-from app.models import Project, ServiceRequest, User
+from app.models import Project, Provider, Quote, ServiceRequest, User
 from app.schemas.error import ErrorResponse
 from app.schemas.service_request import (
     AwardRequest,
@@ -25,7 +25,7 @@ CREATE_ERRORS = {
     **TOKEN_ERROR,
     403: {"model": ErrorResponse, "description": "The user is not a contractor, or the project belongs to another contractor"},
     404: {"model": ErrorResponse, "description": "The project does not exist"},
-    422: {"model": ErrorResponse, "description": "A field is missing or not valid"},
+    422: {"model": ErrorResponse, "description": "A field is missing or not valid, or a provider_id does not exist"},
 }
 LIST_ERRORS = {
     **TOKEN_ERROR,
@@ -54,6 +54,11 @@ def create_request(
         raise HTTPException(status_code=404, detail="Project not found")
     if project.contractor_id != user.user_id:
         raise HTTPException(status_code=403, detail="This project belongs to another contractor")
+    if data.provider_ids:
+        found = set(db.scalars(select(Provider.provider_id).where(Provider.provider_id.in_(data.provider_ids))))
+        missing = [provider_id for provider_id in data.provider_ids if provider_id not in found]
+        if missing:
+            raise HTTPException(status_code=422, detail=f"provider_ids: provider {missing[0]} does not exist")
     request = ServiceRequest(project_id=project.project_id, status="open", **data.model_dump())
     db.add(request)
     db.commit()
@@ -68,18 +73,24 @@ def list_requests(
     user: User = Depends(contractor_or_provider),
     db: Session = Depends(get_db),
 ):
-    # Stage 3, section 4.2.9: a contractor sees the requests of their own projects,
-    # and a provider sees the open requests. Newest first.
+    # Stage 3, section 4.2.9: a contractor sees the requests of their own projects. A provider
+    # sees the open requests it was invited to (no status, or status=open), and the requests
+    # its company won (status=awarded or status=closed). Newest first.
     query = select(ServiceRequest)
     if user.role == "contractor":
         query = query.join(Project).where(Project.contractor_id == user.user_id)
-    else:
+        if status is not None:
+            query = query.where(ServiceRequest.status == status)
+    elif status in (None, "open"):
         query = query.where(ServiceRequest.status == "open")
-    if status is not None:
-        query = query.where(ServiceRequest.status == status)
+    else:
+        won = select(Quote.request_id).where(Quote.provider_id == user.provider_id, Quote.status == "accepted")
+        query = query.where(ServiceRequest.status == status, ServiceRequest.request_id.in_(won))
     if project_id is not None:
         query = query.where(ServiceRequest.project_id == project_id)
     requests = db.scalars(query.order_by(ServiceRequest.request_id.desc())).all()
+    if user.role == "provider":
+        requests = [request for request in requests if request.status != "open" or request.invites(user.provider_id)]
     return [request.to_dict() for request in requests]
 
 
