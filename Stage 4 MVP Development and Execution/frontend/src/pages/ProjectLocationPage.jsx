@@ -197,7 +197,7 @@ function ProjectLocationPage() {
             to="/create-project"
             className="location-nav-active"
           >
-            <Icon name="create-project" />
+            <Icon name="create" />
             <span>Create Project</span>
           </Link>
 
