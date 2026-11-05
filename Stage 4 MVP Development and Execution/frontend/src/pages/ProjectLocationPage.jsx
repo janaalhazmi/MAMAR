@@ -2,6 +2,10 @@ import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
+import Icon from "../components/Icons";
+import { getSession } from "../services/auth";
+
+
 
 function ProjectLocationPage() {
   const navigate = useNavigate();
@@ -9,6 +13,13 @@ function ProjectLocationPage() {
   const mapDrawingRef = useRef(null);
 
   const [drawing, setDrawing] = useState(false);
+
+  const sessionUser = getSession()?.user;
+  const rawName = sessionUser?.full_name || sessionUser?.name || "";
+  const displayName =
+    (typeof rawName === "string" ? rawName.trim() : "") || "there";
+  const userInitial = displayName.charAt(0).toUpperCase();
+
 
   // Restore the saved work zone when returning from Services or Review.
   const [location, setLocation] = useState(() => {
@@ -173,12 +184,12 @@ function ProjectLocationPage() {
 
         <nav className="location-sidebar-nav">
           <Link to="/contractor-dashboard">
-            <span className="location-nav-icon">▦</span>
+            <Icon name="dashboard" />
             <span>Dashboard</span>
           </Link>
 
           <Link to="/contractor-dashboard">
-            <span className="location-nav-icon">▣</span>
+            <Icon name="projects" />
             <span>My Projects</span>
           </Link>
 
@@ -186,34 +197,34 @@ function ProjectLocationPage() {
             to="/create-project"
             className="location-nav-active"
           >
-            <span className="location-nav-icon">⊕</span>
+            <Icon name="create-project" />
             <span>Create Project</span>
           </Link>
 
           <Link to="/providers">
-            <span className="location-nav-icon">♧</span>
+            <Icon name="providers" />
             <span>Providers</span>
           </Link>
 
           <Link to="/quotations">
-            <span className="location-nav-icon">▤</span>
+            <Icon name="quotations" />
             <span>Quotations</span>
           </Link>
         </nav>
 
         <div className="location-sidebar-bottom">
           <Link to="/data-disclaimer">
-            <span>ⓘ</span>
+            <Icon name="info" />
             Data Disclaimer
           </Link>
 
           <Link to="/support">
-            <span>ⓘ</span>
+            <Icon name="help" />
             Help &amp; Support
           </Link>
 
           <Link to="/login">
-            <span>➜</span>
+            <Icon name="logout" />
             Log out
           </Link>
         </div>
@@ -226,10 +237,10 @@ function ProjectLocationPage() {
           <div className="location-header-spacer" />
 
           <div className="location-user">
-            <div className="location-avatar">K</div>
+            <div className="location-avatar">{userInitial}</div>
 
             <div className="location-user-info">
-              <strong>Kayan</strong>
+              <strong>{displayName}</strong>
               <span>Contractor</span>
             </div>
 
