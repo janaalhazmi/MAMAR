@@ -13,6 +13,7 @@ import {
 import logo from "../assets/mamar-logo.svg";
 import { logout } from "../services/auth";
 
+
 const providerNavigation = [
   {
     label: "Dashboard",
@@ -73,7 +74,7 @@ function ProviderSidebar() {
           <span>Data Disclaimer</span>
         </Link>
 
-        <Link to="/support">
+        <Link to="/help">
           <CircleHelp size={18} />
           <span>Help & Support</span>
         </Link>
