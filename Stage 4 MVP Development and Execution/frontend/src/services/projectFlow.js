@@ -1,12 +1,3 @@
-// src/services/projectFlow.js
-// ---------------------------------------------------------------------------
-// Contractor flow connected to the REAL backend:
-//   Providers -> Quotations -> Select Provider -> Project Monitoring -> Review Completion
-//
-// The returned shapes are the same ones the pages already use, so the pages
-// barely change. Backend fields are mapped to UI fields in the toUi* helpers.
-// ---------------------------------------------------------------------------
-
 import { getSession } from "./auth";
 import {
   API_BASE_URL,
@@ -19,12 +10,12 @@ import {
   postRequestChanges,
   postServiceRequest,
 } from "./api";
-
+ 
 import tcmLogo from "../assets/provider-tcm.jpg";
 import safetyArabiaLogo from "../assets/provider-safety-arabia.jpg";
 import shawahidLogo from "../assets/provider-shawahid.jpg";
 import safetyTriangleLogo from "../assets/provider-safety-triangle.jpg";
-
+ 
 // The backend does not return logos: map them here by provider_id (1-4).
 const PROVIDER_LOGOS = {
   1: tcmLogo,
@@ -32,7 +23,7 @@ const PROVIDER_LOGOS = {
   3: shawahidLogo,
   4: safetyTriangleLogo,
 };
-
+ 
 /* ------------------------------------------------------------------ */
 /* Storage keys                                                        */
 /* ------------------------------------------------------------------ */
@@ -43,7 +34,7 @@ export const KEYS = {
   confirmed: "confirmedQuotation",
   quotesCache: "mamarQuotationCache", // the backend has no GET /quotations/{id}
 };
-
+ 
 function readJSON(key, fallback = null) {
   try {
     const value = JSON.parse(sessionStorage.getItem(key));
@@ -52,13 +43,13 @@ function readJSON(key, fallback = null) {
     return fallback;
   }
 }
-
+ 
 function token() {
   const accessToken = getSession()?.access_token;
   if (!accessToken) throw new Error("Please sign in to continue.");
   return accessToken;
 }
-
+ 
 /* ------------------------------------------------------------------ */
 /* Shared helpers (also used by fieldWork.js)                          */
 /* ------------------------------------------------------------------ */
@@ -69,7 +60,7 @@ export function parseServerDate(value) {
   const date = new Date(iso);
   return Number.isNaN(date.getTime()) ? null : date;
 }
-
+ 
 export function formatDateTime(value) {
   const date = parseServerDate(value);
   if (!date) return "";
@@ -80,19 +71,19 @@ export function formatDateTime(value) {
     minute: "2-digit",
   });
 }
-
+ 
 export function formatTime(value) {
   const date = parseServerDate(value);
   if (!date) return "";
   return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 }
-
+ 
 // Photo urls come back relative (/photos/abc): add the server address.
 export function absUrl(url) {
   if (!url) return "";
   return /^https?:\/\//i.test(url) ? url : `${API_BASE_URL}${url}`;
 }
-
+ 
 export function toUiPhoto(photo) {
   return {
     id: photo.photo_id,
@@ -101,7 +92,7 @@ export function toUiPhoto(photo) {
     time: formatDateTime(photo.created_at),
   };
 }
-
+ 
 export function formatDate(value) {
   if (!value) return "Not specified";
   const date = new Date(`${value}T00:00:00`);
@@ -112,22 +103,22 @@ export function formatDate(value) {
     year: "numeric",
   });
 }
-
+ 
 export function formatDateRange(start, end) {
   if (!start || !end) return "Not specified";
   return `${formatDate(start)} – ${formatDate(end)}`;
 }
-
+ 
 export function formatPrice(amount) {
   return `SAR ${Number(amount).toLocaleString("en-US")}`;
 }
-
+ 
 export const SERVICE_LABELS = {
   "ttc-plan": "Temporary Traffic Control Plan (TTC) Service",
   "cones-barriers": "Traffic Cones & Barriers",
   "road-signs": "Road Signs & Variable Message Signs",
 };
-
+ 
 /* ------------------------------------------------------------------ */
 /* PROJECT                                                             */
 /* ------------------------------------------------------------------ */
@@ -148,30 +139,34 @@ export function getCurrentProject() {
     id: saved.projectId ?? saved.id ?? null,
   };
 }
-
+ 
 function requireProjectId(projectId) {
   if (projectId == null || projectId === "") {
     throw new Error("No project selected. Open a project from My Projects.");
   }
   return projectId;
 }
-
+ 
 /* ------------------------------------------------------------------ */
 /* REQUEST QUOTES  (call this from the "Request Quotes" button)        */
 /* ------------------------------------------------------------------ */
-// Providers can only quote when the project has an OPEN request.
-// POST /projects/{id}/requests  { title, required_by, details }
+// Providers can only quote when the project has an OPEN request that
+// INVITES them (provider_ids). Without provider_ids the request is not
+// visible to any provider.
+// POST /projects/{id}/requests  { title, required_by, details, provider_ids }
 export async function requestQuotes(project = getCurrentProject()) {
   const projectId = requireProjectId(project.id);
   const services = (project.services || []).map((id) => SERVICE_LABELS[id] || id);
-
+  const providerIds = getSelectedProviderIds(); // saved by the Providers page
+ 
   return postServiceRequest(token(), projectId, {
     title: project.name || "Traffic control services",
     required_by: project.startDate,
     details: services.length ? `Services: ${services.join(", ")}` : null,
+    provider_ids: providerIds.length ? providerIds.map(Number) : null,
   });
 }
-
+ 
 /* ------------------------------------------------------------------ */
 /* QUOTATIONS                                                          */
 /* ------------------------------------------------------------------ */
@@ -193,7 +188,7 @@ function toUiQuotation(q) {
     backendStatus: q.status,
   };
 }
-
+ 
 function cacheQuotations(list) {
   try {
     sessionStorage.setItem(KEYS.quotesCache, JSON.stringify(list));
@@ -201,11 +196,11 @@ function cacheQuotations(list) {
     /* ignore */
   }
 }
-
+ 
 export function getSelectedProviderIds() {
   return readJSON(KEYS.providerIds, []);
 }
-
+ 
 // GET /projects/{id}/quotations
 // providerIds is kept only so the page call does not change: the backend
 // already returns just the quotations providers really sent.
@@ -216,33 +211,33 @@ export async function getQuotations(projectId, providerIds = []) {
   cacheQuotations(list);
   return list;
 }
-
+ 
 export async function getQuotationById(quotationId) {
   const cached = readJSON(KEYS.quotesCache, []);
   const found = cached.find((q) => String(q.id) === String(quotationId));
   if (found) return found;
-
+ 
   // Cache empty (page refresh): reload the list of the current project.
   const projectId = getCurrentProject().id;
   if (projectId == null) return null;
   const list = await getQuotations(projectId);
   return list.find((q) => String(q.id) === String(quotationId)) || null;
 }
-
+ 
 // POST /quotes/{id}/reject
 export async function rejectQuotation(quotationId) {
   await postRejectQuote(token(), quotationId);
   return { id: quotationId, status: "rejected" };
 }
-
+ 
 export function saveSelectedQuotation(quotationId) {
   sessionStorage.setItem(KEYS.quotationId, JSON.stringify(quotationId));
 }
-
+ 
 export function getSelectedQuotationId() {
   return readJSON(KEYS.quotationId, null);
 }
-
+ 
 // POST /projects/{id}/confirm-provider  { quote_id }
 export async function confirmProvider(projectId, quotationId) {
   const result = await postConfirmProvider(
@@ -253,11 +248,11 @@ export async function confirmProvider(projectId, quotationId) {
   sessionStorage.setItem(KEYS.confirmed, JSON.stringify(quotationId));
   return result; // { project, quote }
 }
-
+ 
 export function getConfirmedQuotationId() {
   return readJSON(KEYS.confirmed, null);
 }
-
+ 
 /* ------------------------------------------------------------------ */
 /* PROJECT MONITORING                                                  */
 /* ------------------------------------------------------------------ */
@@ -267,38 +262,38 @@ const PROJECT_STATUS_LABELS = {
   completed: "Completed",
   cancelled: "Cancelled",
 };
-
+ 
 function buildMilestones(r) {
   const site = r.site_status;
   const notStarted = site === "Not Started";
-
+ 
   const prep = notStarted
     ? { state: "pending", note: "Pending" }
     : { state: "done", note: "Completed" };
-
+ 
   const install =
     site === "Completed"
       ? { state: "done", note: "Completed" }
       : notStarted
         ? { state: "pending", note: "Pending" }
         : { state: "active", note: `${site} • ${r.progress}%` };
-
+ 
   const final = r.completion_submitted
     ? { state: "done", note: "Submitted by the provider" }
     : { state: "pending", note: "Pending" };
-
+ 
   return [
     { id: 1, title: "Site Preparation", ...prep },
     { id: 2, title: "Traffic Control Installation", ...install },
     { id: 3, title: "Final Site Check", ...final },
   ];
 }
-
+ 
 function buildLatestUpdate(r, photos) {
   const newest = [...(r.photos || [])].sort((a, b) =>
     String(b.created_at).localeCompare(String(a.created_at))
   )[0];
-
+ 
   if (newest) {
     return {
       title: "New site photo",
@@ -319,12 +314,12 @@ function buildLatestUpdate(r, photos) {
     time: "",
   };
 }
-
+ 
 // GET /projects/{id}/monitoring
 export async function getMonitoringData(projectId) {
   const r = await fetchMonitoring(token(), requireProjectId(projectId));
   const photos = (r.photos || []).map(toUiPhoto);
-
+ 
   return {
     status: PROJECT_STATUS_LABELS[r.project_status] || r.project_status,
     overallProgress: r.progress,
@@ -344,7 +339,7 @@ export async function getMonitoringData(projectId) {
       : null,
   };
 }
-
+ 
 /* ------------------------------------------------------------------ */
 /* REVIEW COMPLETION                                                   */
 /* ------------------------------------------------------------------ */
@@ -352,7 +347,7 @@ export async function getMonitoringData(projectId) {
 export async function getCompletionData(projectId) {
   const r = await fetchCompletion(token(), requireProjectId(projectId));
   const submitted = r.submitted_at ? r.submitted_at.slice(0, 10) : "";
-
+ 
   const checklist = (r.services || []).map((id, index) => ({
     id: index + 1,
     title: SERVICE_LABELS[id] || id,
@@ -363,7 +358,7 @@ export async function getCompletionData(projectId) {
     title: "Final Site Inspection",
     note: "Final field inspection submitted by the provider.",
   });
-
+ 
   return {
     completionDate: submitted,
     finalProgress: r.progress,
@@ -378,15 +373,16 @@ export async function getCompletionData(projectId) {
     submittedOn: submitted,
   };
 }
-
+ 
 // POST /projects/{id}/complete
 export async function approveCompletion(projectId) {
   const project = await postCompleteProject(token(), requireProjectId(projectId));
   return { projectId, status: project.project_status };
 }
-
+ 
 // POST /projects/{id}/request-changes  { note }
 export async function requestChanges(projectId, note) {
   const project = await postRequestChanges(token(), requireProjectId(projectId), note);
   return { projectId, status: project.project_status, note };
 }
+ 

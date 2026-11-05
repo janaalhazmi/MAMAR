@@ -6,13 +6,12 @@ import safetyArabiaLogo from "../assets/provider-safety-arabia.jpg";
 import shawahidLogo from "../assets/provider-shawahid.jpg";
 import safetyTriangleLogo from "../assets/provider-safety-triangle.jpg";
 import { logout, getSession } from "../services/auth";
+import {
+  SERVICE_LABELS,
+  getCurrentProject,
+  requestQuotes,
+} from "../services/projectFlow";
 import Icon from "../components/Icons";
-
-const project = {
-  name: "King Fahd Road – Water Line",
-  location: "Riyadh, Saudi Arabia",
-  services: "TTC Plan + Road Signs",
-};
 
 const providers = [
   {
@@ -61,6 +60,17 @@ const serviceFilters = [
 function ProviderPage() {
   const navigate = useNavigate();
 
+  // The real project (saved in sessionStorage when opened from My Projects)
+  const currentProject = getCurrentProject();
+  const project = {
+    name: currentProject.name || "No project selected",
+    location: currentProject.location || "Not specified",
+    services:
+      (currentProject.services || [])
+        .map((id) => SERVICE_LABELS[id] || id)
+        .join(" + ") || "Not specified",
+  };
+
   const sessionUser = getSession()?.user;
   const rawName = sessionUser?.full_name || sessionUser?.name || "";
   const displayName =
@@ -71,6 +81,8 @@ function ProviderPage() {
   const [city, setCity] = useState("Riyadh");
   const [service, setService] = useState("All Required Services");
   const [selectedIds, setSelectedIds] = useState([1, 2]);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
   const visibleProviders = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -97,18 +109,26 @@ function ProviderPage() {
     );
   };
 
-  const handleRequestQuotes = () => {
+  // CHANGED: now really sends the request to the backend
+  // (POST /projects/{id}/requests) with the selected provider_ids.
+  const handleRequestQuotes = async () => {
     if (selectedIds.length === 0) {
       alert("Please select at least one provider.");
       return;
     }
 
-    sessionStorage.setItem(
-      "selectedProviders",
-      JSON.stringify(selectedIds)
-    );
+    setSending(true);
+    setError("");
 
-    navigate("/quotations");
+    try {
+      // must be saved BEFORE requestQuotes(): it reads the ids from here
+      sessionStorage.setItem("selectedProviders", JSON.stringify(selectedIds));
+      await requestQuotes(currentProject);
+      navigate("/quotations");
+    } catch (err) {
+      setError(err.message || "Could not send the request. Please try again.");
+      setSending(false);
+    }
   };
 
   return (
@@ -312,12 +332,20 @@ function ProviderPage() {
             )}
           </section>
 
+          {/* CHANGED: error message */}
+          {error && (
+            <p role="alert" style={{ color: "crimson", margin: "12px 0" }}>
+              {error}
+            </p>
+          )}
+
           {/* Actions */}
           <footer className="pv-actions">
             <button
               type="button"
               className="pv-back"
               onClick={() => navigate(-1)}
+              disabled={sending}
             >
               ← Back
             </button>
@@ -326,9 +354,12 @@ function ProviderPage() {
               type="button"
               className="pv-request"
               onClick={handleRequestQuotes}
+              disabled={sending}
             >
               <Icon name="quotations" size={18} />
-              Request Quotes ({selectedIds.length})
+              {sending
+                ? "Sending…"
+                : `Request Quotes (${selectedIds.length})`}
               <Icon name="logout" size={16} />
             </button>
           </footer>
