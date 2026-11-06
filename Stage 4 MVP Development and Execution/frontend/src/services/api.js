@@ -25,14 +25,18 @@ async function request(path, options = {}) {
           ? detail.map((item) => item.msg || "Invalid input").join(", ")
           : `Request failed (${response.status}).`;
 
-    if (response.status === 409) {
+    // These messages are for sign up only. The other endpoints use the same codes for other
+    // errors (409: a second quotation, 502: ArcGIS cannot be reached), so they keep the
+    // server's detail.
+    const isAuth = path.startsWith("/auth/");
+    if (isAuth && response.status === 409) {
       message = "This email is already registered. Please sign in.";
-    } else if (response.status === 429) {
+    } else if (isAuth && response.status === 429) {
       message =
         path === "/auth/send-passcode"
           ? "Please wait 60 seconds before requesting another code."
           : "Too many attempts. Please try again later.";
-    } else if (response.status === 502) {
+    } else if (isAuth && response.status === 502) {
       message =
         "The verification email could not be sent. Please try again.";
     }
