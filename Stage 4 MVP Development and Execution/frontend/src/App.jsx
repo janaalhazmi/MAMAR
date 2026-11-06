@@ -198,3 +198,17 @@ function App() {
 }
 
 export default App;
+
+function ExecutionProjectNotice() {
+  const navigate = useExecutionNavigate();
+  const shown = useExecutionRef(false);
+
+  useExecutionEffect(() => {
+    if (shown.current) return;
+    shown.current = true;
+    window.alert("Choose a project below and click View Details to open Execution.");
+    navigate("/provider/projects", { replace: true });
+  }, [navigate]);
+
+  return null;
+}
