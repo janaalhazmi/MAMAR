@@ -2812,13 +2812,86 @@ body {
   padding-left: 16px;
 }
 
+/* ---------- My Projects page ---------- */
+
 .cd-col-actions {
+  width: auto;
+  min-width: 110px;
   text-align: center;
-  width: 64px;
-  display: inline-grid;
-  background: #ffcc00;
-  border: 1px solid #ffcc00;
-  color: #111111;
+}
+
+.mp-row-action {
+  padding: 8px 16px;
+  border: 1px solid #f1dca0;
+  border-radius: 8px;
+  background:  #f8cd45; border-color: #f8cd45; color: #111827;
+  color: #b7791f;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.mp-row-action:hover {
+  background: #fdf0c8;
+}
+
+.mp-row-action:focus-visible {
+  outline: 2px solid #f8cd45;
+  outline-offset: 2px;
+}
+
+.mp-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.mp-search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid #e8ebf0;
+  border-radius: 8px;
+  background: #fff;
+  color: #8a94a6;
+}
+
+.mp-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  color: #111827;
+}
+
+.mp-search:focus-within {
+  border-color: #f8cd45;
+}
+
+.mp-select {
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #e8ebf0;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+  color: #111827;
+  cursor: pointer;
+}
+
+.mp-empty-button {
+  margin-top: 14px;
 }
 
 
@@ -3191,74 +3264,63 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 24px 16px;
+  padding: 28px 0 32px;
   background: #ffffff;
-  border-right: 1px solid #e5e7eb;
+  border-right: 1px solid #e8ebf0;
 }
 
 .create-project-brand {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 8px 24px;
+  display: none;
 }
 
-.create-project-brand img {
-  width: 86px;
-  height: 45px;
-  object-fit: contain;
-}
+
 
 .create-project-navigation {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 16px;
+  gap: 6px;
 }
 
 .create-project-navigation a {
-  min-height: 43px;
+  min-height: 44px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 8px;
-  color: #344054;
-  font-size: 14px;
-  transition: 0.2s ease;
-}
-
-.create-project-navigation a span {
-  width: 16px;
-  text-align: center;
-}
-
-.create-project-navigation a:hover,
-.create-project-navigation a.active {
-  background: #fff9ec;
+  gap: 14px;
+  padding: 0 24px 0 28px;
+  border-left: 4px solid transparent;
   color: #111827;
+  font-size: 13px;
+  transition: background 0.2s ease;
+}
+
+
+
+.create-project-navigation a:hover {
+  background: #fffaf0;
 }
 
 .create-project-navigation a.active {
-  border-left: 3px solid #fabf0d;
-  font-weight: 700;
+  background: #fff8e6;
+  border-left-color: #f8cd45;
+  color: #f2b01e;
+  font-weight: 600;
 }
+
 
 .create-project-sidebar-bottom {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 18px;
   margin-top: auto;
-  padding-top: 30px;
+  padding: 32px 0 0 28px;
 }
 
 .create-project-sidebar-bottom a {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px;
-  color: #344054;
-  font-size: 13px;
+  gap: 14px;
+  color: #475467;
+  font-size: 12px;
 }
 
 /* Header */
@@ -3269,26 +3331,30 @@ body {
 }
 
 .create-project-header {
+  height: 64px;
   min-height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 32px;
+  padding: 0 0 0 40px;
   background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e8ebf0;
 }
 
 .create-project-header-logo img {
   display: block;
-  width: 76px;
-  height: 42px;
+  width: 86px;
+  height: 45px;
   object-fit: contain;
 }
 
 .create-project-user {
+  height: 100%;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  padding: 0 28px;
+  border-left: 1px solid #e8ebf0;
 }
 
 .create-project-avatar {
@@ -3318,8 +3384,7 @@ body {
 }
 
 .create-project-user .user-chevron {
-  margin-left: 8px;
-  color: #667085;
+  display: none;
 }
 
 /* Content */
