@@ -11039,3 +11039,240 @@ textarea {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Provider device verification details */
+.pdv-details { min-width: 0; color: #172033; }
+.pdv-details > a { display: inline-block; margin-bottom: 16px; color: #506078; }
+.pdv-card { min-width: 0; margin: 0; padding: 20px; background: #fff; border: 1px solid #e2e6ec; border-radius: 14px; }
+.pdv-card h2 { margin: 0 0 6px; font-size: 17px; }
+.pdv-card p { margin: 6px 0; color: #506078; font-size: 13px; }
+.pdv-summary, .pdv-coords { display: grid; gap: 14px; }
+.pdv-summary { grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); margin-bottom: 18px; }
+.pdv-coords { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 14px 0 0; }
+.pdv-details dt { color: #506078; font-size: 12px; }
+.pdv-details dd { margin: 4px 0 0; font-weight: 600; overflow-wrap: anywhere; }
+.pdv-status { display: inline-block; padding: 4px 9px; border-radius: 999px; background: #fff4d0; color: #785900; font-size: 12px; }
+.pdv-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 18px; }
+.pdv-location, .pdv-capture { margin-top: 12px; padding: 14px; border-radius: 8px; background: #f4f6f8; overflow-wrap: anywhere; }
+.pdv-location { display: grid; place-items: center; min-height: 180px; text-align: center; }
+.pdv-field { display: grid; gap: 6px; margin-top: 12px; font-size: 13px; }
+.pdv-field input, .pdv-button { box-sizing: border-box; width: 100%; padding: 10px 12px; border: 1px solid #d8dee7; border-radius: 8px; background: #fff; color: #172033; font: inherit; }
+.pdv-button { margin-top: 10px; cursor: pointer; font-weight: 600; }
+.pdv-button:disabled { opacity: .6; cursor: default; }
+.pdv-upload { border-style: dashed; }
+.pdv-primary { background: #ffcc00; border-color: #ffcc00; }
+.pdv-card .pdv-error { color: #9f2626; }
+@media (max-width: 900px) {
+  .pdv-grid { grid-template-columns: minmax(0, 1fr); }
+}
+/* Device Verification: project selection */
+.provider-dashboard-content section[aria-label="Assigned projects"] {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.provider-dashboard-content section[aria-label="Assigned projects"] > .assigned-project-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 0;
+  padding: 18px 22px;
+  background: #fff;
+  border: 1px solid #e2e6ec;
+  border-radius: 12px;
+}
+
+.provider-dashboard-content section[aria-label="Assigned projects"] h3 {
+  margin: 0 0 6px;
+  color: #172033;
+  font-size: 16px;
+}
+
+.provider-dashboard-content section[aria-label="Assigned projects"] .assigned-project-card > a {
+  display: inline-flex;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #ffcc00;
+  color: #172033;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.provider-dashboard-content section[aria-label="Assigned projects"] .assigned-project-card > a:hover {
+  background: #edbd00;
+}
+
+@media (max-width: 600px) {
+  .provider-dashboard-content section[aria-label="Assigned projects"] > .assigned-project-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+/* Provider Field Team */
+.pft-page { min-width: 0; color: #292f36; }
+.pft-heading { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+.pft-heading .provider-title { margin: 0; }
+.pft-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
+.pft-card { min-width: 0; padding: 16px; background: #fff; border: 1px solid #e5e8ec; border-radius: 10px; }
+.pft-card small, .pft-directory p { color: #65716d; font-size: 12px; }
+.pft-count { display: block; margin: 5px 0; font-size: 26px; }
+.pft-directory h2, .pft-details h2 { margin: 0; font-size: 18px; }
+.pft-filters { display: grid; grid-template-columns: minmax(0, 1fr) minmax(110px, 150px) minmax(110px, 170px); gap: 10px; margin: 16px 0 8px; }
+.pft-filters input, .pft-filters select { width: 100%; min-width: 0; box-sizing: border-box; padding: 10px 12px; border: 1px solid #dfe3e8; border-radius: 7px; background: #fff; color: inherit; font: inherit; font-size: 13px; }
+.pft-tabs { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; border-bottom: 1px solid #e5e8ec; }
+.pft-tabs button { padding: 10px 6px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: #56625c; font: inherit; font-size: 13px; cursor: pointer; }
+.pft-tabs button[aria-pressed="true"] { border-bottom-color: #ffcc00; color: #785900; font-weight: 700; }
+.pft-table-wrap { overflow-x: auto; }
+.pft-table { width: 100%; min-width: 690px; border-collapse: collapse; text-align: left; font-size: 13px; }
+.pft-table th { padding: 12px; background: #f5f6f8; color: #56625c; font-size: 11px; text-transform: uppercase; }
+.pft-table td { padding: 12px; border-bottom: 1px solid #edf0f2; }
+.pft-person { display: flex; align-items: center; gap: 10px; }
+.pft-person small { display: block; margin-top: 3px; }
+.pft-avatar { display: grid; place-items: center; flex: 0 0 34px; height: 34px; border-radius: 50%; background: #fff3d2; color: #785900; font-weight: 700; }
+.pft-status { display: inline-block; padding: 4px 10px; border-radius: 999px; white-space: nowrap; font-size: 12px; }
+.pft-status[data-status="Active"] { background: #e5f6ec; color: #216844; }
+.pft-status[data-status="Available"] { background: #ecf1ff; color: #375d9d; }
+.pft-status[data-status="On Leave"] { background: #fff0e5; color: #8a4c20; }
+.pft-primary, .pft-view { padding: 8px 14px; border: 0; border-radius: 7px; background: #fff3d2; color: #664c00; font-weight: 700; cursor: pointer; }
+.pft-primary { background: #ffcc00; color: #272b30; }
+.pft-primary:disabled { cursor: default; }
+.pft-details { margin-top: 16px; }
+@media (max-width: 900px) { .pft-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .pft-filters { grid-template-columns: minmax(0, 1fr); } }
+
+/* Field Team: add worker and verification code */
+.pft-page .pft-details[aria-label="Add field worker"] {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 760px;
+  margin: 0;
+  padding: clamp(18px, 3vw, 28px);
+}
+
+.pft-details[aria-label="Add field worker"] form {
+  margin-top: 20px;
+}
+
+.pft-details[aria-label="Add field worker"] .pft-filters {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0 0 20px;
+}
+
+.pft-details[aria-label="Add field worker"] label {
+  display: grid;
+  gap: 8px;
+  color: #172033;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pft-details[aria-label="Add field worker"] input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #dfe3e8;
+  border-radius: 8px;
+  background: #fff;
+  color: #172033;
+  font: inherit;
+}
+
+.pft-details[aria-label="Add field worker"] input:focus-visible {
+  border-color: #9c7600;
+  outline: 2px solid #ffcc00;
+  outline-offset: 2px;
+}
+
+.pft-details[aria-label="Add field worker"] input[name="passcode"] {
+  max-width: 250px;
+  text-align: center;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.32em;
+}
+
+.pft-details[aria-label="Add field worker"] .pft-primary,
+.pft-details[aria-label="Add field worker"] > .pft-view {
+  min-height: 42px;
+  margin-top: 14px;
+}
+
+.pft-details[aria-label="Add field worker"] .pft-primary:disabled {
+  opacity: 0.6;
+}
+
+.pft-details[aria-label="Add field worker"] [role="alert"] {
+  color: #a12626;
+}
+
+@media (max-width: 640px) {
+  .pft-details[aria-label="Add field worker"] .pft-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Field Team: worker profile */
+.pft-page .pft-details[aria-label="Worker details"] {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 900px;
+  margin: 0;
+  padding: clamp(20px, 3vw, 32px);
+}
+
+.pft-details[aria-label="Worker details"] > .pft-view {
+  padding: 6px 0;
+  background: transparent;
+  color: #725600;
+  font-size: 14px;
+}
+
+.pft-details[aria-label="Worker details"] > .pft-view:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.pft-details[aria-label="Worker details"] > h2 {
+  color: #172033;
+  font-size: 26px;
+  overflow-wrap: anywhere;
+}
+
+.pft-details[aria-label="Worker details"] > dl.pft-stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 0;
+}
+
+.pft-details[aria-label="Worker details"] dl > .pft-card {
+  padding: 16px;
+  background: #f7f8fa;
+  border-color: #e8ebef;
+}
+
+.pft-details[aria-label="Worker details"] dt {
+  color: #566275;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pft-details[aria-label="Worker details"] dd {
+  margin: 6px 0 0;
+  color: #172033;
+  font-size: 15px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .pft-details[aria-label="Worker details"] > dl.pft-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

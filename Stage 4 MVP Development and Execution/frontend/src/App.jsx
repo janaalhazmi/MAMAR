@@ -1,4 +1,7 @@
-import { Navigate as ExecutionRedirect } from "react-router-dom";
+import ProviderFieldTeam from "./pages/ProviderFieldTeam";
+import ProviderDeviceVerification from "./pages/ProviderDeviceVerification";
+import { useEffect as useExecutionEffect, useRef as useExecutionRef } from "react";
+import { useNavigate as useExecutionNavigate } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -156,7 +159,28 @@ function App() {
         path="/provider/execution"
         element={
           <ProtectedRoute roles={["provider"]}>
-            <ExecutionRedirect to="/provider/projects" replace />
+            <ExecutionProjectNotice />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/provider/device-verification"
+        element={<ProtectedRoute roles={["provider"]}><ProviderDeviceVerification /></ProtectedRoute>}
+      />
+      <Route
+        path="/provider/device-verification/:projectId"
+        element={<ProtectedRoute roles={["provider"]}><ProviderDeviceVerification /></ProtectedRoute>}
+      />
+      <Route
+        path="/provider/field-team"
+        element={<ProtectedRoute roles={["provider"]}><ProviderFieldTeam /></ProtectedRoute>}
+      />
+      <Route
+        path="/provider/execution/:projectId"
+        element={
+          <ProtectedRoute roles={["provider"]}>
+            <ProviderExecutionDetails />
           </ProtectedRoute>
         }
       />

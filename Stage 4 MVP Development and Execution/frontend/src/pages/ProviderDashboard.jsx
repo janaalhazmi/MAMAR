@@ -181,7 +181,7 @@ function ProviderDashboard() {
                   <span className="ready-status">{newProject.status}</span>
                 </div>
 
-                <Button to="/provider/projects">View Project →</Button>
+                <Button to={`/provider/projects/${encodeURIComponent(newProject.id)}`}>View Project →</Button>
               </article>
             )}
           </section>
