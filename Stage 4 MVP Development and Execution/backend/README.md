@@ -47,7 +47,7 @@ backend/
       workflow.py          # Quotations, confirm provider, monitoring and completion (contractor pages)
       field_work.py        # Field worker projects, status, check-in and photos, and GET /photos/{token}
       devices.py           # POST /devices/{device}/verify
-      provider.py          # GET /provider/requests, /provider/projects, /provider/projects/{id} and /provider/dashboard
+      provider.py          # GET /provider/requests, /provider/projects, /provider/projects/{id}, /provider/workers and /provider/dashboard
     schemas/
       auth.py              # Request and response formats of the auth endpoints
       error.py             # The error format {"detail": "message"}
@@ -511,6 +511,7 @@ The data of the provider's Dashboard, Service Requests and Projects pages. Only 
 | `GET /provider/requests` | The open requests the company was invited to, newest first. Each one has the request fields, `project` (name, dates, `closure_type`, `services`), `quoted` and `my_quote` (the company's quote or `null`). `?quoted=false` keeps only the requests still waiting for a quote |
 | `GET /provider/projects` | The projects the company won (its quote was accepted), without cancelled ones. Each one has `project`, `status` (`Active`, `Upcoming` or `Completed`), `site_status`, `progress`, `field_team_count`, `last_check_in`, `completion_submitted` and `quote`. `?status=Active` picks one tab |
 | `GET /provider/projects/{id}` | One won project with the same fields plus `submitted_at`, `change_note`, `team` and `photos`. 403 `Your company did not win this project` for other companies |
+| `GET /provider/workers` | The Field Team page: every field worker account of the company, newest first. Each one has `user_id`, `full_name`, `email`, `phone`, `status` (`Active` on an open project, `Available`, or `On Leave` when the account is turned off), `project` (the current project or `null`), `active_projects`, `last_activity` (the last photo or assignment) and `created_at`. `?status=Available` picks one filter. A worker added on the page is listed here as soon as the account is created |
 | `GET /provider/dashboard` | `stats` (`assigned`, `active`, `upcoming`, `completed`), `pending_quotes`, `new_requests` (not quoted yet), `next_project` (the first upcoming one, or `null`), `active_projects` and `overview` (`workers_active`, `sites_active`, `field_workers`). Every number is counted by the server |
 
 `status` of a won project: `Completed` after the contractor approves it, `Active` when the start date came or the field team already checked in, otherwise `Upcoming`. Today is the date in Riyadh. `progress` is the same as on Project Monitoring.
@@ -780,6 +781,9 @@ pytest
 | `test_provider_project_detail_has_the_team_and_photos` | The detail has the team, check-in, photos and progress, and becomes `Completed` with 100 after approval |
 | `test_provider_project_detail_errors` | Another company gets 403 and a missing project 404 |
 | `test_provider_dashboard_counts_its_own_data` | The dashboard counts the company's projects, pending quotes, new requests and active workers |
+| `test_provider_workers_need_a_provider_token` | The workers list returns 401 without a token and 403 for a contractor |
+| `test_provider_workers_lists_the_company_workers_after_they_register` | A registered worker is listed as `Available` for its own company only |
+| `test_provider_workers_shows_the_current_project_and_filters` | An assigned worker is `Active` with its project and last activity, `?status=` filters, and the worker is `Available` again after the project is approved |
 | `test_awarded_request_leaves_the_new_requests` | After the contractor confirms, the request leaves the new requests and appears in `?status=awarded` |
 
 ## Deploy on Render

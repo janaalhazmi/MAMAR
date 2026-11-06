@@ -194,3 +194,54 @@ def test_awarded_request_leaves_the_new_requests(api):
     won = api.client.get("/requests?status=awarded", headers=provider).json()
     assert project_id in [row["project_id"] for row in won]
     assert REQUEST["title"] in [row["title"] for row in won]
+
+
+WORKER_FIELDS = [
+    "user_id", "full_name", "email", "phone", "status", "project", "active_projects", "last_activity", "created_at",
+]
+
+
+def test_provider_workers_need_a_provider_token(api):
+    _, contractor = api.account()
+    assert api.client.get("/provider/workers").status_code == 401
+    response = api.client.get("/provider/workers", headers=contractor)
+    assert (response.status_code, response.json()) == (403, {"detail": "Only providers can view this page"})
+
+
+def test_provider_workers_lists_the_company_workers_after_they_register(api):
+    _, provider = api.account("provider", 3)
+    _, other = api.account("provider", 2)
+    worker_id, _ = api.account("worker", 3)
+    other_worker_id, _ = api.account("worker", 2)
+
+    rows = api.client.get("/provider/workers", headers=provider).json()
+    by_id = {row["user_id"]: row for row in rows}
+    assert worker_id in by_id and other_worker_id not in by_id
+    assert list(by_id[worker_id]) == WORKER_FIELDS
+    assert (by_id[worker_id]["status"], by_id[worker_id]["project"]) == ("Available", None)
+    assert by_id[worker_id]["active_projects"] == 0 and by_id[worker_id]["last_activity"] is None
+    assert worker_id not in [row["user_id"] for row in api.client.get("/provider/workers", headers=other).json()]
+
+
+def test_provider_workers_shows_the_current_project_and_filters(api):
+    project_id, contractor, provider, worker = active_project_with_worker(api)
+    worker_id = api.client.get("/auth/me", headers=worker).json()["user_id"]
+    api.client.post(
+        f"/field-worker/projects/{project_id}/photos",
+        files=[("photos", ("zone.png", PNG, "image/png"))],
+        headers=worker,
+    )
+    row = next(r for r in api.client.get("/provider/workers", headers=provider).json() if r["user_id"] == worker_id)
+    assert row["status"] == "Active" and row["active_projects"] == 1
+    assert row["project"]["project_id"] == project_id
+    assert row["last_activity"] is not None
+    active = [r["user_id"] for r in api.client.get("/provider/workers?status=Active", headers=provider).json()]
+    available = [r["user_id"] for r in api.client.get("/provider/workers?status=Available", headers=provider).json()]
+    assert worker_id in active and worker_id not in available
+    assert api.client.get("/provider/workers?status=Busy", headers=provider).status_code == 422
+
+    # After the contractor approves the project, the worker is available again.
+    api.client.patch(f"/field-worker/projects/{project_id}/status", json={"status": "Completed"}, headers=worker)
+    api.client.post(f"/projects/{project_id}/complete", headers=contractor)
+    row = next(r for r in api.client.get("/provider/workers", headers=provider).json() if r["user_id"] == worker_id)
+    assert (row["status"], row["project"], row["active_projects"]) == ("Available", None, 0)
