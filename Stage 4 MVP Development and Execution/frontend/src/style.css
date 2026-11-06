@@ -2817,6 +2817,18 @@ body {
   width: 64px;
 }
 
+.mp-row-actions button {
+  width: 28px;
+  height: 28px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 16px;
+  cursor: pointer;
+  background: #ffcc00;
+  border: 1px solid #ffcc00;
+  color: #111111;
+}
+
 .cd-project-name {
   display: flex;
   align-items: center;
@@ -10161,9 +10173,6 @@ textarea {
 }
  /* ==========================================================================
    FIELD WORKER PAGES
-   Paste this at the VERY END of style.css (after the pf- block).
-   .fw-main defines the same variables as .pf-main, so the pf- classes
-   (pf-card, pf-btn, pf-pill, pf-bar, pf-map, pf-table...) work here too.
    ========================================================================== */
 
 .fw-main {
