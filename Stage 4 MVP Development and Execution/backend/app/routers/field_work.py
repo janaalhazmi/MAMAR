@@ -90,11 +90,14 @@ def update_site_status(
     user: User = Depends(worker_only),
     db: Session = Depends(get_db),
 ):
-    # Completed submits the work, so the contractor's Review Completion button is enabled.
+    # Field worker -> provider -> contractor: Completed tells the provider the work is done.
+    # The provider then sends it to the contractor (POST /provider/projects/{id}/submit-completion).
+    # Any other status takes back work that was already sent.
     project = open_project(db, project_id, user)
     project.site_status = data.status
-    project.completion_submitted = data.status == "Completed"
-    project.submitted_at = utc_now() if project.completion_submitted else None
+    if data.status != "Completed":
+        project.completion_submitted = False
+        project.submitted_at = None
     db.commit()
     db.refresh(project)
     return field_project(db, project)

@@ -205,7 +205,7 @@ def test_field_worker_sees_only_assigned_projects(api):
 
 
 def test_check_in_and_status_reach_the_contractor(api):
-    project_id, contractor, _, worker = active_project_with_worker(api)
+    project_id, contractor, provider, worker = active_project_with_worker(api)
     checked = api.client.post(f"/field-worker/projects/{project_id}/check-in", headers=worker).json()
     assert checked["last_check_in"] is not None
     assert checked["site_status"] == "Work in Progress"
@@ -221,6 +221,10 @@ def test_check_in_and_status_reach_the_contractor(api):
 
     response = api.client.patch(f"/field-worker/projects/{project_id}/status", json={"status": "Completed"}, headers=worker)
     assert response.status_code == 200
+    # Field worker -> provider -> contractor: the contractor waits for the provider.
+    completion = api.client.get(f"/projects/{project_id}/completion", headers=contractor).json()
+    assert completion["completion_submitted"] is False
+    assert api.client.post(f"/provider/projects/{project_id}/submit-completion", headers=provider).status_code == 200
     completion = api.client.get(f"/projects/{project_id}/completion", headers=contractor).json()
     assert completion["completion_submitted"] is True
     assert completion["submitted_at"] is not None
@@ -272,9 +276,12 @@ def test_contractor_approves_the_completion(api):
     project_id, contractor, provider, worker = active_project_with_worker(api)
     response = api.client.post(f"/projects/{project_id}/complete", headers=contractor)
     assert response.status_code == 400
-    assert response.json() == {"detail": "The field team has not submitted the work yet"}
+    assert response.json() == {"detail": "The provider has not sent the completed work yet"}
 
     api.client.patch(f"/field-worker/projects/{project_id}/status", json={"status": "Completed"}, headers=worker)
+    # Marked Completed by the worker, but not sent by the provider yet.
+    assert api.client.post(f"/projects/{project_id}/complete", headers=contractor).status_code == 400
+    api.client.post(f"/provider/projects/{project_id}/submit-completion", headers=provider)
     response = api.client.post(f"/projects/{project_id}/complete", headers=contractor)
     assert response.status_code == 200
     assert response.json()["project_status"] == "completed"
@@ -285,8 +292,9 @@ def test_contractor_approves_the_completion(api):
 
 
 def test_contractor_requests_changes(api):
-    project_id, contractor, _, worker = active_project_with_worker(api)
+    project_id, contractor, provider, worker = active_project_with_worker(api)
     api.client.patch(f"/field-worker/projects/{project_id}/status", json={"status": "Completed"}, headers=worker)
+    api.client.post(f"/provider/projects/{project_id}/submit-completion", headers=provider)
     response = api.client.post(
         f"/projects/{project_id}/request-changes", json={"note": "Add two more warning signs"}, headers=contractor
     )

@@ -471,11 +471,11 @@ The endpoints that `frontend/src/services/projectFlow.js` and `fieldWork.js` cal
 | `POST /projects/{id}/confirm-provider` | Contractor of the project | Body `{"quote_id": 54}`. Accepts the quote, rejects the others, marks the request `awarded` and the project `active` |
 | `GET /projects/{id}/monitoring` | Contractor of the project | `site_status`, `progress`, `field_team_count`, `last_check_in`, `completion_submitted`, `provider`, `quote` and `photos` |
 | `GET /projects/{id}/completion` | Contractor of the project | The same data, for Review Completion |
-| `POST /projects/{id}/complete` | Contractor of the project | After the field team submits: the project becomes `completed` and its assignments too |
+| `POST /projects/{id}/complete` | Contractor of the project | After the provider sends the work: the project becomes `completed` and its assignments too |
 | `POST /projects/{id}/request-changes` | Contractor of the project | Body `{"note": "..."}`. Sends the work back: `Work in Progress`, and the worker sees the note |
 | `GET /field-worker/projects` | Field worker | The projects the worker is assigned to, newest first |
 | `GET /field-worker/projects/{id}` | Assigned field worker | The project, `site_status`, `progress`, `team`, `photos` and the contractor's `change_note` |
-| `PATCH /field-worker/projects/{id}/status` | Assigned field worker | Body `{"status": "Completed"}`. One of `Not Started`, `Work in Progress`, `Paused`, `Completed`. `Completed` turns on `completion_submitted` |
+| `PATCH /field-worker/projects/{id}/status` | Assigned field worker | Body `{"status": "Completed"}`. One of `Not Started`, `Work in Progress`, `Paused`, `Completed`. `Completed` tells the provider the work is done (the provider sends it to the contractor). Any other status takes back work that was already sent |
 | `POST /field-worker/projects/{id}/check-in` | Assigned field worker | Saves the check-in time. A site that was `Not Started` becomes `Work in Progress` |
 | `POST /field-worker/projects/{id}/photos` | Assigned field worker | `multipart/form-data`: one `photos` field per file and optional `captions`. JPEG, PNG or WebP, up to 5 MB each and 10 per upload |
 | `GET /photos/{token}` | Anyone with the link | The photo file. The URL has a random value, so `<img>` can show it without the token header |
@@ -491,7 +491,7 @@ The endpoints that `frontend/src/services/projectFlow.js` and `fieldWork.js` cal
 | Rejecting a quote that is not pending | 400 | `The quote is already rejected` |
 | Confirming twice, or a rejected quote | 400 | `A provider is already confirmed for this project` or `The quote is rejected` |
 | A quote of another project | 404 | `Quote not found for this project` |
-| Complete or request changes before the worker submits | 400 | `The field team has not submitted the work yet` |
+| Complete or request changes before the provider sends the work | 400 | `The provider has not sent the completed work yet` |
 | A worker who is not assigned to the project | 403 | `You are not assigned to this project` |
 | Changing a completed or cancelled project | 400 | `The project is completed` |
 | A photo that is not JPEG, PNG or WebP, no photo, or more than 10 | 422 | `notes.txt: only JPEG, PNG or WebP photos` |
@@ -509,10 +509,12 @@ The data of the provider's Dashboard, Service Requests and Projects pages. Only 
 | Endpoint | What it returns |
 | --- | --- |
 | `GET /provider/requests` | The open requests the company was invited to, newest first. Each one has the request fields, `project` (name, dates, `closure_type`, `services`), `quoted` and `my_quote` (the company's quote or `null`). `?quoted=false` keeps only the requests still waiting for a quote |
-| `GET /provider/projects` | The projects the company won (its quote was accepted), without cancelled ones. Each one has `project`, `status` (`Active`, `Upcoming` or `Completed`), `site_status`, `progress`, `field_team_count`, `last_check_in`, `completion_submitted` and `quote`. `?status=Active` picks one tab |
+| `GET /provider/projects` | The projects the company won (its quote was accepted), without cancelled ones. Each one has `project`, `status` (`Active`, `Upcoming` or `Completed`), `site_status`, `progress`, `field_team_count`, `last_check_in`, `completion_submitted`, `awaiting_review` (the field team finished and the provider has not sent it yet) and `quote`. `?status=Active` picks one tab |
 | `GET /provider/projects/{id}` | One won project with the same fields plus `submitted_at`, `change_note`, `team` and `photos`. 403 `Your company did not win this project` for other companies |
 | `GET /provider/workers` | The Field Team page: every field worker account of the company, newest first. Each one has `user_id`, `full_name`, `email`, `phone`, `status` (`Active` on an open project, `Available`, or `On Leave` when the account is turned off), `project` (the current project or `null`), `active_projects`, `last_activity` (the last photo or assignment) and `created_at`. `?status=Available` picks one filter. A worker added on the page is listed here as soon as the account is created |
-| `GET /provider/dashboard` | `stats` (`assigned`, `active`, `upcoming`, `completed`), `pending_quotes`, `new_requests` (not quoted yet), `next_project` (the first upcoming one, or `null`), `active_projects` and `overview` (`workers_active`, `sites_active`, `field_workers`). Every number is counted by the server |
+| `POST /provider/projects/{id}/submit-completion` | Field worker -> provider -> contractor: after the field team marks the work `Completed`, the provider sends it to the contractor, which turns on `completion_submitted` (Review Completion). 400 `The field team has not marked the work as Completed yet` before that |
+| `POST /provider/projects/{id}/return-to-team` | Body `{"note": "..."}`. The provider sends the work back to its field team: `Work in Progress`, and the worker sees the note |
+| `GET /provider/dashboard` | `stats` (`assigned`, `active`, `upcoming`, `completed`), `pending_quotes`, `awaiting_review`, `new_requests` (not quoted yet), `next_project` (the first upcoming one, or `null`), `active_projects` and `overview` (`workers_active`, `sites_active`, `field_workers`). Every number is counted by the server |
 
 `status` of a won project: `Completed` after the contractor approves it, `Active` when the start date came or the field team already checked in, otherwise `Upcoming`. Today is the date in Riyadh. `progress` is the same as on Project Monitoring.
 
@@ -787,6 +789,9 @@ pytest
 | `test_provider_workers_need_a_provider_token` | The workers list returns 401 without a token and 403 for a contractor |
 | `test_provider_workers_lists_the_company_workers_after_they_register` | A registered worker is listed as `Available` for its own company only |
 | `test_provider_workers_shows_the_current_project_and_filters` | An assigned worker is `Active` with its project and last activity, `?status=` filters, and the worker is `Available` again after the project is approved |
+| `test_completion_goes_from_the_worker_to_the_provider_to_the_contractor` | The contractor sees the work only after the provider sends it, and a new worker status takes it back |
+| `test_provider_returns_the_work_to_the_field_team` | The provider returns the work with a note, and the worker sees it |
+| `test_only_the_winning_provider_reviews_the_work` | Another company, the contractor and the worker get 403 |
 | `test_awarded_request_leaves_the_new_requests` | After the contractor confirms, the request leaves the new requests and appears in `?status=awarded` |
 
 ## Deploy on Render
