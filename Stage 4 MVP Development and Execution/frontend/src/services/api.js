@@ -231,6 +231,20 @@ export const fetchProviderProject = (token, projectId) =>
 
 export const fetchProviderDashboard = (token) => authed("/provider/dashboard", token);
 
+// Field worker -> provider -> contractor: the provider sends the finished work on,
+// or returns it to its field team with a note.
+export const postSubmitCompletion = (token, projectId) =>
+  authed(`/provider/projects/${encodeURIComponent(projectId)}/submit-completion`, token, {
+    method: "POST",
+  });
+
+export const postReturnToTeam = (token, projectId, note) =>
+  authed(`/provider/projects/${encodeURIComponent(projectId)}/return-to-team`, token, {
+    method: "POST",
+    headers: JSON_H,
+    body: asJson({ note }),
+  });
+
 export const fetchProviderWorkers = (token, status) =>
   authed(`/provider/workers${status ? `?status=${encodeURIComponent(status)}` : ""}`, token);
 
