@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import ProviderSidebar from "../components/ProviderSidebar";
+import Button from "../components/Button";
+import { postReturnToTeam, postSubmitCompletion } from "../services/api";
 import { getSession } from "../services/auth";
 import { formatDate } from "../services/projectFlow";
 
@@ -17,6 +19,37 @@ export default function ProviderProjectDetails() {
     .map((word) => word.charAt(0).toUpperCase()).join("") || "P";
 
   const [result, setResult] = useState(null);
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+  const [reviewNotice, setReviewNotice] = useState("");
+  const [note, setNote] = useState("");
+
+  // Field worker -> provider -> contractor. The page shows the updated project
+  // the server returns, so the status and buttons change at once.
+  async function review(action) {
+    if (reviewBusy) return;
+    if (action === "return" && !note.trim()) {
+      setReviewError("Write a note for the field team first.");
+      return;
+    }
+    setReviewBusy(true);
+    setReviewError("");
+    setReviewNotice("");
+    try {
+      const data = action === "submit"
+        ? await postSubmitCompletion(token, projectId)
+        : await postReturnToTeam(token, projectId, note.trim());
+      setResult({ projectId, token, data });
+      setNote("");
+      setReviewNotice(action === "submit"
+        ? "Sent to the contractor for review."
+        : "Returned to the field team with your note.");
+    } catch (error) {
+      setReviewError(error.message || "Could not update the project. Please try again.");
+    } finally {
+      setReviewBusy(false);
+    }
+  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -139,6 +172,56 @@ export default function ProviderProjectDetails() {
                     </p>
                   </section>
                 </div>
+
+                {(details.awaiting_review || details.completion_submitted) && (
+                  <section className="pex-card" aria-label="Completion review">
+                    <h2>Completion Review</h2>
+                    {details.awaiting_review ? (
+                      <>
+                        <p>
+                          The field team marked this work as Completed. Check the
+                          site photos, then send it to the contractor or return it
+                          to the team.
+                        </p>
+                        <label>
+                          Note for the field team (only when returning)
+                          <textarea
+                            value={note}
+                            maxLength={1000}
+                            rows={3}
+                            onChange={(event) => setNote(event.target.value)}
+                          />
+                        </label>
+                        <div className="pex-actions">
+                          <Button onClick={() => review("submit")} disabled={reviewBusy}>
+                            {reviewBusy ? "Please wait…" : "Send to Contractor"}
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            onClick={() => review("return")}
+                            disabled={reviewBusy}
+                          >
+                            Return to Field Team
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <p>
+                        Sent to the contractor
+                        {details.submitted_at
+                          ? ` on ${new Date(
+                              /[zZ]|[+-]\d\d:?\d\d$/.test(details.submitted_at)
+                                ? details.submitted_at
+                                : `${details.submitted_at}Z`
+                            ).toLocaleString()}`
+                          : ""}
+                        . Waiting for their review.
+                      </p>
+                    )}
+                    {reviewNotice && <p role="status">{reviewNotice}</p>}
+                    {reviewError && <p role="alert">{reviewError}</p>}
+                  </section>
+                )}
 
                 <div className="pex-grid">
                   <section className="pex-card">

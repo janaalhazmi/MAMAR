@@ -11276,3 +11276,28 @@ textarea {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Provider Execution: completion review */
+.pex-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.pex-card label {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.pex-card textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font: inherit;
+  resize: vertical;
+}
