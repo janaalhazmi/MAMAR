@@ -97,7 +97,7 @@ The tables are created automatically when the server starts. For the frontend wo
 
 | Table | New columns |
 | --- | --- |
-| `projects` | `services` (the ids chosen on Select Service), `site_status`, `last_check_in`, `completion_submitted`, `submitted_at`, `change_note` |
+| `projects` | `services` (the ids chosen on Select Service), `site_status`, `last_check_in`, `completion_submitted`, `submitted_at`, `change_note`, `location`, `latitude`, `longitude`, `work_zone` (the Location page, so the provider and the field team see the same place) |
 | `quotes` | `start_date`, `services` (optional) |
 | `service_requests` | `provider_ids` (optional): the providers the contractor invited. `null` means every provider |
 
@@ -361,7 +361,7 @@ The three `projects` endpoints follow Stage 3 (sections 4.2.5 to 4.2.7). Only a 
 | Endpoint | What it does |
 | --- | --- |
 | `GET /projects` | Lists the projects of the signed-in contractor, newest first. `?project_status=active` filters the list |
-| `POST /projects` | Creates a project as `draft` and returns it with its new `project_id` |
+| `POST /projects` | Creates a project as `draft` and returns it with its new `project_id`. Optional: `services`, `location` (the address), `latitude`, `longitude` and `work_zone` (`[[longitude, latitude], ...]`, up to 500 points) |
 | `PATCH /projects/{id}` | Changes only the fields that are sent, for example `{"project_status": "active"}` |
 
 `POST /projects` body. `description` is optional, and so is `services`, a list of `ttc-plan`, `cones-barriers` and `road-signs` (the Select Service page). The response has `services` too:
@@ -709,6 +709,9 @@ pytest
 | `test_without_emailjs_the_passcode_is_written_in_the_log` | Without EmailJS, nothing is sent and the passcode is written in the server log |
 | `test_create_project_returns_201_as_draft` | A contractor creates a project with the Stage 3 example. It returns 201 with the Stage 3 fields, as `draft`, and saves the contractor's `user_id` |
 | `test_create_project_without_description` | `description` is optional, and an empty description is saved as `null` |
+| `test_project_saves_the_location_and_work_zone` | The address, pin and work zone are saved, returned by GET, and can be changed. An empty work zone is saved as `null` |
+| `test_project_without_location_returns_nulls` | A project without a location returns `null` for the four fields |
+| `test_project_with_a_location_out_of_range_returns_422` | A latitude, longitude or work zone point out of range returns 422 |
 | `test_end_date_before_start_date_returns_422` | `end_date` before `start_date` returns 422 and nothing is saved. The same day is accepted |
 | `test_create_project_with_an_invalid_body_returns_422` | A missing or empty name, too long name or closure type, and dates that are not valid return 422 and nothing is saved (7 cases) |
 | `test_projects_need_a_token` | `GET`, `POST` and `PATCH` without a token return 401 |
