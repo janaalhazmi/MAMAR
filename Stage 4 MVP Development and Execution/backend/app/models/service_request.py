@@ -17,6 +17,9 @@ class ServiceRequest(Base):
 
     request_id: Mapped[int] = mapped_column(primary_key=True)
     project_id: Mapped[int] = mapped_column(ForeignKey("projects.project_id"))
+    provider_id: Mapped[int | None] = mapped_column(
+    ForeignKey("providers.provider_id"), nullable=True
+    )
     title: Mapped[str] = mapped_column(String(150))
     details: Mapped[str | None] = mapped_column(Text)
     required_by: Mapped[date]
@@ -59,6 +62,7 @@ class ServiceRequest(Base):
         return {
             "request_id": self.request_id,
             "project_id": self.project_id,
+            "provider_id": self.provider_id,
             "title": self.title,
             "details": self.details,
             "required_by": self.required_by,

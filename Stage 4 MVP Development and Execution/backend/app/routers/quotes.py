@@ -19,7 +19,7 @@ TOKEN_ERROR = {401: {"model": ErrorResponse, "description": "The token is missin
 CREATE_ERRORS = {
     **TOKEN_ERROR,
     400: {"model": ErrorResponse, "description": "The request is not open"},
-    403: {"model": ErrorResponse, "description": "The user is not a provider, or the contractor did not invite this provider"},
+    403: {"model": ErrorResponse, "description": "The user is not an eligible provider"},
     404: {"model": ErrorResponse, "description": "The request does not exist"},
     409: {"model": ErrorResponse, "description": "This provider already submitted a quote for the request"},
     422: {"model": ErrorResponse, "description": "price or duration_days is missing or not valid"},
@@ -42,10 +42,15 @@ def submit_quote(
     request = db.get(ServiceRequest, request_id)
     if request is None:
         raise HTTPException(status_code=404, detail="Request not found")
+
+    if user.provider_id is None:
+        raise HTTPException(
+            status_code=403,
+            detail="Your account is not linked to a provider"
+        )
+
     if request.status != "open":
         raise HTTPException(status_code=400, detail=f"The request is {request.status}, quotes are only sent to open requests")
-    if not request.invites(user.provider_id):
-        raise HTTPException(status_code=403, detail="The contractor did not invite your company to this request")
     already_sent = select(Quote).where(Quote.request_id == request_id, Quote.provider_id == user.provider_id)
     if db.scalar(already_sent) is not None:
         raise HTTPException(status_code=409, detail="Your company already sent a quote for this request")
@@ -77,6 +82,11 @@ def list_quotes(
         if db.get(Project, request.project_id).contractor_id != user.user_id:
             raise HTTPException(status_code=403, detail="This request belongs to another contractor")
     else:
+        if user.provider_id is None:
+            raise HTTPException(
+                status_code=403,
+                detail="Your account is not linked to a provider"
+            )
         query = query.where(Quote.provider_id == user.provider_id)
     quotes = db.scalars(query.order_by(Quote.price, Quote.quote_id)).all()
     return [quote.to_dict() for quote in quotes]

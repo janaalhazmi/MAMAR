@@ -13,6 +13,7 @@ import {
 } from "../services/projectFlow";
 import Icon from "../components/Icons";
 
+
 const providers = [
   {
     id: 1,
@@ -80,7 +81,7 @@ function ProviderPage() {
   const [search, setSearch] = useState("");
   const [city, setCity] = useState("Riyadh");
   const [service, setService] = useState("All Required Services");
-  const [selectedIds, setSelectedIds] = useState([1, 2]);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 

@@ -5,7 +5,7 @@ from tests.test_workflow import PNG, active_project_with_worker, project_with_re
 
 # The fields of each provider page, in the same order as the response.
 PROVIDER_REQUEST_FIELDS = [
-    "request_id", "project_id", "title", "details", "required_by", "status", "created_at", "provider_ids",
+    "request_id", "project_id", "provider_id", "title", "details", "required_by", "status", "created_at", "provider_ids",
     "project", "quoted", "my_quote",
 ]
 PROVIDER_PROJECT_FIELDS = [

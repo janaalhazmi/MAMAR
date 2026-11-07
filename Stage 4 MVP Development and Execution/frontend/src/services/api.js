@@ -288,4 +288,9 @@ export const postDeviceVerify = (token, device, body) =>
     headers: JSON_H,
     body: asJson(body), // { project_id, latitude, longitude, accuracy }
   });
- 
+ // Get the contractor's work zone for an assigned service request.
+export const fetchRequestWorkZone = (token, requestId) =>
+  authed(
+    `/requests/${encodeURIComponent(requestId)}/work-zone`,
+    token
+  );

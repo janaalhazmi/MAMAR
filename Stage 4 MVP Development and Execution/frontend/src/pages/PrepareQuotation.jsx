@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   getOpenRequestById,
@@ -7,6 +7,8 @@ import {
 import Button from "../components/Button";
 import logo from "../assets/mamar-logo.svg";
 import MamarMap from "../components/MamarMap";
+import { getSession } from "../services/auth";
+import { fetchRequestWorkZone } from "../services/api";
 
 const initialServices = [
   {
@@ -38,6 +40,24 @@ function PrepareQuotation() {
   const [showWorkZone, setShowWorkZone] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [workZone, setWorkZone] = useState(null);
+const [requestDetails, setRequestDetails] = useState(null);
+
+useEffect(() => {
+  if (!requestId) return;
+
+  const accessToken = getSession()?.access_token;
+  if (!accessToken) return;
+
+  fetchRequestWorkZone(accessToken, requestId)
+    .then((data) => {
+      setRequestDetails(data);
+      setWorkZone(data.work_zone ?? null);
+    })
+    .catch((error) => {
+      console.error("Failed to load work zone:", error);
+    });
+}, [requestId]);
+
   const handleWorkZoneSelect = (polygon) => {
   sessionStorage.setItem(
     "providerWorkZone",
@@ -317,14 +337,19 @@ function PrepareQuotation() {
                </div>
 
                <div className="work-zone-map">
-               <MamarMap
-                // enablePolygon
-                // onLocationSelect={setSelectedLocation}
-                // onPolygonSelect={(polygon) => {
-                //   setWorkZone(polygon);
-                //   handleWorkZoneSelect(polygon);
-                // }}
-                />
+{requestDetails && workZone ? (
+                  <MamarMap
+                    key={requestId}
+                    workZone={workZone}
+                    readOnly
+                  />
+                ) : (
+                  <p>
+                    {requestDetails
+                      ? "No work zone has been saved for this project."
+                      : "Loading work zone..."}
+                  </p>
+                )}
              </div>
           </section>
          )}

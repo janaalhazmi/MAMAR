@@ -4,7 +4,10 @@ from app.models import Quote, ServiceRequest
 from tests.conftest import REQUEST
 
 # The fields of one service request in Stage 3, section 4.2.8, in the same order.
-REQUEST_FIELDS = ["request_id", "project_id", "title", "details", "required_by", "status", "created_at", "provider_ids"]
+REQUEST_FIELDS = [
+    "request_id", "project_id", "provider_id", "title",
+    "details", "required_by", "status", "created_at", "provider_ids"
+]
 
 
 def test_create_request_returns_201_as_open(api):
@@ -85,21 +88,37 @@ def test_provider_sees_open_requests_and_the_requests_it_won(api):
     assert api.client.get(f"/requests?status=awarded&project_id={project_id}", headers=other).json() == []
 
 
-def test_provider_sees_only_the_requests_it_was_invited_to(api):
+def test_all_providers_can_see_open_requests_and_submit_quotes(api):
     _, contractor = api.account()
     _, invited = api.account("provider", 1)
     _, not_invited = api.account("provider", 2)
+
     project_id = api.project(contractor)
     request = api.request(contractor, project_id, provider_ids=[1, 3, 1])
     assert request["provider_ids"] == [1, 3]
+
     everyone = api.request(contractor, project_id)
     assert everyone["provider_ids"] is None
-    seen = lambda headers: [r["request_id"] for r in api.client.get(f"/requests?project_id={project_id}", headers=headers).json()]  # noqa: E731
-    assert seen(invited) == [everyone["request_id"], request["request_id"]]
-    assert seen(not_invited) == [everyone["request_id"]]
-    # A provider that was not invited cannot quote or open the project through that request.
-    response = api.client.post(f"/requests/{request['request_id']}/quotes", json={"price": 100, "duration_days": 2}, headers=not_invited)
-    assert (response.status_code, response.json()) == (403, {"detail": "The contractor did not invite your company to this request"})
+
+    def seen(headers):
+        rows = api.client.get(
+            f"/requests?project_id={project_id}",
+            headers=headers
+        ).json()
+        return [row["request_id"] for row in rows]
+
+    expected = [everyone["request_id"], request["request_id"]]
+
+    assert seen(invited) == expected
+    assert seen(not_invited) == expected
+
+    response = api.client.post(
+        f"/requests/{request['request_id']}/quotes",
+        json={"price": 100, "duration_days": 2},
+        headers=not_invited,
+    )
+    assert response.status_code == 201, response.json()
+
     api.quote(invited, request["request_id"])
 
 

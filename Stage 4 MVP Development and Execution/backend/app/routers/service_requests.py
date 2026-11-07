@@ -78,19 +78,31 @@ def list_requests(
     # its company won (status=awarded or status=closed). Newest first.
     query = select(ServiceRequest)
     if user.role == "contractor":
-        query = query.join(Project).where(Project.contractor_id == user.user_id)
+        query = query.join(Project).where(
+            Project.contractor_id == user.user_id
+        )
         if status is not None:
             query = query.where(ServiceRequest.status == status)
-    elif status in (None, "open"):
-        query = query.where(ServiceRequest.status == "open")
     else:
-        won = select(Quote.request_id).where(Quote.provider_id == user.provider_id, Quote.status == "accepted")
-        query = query.where(ServiceRequest.status == status, ServiceRequest.request_id.in_(won))
+        if user.provider_id is None:
+            raise HTTPException(
+                status_code=403,
+                detail="Your account is not linked to a provider"
+            )
+        if status in (None, "open"):
+            query = query.where(ServiceRequest.status == "open")
+        else:
+            won = select(Quote.request_id).where(
+                Quote.provider_id == user.provider_id,
+                Quote.status == "accepted"
+            )
+            query = query.where(
+                ServiceRequest.status == status,
+                ServiceRequest.request_id.in_(won)
+            )
     if project_id is not None:
         query = query.where(ServiceRequest.project_id == project_id)
     requests = db.scalars(query.order_by(ServiceRequest.request_id.desc())).all()
-    if user.role == "provider":
-        requests = [request for request in requests if request.status != "open" or request.invites(user.provider_id)]
     return [request.to_dict() for request in requests]
 
 
@@ -124,4 +136,31 @@ def award_request(
             "price": float(quote.price),
             "status": quote.status,
         },
+    }
+@router.get("/requests/{request_id}/work-zone")
+def get_request_work_zone(
+    request_id: int,
+    user: User = Depends(contractor_or_provider),
+    db: Session = Depends(get_db),
+):
+    request = db.get(ServiceRequest, request_id)
+
+    if request is None:
+        raise HTTPException(status_code=404, detail="Request not found")
+
+    project = db.get(Project, request.project_id)
+
+    if user.role == "provider":
+        if request.provider_id != user.provider_id:
+            raise HTTPException(status_code=403, detail="Request not assigned to your company")
+    elif project.contractor_id != user.user_id:
+        raise HTTPException(status_code=403, detail="This project belongs to another contractor")
+
+    return {
+        "request_id": request.request_id,
+        "project_id": project.project_id,
+        "project_name": project.project_name,
+        "start_date": project.start_date,
+        "end_date": project.end_date,
+        "work_zone": project.work_zone,
     }

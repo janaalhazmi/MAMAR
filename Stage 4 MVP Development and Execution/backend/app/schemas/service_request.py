@@ -53,6 +53,7 @@ class ServiceRequestResponse(BaseModel):
     # One service request as JSON (Stage 3, section 4.2.8).
     request_id: int
     project_id: int
+    provider_id: int | None
     title: str
     details: str | None
     required_by: date

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-
 from app.core.access import can_view_project, get_project
+
 from app.core.security import get_current_user
 from app.db.database import get_db
 from app.models import Project, User
@@ -110,8 +110,9 @@ def update_project(
     if not changes:
         raise HTTPException(
             status_code=422,
-            detail="Send at least one of: project_name, project_status, closure_type, start_date, end_date, description, services",
+            detail="Send at least one of: project_name, project_status, closure_type, start_date, end_date, description, services, work_zone",
         )
+
     # The dates are checked together, also when only one of them is sent.
     if changes.get("end_date", project.end_date) < changes.get("start_date", project.start_date):
         raise HTTPException(status_code=422, detail="end_date: cannot be before start_date")

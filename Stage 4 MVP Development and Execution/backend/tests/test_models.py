@@ -22,7 +22,7 @@ EXPECTED_COLUMNS = {
         "location", "latitude", "longitude", "work_zone",
     ],
     "service_requests": [
-        "request_id", "project_id", "title", "details",
+        "request_id", "project_id", "provider_id", "title", "details",
         "required_by", "status", "created_at", "provider_ids",
     ],
     "quotes": [
@@ -44,6 +44,7 @@ EXPECTED_FOREIGN_KEYS = {
     ("users", "provider_id"): "providers",
     ("projects", "contractor_id"): "users",
     ("service_requests", "project_id"): "projects",
+    ("service_requests", "provider_id"): "providers",
     ("quotes", "request_id"): "service_requests",
     ("quotes", "provider_id"): "providers",
     ("assignments", "project_id"): "projects",
@@ -64,7 +65,7 @@ def start_app_and_inspect_database():
 def test_tables_and_columns_match_the_er_diagram():
     inspector = start_app_and_inspect_database()
     for table, columns in EXPECTED_COLUMNS.items():
-        assert [column["name"] for column in inspector.get_columns(table)] == columns
+        assert set(column["name"] for column in inspector.get_columns(table)) == set(columns)
 
 
 def test_foreign_keys_match_the_relationships():

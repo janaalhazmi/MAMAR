@@ -150,20 +150,31 @@ function requireProjectId(projectId) {
 /* ------------------------------------------------------------------ */
 /* REQUEST QUOTES  (call this from the "Request Quotes" button)        */
 /* ------------------------------------------------------------------ */
-// Providers can only quote when the project has an OPEN request that
-// INVITES them (provider_ids). Without provider_ids the request is not
-// visible to any provider.
-// POST /projects/{id}/requests  { title, required_by, details, provider_ids }
-export async function requestQuotes(project = getCurrentProject()) {
+// Create one open service request for the project.
+// All providers can view open requests and submit quotations.
+export async function requestQuotes(
+  project = getCurrentProject(),
+  providerIds = getSelectedProviderIds()
+) {
   const projectId = requireProjectId(project.id);
-  const services = (project.services || []).map((id) => SERVICE_LABELS[id] || id);
-  const providerIds = getSelectedProviderIds(); // saved by the Providers page
- 
+
+  const services = (project.services || []).map(
+    (id) => SERVICE_LABELS[id] || id
+  );
+
+  const ids = [...new Set(providerIds.map(Number))];
+
+  if (ids.some((id) => !Number.isInteger(id) || id <= 0)) {
+    throw new Error("Please select valid providers.");
+  }
+
   return postServiceRequest(token(), projectId, {
     title: project.name || "Traffic control services",
     required_by: project.startDate,
-    details: services.length ? `Services: ${services.join(", ")}` : null,
-    provider_ids: providerIds.length ? providerIds.map(Number) : null,
+    details: services.length
+      ? `Services: ${services.join(", ")}`
+      : null,
+    provider_ids: ids.length ? ids : null,
   });
 }
  
