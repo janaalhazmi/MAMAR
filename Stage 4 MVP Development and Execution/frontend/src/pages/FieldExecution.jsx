@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import FieldWorkerShell from "../components/FieldWorkerShell";
 import MamarMap from "../components/MamarMap";
 import Icon from "../components/Icons";
@@ -8,6 +8,7 @@ import {
   fileToDataUrl,
   formatDateRange,
   getFieldExecution,
+  getFieldWorkerDashboard,
   siteCheckIn,
   updateSiteStatus,
   uploadSitePhotos,
@@ -15,9 +16,11 @@ import {
 
 function FieldExecution() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const fileInput = useRef(null);
 
   const [data, setData] = useState(null);
+  const [projectId, setProjectId] = useState(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -25,18 +28,44 @@ function FieldExecution() {
   const [editingStatus, setEditingStatus] = useState(false);
   const [pending, setPending] = useState([]); // photos chosen but not sent yet
 
-  // Mock project id. TODO(API): take this from the route, e.g. /field-execution/:projectId
-  const projectId = "proj-001";
+  // The project comes from the real backend:
+  //   1. /field-execution?projectId=12  (link from the dashboard), or
+  //   2. the project the provider assigned this field worker to.
+  const requestedId = searchParams.get("projectId");
 
   useEffect(() => {
     let active = true;
-    getFieldExecution(projectId)
-      .then((result) => active && setData(result))
-      .catch(() => active && setError("Could not load this project."));
+
+    async function load() {
+      setError("");
+      try {
+        let id = requestedId;
+
+        if (!id) {
+          const dashboard = await getFieldWorkerDashboard();
+          id = dashboard.activeProjects[0]?.id ?? dashboard.newProject?.id ?? null;
+        }
+
+        if (!id) {
+          throw new Error(
+            "You have no assigned project yet. Ask your provider to assign you to a project."
+          );
+        }
+
+        const result = await getFieldExecution(id);
+        if (!active) return;
+        setProjectId(id);
+        setData(result);
+      } catch (err) {
+        if (active) setError(err.message || "Could not load this project.");
+      }
+    }
+
+    load();
     return () => {
       active = false;
     };
-  }, []);
+  }, [requestedId]);
 
   async function handleCheckIn() {
     setBusy(true);
@@ -48,8 +77,8 @@ function FieldExecution() {
         site: { ...current.site, todayCheckIn: time, lastUpdate: time },
       }));
       setNotice("Checked in at the site.");
-    } catch {
-      setError("Could not check in. Please try again.");
+    } catch (err) {
+      setError(err.message || "Could not check in. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -67,8 +96,8 @@ function FieldExecution() {
       }));
       setEditingStatus(false);
       setNotice("Status updated.");
-    } catch {
-      setError("Could not update the status. Please try again.");
+    } catch (err) {
+      setError(err.message || "Could not update the status. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -85,7 +114,7 @@ function FieldExecution() {
         files.map(async (file, index) => ({
           id: `${Date.now()}-${index}`,
           caption: file.name.replace(/\.[^.]+$/, ""),
-          file, // the real File: send THIS to the backend
+          file, // the real File: this is what is sent to the backend
           src: await fileToDataUrl(file), // small preview version
         }))
       );
@@ -119,9 +148,14 @@ function FieldExecution() {
     return (
       <FieldWorkerShell activeKey="team">
         {error ? (
-          <p className="pf-alert" role="alert">
-            {error}
-          </p>
+          <>
+            <p className="pf-alert" role="alert">
+              {error}
+            </p>
+            <Link to="/field-worker-dashboard" className="pf-backlink">
+              ‹ Back to Dashboard
+            </Link>
+          </>
         ) : (
           <p className="pf-empty">Loading project…</p>
         )}
@@ -265,7 +299,7 @@ function FieldExecution() {
           <button
             type="button"
             className="fw-link fw-link-block"
-            onClick={() => navigate("/device-verification")}
+            onClick={() => navigate(`/device-verification?projectId=${projectId}`)}
           >
             Verify an installed device →
           </button>
@@ -306,8 +340,6 @@ function FieldExecution() {
             </button>
           </div>
 
-          {/* TODO(API): photos the worker sends here are uploaded to the
-              backend and shown to the contractor (see uploadSitePhotos). */}
           {photos.length > 0 && (
             <div className="fw-thumbs">
               {photos.map((photo) => (
