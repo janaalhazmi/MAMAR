@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, StringConstraints, ValidationInfo, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, ValidationInfo, field_validator
 
 # The four statuses of the projects table in Stage 3.
 ProjectStatus = Literal["draft", "active", "completed", "cancelled"]
@@ -18,6 +18,28 @@ def unique_services(services: list[str] | None) -> list[str] | None:
 ProjectName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=150)]
 ClosureType = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=50)]
 Description = Annotated[str, StringConstraints(strip_whitespace=True)]
+Location = Annotated[str, StringConstraints(strip_whitespace=True, max_length=255)]
+Latitude = Annotated[float, Field(ge=-90, le=90)]
+Longitude = Annotated[float, Field(ge=-180, le=180)]
+
+# The most points a work zone polygon can have.
+MAX_ZONE_POINTS = 500
+
+
+def check_zone(work_zone: list[list[float]] | None) -> list[list[float]] | None:
+    # The work zone is a list of [longitude, latitude] points, like the ArcGIS polygon.
+    # An empty list is saved as NULL (no zone).
+    if not work_zone:
+        return None
+    if len(work_zone) > MAX_ZONE_POINTS:
+        raise ValueError(f"at most {MAX_ZONE_POINTS} points")
+    for point in work_zone:
+        if len(point) != 2:
+            raise ValueError("each point must be [longitude, latitude]")
+        lng, lat = point
+        if not (-180 <= lng <= 180 and -90 <= lat <= 90):
+            raise ValueError("each point must be [longitude, latitude] inside the valid range")
+    return work_zone
 
 # The example from Stage 3, section 4.2.6.
 PROJECT_EXAMPLE = {
@@ -26,6 +48,11 @@ PROJECT_EXAMPLE = {
     "start_date": "2026-11-01",
     "end_date": "2026-12-15",
     "description": "Night work on the right lane",
+    "services": ["ttc-plan", "road-signs"],
+    "location": "King Fahd Road, Al Olaya, Riyadh",
+    "latitude": 24.7136,
+    "longitude": 46.6753,
+    "work_zone": [[46.675, 24.713], [46.676, 24.713], [46.676, 24.714]],
 }
 
 
@@ -44,11 +71,25 @@ class ProjectCreate(BaseModel):
     end_date: date
     description: Description | None = None
     services: list[ServiceId] = []
+    location: Location | None = None
+    latitude: Latitude | None = None
+    longitude: Longitude | None = None
+    work_zone: list[list[float]] | None = None
 
     @field_validator("services")
     @classmethod
     def check_services(cls, services: list[str]) -> list[str]:
         return unique_services(services)
+
+    @field_validator("location")
+    @classmethod
+    def check_location(cls, location: str | None) -> str | None:
+        return location or None
+
+    @field_validator("work_zone")
+    @classmethod
+    def check_work_zone(cls, work_zone):
+        return check_zone(work_zone)
 
     @field_validator("end_date")
     @classmethod
@@ -77,6 +118,20 @@ class ProjectUpdate(BaseModel):
     end_date: date | None = None
     description: Description | None = None
     services: list[ServiceId] | None = None
+    location: Location | None = None
+    latitude: Latitude | None = None
+    longitude: Longitude | None = None
+    work_zone: list[list[float]] | None = None
+
+    @field_validator("location")
+    @classmethod
+    def check_location(cls, location: str | None) -> str | None:
+        return location or None
+
+    @field_validator("work_zone")
+    @classmethod
+    def check_work_zone(cls, work_zone):
+        return check_zone(work_zone)
 
     @field_validator("project_name", "project_status", "closure_type", "start_date", "end_date", "services")
     @classmethod
@@ -104,3 +159,7 @@ class ProjectResponse(BaseModel):
     description: str | None
     created_at: datetime
     services: list[str]
+    location: str | None
+    latitude: float | None
+    longitude: float | None
+    work_zone: list[list[float]] | None

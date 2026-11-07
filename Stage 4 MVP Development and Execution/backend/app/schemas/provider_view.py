@@ -61,3 +61,27 @@ class ProviderDashboard(BaseModel):
     next_project: ProviderProject | None
     active_projects: list[ProviderProject]
     overview: ProviderOverview
+
+
+# The filters of the provider's Field Team page.
+WorkerStatus = Literal["Active", "Available", "On Leave"]
+
+
+class WorkerProject(BaseModel):
+    project_id: int
+    project_name: str
+
+
+class ProviderWorker(BaseModel):
+    # A field worker account of the provider's company.
+    # status: Active (working on an open project now), Available (no open project),
+    # On Leave (the account is turned off).
+    user_id: int
+    full_name: str
+    email: str
+    phone: str | None
+    status: WorkerStatus
+    project: WorkerProject | None
+    active_projects: int
+    last_activity: datetime | None
+    created_at: datetime

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.core.access import get_project
 from app.core.security import allow_roles
 from app.db.database import get_db
-from app.models import Assignment, Project, Quote, ServiceRequest, User
+from app.models import Assignment, Project, Quote, ServiceRequest, SitePhoto, User
 from app.models.project import SITE_PROGRESS
 from app.routers.workflow import project_photos
 from app.schemas.error import ErrorResponse
@@ -17,6 +17,8 @@ from app.schemas.provider_view import (
     ProviderProject,
     ProviderProjectDetail,
     ProviderRequest,
+    ProviderWorker,
+    WorkerStatus,
 )
 
 # The provider's own pages: Dashboard, Service Requests and Projects. Every list holds only
@@ -205,3 +207,75 @@ def dashboard(user: User = Depends(provider_only), db: Session = Depends(get_db)
             "field_workers": field_workers,
         },
     }
+
+
+@router.get("/workers", response_model=list[ProviderWorker], responses=TOKEN_ERRORS)
+def my_workers(status: WorkerStatus | None = None, user: User = Depends(provider_only), db: Session = Depends(get_db)):
+    # The Field Team page: every field worker account of the company, newest first, so a worker
+    # added on this page is still listed after the page is opened again. ?status= picks a filter.
+    workers = db.scalars(
+        select(User)
+        .where(User.role == "worker", User.provider_id == user.provider_id)
+        .order_by(User.user_id.desc())
+    ).all()
+    if not workers:
+        return []
+    ids = [worker.user_id for worker in workers]
+
+    # The open projects each worker is assigned to now, newest assignment first.
+    open_work = db.execute(
+        select(Assignment.worker_id, Project.project_id, Project.project_name)
+        .join(Project, Project.project_id == Assignment.project_id)
+        .where(
+            Assignment.worker_id.in_(ids),
+            Assignment.status == "active",
+            Project.project_status.not_in(("completed", "cancelled")),
+        )
+        .order_by(Assignment.assigned_at.desc(), Assignment.assignment_id.desc())
+    ).all()
+    current, counts = {}, {}
+    for worker_id, project_id, project_name in open_work:
+        current.setdefault(worker_id, {"project_id": project_id, "project_name": project_name})
+        counts[worker_id] = counts.get(worker_id, 0) + 1
+
+    # The last thing each worker did: a photo upload or a new assignment.
+    last_photo = dict(
+        db.execute(
+            select(SitePhoto.worker_id, func.max(SitePhoto.created_at))
+            .where(SitePhoto.worker_id.in_(ids))
+            .group_by(SitePhoto.worker_id)
+        ).all()
+    )
+    last_assigned = dict(
+        db.execute(
+            select(Assignment.worker_id, func.max(Assignment.assigned_at))
+            .where(Assignment.worker_id.in_(ids))
+            .group_by(Assignment.worker_id)
+        ).all()
+    )
+
+    result = []
+    for worker in workers:
+        if not worker.is_active:
+            worker_status = "On Leave"
+        elif worker.user_id in current:
+            worker_status = "Active"
+        else:
+            worker_status = "Available"
+        if status is not None and worker_status != status:
+            continue
+        times = [time for time in (last_photo.get(worker.user_id), last_assigned.get(worker.user_id)) if time]
+        result.append(
+            {
+                "user_id": worker.user_id,
+                "full_name": worker.full_name,
+                "email": worker.email,
+                "phone": worker.phone,
+                "status": worker_status,
+                "project": current.get(worker.user_id),
+                "active_projects": counts.get(worker.user_id, 0),
+                "last_activity": max(times) if times else None,
+                "created_at": worker.created_at,
+            }
+        )
+    return result

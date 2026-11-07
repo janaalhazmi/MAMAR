@@ -19,6 +19,7 @@ EXPECTED_COLUMNS = {
         "project_id", "contractor_id", "project_name", "project_status",
         "closure_type", "start_date", "end_date", "description", "created_at",
         "services", "site_status", "last_check_in", "completion_submitted", "submitted_at", "change_note",
+        "location", "latitude", "longitude", "work_zone",
     ],
     "service_requests": [
         "request_id", "project_id", "title", "details",

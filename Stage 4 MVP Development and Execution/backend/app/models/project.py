@@ -45,6 +45,13 @@ class Project(Base):
     submitted_at: Mapped[datetime | None]
     # The last note the contractor sent with Request Changes.
     change_note: Mapped[str | None] = mapped_column(Text)
+    # The Location page: the address, the pin and the work zone polygon ([[lng, lat], ...]),
+    # so the provider and the field team see the same place. Last, so a new and an upgraded
+    # database match.
+    location: Mapped[str | None] = mapped_column(String(255))
+    latitude: Mapped[float | None]
+    longitude: Mapped[float | None]
+    work_zone: Mapped[list | None] = mapped_column(JSON(none_as_null=True))
 
     def update_status(self, status: str) -> None:
         # Moves project_status between draft, active, completed and cancelled (Stage 3, section 2.2.3).
@@ -65,4 +72,8 @@ class Project(Base):
             "description": self.description,
             "created_at": self.created_at,
             "services": list(self.services or []),
+            "location": self.location,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
+            "work_zone": self.work_zone,
         }

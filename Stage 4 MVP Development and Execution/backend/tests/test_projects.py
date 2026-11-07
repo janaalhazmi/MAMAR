@@ -13,7 +13,15 @@ from app.models.project import PROJECT_STATUSES
 PROJECT_FIELDS = [
     "project_id", "contractor_id", "project_name", "project_status",
     "closure_type", "start_date", "end_date", "description", "created_at", "services",
+    "location", "latitude", "longitude", "work_zone",
 ]
+
+LOCATION = {
+    "location": "King Fahd Road, Al Olaya, Riyadh",
+    "latitude": 24.7136,
+    "longitude": 46.6753,
+    "work_zone": [[46.675, 24.713], [46.676, 24.713], [46.676, 24.714]],
+}
 
 # The example body from Stage 3, section 4.2.6.
 PROJECT = {
@@ -380,3 +388,33 @@ def test_frontend_can_create_and_list_projects_with_the_token(client, method):
     assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
     assert method in response.headers["access-control-allow-methods"]
     assert "authorization" in response.headers["access-control-allow-headers"].lower()
+
+
+def test_project_saves_the_location_and_work_zone(client, sign_in):
+    _, headers = sign_in()
+    project = client.post("/projects", json={**PROJECT, **LOCATION}, headers=headers).json()
+    for field, value in LOCATION.items():
+        assert project[field] == value
+    # GET returns the same place, so it is not only in the contractor's browser.
+    saved = client.get(f"/projects/{project['project_id']}", headers=headers).json()
+    assert {field: saved[field] for field in LOCATION} == LOCATION
+    # The location can be changed later, and an empty work zone is saved as null.
+    response = client.patch(
+        f"/projects/{project['project_id']}",
+        json={"location": "Olaya Street", "latitude": 24.70, "longitude": 46.68, "work_zone": []},
+        headers=headers,
+    )
+    assert (response.json()["location"], response.json()["work_zone"]) == ("Olaya Street", None)
+
+
+def test_project_without_location_returns_nulls(client, sign_in):
+    _, headers = sign_in()
+    project = client.post("/projects", json=PROJECT, headers=headers).json()
+    assert [project[field] for field in LOCATION] == [None, None, None, None]
+
+
+def test_project_with_a_location_out_of_range_returns_422(client, sign_in):
+    _, headers = sign_in()
+    for bad in ({"latitude": 91}, {"longitude": -181}, {"work_zone": [[46.6, 24.7, 3]]}, {"work_zone": [[200, 24.7]]}):
+        response = client.post("/projects", json={**PROJECT, **bad}, headers=headers)
+        assert response.status_code == 422, bad
