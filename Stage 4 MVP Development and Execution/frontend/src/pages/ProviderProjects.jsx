@@ -1,5 +1,6 @@
 import ProviderSidebar from "../components/ProviderSidebar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getProviderProjects } from "../services/providerFlow";
 import { Link } from "react-router-dom";
 import { BriefcaseBusiness, Check, Clock3, Search } from "lucide-react";
 
@@ -9,7 +10,36 @@ const statuses = {
   completed: "Completed",
 };
 
-export default function ProviderProjects({ projects = [] }) {
+// GET /provider/projects returns Active / Upcoming / Completed; the page uses
+// lowercase keys for its filters and badge colours.
+function toRow(project) {
+  return { ...project, status: String(project.status || "").toLowerCase() };
+}
+
+export default function ProviderProjects({ projects: given }) {
+  const [loaded, setLoaded] = useState(null);
+  const [loading, setLoading] = useState(!given);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    if (given) return undefined;
+    let active = true;
+    getProviderProjects()
+      .then((rows) => {
+        if (active) setLoaded(rows.map(toRow));
+      })
+      .catch((error) => {
+        if (active) setLoadError(error.message || "Could not load your projects.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [given]);
+
+  const projects = given || loaded || [];
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
 
@@ -101,7 +131,24 @@ export default function ProviderProjects({ projects = [] }) {
               </tr>
             </thead>
             <tbody>
-              {visibleProjects.length === 0 && (
+              {loading && (
+                <tr>
+                  <td className="pp-empty" colSpan={5}>
+                    <strong>Loading your projects…</strong>
+                  </td>
+                </tr>
+              )}
+
+              {!loading && loadError && (
+                <tr>
+                  <td className="pp-empty" colSpan={5} role="alert">
+                    <strong>{loadError}</strong>
+                    <span>Please refresh the page to try again.</span>
+                  </td>
+                </tr>
+              )}
+
+              {!loading && !loadError && visibleProjects.length === 0 && (
                 <tr>
                   <td className="pp-empty" colSpan={5}>
                     {projects.length === 0 ? (

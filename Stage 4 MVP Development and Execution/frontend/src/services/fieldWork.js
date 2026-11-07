@@ -90,8 +90,9 @@ function initials(name = "") {
   return (parts[0][0] + (parts[1]?.[0] || "")).toUpperCase();
 }
 
-function locationOf(projectId) {
-  return getProjectMeta(projectId).location || "Not specified";
+// The address saved with the project (older projects: this browser only).
+function locationOf(project) {
+  return project?.location || getProjectMeta(project?.project_id).location || "Not specified";
 }
 
 /* ------------------------------------------------------------------ */
@@ -126,7 +127,7 @@ export async function getFieldWorkerDashboard() {
           id: next.project.project_id,
           name: next.project.project_name,
           type: next.project.closure_type,
-          location: locationOf(next.project.project_id),
+          location: locationOf(next.project),
           startDate: next.project.start_date,
           endDate: next.project.end_date,
           services: (next.project.services || []).map(
@@ -138,7 +139,7 @@ export async function getFieldWorkerDashboard() {
     activeProjects: active.map((p) => ({
       id: p.project.project_id,
       name: p.project.project_name,
-      location: locationOf(p.project.project_id),
+      location: locationOf(p.project),
       progress: p.progress,
       status: "Active",
     })),
@@ -149,9 +150,16 @@ export async function getFieldWorkerDashboard() {
 /* ------------------------------------------------------------------ */
 /* FIELD EXECUTION                                                     */
 /* ------------------------------------------------------------------ */
-// The backend does not store the map location yet, so the planned point comes
-// from what this browser saved (meta) and falls back to a sample point.
-export function getPlannedLocation(projectId) {
+// The planned point comes from the project saved in the backend. Older projects
+// fall back to what this browser saved (meta), then to a sample point.
+export function getPlannedLocation(projectId, project) {
+  if (project?.latitude != null && project?.longitude != null) {
+    return {
+      latitude: Number(project.latitude),
+      longitude: Number(project.longitude),
+      workZone: project.work_zone || undefined,
+    };
+  }
   const meta = projectId != null ? getProjectMeta(projectId) : {};
   if (meta.latitude != null && meta.longitude != null) {
     return {
@@ -188,14 +196,14 @@ export async function getFieldExecution(projectId) {
       id: p.project_id,
       name: p.project_name,
       type: p.closure_type,
-      location: locationOf(p.project_id),
+      location: locationOf(p),
       startDate: p.start_date,
       endDate: p.end_date,
       servicesLabel: services.join(" + ") || "Not specified",
       progress: r.progress,
       status: PROJECT_STATUS_LABELS[p.project_status] || p.project_status,
     },
-    planned: getPlannedLocation(p.project_id),
+    planned: getPlannedLocation(p.project_id, p),
     site: {
       executionStatus: r.site_status,
       teamCount: r.team.length,

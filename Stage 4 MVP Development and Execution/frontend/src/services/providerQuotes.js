@@ -3,50 +3,25 @@
 // Provider side of the quotation flow, connected to the REAL backend:
 //   Provider Dashboard (new request) -> Prepare Quotation -> contractor decides
 //
-//   GET  /requests?status=open   requests created by contractors
-//   GET  /projects/{id}          details of the project (may be refused: 403)
-//   POST /quotations             the provider's price
+//   GET  /provider/requests    open requests this company was invited to,
+//                              with the project and a "quoted" flag
+//   GET  /provider/dashboard   the numbers and lists of the dashboard
+//   POST /quotations           the provider's price
 // ---------------------------------------------------------------------------
 
 import { getSession } from "./auth";
 import {
-  fetchAssignments,
-  fetchOpenRequests,
-  fetchProject,
+  fetchProviderDashboard,
+  fetchProviderRequests,
   postQuotation,
 } from "./api";
 import { getProjectMeta } from "./projects";
 import { SERVICE_LABELS } from "./projectFlow";
-import { getProviderProjects } from "./providerFlow";
 
 function token() {
   const accessToken = getSession()?.access_token;
   if (!accessToken) throw new Error("Please sign in to continue.");
   return accessToken;
-}
-
-/* ------------------------------------------------------------------ */
-/* Requests this provider already quoted (the backend has no flag)     */
-/* ------------------------------------------------------------------ */
-const quotedKey = () => `mamarQuotedRequests:${getSession()?.user?.user_id ?? "x"}`;
-
-function readQuoted() {
-  try {
-    return JSON.parse(localStorage.getItem(quotedKey())) || [];
-  } catch {
-    return [];
-  }
-}
-
-function markQuoted(requestId) {
-  try {
-    const list = readQuoted();
-    if (!list.includes(requestId)) {
-      localStorage.setItem(quotedKey(), JSON.stringify([...list, requestId]));
-    }
-  } catch {
-    /* ignore */
-  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -92,7 +67,8 @@ function toUiRequest(request, project) {
     projectId: request.project_id,
     title: project?.project_name || request.title,
     type: project?.closure_type || "",
-    location: getProjectMeta(request.project_id).location || "Not specified",
+    location:
+      project?.location || getProjectMeta(request.project_id).location || "Not specified",
     startDate,
     endDate,
     durationDays: durationDays(startDate, endDate),
@@ -107,25 +83,9 @@ function toUiRequest(request, project) {
 /* OPEN REQUESTS                                                       */
 /* ------------------------------------------------------------------ */
 export async function getOpenRequests() {
-  const t = token();
-  const requests = await fetchOpenRequests(t, "open");
-
-  const quoted = readQuoted();
-  const fresh = requests
-    .filter((request) => !quoted.includes(request.request_id))
-    .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
-
-  // The project details are optional: a provider may get 403 here.
-  const projects = await Promise.allSettled(
-    fresh.map((request) => fetchProject(t, request.project_id))
-  );
-
-  return fresh.map((request, index) =>
-    toUiRequest(
-      request,
-      projects[index].status === "fulfilled" ? projects[index].value : null
-    )
-  );
+  // Only the requests this company has not quoted yet, newest first.
+  const rows = await fetchProviderRequests(token(), false);
+  return rows.map((row) => toUiRequest(row, row.project));
 }
 
 export async function getOpenRequestById(requestId) {
@@ -148,11 +108,9 @@ export async function submitProviderQuotation({ request, price, durationDays: da
       services: request.services,
       notes: notes || null,
     });
-    markQuoted(request.requestId);
     return saved;
   } catch (error) {
     if (error.status === 409) {
-      markQuoted(request.requestId);
       throw new Error("You already sent a quotation for this request.");
     }
     throw error;
@@ -163,28 +121,24 @@ export async function submitProviderQuotation({ request, price, durationDays: da
 /* DASHBOARD                                                           */
 /* ------------------------------------------------------------------ */
 export async function getProviderDashboard() {
-  const t = token();
-
-  const [requests, projects, assignments] = await Promise.all([
-    getOpenRequests(),
-    getProviderProjects(),
-    fetchAssignments(t, "active").catch(() => []),
-  ]);
-
-  const active = projects.filter((p) => p.status === "Active");
-  const upcoming = projects.filter((p) => p.status === "Upcoming");
-  const completed = projects.filter((p) => p.status === "Completed");
-
-  const nextProject = upcoming[0];
+  // GET /provider/dashboard: every number is counted by the server, and a new
+  // company gets zeros and empty lists.
+  const data = await fetchProviderDashboard(token());
+  const requests = data.new_requests.map((row) => toUiRequest(row, row.project));
+  const toUiProject = (row) => ({
+    id: row.project.project_id,
+    name: row.project.project_name,
+    city: row.project.location || row.project.closure_type,
+    dates: `${row.project.start_date} – ${row.project.end_date}`,
+    progress: row.progress,
+    status: row.status,
+  });
+  const next = data.next_project ? toUiProject(data.next_project) : null;
 
   return {
-    stats: {
-      assigned: projects.length,
-      active: active.length,
-      upcoming: upcoming.length,
-      completed: completed.length,
-    },
-    // "New Service Request" cards (one per open request, newest first)
+    stats: data.stats,
+    pendingQuotes: data.pending_quotes,
+    // "New Service Request" cards (one per request not quoted yet, newest first)
     newRequests: requests.map((request) => ({
       id: request.requestId,
       name: request.title,
@@ -196,18 +150,19 @@ export async function getProviderDashboard() {
       status: "Awaiting Your Quote",
     })),
     // "New Assigned Project" card
-    newProject: nextProject
+    newProject: next
       ? {
-          id: nextProject.id,
-          name: nextProject.name,
-          subtitle: `${nextProject.city} · ${nextProject.dates}`,
+          id: next.id,
+          name: next.name,
+          subtitle: `${next.city} · ${next.dates}`,
           status: "Ready to Start",
         }
       : null,
-    activeProjects: active,
+    activeProjects: data.active_projects.map(toUiProject),
     overview: {
-      workersActive: new Set(assignments.map((a) => a.worker_id)).size,
-      sitesActive: active.length,
+      workersActive: data.overview.workers_active,
+      sitesActive: data.overview.sites_active,
+      fieldWorkers: data.overview.field_workers,
     },
   };
 }
