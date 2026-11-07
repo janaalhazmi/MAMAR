@@ -2,16 +2,14 @@
 // ---------------------------------------------------------------------------
 // Provider pages connected to the REAL backend.
 //
-// The backend has no "provider projects" endpoint, so the list is built from:
-//   GET /requests?status=awarded   -> requests this provider won (project_id)
-//   GET /projects/{id}             -> dates, status, name of each project
-//
-// TODO(BACKEND): progress and site_status are not available to providers.
-// Ask for them in the /requests or /assignments response.
+//   GET /provider/projects   the projects this provider's company won, with
+//                            status (Active / Upcoming / Completed), progress,
+//                            site_status, field team count and the quote.
 // ---------------------------------------------------------------------------
 
 import { getSession } from "./auth";
-import { fetchOpenRequests, fetchProject } from "./api";
+import { fetchProviderProjects } from "./api";
+import { getProjectMeta } from "./projects";
 
 function token() {
   const accessToken = getSession()?.access_token;
@@ -38,37 +36,31 @@ function datesLabel(start, end) {
   return `${s.getDate()} ${month(s)} – ${e.getDate()} ${month(e)} ${e.getFullYear()}`;
 }
 
-// Backend status -> tab used by the page (Active / Upcoming / Completed).
-function uiStatus(project) {
-  const today = new Date().toISOString().slice(0, 10);
-  if (project.project_status === "completed") return "Completed";
-  if (project.project_status === "active" && project.start_date <= today) return "Active";
-  return "Upcoming";
-}
-
 export async function getProviderProjects() {
-  const t = token();
+  const rows = await fetchProviderProjects(token());
 
-  const requests = await fetchOpenRequests(t, "awarded");
-  const ids = [...new Set(requests.map((request) => request.project_id))];
-
-  const results = await Promise.allSettled(ids.map((id) => fetchProject(t, id)));
-
-  return results
-    .filter((result) => result.status === "fulfilled")
-    .map((result) => result.value)
-    .filter((project) => project.project_status !== "cancelled")
-    .map((project) => {
-      const status = uiStatus(project);
-      return {
-        id: project.project_id,
-        code: `PRJ-${String(project.project_id).padStart(3, "0")}`,
-        name: project.project_name,
-        city: project.closure_type,
-        dates: datesLabel(project.start_date, project.end_date),
-        duration: `${durationDays(project.start_date, project.end_date)} days`,
-        progress: status === "Completed" ? 100 : 0,
-        status,
-      };
-    });
+  return rows.map((row) => {
+    const project = row.project;
+    const dates = datesLabel(project.start_date, project.end_date);
+    return {
+      id: project.project_id,
+      code: `PRJ-${String(project.project_id).padStart(3, "0")}`,
+      reference: `PRJ-${String(project.project_id).padStart(3, "0")}`,
+      name: project.project_name,
+      city: project.closure_type,
+      location:
+        project.location || getProjectMeta(project.project_id).location || "",
+      dates,
+      dateLabel: dates,
+      startDate: project.start_date,
+      endDate: project.end_date,
+      duration: `${durationDays(project.start_date, project.end_date)} days`,
+      progress: row.progress,
+      status: row.status, // Active | Upcoming | Completed
+      siteStatus: row.site_status,
+      teamCount: row.field_team_count,
+      completionSubmitted: row.completion_submitted,
+      price: row.quote?.price ?? null,
+    };
+  });
 }

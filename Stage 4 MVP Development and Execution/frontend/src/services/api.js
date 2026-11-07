@@ -219,6 +219,21 @@ export const postQuotation = (token, body) =>
     body: asJson(body), // { project_id, price, duration_days, start_date, services, notes }
   });
  
+// Provider pages: only the signed-in provider's company data.
+export const fetchProviderRequests = (token, quoted) =>
+  authed(`/provider/requests${quoted === undefined ? "" : `?quoted=${quoted}`}`, token);
+
+export const fetchProviderProjects = (token, status) =>
+  authed(`/provider/projects${status ? `?status=${encodeURIComponent(status)}` : ""}`, token);
+
+export const fetchProviderProject = (token, projectId) =>
+  authed(`/provider/projects/${encodeURIComponent(projectId)}`, token);
+
+export const fetchProviderDashboard = (token) => authed("/provider/dashboard", token);
+
+export const fetchProviderWorkers = (token, status) =>
+  authed(`/provider/workers${status ? `?status=${encodeURIComponent(status)}` : ""}`, token);
+
 export const fetchAssignments = (token, status) =>
   authed(`/assignments${status ? `?status=${encodeURIComponent(status)}` : ""}`, token);
  

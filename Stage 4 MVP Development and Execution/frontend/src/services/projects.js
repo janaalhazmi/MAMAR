@@ -6,10 +6,10 @@
 //   closure_type, start_date, end_date, description, created_at
 // Backend statuses:        draft | active | completed | cancelled
 //
-// The backend does NOT store location (lat/lng/work zone) or services yet.
-// Until it does, we keep them in this browser (localStorage) next to the
-// project_id. See "META" below. TODO(BACKEND): add these columns, or save the
-// work zone in the MAMAR_Projects ArcGIS layer using project_id.
+// The backend stores the services, the address, the pin (latitude/longitude)
+// and the work zone ([[lng, lat], ...]), so the provider and the field team see
+// the same place. Projects saved before that still read them from this browser
+// (localStorage, "META" below) as a fallback.
 // ---------------------------------------------------------------------------
 
 import { getSession } from "./auth";
@@ -47,6 +47,46 @@ function saveProjectMeta(projectId, meta) {
   } catch {
     /* storage full or blocked: the project still exists in the backend */
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* WORK ZONE: map polygon <-> [[lng, lat], ...] for the backend         */
+/* ------------------------------------------------------------------ */
+const EARTH_RADIUS = 6378137;
+const MAX_ZONE_POINTS = 500;
+
+// The map gives ArcGIS polygon JSON ({ rings, spatialReference }), often in
+// Web Mercator metres. The backend wants longitude/latitude pairs.
+export function zoneToPoints(workZone) {
+  if (!workZone) return null;
+  const geometry = workZone.polygon ?? workZone;
+  const ring = Array.isArray(geometry) ? geometry : geometry?.rings?.[0];
+  if (!Array.isArray(ring) || ring.length < 3) return null;
+
+  const wkid = geometry?.spatialReference?.latestWkid ?? geometry?.spatialReference?.wkid;
+  const points = ring
+    .filter((point) => Array.isArray(point) && point.length >= 2)
+    .map(([x, y]) => {
+      const mercator = wkid === 102100 || wkid === 3857 || Math.abs(x) > 180 || Math.abs(y) > 90;
+      const lng = mercator ? (x / EARTH_RADIUS) * (180 / Math.PI) : x;
+      const lat = mercator
+        ? (2 * Math.atan(Math.exp(y / EARTH_RADIUS)) - Math.PI / 2) * (180 / Math.PI)
+        : y;
+      return [Number(lng.toFixed(7)), Number(lat.toFixed(7))];
+    })
+    .filter(([lng, lat]) => Math.abs(lng) <= 180 && Math.abs(lat) <= 90);
+
+  if (points.length < 3) return null;
+  if (points.length <= MAX_ZONE_POINTS) return points;
+  const step = Math.ceil(points.length / MAX_ZONE_POINTS);
+  return points.filter((_, index) => index % step === 0);
+}
+
+function numberOrNull(value) {
+  const number = Number(value);
+  return value === null || value === undefined || value === "" || !Number.isFinite(number)
+    ? null
+    : number;
 }
 
 /* ------------------------------------------------------------------ */
@@ -107,12 +147,12 @@ function toUiProject(raw) {
     backendStatus: raw.project_status,
     statusLabel: info.label,
     statusTone: info.tone,
-    // from META (until the backend stores them)
-    location: meta.location || "Not specified",
-    latitude: meta.latitude ?? null,
-    longitude: meta.longitude ?? null,
-    workZone: meta.workZone,
-    services: meta.services || [],
+    // Saved in the backend; META is only for projects saved before that.
+    location: raw.location || meta.location || "Not specified",
+    latitude: raw.latitude ?? meta.latitude ?? null,
+    longitude: raw.longitude ?? meta.longitude ?? null,
+    workZone: raw.work_zone || meta.workZone,
+    services: raw.services?.length ? raw.services : meta.services || [],
   };
 }
 
@@ -175,6 +215,11 @@ export async function saveProjectToBackend(project) {
     start_date: project.startDate,
     end_date: project.endDate,
     description: project.description || null,
+    services: Array.isArray(project.services) ? project.services : [],
+    location: project.location ? String(project.location).slice(0, 255) : null,
+    latitude: numberOrNull(project.latitude),
+    longitude: numberOrNull(project.longitude),
+    work_zone: zoneToPoints(project.workZone ?? project.polygon),
   };
 
   const saved = project.projectId
