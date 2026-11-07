@@ -9,8 +9,10 @@ from app.core.security import allow_roles
 from app.db.database import get_db
 from app.models import Assignment, Project, Quote, ServiceRequest, SitePhoto, User
 from app.models.project import SITE_PROGRESS
+from app.routers.field_work import utc_now
 from app.routers.workflow import project_photos
 from app.schemas.error import ErrorResponse
+from app.schemas.workflow import ChangeRequest
 from app.schemas.provider_view import (
     ProjectTab,
     ProviderDashboard,
@@ -87,6 +89,11 @@ def provider_project(db: Session, project: Project, quote: Quote) -> dict:
         "field_team_count": team,
         "last_check_in": project.last_check_in,
         "completion_submitted": project.completion_submitted,
+        "awaiting_review": (
+            project.site_status == "Completed"
+            and not project.completion_submitted
+            and project.project_status not in ("completed", "cancelled")
+        ),
         "quote": quote.to_dict(),
     }
 
@@ -143,10 +150,20 @@ def my_projects(status: ProjectTab | None = None, user: User = Depends(provider_
 @router.get("/projects/{project_id}", response_model=ProviderProjectDetail, responses=PROJECT_ERRORS)
 def my_project(project_id: int, user: User = Depends(provider_only), db: Session = Depends(get_db)):
     # Project Details: progress, field team and site photos of a project the company won.
+    project, quote = won_project(db, project_id, user)
+    return project_detail(db, project, quote)
+
+
+def won_project(db: Session, project_id: int, user: User) -> tuple[Project, Quote]:
     project = get_project(db, project_id)
     quote = next((quote for won, quote in won_projects(db, user.provider_id) if won.project_id == project_id), None)
     if quote is None:
         raise HTTPException(status_code=403, detail="Your company did not win this project")
+    return project, quote
+
+
+def project_detail(db: Session, project: Project, quote: Quote) -> dict:
+    project_id = project.project_id
     team = db.execute(
         select(User.user_id, User.full_name)
         .join(Assignment, Assignment.worker_id == User.user_id)
@@ -198,6 +215,7 @@ def dashboard(user: User = Depends(provider_only), db: Session = Depends(get_db)
             "completed": len(completed),
         },
         "pending_quotes": sum(1 for request in requests if request["quoted"] and request["my_quote"]["status"] == "pending"),
+        "awaiting_review": sum(1 for project in projects if project["awaiting_review"]),
         "new_requests": [request for request in requests if not request["quoted"]],
         "next_project": upcoming[0] if upcoming else None,
         "active_projects": active,
@@ -279,3 +297,50 @@ def my_workers(status: WorkerStatus | None = None, user: User = Depends(provider
             }
         )
     return result
+
+
+REVIEW_ERRORS = {
+    **PROJECT_ERRORS,
+    400: {"model": ErrorResponse, "description": "The project is closed, or the field team has not marked it Completed"},
+}
+
+
+def open_won_project(db: Session, project_id: int, user: User) -> tuple[Project, Quote]:
+    project, quote = won_project(db, project_id, user)
+    if project.project_status in ("completed", "cancelled"):
+        raise HTTPException(status_code=400, detail=f"The project is {project.project_status}")
+    if project.site_status != "Completed":
+        raise HTTPException(status_code=400, detail="The field team has not marked the work as Completed yet")
+    return project, quote
+
+
+@router.post("/projects/{project_id}/submit-completion", response_model=ProviderProjectDetail, responses=REVIEW_ERRORS)
+def submit_completion(project_id: int, user: User = Depends(provider_only), db: Session = Depends(get_db)):
+    # Field worker -> provider -> contractor: the provider checks the work the field team marked
+    # Completed and sends it on, so the contractor's Review Completion button is enabled.
+    project, quote = open_won_project(db, project_id, user)
+    if not project.completion_submitted:
+        project.completion_submitted = True
+        project.submitted_at = utc_now()
+        db.commit()
+        db.refresh(project)
+    return project_detail(db, project, quote)
+
+
+@router.post("/projects/{project_id}/return-to-team", response_model=ProviderProjectDetail, responses=REVIEW_ERRORS)
+def return_to_team(
+    project_id: int,
+    data: ChangeRequest,
+    user: User = Depends(provider_only),
+    db: Session = Depends(get_db),
+):
+    # The provider sends the work back to its field team with a note, before (or instead of)
+    # sending it to the contractor. The field worker sees the note on Field Execution.
+    project, quote = open_won_project(db, project_id, user)
+    project.site_status = "Work in Progress"
+    project.completion_submitted = False
+    project.submitted_at = None
+    project.change_note = data.note
+    db.commit()
+    db.refresh(project)
+    return project_detail(db, project, quote)

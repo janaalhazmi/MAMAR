@@ -10,13 +10,14 @@ PROVIDER_REQUEST_FIELDS = [
 ]
 PROVIDER_PROJECT_FIELDS = [
     "project", "status", "site_status", "progress", "field_team_count", "last_check_in",
-    "completion_submitted", "quote",
+    "completion_submitted", "awaiting_review", "quote",
 ]
 DETAIL_FIELDS = PROVIDER_PROJECT_FIELDS + ["submitted_at", "change_note", "team", "photos"]
 
 EMPTY_DASHBOARD = {
     "stats": {"assigned": 0, "active": 0, "upcoming": 0, "completed": 0},
     "pending_quotes": 0,
+    "awaiting_review": 0,
     "new_requests": [],
     "next_project": None,
     "active_projects": [],
@@ -142,7 +143,11 @@ def test_provider_project_detail_has_the_team_and_photos(api):
 
     # Completed by the worker, then approved by the contractor.
     api.client.patch(f"/field-worker/projects/{project_id}/status", json={"status": "Completed"}, headers=worker)
-    assert api.client.get(f"/provider/projects/{project_id}", headers=provider).json()["completion_submitted"] is True
+    detail = api.client.get(f"/provider/projects/{project_id}", headers=provider).json()
+    assert (detail["completion_submitted"], detail["awaiting_review"]) == (False, True)
+    detail = api.client.post(f"/provider/projects/{project_id}/submit-completion", headers=provider).json()
+    assert (detail["completion_submitted"], detail["awaiting_review"]) == (True, False)
+    assert detail["submitted_at"] is not None
     api.client.post(f"/projects/{project_id}/complete", headers=contractor)
     detail = api.client.get(f"/provider/projects/{project_id}", headers=provider).json()
     assert (detail["status"], detail["progress"]) == ("Completed", 100)
@@ -242,6 +247,54 @@ def test_provider_workers_shows_the_current_project_and_filters(api):
 
     # After the contractor approves the project, the worker is available again.
     api.client.patch(f"/field-worker/projects/{project_id}/status", json={"status": "Completed"}, headers=worker)
+    api.client.post(f"/provider/projects/{project_id}/submit-completion", headers=provider)
     api.client.post(f"/projects/{project_id}/complete", headers=contractor)
     row = next(r for r in api.client.get("/provider/workers", headers=provider).json() if r["user_id"] == worker_id)
     assert (row["status"], row["project"], row["active_projects"]) == ("Available", None, 0)
+
+
+
+def test_completion_goes_from_the_worker_to_the_provider_to_the_contractor(api):
+    project_id, contractor, provider, worker = active_project_with_worker(api)
+    submit = f"/provider/projects/{project_id}/submit-completion"
+
+    # The provider cannot send work the field team has not finished.
+    response = api.client.post(submit, headers=provider)
+    assert (response.status_code, response.json()) == (400, {"detail": "The field team has not marked the work as Completed yet"})
+
+    api.client.patch(f"/field-worker/projects/{project_id}/status", json={"status": "Completed"}, headers=worker)
+    assert api.client.get("/provider/dashboard", headers=provider).json()["awaiting_review"] >= 1
+    assert api.client.get(f"/projects/{project_id}/monitoring", headers=contractor).json()["completion_submitted"] is False
+
+    assert api.client.post(submit, headers=provider).status_code == 200
+    assert api.client.get(f"/projects/{project_id}/monitoring", headers=contractor).json()["completion_submitted"] is True
+    # Sending twice changes nothing.
+    assert api.client.post(submit, headers=provider).json()["completion_submitted"] is True
+
+    # If the worker changes the status again, the work is taken back from the contractor.
+    api.client.patch(f"/field-worker/projects/{project_id}/status", json={"status": "Work in Progress"}, headers=worker)
+    assert api.client.get(f"/projects/{project_id}/monitoring", headers=contractor).json()["completion_submitted"] is False
+
+
+def test_provider_returns_the_work_to_the_field_team(api):
+    project_id, contractor, provider, worker = active_project_with_worker(api)
+    url = f"/provider/projects/{project_id}/return-to-team"
+    assert api.client.post(url, json={"note": "Fix the signs"}, headers=provider).status_code == 400
+
+    api.client.patch(f"/field-worker/projects/{project_id}/status", json={"status": "Completed"}, headers=worker)
+    assert api.client.post(url, json={"note": ""}, headers=provider).status_code == 422
+    detail = api.client.post(url, json={"note": "Add two more cones"}, headers=provider).json()
+    assert (detail["site_status"], detail["change_note"], detail["completion_submitted"]) == ("Work in Progress", "Add two more cones", False)
+    field = api.client.get(f"/field-worker/projects/{project_id}", headers=worker).json()
+    assert (field["site_status"], field["change_note"]) == ("Work in Progress", "Add two more cones")
+
+
+def test_only_the_winning_provider_reviews_the_work(api):
+    project_id, contractor, provider, worker = active_project_with_worker(api)
+    _, other = api.account("provider", 2)
+    api.client.patch(f"/field-worker/projects/{project_id}/status", json={"status": "Completed"}, headers=worker)
+    for path, body in (("submit-completion", None), ("return-to-team", {"note": "x"})):
+        url = f"/provider/projects/{project_id}/{path}"
+        assert api.client.post(url, json=body, headers=other).status_code == 403
+        assert api.client.post(url, json=body, headers=contractor).status_code == 403
+        assert api.client.post(url, json=body, headers=worker).status_code == 403

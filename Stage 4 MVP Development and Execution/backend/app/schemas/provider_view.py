@@ -29,6 +29,9 @@ class ProviderProject(BaseModel):
     field_team_count: int
     last_check_in: datetime | None
     completion_submitted: bool
+    # True when the field team marked the work Completed and the provider has not sent it
+    # to the contractor yet.
+    awaiting_review: bool
     quote: QuoteResponse
 
 
@@ -57,6 +60,7 @@ class ProviderOverview(BaseModel):
 class ProviderDashboard(BaseModel):
     stats: ProviderStats
     pending_quotes: int
+    awaiting_review: int
     new_requests: list[ProviderRequest]
     next_project: ProviderProject | None
     active_projects: list[ProviderProject]

@@ -217,7 +217,7 @@ def project_completion(project_id: int, user: User = Depends(contractor_only), d
 def submitted_project(db: Session, project_id: int, user: User) -> Project:
     project = own_project(db, project_id, user)
     if not project.completion_submitted:
-        raise HTTPException(status_code=400, detail="The field team has not submitted the work yet")
+        raise HTTPException(status_code=400, detail="The provider has not sent the completed work yet")
     return project
 
 
