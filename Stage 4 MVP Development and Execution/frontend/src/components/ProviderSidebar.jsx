@@ -44,7 +44,7 @@ const providerNavigation = [
 
 function ProviderSidebar() {
   return (
-    <aside className="mamar-sidebar">
+    <aside className="mamar-sidebar provider-sidebar">
       <Link to="/" className="mamar-sidebar-logo">
         <img src={logo} alt="MAMAR Logo" />
       </Link>

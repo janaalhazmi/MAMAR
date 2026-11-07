@@ -2,7 +2,7 @@ import { useEffect as useAssignmentEffect } from "react";
 import { getProviderProjects as loadAssignmentProjects } from "../services/providerFlow";
 import { registerUser, sendPasscode } from "../services/api";
 import { useEffect, useState } from "react";
-import { listAssignments } from "../services/api";
+import { fetchProviderWorkers } from "../services/api";
 import ProviderSidebar from "../components/ProviderSidebar";
 import { getSession } from "../services/auth";
 
@@ -16,36 +16,50 @@ function initials(name) {
 }
 
 export default function ProviderFieldTeam() {
+  const [loadingWorkers, setLoadingWorkers] = useState(true);
+  const [workersError, setWorkersError] = useState("");
+
   useEffect(() => {
-    const token = getSession()?.access_token;
-
-    if (!token) {
-      console.warn("Field Team: provider session is missing.");
-      return;
-    }
-
     let active = true;
 
-    listAssignments(token)
-      .then((data) => {
-        if (!active) return;
-
-        if (!Array.isArray(data)) {
-          console.info("Field Team: response fields", Object.keys(data ?? {}));
-          return;
+    async function loadWorkers() {
+      try {
+        const token = getSession()?.access_token;
+        if (!token) {
+          throw new Error("Please sign in again.");
         }
 
-        console.info("Field Team: assignments loaded", {
-          count: data.length,
-          fields: Object.keys(data[0] ?? {}),
-        });
-      })
-      .catch((error) => {
-        if (active) console.error("Field Team: could not load assignments.", error.message);
-      });
+        const data = await fetchProviderWorkers(token);
+        if (!Array.isArray(data)) {
+          throw new Error("Could not read the field team response.");
+        }
 
+        const loadedWorkers = data.map((worker) => ({
+          id: worker.user_id,
+          name: worker.full_name,
+          email: worker.email,
+          phone: worker.phone,
+          project: worker.project?.project_name || "",
+          status: worker.status,
+          activity: worker.last_activity
+            ? new Date(worker.last_activity).toLocaleString("en-GB")
+            : "—",
+        }));
+
+        if (active) setWorkers(loadedWorkers);
+      } catch (error) {
+        if (active) {
+          setWorkersError(error.message || "Could not load field workers.");
+        }
+      } finally {
+        if (active) setLoadingWorkers(false);
+      }
+    }
+
+    loadWorkers();
     return () => { active = false; };
   }, []);
+
   const name = getSession()?.user?.full_name || "Provider";
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
@@ -93,6 +107,13 @@ export default function ProviderFieldTeam() {
         </header>
 
         <main className="provider-dashboard-content pft-page">
+          {loadingWorkers && (
+            <p role="status">Loading field workers…</p>
+          )}
+          {workersError && (
+            <p role="alert">{workersError}</p>
+          )}
+
           {!selected && !addingWorker && (
             <>
           <div className="pft-heading">
@@ -104,6 +125,7 @@ export default function ProviderFieldTeam() {
               className="pft-primary"
               type="button"
               onClick={() => setAddingWorker(true)}
+              disabled={loadingWorkers}
             >
               + Add Field Worker
             </button>
@@ -174,7 +196,7 @@ export default function ProviderFieldTeam() {
                       <td><button className="pft-view" type="button" onClick={() => setSelected(worker)}>View →</button></td>
                     </tr>
                   ))}
-                  {visible.length === 0 && <tr><td colSpan={6}>{workers.length ? "No workers match these filters." : "No field workers to display yet."}</td></tr>}
+                  {!loadingWorkers && !workersError && visible.length === 0 && <tr><td colSpan={6}>{workers.length ? "No workers match these filters." : "No field workers to display yet."}</td></tr>}
                 </tbody>
               </table>
             </div>
