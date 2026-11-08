@@ -12,7 +12,7 @@ import {
   Eye,
   ArrowRight,
 } from "lucide-react";
-import logo from "../assets/mamar-logo.svg";
+import logo from "../../assets/mamar-logo.svg";
 
 const steps = [
   {
