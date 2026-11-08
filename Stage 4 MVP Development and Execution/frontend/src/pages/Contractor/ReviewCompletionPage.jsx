@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import ContractorShell from "../components/ContractorShell";
-import MamarMap from "../components/MamarMap";
-import Icon from "../components/Icons";
+import ContractorShell from "../../components/ContractorShell";
+import MamarMap from "../../components/MamarMap";
+import Icon from "../../components/Icons";
 import {
   approveCompletion,
   formatDate,
@@ -11,7 +11,7 @@ import {
   getCurrentProject,
   getQuotationById,
   requestChanges,
-} from "../services/projectFlow";
+} from "../../services/projectFlow";
 
 function ReviewCompletionPage() {
   const navigate = useNavigate();

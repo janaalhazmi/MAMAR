@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
-import MamarMap from "../components/MamarMap";
-import { logout } from "../services/auth";
-import { getSession } from "../services/auth";
-import Icon from "../components/Icons";
-import { formatDate } from "../services/projectFlow";
+import MamarMap from "../../components/MamarMap";
+import { logout } from "../../services/auth";
+import { getSession } from "../../services/auth";
+import Icon from "../../components/Icons";
+import { formatDate } from "../../services/projectFlow";
 import {
   buildActivity,
   fetchProjects,
@@ -14,7 +14,7 @@ import {
   openProjectInFlow,
   startNewProject,
   thumbTone,
-} from "../services/projects";
+} from "../../services/projects";
 
 function ContractorDashboard() {
   const navigate = useNavigate();

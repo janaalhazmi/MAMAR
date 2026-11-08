@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import FieldWorkerShell from "../components/FieldWorkerShell";
-import MamarMap from "../components/MamarMap";
-import Icon from "../components/Icons";
+import FieldWorkerShell from "../../components/FieldWorkerShell";
+import MamarMap from "../../components/MamarMap";
+import Icon from "../../components/Icons";
 import {
   MAX_DISTANCE_METERS,
   captureCurrentLocation,
@@ -11,7 +11,7 @@ import {
   getDevice,
   getPlannedLocation,
   saveDeviceVerification,
-} from "../services/fieldWork";
+} from "../../services/fieldWork";
 
 const format = (n) => Number(n).toFixed(6);
 

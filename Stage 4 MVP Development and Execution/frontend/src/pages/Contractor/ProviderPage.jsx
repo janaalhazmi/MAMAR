@@ -5,13 +5,13 @@ import tcmLogo from "../assets/provider-tcm.jpg";
 import safetyArabiaLogo from "../assets/provider-safety-arabia.jpg";
 import shawahidLogo from "../assets/provider-shawahid.jpg";
 import safetyTriangleLogo from "../assets/provider-safety-triangle.jpg";
-import { logout, getSession } from "../services/auth";
+import { logout, getSession } from "../../services/auth";
 import {
   SERVICE_LABELS,
   getCurrentProject,
   requestQuotes,
-} from "../services/projectFlow";
-import Icon from "../components/Icons";
+} from "../../services/projectFlow";
+import Icon from "../../components/Icons";
 
 
 const providers = [

@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import ProviderSidebar from "../components/ProviderSidebar";
-import MamarMap from "../components/MamarMap";
-import Button from "../components/Button";
-import { postReturnToTeam, postSubmitCompletion } from "../services/api";
-import { getSession } from "../services/auth";
-import { formatDate } from "../services/projectFlow";
+import ProviderSidebar from "../../components/ProviderSidebar";
+import MamarMap from "../../components/MamarMap";
+import Button from "../../components/Button";
+import { postReturnToTeam, postSubmitCompletion } from "../../services/api";
+import { getSession } from "../../services/auth";
+import { formatDate } from "../../services/projectFlow";
 
 const apiUrl = (
   import.meta.env.VITE_API_URL || "https://mamar-api.onrender.com"

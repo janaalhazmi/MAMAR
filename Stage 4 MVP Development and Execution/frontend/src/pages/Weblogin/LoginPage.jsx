@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-import { loginUser } from "../services/api";
-import { logout, saveSession } from "../services/auth";
-import Header from "../components/Header";
-import Button from "../components/Button";
+import { loginUser } from "../../services/api";
+import { logout, saveSession } from "../../services/auth";
+import Header from "../../components/Header";
+import Button from "../../components/Button";
 import logo from "../assets/mamar-logo.svg";
 
 const roles = [

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ContractorShell from "../components/ContractorShell";
-import Icon from "../components/Icons";
+import ContractorShell from "../../components/ContractorShell";
+import Icon from "../../components/Icons";
 import {
   SERVICE_LABELS,
   formatDate,
@@ -10,7 +10,7 @@ import {
   getQuotations,
   rejectQuotation,
   saveSelectedQuotation,
-} from "../services/projectFlow";
+} from "../../services/projectFlow";
 
 const REFRESH_MS = 30000;
 

@@ -1,9 +1,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ContractorShell from "../components/ContractorShell";
-import Icon from "../components/Icons";
-import { formatDate } from "../services/projectFlow";
+import ContractorShell from "../../components/ContractorShell";
+import Icon from "../../components/Icons";
+import { formatDate } from "../../services/projectFlow";
 import {
   STATUS_FILTERS,
   fetchProjects,
@@ -11,7 +11,7 @@ import {
   openProjectInFlow,
   startNewProject,
   thumbTone,
-} from "../services/projects";
+} from "../../services/projects";
 
 function MyProjectsPage() {
   const navigate = useNavigate();

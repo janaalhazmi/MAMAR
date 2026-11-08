@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import ProviderSidebar from "../components/ProviderSidebar";
-import { getSession } from "../services/auth";
-import { getProviderProjects } from "../services/providerFlow";
+import ProviderSidebar from "../../components/ProviderSidebar";
+import { getSession } from "../../services/auth";
+import { getProviderProjects } from "../../services/providerFlow";
 
 const baseUrl = (
   import.meta.env.VITE_API_URL || "https://mamar-api.onrender.com"

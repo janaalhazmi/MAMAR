@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import ContractorShell from "../components/ContractorShell";
-import Icon from "../components/Icons";
+import ContractorShell from "../../components/ContractorShell";
+import Icon from "../../components/Icons";
 import {
   SERVICE_LABELS,
   confirmProvider,
@@ -11,7 +11,7 @@ import {
   getCurrentProject,
   getQuotationById,
   getSelectedQuotationId,
-} from "../services/projectFlow";
+} from "../../services/projectFlow";
 
 const NEXT_STEPS = [
   {

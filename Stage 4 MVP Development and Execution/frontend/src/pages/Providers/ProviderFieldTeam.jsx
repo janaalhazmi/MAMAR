@@ -1,10 +1,10 @@
 import { useEffect as useAssignmentEffect } from "react";
-import { getProviderProjects as loadAssignmentProjects } from "../services/providerFlow";
-import { registerUser, sendPasscode } from "../services/api";
+import { getProviderProjects as loadAssignmentProjects } from "../../services/providerFlow";
+import { registerUser, sendPasscode } from "../../services/api";
 import { useEffect, useState } from "react";
-import { fetchProviderWorkers } from "../services/api";
-import ProviderSidebar from "../components/ProviderSidebar";
-import { getSession } from "../services/auth";
+import { fetchProviderWorkers } from "../../services/api";
+import ProviderSidebar from "../../components/ProviderSidebar";
+import { getSession } from "../../services/auth";
 
 
 const statuses = ["Active", "Available", "On Leave"];

@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../assets/mamar-logo.svg";
-import { getSession, logout } from "../services/auth";
-import Icon from "../components/Icons";
+import { getSession, logout } from "../../services/auth";
+import Icon from "../../components/Icons";
 
 function CreateProjectPage() {
   const displayName = getSession()?.user?.full_name || "User";

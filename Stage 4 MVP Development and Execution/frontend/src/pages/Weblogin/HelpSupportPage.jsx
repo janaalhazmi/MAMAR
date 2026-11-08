@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import logo from "../assets/mamar-logo.svg";
-import { getSession } from "../services/auth";
+import { getSession } from "../../services/auth";
 
 /* Adjust here if any of your routes are named differently */
 const ROUTES = {

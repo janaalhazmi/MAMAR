@@ -1,36 +1,36 @@
-import ProviderFieldTeam from "./pages/ProviderFieldTeam";
-import ProviderDeviceVerification from "./pages/ProviderDeviceVerification";
+import ProviderFieldTeam from "./pages/Providers/ProviderFieldTeam";
+import ProviderDeviceVerification from "./pages/Providers/ProviderDeviceVerification";
 import { useEffect as useExecutionEffect, useRef as useExecutionRef } from "react";
 import { useNavigate as useExecutionNavigate } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-import LandingPage from "./pages/LandingPage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import RegisterVerificationPage from "./pages/RegisterVerificationPage";
-import WorkerVerificationPage from "./pages/WorkerVerificationPage";
+import LandingPage from "./pages/Weblogin/LandingPage";
+import LoginPage from "./pages/Weblogin/LoginPage";
+import RegisterPage from "./pages/Weblogin/RegisterPage";
+import RegisterVerificationPage from "./pages/Weblogin/RegisterVerificationPage";
+import WorkerVerificationPage from "./pages/Weblogin/WorkerVerificationPage";
 
-import ContractorDashboard from "./pages/ContractorDashboard";
-import ContractorGuide from "./pages/ContractorGuide";
-import ProviderDashboard from "./pages/ProviderDashboard";
-import PrepareQuotation from "./pages/PrepareQuotation";
-import ProjectLocationPage from "./pages/ProjectLocationPage";
-import CreateProjectPage from "./pages/CreateProjectPage";
-import ServicesPage from "./pages/ServicesPage";
-import ReviewPage from "./pages/ReviewPage";
-import HelpSupportPage from "./pages/HelpSupportPage";
-import ProviderProjects from "./pages/ProviderProjects";
-import ProviderExecutionDetails from "./pages/ProviderExecutionDetails";
-import ProviderPage from "./pages/ProviderPage";
-import QuotationsPage from "./pages/QuotationsPage";
-import SelectProviderPage from "./pages/SelectProviderPage";
-import ProjectMonitoringPage from "./pages/ProjectMonitoringPage";
-import ReviewCompletionPage from "./pages/ReviewCompletionPage";
-import FieldWorkerDashboard from "./pages/FieldWorkerDashboard";
-import FieldExecution from "./pages/FieldExecution";
-import DeviceVerification from "./pages/DeviceVerification";
-import MyProjectsPage from "./pages/MyProjectsPage";
+import ContractorDashboard from "./pages/Contractor/ContractorDashboard";
+import ContractorGuide from "./pages/Weblogin/ContractorGuide";
+import ProviderDashboard from "./pages/Providers/ProviderDashboard";
+import PrepareQuotation from "./pages/Providers/PrepareQuotation";
+import ProjectLocationPage from "./pages/Contractor/ProjectLocationPage";
+import CreateProjectPage from "./pages/Contractor/CreateProjectPage";
+import ServicesPage from "./pages/Contractor/ServicesPage";
+import ReviewPage from "./pages/Contractor/ReviewPage";
+import HelpSupportPage from "./pages/Weblogin/HelpSupportPage";
+import ProviderProjects from "./pages/Providers/ProviderProjects";
+import ProviderExecutionDetails from "./pages/Providers/ProviderExecutionDetails";
+import ProviderPage from "./pages/Contractor/ProviderPage";
+import QuotationsPage from "./pages/Contractor/QuotationsPage";
+import SelectProviderPage from "./pages/Contractor/SelectProviderPage";
+import ProjectMonitoringPage from "./pages/Contractor/ProjectMonitoringPage";
+import ReviewCompletionPage from "./pages/Contractor/ReviewCompletionPage";
+import FieldWorkerDashboard from "./pages/FieldWorker/FieldWorkerDashboard";
+import FieldExecution from "./pages/FieldWorker/FieldExecution";
+import DeviceVerification from "./pages/FieldWorker/DeviceVerification";
+import MyProjectsPage from "./pages/Contractor/MyProjectsPage";
 
 function App() {
   return (

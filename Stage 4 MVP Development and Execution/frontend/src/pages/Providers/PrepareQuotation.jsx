@@ -3,12 +3,12 @@ import { Link, useSearchParams } from "react-router-dom";
 import {
   getOpenRequestById,
   submitProviderQuotation,
-} from "../services/providerQuotes";
-import Button from "../components/Button";
+} from "../../services/providerQuotes";
+import Button from "../../components/Button";
 import logo from "../assets/mamar-logo.svg";
-import MamarMap from "../components/MamarMap";
-import { getSession } from "../services/auth";
-import { fetchRequestWorkZone } from "../services/api";
+import MamarMap from "../../components/MamarMap";
+import { getSession } from "../../services/auth";
+import { fetchRequestWorkZone } from "../../services/api";
 
 const initialServices = [
   {

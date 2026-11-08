@@ -5,9 +5,9 @@ import logo from "../assets/mamar-logo.svg";
 import {
   registerUser,
   sendPasscode,
-} from "../services/api";
+} from "../../services/api";
 
-function RegisterVerificationPage() {
+function WorkerVerificationPage() {
   const navigate = useNavigate();
 
   const [passcode, setPasscode] = useState("");
@@ -28,10 +28,7 @@ function RegisterVerificationPage() {
     try {
       const registration = JSON.parse(saved);
 
-      if (
-        registration.role !== "contractor" &&
-        registration.role !== "provider"
-      ) {
+      if (registration.role !== "worker") {
         navigate("/register", { replace: true });
       }
     } catch {
@@ -71,6 +68,10 @@ function RegisterVerificationPage() {
     try {
       const registration = JSON.parse(saved);
 
+      if (registration.role !== "worker") {
+        throw new Error("Invalid account type. Please register again.");
+      }
+
       await registerUser(registration, passcode);
 
       sessionStorage.removeItem("mamarPendingRegistration");
@@ -104,6 +105,10 @@ function RegisterVerificationPage() {
 
     try {
       const registration = JSON.parse(saved);
+
+      if (registration.role !== "worker") {
+        throw new Error("Invalid account type. Please register again.");
+      }
 
       await sendPasscode(registration.email);
 
@@ -139,19 +144,22 @@ function RegisterVerificationPage() {
       </header>
 
       <main className="signup-main">
-        <section className="signup-card verification-card">
+        <section className="signup-card verification-card worker-verification-card">
           <h1>Create Account</h1>
 
+          <span className="worker-role-badge">Field Worker</span>
+
           <p className="signup-subtitle">
-            Enter the passcode that was sent to your email address.
+            Enter the passcode that was sent to your email address by your
+            service provider.
           </p>
 
           <form className="signup-form" onSubmit={handleSubmit}>
             <div className="signup-field">
-              <label htmlFor="verificationPasscode">Passcode</label>
+              <label htmlFor="workerPasscode">Passcode</label>
 
               <input
-                id="verificationPasscode"
+                id="workerPasscode"
                 type="text"
                 inputMode="numeric"
                 autoComplete="one-time-code"
@@ -212,4 +220,4 @@ function RegisterVerificationPage() {
   );
 }
 
-export default RegisterVerificationPage;
+export default WorkerVerificationPage;

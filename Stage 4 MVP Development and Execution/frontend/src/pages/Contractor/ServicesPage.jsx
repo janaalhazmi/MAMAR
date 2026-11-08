@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
-import MamarMap from "../components/MamarMap";
-import { getSession, logout } from "../services/auth";
+import MamarMap from "../../components/MamarMap";
+import { getSession, logout } from "../../services/auth";
 
 const ICON_PATHS = {
   dashboard: (

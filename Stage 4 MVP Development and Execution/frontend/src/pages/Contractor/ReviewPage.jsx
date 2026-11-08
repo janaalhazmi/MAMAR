@@ -2,12 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MapPin, CalendarDays, Pencil, Check } from "lucide-react";
 
-import Sidebar from "../components/Sidebar";
-import Button from "../components/Button";
-import MamarMap from "../components/MamarMap";
-import { getSession } from "../services/auth";
-import { saveProjectToBackend } from "../services/projects";
-import Icon from "../components/Icons";
+import Sidebar from "../../components/Sidebar";
+import Button from "../../components/Button";
+import MamarMap from "../../components/MamarMap";
+import { getSession } from "../../services/auth";
+import { saveProjectToBackend } from "../../services/projects";
+import Icon from "../../components/Icons";
 
 const SERVICE_OPTIONS = [
   {

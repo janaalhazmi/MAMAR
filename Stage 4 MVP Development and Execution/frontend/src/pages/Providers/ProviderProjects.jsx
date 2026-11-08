@@ -1,6 +1,6 @@
-import ProviderSidebar from "../components/ProviderSidebar";
+import ProviderSidebar from "../../components/ProviderSidebar";
 import { useEffect, useState } from "react";
-import { getProviderProjects } from "../services/providerFlow";
+import { getProviderProjects } from "../../services/providerFlow";
 import { Link } from "react-router-dom";
 import { BriefcaseBusiness, Check, Clock3, Search } from "lucide-react";
 
