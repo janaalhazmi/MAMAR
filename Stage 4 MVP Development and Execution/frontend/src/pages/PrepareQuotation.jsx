@@ -41,6 +41,7 @@ function PrepareQuotation() {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [workZone, setWorkZone] = useState(null);
   const [requestDetails, setRequestDetails] = useState(null);
+  const [realRequest, setRealRequest] = useState(null);
   const [workZoneError, setWorkZoneError] = useState("");
 
 useEffect(() => {
@@ -48,6 +49,7 @@ useEffect(() => {
 
   const loadWorkZone = async () => {
     setRequestDetails(null);
+    setRealRequest(null);
     setWorkZone(null);
     setWorkZoneError("");
 
@@ -61,6 +63,14 @@ useEffect(() => {
     if (!accessToken) {
       setWorkZoneError("Please sign in again.");
       return;
+    }
+
+    try {
+      const actualRequest = await getOpenRequestById(requestId);
+      if (cancelled) return;
+      setRealRequest(actualRequest);
+    } catch (error) {
+      console.error("Failed to load request details:", error);
     }
 
     try {
@@ -255,9 +265,9 @@ useEffect(() => {
               REQUEST · REQ-{requestId}
             </span>
 
-            <h2>{requestDetails?.project_name || 'Loading project...'}</h2>
+            <h2>{realRequest?.title || requestDetails?.project_name || 'Loading project...'}</h2>
 
-            <p>Project #{requestDetails?.project_id || '...'}</p>
+            <p>Project #{realRequest?.projectId || requestDetails?.project_id || '...'}</p>
           </div>
 
           <div>
@@ -265,7 +275,7 @@ useEffect(() => {
               LOCATION
             </span>
 
-            <strong>{requestDetails?.location || 'Location not specified'}</strong>
+            <strong>{realRequest?.location || 'Riyadh, Saudi Arabia'}</strong>
           </div>
 
           <div>
@@ -273,7 +283,7 @@ useEffect(() => {
               PROJECT DATES
             </span>
 
-            <strong>{requestDetails?.start_date || '—'} – {requestDetails?.end_date || '—'}</strong>
+            <strong>{realRequest?.startDate || requestDetails?.start_date || '—'} – {realRequest?.endDate || requestDetails?.end_date || '—'}</strong>
           </div>
 
           <Button
@@ -354,7 +364,7 @@ useEffect(() => {
                 <div className="work-zone-header">
                 <div>
                    <h2>Project Work Zone</h2>
-                   <p>{requestDetails?.location || 'Project location'}</p>
+                   <p>{realRequest?.location || 'Project location'}</p>
                </div>
 
                   <button
