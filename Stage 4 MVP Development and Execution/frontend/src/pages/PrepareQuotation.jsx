@@ -44,27 +44,49 @@ function PrepareQuotation() {
   const [workZoneError, setWorkZoneError] = useState("");
 
 useEffect(() => {
-  if (!requestId) {
-    setWorkZoneError("Missing request ID.");
-    return;
-  }
+  let cancelled = false;
 
-  const accessToken = getSession()?.access_token;
+  const loadWorkZone = async () => {
+    setRequestDetails(null);
+    setWorkZone(null);
+    setWorkZoneError("");
 
-  if (!accessToken) {
-    setWorkZoneError("Please sign in again.");
-    return;
-  }
+    if (!requestId) {
+      setWorkZoneError("Missing request ID.");
+      return;
+    }
 
-  fetchRequestWorkZone(accessToken, requestId)
-    .then((data) => {
+    const accessToken = getSession()?.access_token;
+
+    if (!accessToken) {
+      setWorkZoneError("Please sign in again.");
+      return;
+    }
+
+    try {
+      const data = await fetchRequestWorkZone(
+        accessToken,
+        requestId
+      );
+
+      if (cancelled) return;
+
       setRequestDetails(data);
-      setWorkZone(data.work_zone ?? null);
-    })
-    .catch((error) => {
+      setWorkZone(data?.work_zone ?? null);
+
+    } catch (error) {
+      if (cancelled) return;
+
       console.error("Failed to load work zone:", error);
-      setWorkZoneError(error.message);
-    });
+      setWorkZoneError(error.message || "Failed to load work zone.");
+    }
+  };
+
+  loadWorkZone();
+
+  return () => {
+    cancelled = true;
+  };
 }, [requestId]);
 
   const handleWorkZoneSelect = (polygon) => {
