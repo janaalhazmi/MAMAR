@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import ProviderSidebar from "../components/ProviderSidebar";
+import MamarMap from "../components/MamarMap";
 import Button from "../components/Button";
 import { postReturnToTeam, postSubmitCompletion } from "../services/api";
 import { getSession } from "../services/auth";
@@ -155,9 +156,18 @@ export default function ProviderProjectDetails() {
                 <div className="pex-grid pex-grid-wide">
                   <section className="pex-card">
                     <h2>Work Zone</h2>
-                    <div className="pex-map-empty">
-                      Work zone location is unavailable.
-                    </div>
+                    {project.work_zone ? (
+                      <div style={{ height: "400px", width: "100%" }}>
+                        <MamarMap
+                          workZone={project.work_zone}
+                          readOnly
+                        />
+                      </div>
+                    ) : (
+                      <div className="pex-map-empty">
+                        Work zone location is unavailable.
+                      </div>
+                    )}
                   </section>
 
                   <section className="pex-card">
