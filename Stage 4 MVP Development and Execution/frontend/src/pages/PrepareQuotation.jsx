@@ -252,12 +252,12 @@ useEffect(() => {
         <section className="quotation-request-card">
           <div>
             <span className="quotation-label">
-              REQUEST · REQ-024
+              REQUEST · REQ-{requestId}
             </span>
 
-            <h2>Water Pipeline Installation</h2>
+            <h2>{requestDetails?.project_name || 'Loading project...'}</h2>
 
-            <p>Contractor: Al Noor Contracting</p>
+            <p>Project #{requestDetails?.project_id || '...'}</p>
           </div>
 
           <div>
@@ -265,7 +265,7 @@ useEffect(() => {
               LOCATION
             </span>
 
-            <strong>Al Mursalat, Riyadh</strong>
+            <strong>{requestDetails?.location || 'Location not specified'}</strong>
           </div>
 
           <div>
@@ -273,7 +273,7 @@ useEffect(() => {
               PROJECT DATES
             </span>
 
-            <strong>18–24 Oct 2026 · 7 days</strong>
+            <strong>{requestDetails?.start_date || '—'} – {requestDetails?.end_date || '—'}</strong>
           </div>
 
           <Button
@@ -354,7 +354,7 @@ useEffect(() => {
                 <div className="work-zone-header">
                 <div>
                    <h2>Project Work Zone</h2>
-                   <p>Al Mursalat, Riyadh</p>
+                   <p>{requestDetails?.location || 'Project location'}</p>
                </div>
 
                   <button
