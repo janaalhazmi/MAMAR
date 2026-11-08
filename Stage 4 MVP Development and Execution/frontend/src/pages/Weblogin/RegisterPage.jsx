@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import logo from "../assets/mamar-logo.svg";
+import logo from "../../assets/mamar-logo.svg";
 import { sendPasscode } from "../../services/api";
 
 const NAME_REGEX = /^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/;

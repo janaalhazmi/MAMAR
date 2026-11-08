@@ -2,12 +2,12 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Button from "../../components/Button";
 
-import hero from "../assets/hero.jpg";
+import hero from "../../assets/hero.jpg";
 
-import tcm from "../assets/provider-tcm.jpg";
-import safetyArabia from "../assets/provider-safety-arabia.jpg";
-import shawahid from "../assets/provider-shawahid.jpg";
-import safetyTriangle from "../assets/provider-safety-triangle.jpg";
+import tcm from "../../assets/provider-tcm.jpg";
+import safetyArabia from "../../assets/provider-safety-arabia.jpg";
+import shawahid from "../../assets/provider-shawahid.jpg";
+import safetyTriangle from "../../assets/provider-safety-triangle.jpg";
 
 const steps = [
   {
