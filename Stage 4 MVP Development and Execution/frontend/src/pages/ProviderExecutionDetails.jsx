@@ -157,7 +157,14 @@ export default function ProviderProjectDetails() {
                   <section className="pex-card">
                     <h2>Work Zone</h2>
                     {project.work_zone ? (
-                      <div style={{ height: "400px", width: "100%" }}>
+                      <div
+                        style={{
+                          height: "400px",
+                          width: "100%",
+                          overflow: "hidden",
+                          borderRadius: "12px",
+                        }}
+                      >
                         <MamarMap
                           workZone={project.work_zone}
                           readOnly
