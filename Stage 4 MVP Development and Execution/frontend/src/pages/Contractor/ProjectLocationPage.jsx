@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../assets/mamar-logo.svg";
+import logo from "../../assets/mamar-logo.svg";
 import MamarMap from "../../components/MamarMap";
 import Icon from "../../components/Icons";
 import { getSession } from "../../services/auth";
