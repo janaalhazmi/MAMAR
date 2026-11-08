@@ -40,13 +40,21 @@ function PrepareQuotation() {
   const [showWorkZone, setShowWorkZone] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [workZone, setWorkZone] = useState(null);
-const [requestDetails, setRequestDetails] = useState(null);
+  const [requestDetails, setRequestDetails] = useState(null);
+  const [workZoneError, setWorkZoneError] = useState("");
 
 useEffect(() => {
-  if (!requestId) return;
+  if (!requestId) {
+    setWorkZoneError("Missing request ID.");
+    return;
+  }
 
   const accessToken = getSession()?.access_token;
-  if (!accessToken) return;
+
+  if (!accessToken) {
+    setWorkZoneError("Please sign in again.");
+    return;
+  }
 
   fetchRequestWorkZone(accessToken, requestId)
     .then((data) => {
@@ -55,6 +63,7 @@ useEffect(() => {
     })
     .catch((error) => {
       console.error("Failed to load work zone:", error);
+      setWorkZoneError(error.message);
     });
 }, [requestId]);
 
@@ -337,19 +346,19 @@ useEffect(() => {
                </div>
 
                <div className="work-zone-map">
-{requestDetails && workZone ? (
-                  <MamarMap
-                    key={requestId}
-                    workZone={workZone}
-                    readOnly
-                  />
-                ) : (
-                  <p>
-                    {requestDetails
-                      ? "No work zone has been saved for this project."
-                      : "Loading work zone..."}
-                  </p>
-                )}
+        {workZoneError ? (
+  <p>{workZoneError}</p>
+        ) : !requestDetails ? (
+  <p>Loading work zone...</p>
+    ) : workZone ? (
+    <MamarMap
+    key={requestId}
+    workZone={workZone}
+    readOnly
+   />
+  ) : (
+  <p>No work zone has been saved for this project.</p>
+)}
              </div>
           </section>
          )}
