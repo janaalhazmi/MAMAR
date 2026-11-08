@@ -151,10 +151,31 @@ def get_request_work_zone(
     project = db.get(Project, request.project_id)
 
     if user.role == "provider":
-        if request.provider_id != user.provider_id:
-            raise HTTPException(status_code=403, detail="Request not assigned to your company")
+        if user.provider_id is None:
+            raise HTTPException(
+                status_code=403,
+                detail="Your account is not linked to a provider",
+            )
+
+        if request.status != "open":
+            winning_quote = db.scalar(
+                select(Quote).where(
+                    Quote.request_id == request.request_id,
+                    Quote.provider_id == user.provider_id,
+                    Quote.status == "accepted",
+                )
+            )
+            if winning_quote is None:
+                raise HTTPException(
+                    status_code=403,
+                    detail="Only the winning provider can view this work zone",
+                )
+
     elif project.contractor_id != user.user_id:
-        raise HTTPException(status_code=403, detail="This project belongs to another contractor")
+        raise HTTPException(
+            status_code=403,
+            detail="This project belongs to another contractor",
+        )
 
     return {
         "request_id": request.request_id,
