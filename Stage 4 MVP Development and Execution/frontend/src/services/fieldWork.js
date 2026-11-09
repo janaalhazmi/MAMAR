@@ -159,39 +159,31 @@ export async function getFieldWorkerDashboard() {
 /* ------------------------------------------------------------------ */
 /* FIELD EXECUTION                                                     */
 /* ------------------------------------------------------------------ */
-// The planned point comes from the project saved in the backend. Older projects
-// fall back to what this browser saved (meta), then to a sample point.
+// Use only the assigned project's actual backend location.
 export function getPlannedLocation(projectId, project) {
-  if (project?.latitude != null && project?.longitude != null) {
-    return {
-      latitude: Number(project.latitude),
-      longitude: Number(project.longitude),
-      workZone: project.work_zone || undefined,
-    };
-  }
-  const meta = projectId != null ? getProjectMeta(projectId) : {};
-  if (meta.latitude != null && meta.longitude != null) {
-    return {
-      latitude: Number(meta.latitude),
-      longitude: Number(meta.longitude),
-      workZone: meta.workZone,
-    };
-  }
-  try {
-    const saved = JSON.parse(sessionStorage.getItem("mamarNewProject"));
-    if (saved?.latitude != null && saved?.longitude != null) {
-      return {
-        latitude: Number(saved.latitude),
-        longitude: Number(saved.longitude),
-        workZone: saved.workZone,
-      };
-    }
-  } catch {
-    /* ignore */
-  }
-  return { latitude: 24.7136, longitude: 46.6753 };
-}
+  if (!project) return null;
 
+  const latitude = Number(project.latitude);
+  const longitude = Number(project.longitude);
+
+  const hasCoordinates =
+    project.latitude != null &&
+    project.longitude != null &&
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude);
+
+  const workZone = project.work_zone || null;
+
+  if (!hasCoordinates && !workZone) {
+    return null;
+  }
+
+  return {
+    latitude: hasCoordinates ? latitude : null,
+    longitude: hasCoordinates ? longitude : null,
+    workZone,
+  };
+}
 // GET /field-worker/projects/{id}
 export async function getFieldExecution(projectId) {
   const r = await fetchFieldProject(token(), projectId);

@@ -222,13 +222,17 @@ function FieldExecution() {
           <h2>Work Zone</h2>
           <p className="pf-sub">Live project location and approved execution area.</p>
           <div className="pf-map">
-            <MamarMap
-              latitude={planned.latitude}
-              longitude={planned.longitude}
-              workZone={planned.workZone}
-              readOnly
-            />
-          </div>
+            {planned ? (
+             <MamarMap
+               latitude={planned.latitude}
+               longitude={planned.longitude}
+               workZone={planned.workZone}
+                readOnly
+       />
+  ) : (
+    <p>Work zone location is not available for this project.</p>
+  )}
+</div>
         </section>
 
         <section className="pf-card pf-pad">
