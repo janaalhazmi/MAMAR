@@ -100,15 +100,18 @@ function PrepareQuotation() {
     validUntil: document.querySelector(".quotation-date")?.value || "",
   });
 
-  const handleDeclineRequest = () => {
+  const handleDeclineRequest = async () => {
     if (!requestId || submitting.current) return;
-    if (!window.confirm("Decline this request and hide it in this browser?")) return;
+    if (!window.confirm("Decline this request? It will be removed from your requests.")) return;
 
+    submitting.current = true;
     try {
-      declineProviderRequest(requestId);
+      await declineProviderRequest(requestId);
       navigate("/provider-dashboard", { replace: true });
     } catch (error) {
       window.alert(error.message || "Could not save your decision.");
+    } finally {
+      submitting.current = false;
     }
   };
 

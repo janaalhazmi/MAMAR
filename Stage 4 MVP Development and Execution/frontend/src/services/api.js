@@ -248,6 +248,12 @@ export const postQuotation = (token, body) =>
   });
 
 // Provider pages: only the signed-in provider's company data.
+// Decline Request: saved in the backend, so the request is hidden on every device.
+export const postDeclineRequest = (token, requestId) =>
+  authed(`/provider/requests/${encodeURIComponent(requestId)}/decline`, token, {
+    method: "POST",
+  });
+
 export const fetchProviderRequests = (token, quoted) =>
   authed(`/provider/requests${quoted === undefined ? "" : `?quoted=${quoted}`}`, token);
 

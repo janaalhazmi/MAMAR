@@ -293,16 +293,6 @@ function QuotationsPage() {
           </span>
         </div>
       </section>
-
-      <div className="pf-actions">
-        <button
-          type="button"
-          className="pf-btn pf-btn-secondary"
-          onClick={() => navigate("/providers")}
-        >
-          ← Back
-        </button>
-      </div>
     </ContractorShell>
   );
 }

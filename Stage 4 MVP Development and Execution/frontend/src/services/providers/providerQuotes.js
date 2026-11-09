@@ -7,12 +7,14 @@
 //                              with the project and a "quoted" flag
 //   GET  /provider/dashboard   the numbers and lists of the dashboard
 //   POST /quotations           the provider's price
+//   POST /provider/requests/{id}/decline   Decline Request
 // ---------------------------------------------------------------------------
 
 import { getSession } from "../auth";
 import {
   fetchProviderDashboard,
   fetchProviderRequests,
+  postDeclineRequest,
   postQuotation,
 } from "../api";
 import { getProjectMeta } from "../projects";
@@ -82,41 +84,16 @@ function toUiRequest(request, project) {
 /* ------------------------------------------------------------------ */
 /* OPEN REQUESTS                                                       */
 /* ------------------------------------------------------------------ */
-function declinedRequestsKey() {
-  const user = getSession()?.user;
-  const accountId = user?.user_id ?? user?.id ?? user?.email;
-  return accountId ? `mamarDeclinedRequests:${accountId}` : null;
-}
-
-function readDeclinedRequests(key) {
-  if (!key) return [];
-
-  try {
-    const ids = JSON.parse(localStorage.getItem(key) || "[]");
-    return Array.isArray(ids) ? ids : [];
-  } catch {
-    return [];
-  }
-}
-
-export function declineProviderRequest(requestId) {
-  const key = declinedRequestsKey();
-  if (!key) throw new Error("Please sign in again.");
-
-  const ids = new Set(readDeclinedRequests(key));
-  ids.add(String(requestId));
-  localStorage.setItem(key, JSON.stringify([...ids]));
-}
-
-function excludeDeclinedRequests(rows) {
-  const ids = new Set(readDeclinedRequests(declinedRequestsKey()));
-  return rows.filter((row) => !ids.has(String(row.request_id)));
+export async function declineProviderRequest(requestId) {
+  // POST /provider/requests/{id}/decline: the backend keeps it, so the request
+  // leaves this company's lists everywhere, not only in this browser.
+  return postDeclineRequest(token(), requestId);
 }
 
 export async function getOpenRequests() {
   // Only the requests this company has not quoted yet, newest first.
   const rows = await fetchProviderRequests(token(), false);
-  return excludeDeclinedRequests(rows).map((row) => toUiRequest(row, row.project));
+  return rows.map((row) => toUiRequest(row, row.project));
 }
 
 export async function getOpenRequestById(requestId) {
@@ -155,8 +132,7 @@ export async function getProviderDashboard() {
   // GET /provider/dashboard: every number is counted by the server, and a new
   // company gets zeros and empty lists.
   const data = await fetchProviderDashboard(token());
-  const requests = excludeDeclinedRequests(data.new_requests)
-    .map((row) => toUiRequest(row, row.project));
+  const requests = data.new_requests.map((row) => toUiRequest(row, row.project));
   const toUiProject = (row) => ({
     id: row.project.project_id,
     name: row.project.project_name,
