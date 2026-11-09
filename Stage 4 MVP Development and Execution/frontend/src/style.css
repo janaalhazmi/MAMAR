@@ -1818,6 +1818,7 @@ scrollbar-width: none;
 .services-sidebar-nav::-webkit-scrollbar {
 display: none;
 }
+}
 /* ---------- Phones: up to 650px ---------- */
 @media (max-width: 650px) {
 /* Shared header / footer */
@@ -3460,9 +3461,7 @@ display: none;
 grid-template-columns: repeat(2, 1fr);
 }
 }
-FIELD WORKER PAGES
-==========================================================================
-*/
+/* ---------- field worker ---------- */
 .fw-main {
 --pf-yellow: #f5c518;
 --pf-yellow-soft: #fff8e1;
@@ -4528,4 +4527,5 @@ padding: 10px 16px;
 border-radius: 8px;
 font-size: 14px;
 font-weight: 600;
+}
 }
