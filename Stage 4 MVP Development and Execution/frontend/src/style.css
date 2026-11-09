@@ -5203,135 +5203,48 @@ body {
 }
 
 /* ==========================================
-   REVIEW PAGE - CONTENT
+   REVIEW PAGE - MAIN LAYOUT
 ========================================== */
-.review-page {
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  width: 100%;
-  min-height: 100vh;
-}
- 
-.review-page .mamar-sidebar {
-  width: 210px;
-  min-width: 210px;
-  min-height: 100vh;
-  flex-shrink: 0;
-}
- 
-.review-page .review-main {
-  flex: 1;
-  min-width: 0;
-  width: calc(100% - 210px);
-}
- 
-.review-page .review-content {
+
+.review-content {
   width: 100%;
   max-width: 1250px;
   margin: 0 auto;
   padding: 28px 24px 40px;
-}
- 
-@media (max-width: 650px) {
-  .review-page {
-    flex-direction: column;
-  }
- 
-  .review-page .mamar-sidebar {
-    width: 100%;
-    min-width: 0;
-    min-height: auto;
-  }
- 
-  .review-page .review-main {
-    width: 100%;
-  }
-}
- 
-
-.review-page {
-  background: #f5f7fa;
+  box-sizing: border-box;
   color: #172033;
   font-family: Arial, sans-serif;
 }
 
-.review-page a {
-  text-decoration: none;
-  color: inherit;
-}
-
-/* Header */
-
-.review-page .review-header {
-  min-height: 72px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 12px 32px;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.review-page .review-account {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.review-page .review-avatar {
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: #fff1c7;
-  color: #7a5700;
-  font-weight: 700;
-}
-
-.review-page .review-user-info strong,
-.review-page .review-user-info span {
-  display: block;
-}
-
-.review-page .review-user-info strong {
-  font-size: 14px;
-  color: #172033;
-}
-
-.review-page .review-user-info span {
-  margin-top: 4px;
-  font-size: 12px;
-  color: #667085;
-}
-
-.review-page .review-chevron {
-  margin-left: 6px;
-  color: #667085;
+.review-content * {
+  box-sizing: border-box;
 }
 
 /* Heading */
 
-.review-page .review-heading {
+.review-heading {
   margin-bottom: 24px;
 }
 
-.review-page .review-heading h1 {
+.review-heading h1 {
+  margin: 0;
   font-size: 32px;
   font-weight: 700;
   color: #172033;
 }
 
-.review-page .review-heading p {
+.review-heading p {
   margin-top: 10px;
   font-size: 15px;
   color: #475467;
+  line-height: 1.6;
 }
 
-/* Progress */
+/* ==========================================
+   PROGRESS
+========================================== */
 
-.review-page .review-progress {
+.review-progress {
   display: flex;
   align-items: center;
   gap: 14px;
@@ -5340,9 +5253,10 @@ body {
   background: #ffffff;
   border: 1px solid #eef0f3;
   border-radius: 16px;
+  width: 100%;
 }
 
-.review-page .review-progress-step {
+.review-progress-step {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -5351,7 +5265,7 @@ body {
   white-space: nowrap;
 }
 
-.review-page .review-progress-number {
+.review-progress-number {
   width: 36px;
   height: 36px;
   display: grid;
@@ -5364,45 +5278,45 @@ body {
   font-weight: 700;
 }
 
-.review-page .review-progress-step.completed .review-progress-number {
+.review-progress-step.completed .review-progress-number {
   background: #4caf50;
   color: #ffffff;
 }
 
-.review-page .review-progress-step.active .review-progress-number {
+.review-progress-step.active .review-progress-number {
   background: #f9c93c;
   color: #172033;
 }
 
-.review-page .review-progress-step.active .review-progress-label {
+.review-progress-step.active .review-progress-label {
   color: #172033;
   font-weight: 700;
 }
 
-.review-page .review-progress-line {
+.review-progress-line {
   flex: 1;
+  min-width: 15px;
   height: 2px;
   background: #e5e7eb;
 }
 
-.review-page .review-progress-line.completed {
+.review-progress-line.completed {
   background: #4caf50;
 }
 
-/* Cards grid */
+/* ==========================================
+   CARDS GRID
+========================================== */
 
-.review-page .review-grid {
+.review-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
   align-items: start;
+  width: 100%;
 }
 
-.review-page .review-services-card {
-  grid-column: 1 / -1;
-}
-
-.review-page .review-card {
+.review-card {
   min-width: 0;
   padding: 24px;
   background: #ffffff;
@@ -5410,7 +5324,11 @@ body {
   border-radius: 16px;
 }
 
-.review-page .review-card-heading {
+.review-services-card {
+  grid-column: 1 / -1;
+}
+
+.review-card-heading {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -5418,19 +5336,22 @@ body {
   margin-bottom: 20px;
 }
 
-.review-page .review-card-heading h2 {
+.review-card-heading h2 {
+  margin: 0;
   font-size: 20px;
   font-weight: 700;
   color: #172033;
 }
 
-.review-page .review-card-heading p {
+.review-card-heading p {
   margin-top: 8px;
   font-size: 13px;
   color: #667085;
 }
 
-.review-page .review-edit-button {
+/* Edit Button */
+
+.review-edit-button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -5446,14 +5367,16 @@ body {
   transition: 0.2s ease;
 }
 
-.review-page .review-edit-button:hover {
+.review-edit-button:hover {
   background: #fff9ec;
   border-color: #f9c93c;
 }
 
-/* Details fields */
+/* ==========================================
+   PROJECT DETAILS
+========================================== */
 
-.review-page .review-field {
+.review-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -5461,25 +5384,27 @@ body {
   border-bottom: 1px solid #eef0f3;
 }
 
-.review-page .review-field:last-child {
-  border-bottom: none;
-}
-
-.review-page .review-field span {
+.review-field span {
   font-size: 12px;
   color: #667085;
 }
 
-.review-page .review-field strong {
+.review-field strong {
   font-size: 15px;
   font-weight: 700;
   color: #172033;
   word-break: break-word;
 }
 
-/* Map */
+.review-details-card .review-field:last-child {
+  border-bottom: none;
+}
 
-.review-page .review-map {
+/* ==========================================
+   MAP
+========================================== */
+
+.review-map {
   width: 100%;
   height: 280px;
   overflow: hidden;
@@ -5487,7 +5412,7 @@ body {
   background: #f2f4f7;
 }
 
-.review-page .review-map .mamar-map-container {
+.review-map .mamar-map-container {
   width: 100%;
   height: 100% !important;
   min-height: 0;
@@ -5495,13 +5420,13 @@ body {
   border-radius: 0;
 }
 
-.review-page .review-map .mamar-map {
+.review-map .mamar-map {
   width: 100%;
   height: 100% !important;
   min-height: 0 !important;
 }
 
-.review-page .review-map-empty {
+.review-map-empty {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -5512,7 +5437,7 @@ body {
   font-size: 14px;
 }
 
-.review-page .review-location-info {
+.review-location-info {
   display: flex;
   align-items: flex-start;
   gap: 12px;
@@ -5520,34 +5445,37 @@ body {
   color: #f0ab00;
 }
 
-.review-page .review-location-info strong {
+.review-location-info strong {
   display: block;
   font-size: 14px;
   color: #172033;
 }
 
-.review-page .review-location-info p {
+.review-location-info p {
   margin-top: 4px;
   font-size: 13px;
   color: #475467;
+  line-height: 1.5;
 }
 
-.review-page .review-location-info small {
+.review-location-info small {
   display: block;
   margin-top: 4px;
   font-size: 12px;
   color: #667085;
 }
 
-/* Services */
+/* ==========================================
+   SERVICES
+========================================== */
 
-.review-page .review-services-list {
+.review-services-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.review-page .review-service-item {
+.review-service-item {
   display: flex;
   align-items: flex-start;
   gap: 14px;
@@ -5557,7 +5485,7 @@ body {
   border-radius: 12px;
 }
 
-.review-page .review-service-check {
+.review-service-check {
   width: 28px;
   height: 28px;
   display: grid;
@@ -5568,26 +5496,30 @@ body {
   color: #172033;
 }
 
-.review-page .review-service-item h3 {
+.review-service-item h3 {
+  margin: 0;
   font-size: 15px;
   font-weight: 700;
   color: #172033;
 }
 
-.review-page .review-service-item p {
+.review-service-item p {
   margin-top: 6px;
   font-size: 13px;
   color: #667085;
+  line-height: 1.5;
 }
 
-.review-page .review-empty-services {
+.review-empty-services {
   font-size: 14px;
   color: #667085;
 }
 
-/* Confirmation */
+/* ==========================================
+   CONFIRMATION
+========================================== */
 
-.review-page .review-confirmation {
+.review-confirmation {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -5598,7 +5530,7 @@ body {
   border-radius: 16px;
 }
 
-.review-page .review-confirmation-icon {
+.review-confirmation-icon {
   width: 46px;
   height: 46px;
   display: grid;
@@ -5609,43 +5541,49 @@ body {
   color: #172033;
 }
 
-.review-page .review-confirmation-text h2 {
+.review-confirmation-text h2 {
+  margin: 0;
   font-size: 17px;
   font-weight: 700;
   color: #172033;
 }
 
-.review-page .review-confirmation-text p {
+.review-confirmation-text p {
   margin-top: 6px;
   font-size: 13px;
   color: #475467;
+  line-height: 1.5;
 }
 
-/* Messages */
+/* ==========================================
+   MESSAGES
+========================================== */
 
-.review-page .review-error,
-.review-page .review-success {
+.review-error,
+.review-success {
   margin-top: 16px;
   padding: 12px 16px;
   border-radius: 8px;
   font-size: 14px;
 }
 
-.review-page .review-error {
+.review-error {
   background: #fef3f2;
   border: 1px solid #fecdca;
   color: #b42318;
 }
 
-.review-page .review-success {
+.review-success {
   background: #ecfdf3;
   border: 1px solid #abefc6;
   color: #067647;
 }
 
-/* Actions */
+/* ==========================================
+   ACTION BUTTONS
+========================================== */
 
-.review-page .review-actions {
+.review-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -5653,40 +5591,77 @@ body {
   margin-top: 24px;
 }
 
-.review-page .review-actions-right {
+.review-actions-right {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-/* Responsive */
+/* ==========================================
+   RESPONSIVE
+========================================== */
 
 @media (max-width: 1000px) {
-  .review-page .review-grid {
+  .review-grid {
     grid-template-columns: 1fr;
+  }
+
+  .review-services-card {
+    grid-column: auto;
   }
 }
 
 @media (max-width: 650px) {
-  .review-page .review-header {
-    padding: 12px 16px;
+  .review-content {
+    padding: 20px 14px 30px;
   }
 
-  .review-page .review-progress {
+  .review-heading h1 {
+    font-size: 26px;
+  }
+
+  .review-progress {
     padding: 16px;
+    gap: 10px;
     overflow-x: auto;
   }
 
-  .review-page .review-progress-line {
-    min-width: 20px;
+  .review-progress-step {
+    gap: 8px;
+    font-size: 12px;
   }
 
-  .review-page .review-actions,
-  .review-page .review-actions-right {
+  .review-progress-line {
+    min-width: 18px;
+  }
+
+  .review-card {
+    padding: 18px;
+  }
+
+  .review-card-heading h2 {
+    font-size: 18px;
+  }
+
+  .review-map {
+    height: 220px;
+  }
+
+  .review-confirmation {
+    padding: 16px;
+  }
+
+  .review-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .review-actions-right {
     flex-direction: column;
     align-items: stretch;
   }
 }
+
 
 /* =========================
    Prepare Quotation Page
@@ -11774,61 +11749,33 @@ textarea {
   }
 }
 /* Header notification button */
-
 .cd-header-actions {
-
   height: 100%;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   gap: 12px;
-
   margin-left: auto;
-
 }
-
 .cd-notification-button {
-
   width: 42px;
-
   height: 42px;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   flex-shrink: 0;
-
   border: none;
-
   border-radius: 50%;
-
   background: #fdf3d6;
-
   color: #c99518;
-
   cursor: pointer;
-
   transition: background 0.2s ease, transform 0.2s ease;
-
 }
-
 .cd-notification-button:hover {
-
   background: #f8e7b5;
 
   transform: scale(1.05);
-
 }
-
 .cd-user {
-
   border-left: 1px solid var(--cd-border);
-
 }

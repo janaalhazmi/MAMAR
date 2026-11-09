@@ -695,19 +695,41 @@ export async function requestChanges(projectId, note) {
 /* BUTTON HANDLERS                                                     */
 /* ------------------------------------------------------------------ */
 export async function handleRequestQuotes(project, selectedIds) {
+
   if (!selectedIds || selectedIds.length === 0) {
+
     throw new Error("Please select at least one provider.");
+
   }
+
   if (hasRequestedQuotes(project.id)) {
+
     throw new Error("You have already submitted a quote request.");
+
   }
+
+  // Send request to providers
+
   const result = await requestQuotes(project, selectedIds);
+
+  // Save request status
+
   markQuotesRequested(project.id, selectedIds);
+
   sessionStorage.setItem(
+
     KEYS.providerIds,
+
     JSON.stringify(selectedIds)
+
   );
+
+  // Add notification after successful submission
+
+  addProjectCreatedNotification(project);
+
   return result;
+
 }
 
 export async function handleRejectQuotation(quotations, quotation) {
@@ -1219,4 +1241,31 @@ export function markAllNotificationsAsRead() {
 
   return updated;
 }
+export function addProjectCreatedNotification(project) {
+  const notifications = getNotifications();
 
+  const now = new Date();
+
+  const newNotification = {
+    id: Date.now(),
+    type: "project",
+    title: "New Project Created",
+    message: `Your project "${project.name}" has been successfully created and sent to the selected provider(s).`,
+    time: now.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+    date: "Today",
+    read: false,
+    link: "/my-projects",
+  };
+
+  const updated = [newNotification, ...notifications];
+
+  sessionStorage.setItem(
+    NOTIFICATIONS_KEY,
+    JSON.stringify(updated)
+  );
+
+  return updated;
+}
