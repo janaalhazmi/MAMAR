@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
+  declineProviderRequest,
   getOpenRequestById,
   submitProviderQuotation,
 } from "../../services/providerQuotes";
@@ -32,6 +33,7 @@ const initialServices = [
 ];
 
 function PrepareQuotation() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const requestId = searchParams.get("requestId");
   const submitting = useRef(false);
@@ -155,6 +157,18 @@ useEffect(() => {
     notes: document.querySelector(".quotation-notes textarea")?.value || "",
     validUntil: document.querySelector(".quotation-date")?.value || "",
   });
+
+  const handleDeclineRequest = () => {
+    if (!requestId || submitting.current) return;
+    if (!window.confirm("Decline this request and hide it in this browser?")) return;
+
+    try {
+      declineProviderRequest(requestId);
+      navigate("/provider-dashboard", { replace: true });
+    } catch (error) {
+      window.alert(error.message || "Could not save your decision.");
+    }
+  };
 
   const handleSaveDraft = () => {
     const quotation = getQuotationData();
@@ -452,20 +466,19 @@ useEffect(() => {
               </strong>
             </div>
 
-            <Button
-              className="quotation-submit"
-              onClick={handleSubmitQuotation}
-            >
-              Submit Quotation →
-            </Button>
+            <div className="quotation-actions">
+              <Button className="quotation-action" onClick={handleSubmitQuotation}>
+                Submit Quotation →
+              </Button>
 
-            <Button
-              variant="secondary"
-              className="quotation-draft"
-              onClick={handleSaveDraft}
-            >
-              Save Draft
-            </Button>
+              <Button variant="secondary" className="quotation-action" onClick={handleDeclineRequest}>
+                Decline Request
+              </Button>
+
+              <Button variant="secondary" className="quotation-action" onClick={handleSaveDraft}>
+                Save Draft
+              </Button>
+            </div>
           </section>
         </div>
 
