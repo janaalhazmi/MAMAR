@@ -4,6 +4,8 @@ import ContractorShell from "../../components/ContractorShell";
 import {
   formatPrice,
   getCurrentProject,
+  handleConfirmProvider,
+  getConfirmedQuotationId,
 } from "../../services/Contractor/Contractor";
 
 
@@ -71,42 +73,74 @@ function PaymentPage() {
     return "";
   }
 
-  function finishDemoPayment() {
-    if (paymentLock.current || readSavedPayment()) {
-      setExistingPayment(readSavedPayment());
-      setError("This quotation has already been paid in demo mode. Duplicate payment is blocked.");
-      return;
+  async function finishDemoPayment() {
+  if (paymentLock.current || readSavedPayment()) {
+    setExistingPayment(readSavedPayment());
+    setError("This quotation has already been paid in demo mode.");
+    return;
+  }
+
+  paymentLock.current = true;
+  setProcessing(true);
+  setError("");
+
+  try {
+    // Check whether this quotation was already confirmed.
+    const confirmedId = getConfirmedQuotationId();
+
+    if (String(confirmedId) !== String(quotation.id)) {
+      // Send confirmation to backend.
+      await handleConfirmProvider(project, quotation);
     }
 
-    paymentLock.current = true;
-    setProcessing(true);
-    setError("");
+    // Demo payment only.
+    await new Promise((resolve) => setTimeout(resolve, 900));
 
-    // Demo only: no card data is sent, stored, or charged.
-    window.setTimeout(() => {
-      const reference = `DEMO-${Date.now().toString().slice(-8)}`;
-      const demoRecord = {
-        reference,
-        projectName: project?.name || "Project",
-        quotationId: quotation?.id ?? null,
-        providerName: quotation?.providerName || "Selected provider",
-        amount,
-        method,
-        status: "demo-paid",
-        createdAt: new Date().toISOString(),
-      };
+    const reference = `DEMO-${Date.now().toString().slice(-8)}`;
 
-      const records = JSON.parse(sessionStorage.getItem("mamarDemoPayments") || "{}");
-      records[getQuotationPaymentKey()] = demoRecord;
-      sessionStorage.setItem("mamarDemoPayments", JSON.stringify(records));
-      sessionStorage.setItem("mamarLastDemoPayment", JSON.stringify(demoRecord));
+    const demoRecord = {
+      reference,
+      projectName: project?.name || "Project",
+      quotationId: quotation.id,
+      providerName: quotation.providerName || "Selected provider",
+      amount,
+      method,
+      status: "demo-paid",
+      createdAt: new Date().toISOString(),
+    };
 
-      setPaymentReference(reference);
-      setExistingPayment(demoRecord);
-      setPaid(true);
-      setProcessing(false);
-    }, 900);
+    const records = JSON.parse(
+      sessionStorage.getItem("mamarDemoPayments") || "{}"
+    );
+
+    records[getQuotationPaymentKey()] = demoRecord;
+
+    sessionStorage.setItem(
+      "mamarDemoPayments",
+      JSON.stringify(records)
+    );
+
+    sessionStorage.setItem(
+      "mamarLastDemoPayment",
+      JSON.stringify(demoRecord)
+    );
+
+    setPaymentReference(reference);
+    setExistingPayment(demoRecord);
+    setPaid(true);
+
+  } catch (err) {
+    setError(
+      err?.message ||
+      "Could not confirm the quotation with the server."
+    );
+
+    paymentLock.current = false;
+
+  } finally {
+    setProcessing(false);
   }
+}
 
   function handlePay() {
     if (paymentLock.current || readSavedPayment()) {
