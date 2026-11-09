@@ -315,7 +315,7 @@ function ReviewPage() {
                 {saving ? "Saving…" : "Save Draft"}
               </Button>
 
-              <Button onClick={handleConfirm} disabled={saving}>
+              <Button onClick={handleConfirmProject} disabled={saving}>
                 {saving ? "Saving…" : "Confirm & Find Providers →"}
               </Button>
             </div>
