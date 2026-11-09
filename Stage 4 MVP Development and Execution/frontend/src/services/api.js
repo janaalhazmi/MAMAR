@@ -294,3 +294,13 @@ export const fetchRequestWorkZone = (token, requestId) =>
     `/requests/${encodeURIComponent(requestId)}/work-zone`,
     token
   );
+
+  export function authed(path, accessToken, options = {}) {
+  return request(path, {
+    ...options,
+    headers: { ...(options.headers || {}), Authorization: `Bearer ${accessToken}` },
+  });
+}
+
+export const JSON_H = { "Content-Type": "application/json" };
+export const asJson = (body) => JSON.stringify(body);
