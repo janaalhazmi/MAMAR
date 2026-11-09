@@ -7,7 +7,6 @@ import Button from "../../components/Button";
 import MamarMap from "../../components/MamarMap";
 import Icon from "../../components/Icons";
 import {
-  saveProjectServices,
   formatDateRange,
   getDisplayUser,
   getDraftProject,
@@ -310,13 +309,13 @@ function ReviewPage() {
             <div className="review-actions-right">
               <Button
                 variant="secondary"
-                onClick={handleSaveDraft}
+                onClick={onSaveDraft}
                 disabled={saving}
               >
                 {saving ? "Saving…" : "Save Draft"}
               </Button>
 
-              <Button onClick={saveProjectServices} disabled={saving}>
+              <Button onClick={onConfirm} disabled={saving}>
                 {saving ? "Saving…" : "Confirm & Find Providers →"}
               </Button>
             </div>
