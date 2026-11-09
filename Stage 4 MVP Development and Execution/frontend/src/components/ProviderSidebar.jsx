@@ -2,7 +2,6 @@ import { Link, NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   FolderKanban,
-  Wrench,
   BadgeCheck,
   Users,
   Info,
@@ -24,11 +23,6 @@ const providerNavigation = [
     label: "Projects",
     path: "/provider/projects",
     icon: FolderKanban,
-  },
-  {
-    label: "Execution",
-    path: "/provider/execution",
-    icon: Wrench,
   },
   {
     label: "Device Verification",

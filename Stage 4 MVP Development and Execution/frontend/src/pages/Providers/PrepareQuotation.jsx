@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   declineProviderRequest,
@@ -8,8 +8,7 @@ import {
 import Button from "../../components/Button";
 import logo from "../../assets/mamar-logo.svg";
 import MamarMap from "../../components/MamarMap";
-import { getSession } from "../../services/auth";
-import { fetchRequestWorkZone } from "../../services/api";
+import { useQuotationRequest } from "../../services/providers/api";
 
 const initialServices = [
   {
@@ -41,65 +40,8 @@ function PrepareQuotation() {
   const [delivery, setDelivery] = useState(1200);
   const [showWorkZone, setShowWorkZone] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const [workZone, setWorkZone] = useState(null);
-  const [requestDetails, setRequestDetails] = useState(null);
-  const [realRequest, setRealRequest] = useState(null);
-  const [workZoneError, setWorkZoneError] = useState("");
-
-useEffect(() => {
-  let cancelled = false;
-
-  const loadWorkZone = async () => {
-    setRequestDetails(null);
-    setRealRequest(null);
-    setWorkZone(null);
-    setWorkZoneError("");
-
-    if (!requestId) {
-      setWorkZoneError("Missing request ID.");
-      return;
-    }
-
-    const accessToken = getSession()?.access_token;
-
-    if (!accessToken) {
-      setWorkZoneError("Please sign in again.");
-      return;
-    }
-
-    try {
-      const actualRequest = await getOpenRequestById(requestId);
-      if (cancelled) return;
-      setRealRequest(actualRequest);
-    } catch (error) {
-      console.error("Failed to load request details:", error);
-    }
-
-    try {
-      const data = await fetchRequestWorkZone(
-        accessToken,
-        requestId
-      );
-
-      if (cancelled) return;
-
-      setRequestDetails(data);
-      setWorkZone(data?.work_zone ?? null);
-
-    } catch (error) {
-      if (cancelled) return;
-
-      console.error("Failed to load work zone:", error);
-      setWorkZoneError(error.message || "Failed to load work zone.");
-    }
-  };
-
-  loadWorkZone();
-
-  return () => {
-    cancelled = true;
-  };
-}, [requestId]);
+  const { requestDetails, realRequest, workZone, workZoneError } =
+    useQuotationRequest(requestId);
 
   const handleWorkZoneSelect = (polygon) => {
   sessionStorage.setItem(

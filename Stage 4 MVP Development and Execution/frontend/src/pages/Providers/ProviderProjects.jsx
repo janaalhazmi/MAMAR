@@ -1,6 +1,6 @@
 import ProviderSidebar from "../../components/ProviderSidebar";
-import { useEffect, useState } from "react";
-import { getProviderProjects } from "../../services/providerFlow";
+import { useState } from "react";
+import { useProviderProjects } from "../../services/providers/api";
 import { Link } from "react-router-dom";
 import { BriefcaseBusiness, Check, Clock3, Search } from "lucide-react";
 
@@ -10,36 +10,8 @@ const statuses = {
   completed: "Completed",
 };
 
-// GET /provider/projects returns Active / Upcoming / Completed; the page uses
-// lowercase keys for its filters and badge colours.
-function toRow(project) {
-  return { ...project, status: String(project.status || "").toLowerCase() };
-}
-
 export default function ProviderProjects({ projects: given }) {
-  const [loaded, setLoaded] = useState(null);
-  const [loading, setLoading] = useState(!given);
-  const [loadError, setLoadError] = useState("");
-
-  useEffect(() => {
-    if (given) return undefined;
-    let active = true;
-    getProviderProjects()
-      .then((rows) => {
-        if (active) setLoaded(rows.map(toRow));
-      })
-      .catch((error) => {
-        if (active) setLoadError(error.message || "Could not load your projects.");
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [given]);
-
-  const projects = given || loaded || [];
+  const { projects, loading, loadError } = useProviderProjects(given);
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
 

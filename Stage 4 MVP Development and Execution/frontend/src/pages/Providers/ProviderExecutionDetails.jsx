@@ -1,95 +1,39 @@
-import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../../services/api";
 import { Link, useParams } from "react-router-dom";
 import ProviderSidebar from "../../components/ProviderSidebar";
 import MamarMap from "../../components/MamarMap";
 import Button from "../../components/Button";
-import { postReturnToTeam, postSubmitCompletion } from "../../services/api";
-import { getSession } from "../../services/auth";
+import { useProviderProjectDetails } from "../../services/providers/api";
 import { formatDate } from "../../services/projectFlow";
 
-const apiUrl = (
-  import.meta.env.VITE_API_URL || "https://mamar-api.onrender.com"
-).replace(/\/+$/, "");
+function renderSitePhoto(photo) {
+  const path = photo.url || photo.photo_url;
+  if (!path) return null;
+
+  let src;
+  try {
+    src = new URL(path, API_BASE_URL.replace(/\/+$/, "") + "/").href;
+  } catch {
+    return null;
+  }
+
+  return (
+    <img
+      src={src}
+      alt={photo.caption || "Site photo"}
+      loading="lazy"
+      style={{ display: "block", width: "100%", maxWidth: 360, borderRadius: 8 }}
+    />
+  );
+}
 
 export default function ProviderProjectDetails() {
   const { projectId } = useParams();
-  const session = getSession();
-  const token = session?.access_token;
-  const name = session?.user?.full_name || "Provider";
-  const initials = name.trim().split(/\s+/).slice(0, 2)
-    .map((word) => word.charAt(0).toUpperCase()).join("") || "P";
 
-  const [result, setResult] = useState(null);
-  const [reviewBusy, setReviewBusy] = useState(false);
-  const [reviewError, setReviewError] = useState("");
-  const [reviewNotice, setReviewNotice] = useState("");
-  const [note, setNote] = useState("");
-
-  // Field worker -> provider -> contractor. The page shows the updated project
-  // the server returns, so the status and buttons change at once.
-  async function review(action) {
-    if (reviewBusy) return;
-    if (action === "return" && !note.trim()) {
-      setReviewError("Write a note for the field team first.");
-      return;
-    }
-    setReviewBusy(true);
-    setReviewError("");
-    setReviewNotice("");
-    try {
-      const data = action === "submit"
-        ? await postSubmitCompletion(token, projectId)
-        : await postReturnToTeam(token, projectId, note.trim());
-      setResult({ projectId, token, data });
-      setNote("");
-      setReviewNotice(action === "submit"
-        ? "Sent to the contractor for review."
-        : "Returned to the field team with your note.");
-    } catch (error) {
-      setReviewError(error.message || "Could not update the project. Please try again.");
-    } finally {
-      setReviewBusy(false);
-    }
-  }
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function load() {
-      try {
-        if (!projectId) throw new Error("No project was selected.");
-        if (!token) throw new Error("Please sign in to continue.");
-
-        const response = await fetch(
-          `${apiUrl}/provider/projects/${encodeURIComponent(projectId)}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-            signal: controller.signal,
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`Could not load this project (${response.status}).`);
-        }
-
-        const data = await response.json();
-        if (!controller.signal.aborted) setResult({ projectId, token, data });
-      } catch (error) {
-        if (!controller.signal.aborted) {
-          setResult({ projectId, token, error: error.message });
-        }
-      }
-    }
-
-    load();
-    return () => controller.abort();
-  }, [projectId, token]);
-
-  const current = result?.projectId === projectId && result?.token === token
-    ? result
-    : null;
-  const details = current?.data;
-  const project = details?.project;
+  const {
+    name, initials, current, details, project,
+    note, setNote, review, reviewBusy, reviewError, reviewNotice,
+  } = useProviderProjectDetails(projectId);
   const progress = Math.max(0, Math.min(100, Number(details?.progress) || 0));
   const team = details?.team ?? [];
   const photos = details?.photos ?? [];
@@ -117,7 +61,6 @@ export default function ProviderProjectDetails() {
             <div className="pex-heading">
               <div>
                 <h1>{project?.project_name || "Execution Details"}</h1>
-                <p>Project Execution</p>
               </div>
               {details && <span className="pex-status">{details.status}</span>}
             </div>
@@ -254,17 +197,34 @@ export default function ProviderProjectDetails() {
 
                   <section className="pex-card">
                     <h2>Site Updates</h2>
+
                     {details.change_note && <p>{details.change_note}</p>}
-                    {photos.length ? (
-                      <ul className="pex-list">
-                        {photos.map((photo) => (
-                          <li key={photo.photo_id}>
-                            {photo.caption || "Site photo"}
-                            {photo.created_at && ` · ${formatDate(photo.created_at)}`}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : <p>No site photos yet.</p>}
+
+                    {photos.length > 0 ? (
+                      <details>
+                        <summary style={{ cursor: "pointer", padding: "8px 0" }}>
+                          📁 Site Photos ({photos.length})
+                        </summary>
+
+                        <ul style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))",
+                          gap: 16,
+                          listStyle: "none",
+                          padding: 0,
+                        }}>
+                          {photos.map((photo) => (
+                            <li key={photo.photo_id}>
+                              {renderSitePhoto(photo)}
+                              <div>{photo.caption || "Site photo"}</div>
+                              {photo.created_at && <small>{formatDate(photo.created_at)}</small>}
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    ) : (
+                      <p>No site photos yet.</p>
+                    )}
                   </section>
                 </div>
               </>

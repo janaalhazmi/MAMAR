@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useProviderDashboard } from "../../services/providers/api";
 import { Link } from "react-router-dom";
 import ProviderSidebar from "../../components/ProviderSidebar";
 import Button from "../../components/Button";
@@ -7,33 +7,8 @@ import { formatDate } from "../../services/projectFlow";
 import { getProviderDashboard } from "../../services/providerQuotes";
 
 function ProviderDashboard() {
-  const user = getSession()?.user;
-  const displayName = user?.full_name || "Provider";
-  const initials = displayName
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join("");
-
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    let active = true;
-
-    getProviderDashboard()
-      .then((result) => active && setData(result))
-      .catch(
-        (err) => active && setError(err.message || "Could not load your dashboard.")
-      )
-      .finally(() => active && setLoading(false));
-
-    return () => {
-      active = false;
-    };
-  }, []);
+  const { displayName, initials, data, loading, error } =
+    useProviderDashboard(getSession, getProviderDashboard);
 
   const stats = data?.stats || { assigned: 0, active: 0, upcoming: 0, completed: 0 };
 

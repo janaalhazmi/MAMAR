@@ -1,8 +1,10 @@
-import { useEffect as useAssignmentEffect } from "react";
-import { getProviderProjects as loadAssignmentProjects } from "../../services/providerFlow";
-import { registerUser, sendPasscode } from "../../services/api";
-import { useEffect, useState } from "react";
-import { fetchProviderWorkers } from "../../services/api";
+import { useState } from "react";
+import {
+  assignProviderWorker,
+  useFieldWorkerRegistration,
+  useProviderFieldWorkers,
+  useWorkerAssignmentProjects,
+} from "../../services/providers/api";
 import ProviderSidebar from "../../components/ProviderSidebar";
 import { getSession } from "../../services/auth";
 
@@ -16,49 +18,8 @@ function initials(name) {
 }
 
 export default function ProviderFieldTeam() {
-  const [loadingWorkers, setLoadingWorkers] = useState(true);
-  const [workersError, setWorkersError] = useState("");
-
-  useEffect(() => {
-    let active = true;
-
-    async function loadWorkers() {
-      try {
-        const token = getSession()?.access_token;
-        if (!token) {
-          throw new Error("Please sign in again.");
-        }
-
-        const data = await fetchProviderWorkers(token);
-        if (!Array.isArray(data)) {
-          throw new Error("Could not read the field team response.");
-        }
-
-        const loadedWorkers = data.map((worker) => ({
-          id: worker.user_id,
-          name: worker.full_name,
-          email: worker.email,
-          phone: worker.phone,
-          project: worker.project?.project_name || "",
-          status: worker.status,
-          activity: worker.last_activity
-            ? new Date(worker.last_activity).toLocaleString("en-GB")
-            : "—",
-        }));
-
-        if (active) setWorkers(loadedWorkers);
-      } catch (error) {
-        if (active) {
-          setWorkersError(error.message || "Could not load field workers.");
-        }
-      } finally {
-        if (active) setLoadingWorkers(false);
-      }
-    }
-
-    loadWorkers();
-    return () => { active = false; };
-  }, []);
+  const { workers, setWorkers, loadingWorkers, workersError } =
+    useProviderFieldWorkers();
 
   const name = getSession()?.user?.full_name || "Provider";
   const [search, setSearch] = useState("");
@@ -66,7 +27,6 @@ export default function ProviderFieldTeam() {
   const [project, setProject] = useState("");
   const [selected, setSelected] = useState(null);
   const [addingWorker, setAddingWorker] = useState(false);
-  const [workers, setWorkers] = useState([]);
   const projects = [...new Set(workers.map((worker) => worker.project).filter(Boolean))];
 
   function addRegisteredWorker(worker) {
@@ -245,70 +205,8 @@ export default function ProviderFieldTeam() {
 }
 
 function AddFieldWorkerForm({ onClose, onCreated }) {
-  const [worker, setWorker] = useState(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [created, setCreated] = useState(false);
-
-  async function submit(event) {
-    event.preventDefault();
-    if (busy || created) return;
-
-    const fields = new FormData(event.currentTarget);
-    setBusy(true);
-    setError("");
-
-    try {
-      if (worker) {
-        const passcode = String(fields.get("passcode") || "").trim();
-        if (!/^\d{6}$/.test(passcode)) {
-          throw new Error("Enter the 6-digit passcode.");
-        }
-
-        const registered = await registerUser(worker, passcode);
-        const user = registered?.user ?? registered;
-        const email = worker.email.trim().toLowerCase();
-
-        onCreated({
-          id: user?.user_id ?? user?.id ?? email,
-          name: user?.full_name ?? worker.full_name,
-          email,
-          phone: user?.phone ?? worker.phone,
-          project: "",
-          status: "Available",
-          activity: "—",
-        });
-        setWorker(null);
-        setCreated(true);
-        return;
-      }
-
-      const session = getSession();
-      const providerId = Number(session?.user?.provider_id ?? session?.provider_id);
-      if (!Number.isInteger(providerId) || providerId < 1) {
-        throw new Error("Your session is missing the company provider ID.");
-      }
-
-      const fullName = String(fields.get("full_name") || "").trim();
-      if (!fullName) throw new Error("Enter the worker's full name.");
-
-      const registration = {
-        full_name: fullName,
-        email: String(fields.get("email") || "").trim(),
-        password: String(fields.get("password") || ""),
-        phone: String(fields.get("phone") || "").trim() || null,
-        role: "worker",
-        provider_id: providerId,
-      };
-
-      await sendPasscode(registration.email);
-      setWorker(registration);
-    } catch (failure) {
-      setError(failure.message || "Could not register the field worker.");
-    } finally {
-      setBusy(false);
-    }
-  }
+  const { worker, busy, error, created, submit } =
+    useFieldWorkerRegistration(onCreated);
 
   return (
     <section className="pft-card pft-details" aria-label="Add field worker">
@@ -347,7 +245,6 @@ function AddFieldWorkerForm({ onClose, onCreated }) {
 }
 
 function WorkerAssignmentForm({ worker, onAssigned }) {
-  const [projects, setProjects] = useState(null);
   const [projectId, setProjectId] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -355,16 +252,7 @@ function WorkerAssignmentForm({ worker, onAssigned }) {
   const workerId = Number(worker.id);
   const canAssign = !worker.project && Number.isSafeInteger(workerId) && workerId > 0;
 
-  useAssignmentEffect(() => {
-    if (!canAssign) return;
-    let active = true;
-
-    loadAssignmentProjects()
-      .then((items) => { if (active) setProjects(items); })
-      .catch(() => { if (active) setError("Could not load assigned projects."); });
-
-    return () => { active = false; };
-  }, [canAssign]);
+  const projects = useWorkerAssignmentProjects(canAssign, setError);
 
   async function assign(event) {
     event.preventDefault();
@@ -375,30 +263,7 @@ function WorkerAssignmentForm({ worker, onAssigned }) {
     setError("");
 
     try {
-      const token = getSession()?.access_token;
-      if (!token) throw new Error("Please sign in again.");
-
-      const base = (import.meta.env.VITE_API_URL || "https://mamar-api.onrender.com")
-        .replace(/\/+$/, "");
-      const response = await fetch(
-        base + "/projects/" + encodeURIComponent(project.id) + "/assignments",
-        {
-          method: "POST",
-          headers: {
-            Authorization: "Bearer " + token,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ worker_id: workerId }),
-        }
-      );
-
-      if (!response.ok) {
-        const body = await response.json().catch(() => null);
-        throw new Error(typeof body?.detail === "string"
-          ? body.detail
-          : "Assignment failed (" + response.status + ").");
-      }
-
+      await assignProviderWorker(project.id, workerId);
       onAssigned(project);
     } catch (failure) {
       setError(failure.message || "Could not assign the worker.");

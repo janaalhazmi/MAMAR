@@ -1,28 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import ProviderSidebar from "../../components/ProviderSidebar";
 import { getSession } from "../../services/auth";
-import { getProviderProjects } from "../../services/providerFlow";
-
-const baseUrl = (
-  import.meta.env.VITE_API_URL || "https://mamar-api.onrender.com"
-).replace(/\/+$/, "");
+import { useDeviceVerificationProjects, verifyProviderDevice } from "../../services/providers/api";
 
 export default function ProviderDeviceVerification() {
   const { projectId } = useParams();
   const name = getSession()?.user?.full_name || "Provider";
   const initials = name.trim().split(/\s+/).slice(0, 2)
     .map((word) => word.charAt(0).toUpperCase()).join("") || "P";
-  const [projects, setProjects] = useState(null);
-  const [loadError, setLoadError] = useState("");
-
-  useEffect(() => {
-    let active = true;
-    getProviderProjects()
-      .then((items) => { if (active) setProjects(items); })
-      .catch(() => { if (active) setLoadError("Could not load your projects."); });
-    return () => { active = false; };
-  }, []);
+  const { projects, loadError } = useDeviceVerificationProjects();
 
   const selected = projects?.find((project) => String(project.id) === projectId);
 
@@ -144,29 +131,7 @@ function VerificationForm({ project }) {
     setSubmitting(true);
 
     try {
-      const token = getSession()?.access_token;
-      if (!token) throw new Error("Please sign in again.");
-
-      const response = await fetch(
-        baseUrl + "/devices/" + encodeURIComponent(deviceId.trim()) + "/verify",
-        {
-          method: "POST",
-          headers: {
-            Authorization: "Bearer " + token,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ project_id: Number(project.id), ...location }),
-        }
-      );
-
-      if (response.status === 403) {
-        throw new Error("This account does not have permission to verify this device.");
-      }
-      if (!response.ok) {
-        throw new Error("Verification failed (" + response.status + "). Check the device ID and project.");
-      }
-
-      setResult(await response.json());
+      setResult(await verifyProviderDevice(deviceId, project.id, location));
     } catch (failure) {
       setError(failure.message || "Could not verify the device.");
     } finally {
