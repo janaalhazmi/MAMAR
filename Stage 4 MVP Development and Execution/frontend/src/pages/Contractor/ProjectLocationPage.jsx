@@ -1,11 +1,10 @@
 import { useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import logo from "../../assets/mamar-logo.svg";
+import { useNavigate } from "react-router-dom";
 import MamarMap from "../../components/MamarMap";
-import Icon from "../../components/Icons";
+import ContractorShell from "../../components/ContractorShell";
+
 import {
   applyMapSelection,
-  getDisplayUser,
   getSavedLocation,
   saveProjectLocation,
 } from "../../services/Contractor/Contractor";
@@ -18,7 +17,6 @@ function ProjectLocationPage() {
   const [location, setLocation] = useState(getSavedLocation);
   const [error, setError] = useState("");
 
-  const { displayName, userInitial } = getDisplayUser();
   const workZonePolygon = location.polygon;
 
   const handleMapLocationSelect = (coordinates) => {
@@ -32,15 +30,19 @@ function ProjectLocationPage() {
       setError("Map drawing tools are not ready yet.");
       return;
     }
+
     mapDrawingRef.current.startDrawing();
     setDrawing(true);
     setError("");
   };
 
-  const handleFinishDrawing = () => mapDrawingRef.current?.finishDrawing();
+  const handleFinishDrawing = () => {
+    mapDrawingRef.current?.finishDrawing();
+  };
 
   const handleCancelDrawing = () => {
     if (!mapDrawingRef.current) return;
+
     mapDrawingRef.current.cancelDrawing();
     setDrawing(false);
     setError("");
@@ -48,6 +50,7 @@ function ProjectLocationPage() {
 
   const handleContinue = (event) => {
     event.preventDefault();
+
     try {
       saveProjectLocation(location);
       navigate("/services");
@@ -59,350 +62,274 @@ function ProjectLocationPage() {
   const handleBack = () => navigate("/create-project");
 
   return (
-    <div className="location-screen">
-      {/* Sidebar */}
-      <aside className="location-sidebar">
-        <Link to="/" className="location-sidebar-logo">
-          <img src={logo} alt="MAMAR" />
-        </Link>
+    <ContractorShell activeKey="create">
+      <div className="location-content">
+        {/* Page Heading */}
+        <div className="location-page-heading">
+          <h1>Select Project Location</h1>
 
-        <nav className="location-sidebar-nav">
-          <Link to="/contractor-dashboard">
-            <Icon name="dashboard" />
-            <span>Dashboard</span>
-          </Link>
-
-          <Link to="/contractor-dashboard">
-            <Icon name="projects" />
-            <span>My Projects</span>
-          </Link>
-
-          <Link
-            to="/create-project"
-            className="location-nav-active"
-          >
-            <Icon name="create" />
-            <span>Create Project</span>
-          </Link>
-
-          <Link to="/providers">
-            <Icon name="providers" />
-            <span>Providers</span>
-          </Link>
-
-          <Link to="/quotations">
-            <Icon name="quotations" />
-            <span>Quotations</span>
-          </Link>
-        </nav>
-
-        <div className="location-sidebar-bottom">
-          <Link to="/data-disclaimer">
-            <Icon name="info" />
-            Data Disclaimer
-          </Link>
-
-          <Link to="/support">
-            <Icon name="help" />
-            Help &amp; Support
-          </Link>
-
-          <Link to="/login">
-            <Icon name="logout" />
-            Log out
-          </Link>
+          <p>
+            Find your project location and draw the work zone on the map.
+          </p>
         </div>
-      </aside>
 
-      {/* Main */}
-      <div className="location-main">
-        {/* Header */}
-        <header className="location-header">
-          <div className="location-header-spacer" />
+        {/* Progress */}
+        <div className="location-progress">
+          <div className="location-progress-step completed">
+            <span className="location-progress-number">✓</span>
 
-          <div className="location-user">
-            <div className="location-avatar">{userInitial}</div>
-
-            <div className="location-user-info">
-              <strong>{displayName}</strong>
-              <span>Contractor</span>
-            </div>
-
-            <span className="location-user-chevron">⌄</span>
-          </div>
-        </header>
-
-        <main className="location-content">
-          {/* Page Heading */}
-          <div className="location-page-heading">
-            <h1>Select Project Location</h1>
-
-            <p>
-              Find your project location and draw the work zone on the map.
-            </p>
+            <span className="location-progress-label">
+              Project Details
+            </span>
           </div>
 
-          {/* Progress */}
-          <div className="location-progress">
-            <div className="location-progress-step completed">
-              <span className="location-progress-number">✓</span>
+          <div className="location-progress-line completed-line" />
 
-              <span className="location-progress-label">
-                Project Details
-              </span>
-            </div>
+          <div className="location-progress-step active">
+            <span className="location-progress-number">2</span>
 
-            <div className="location-progress-line completed-line" />
-
-            <div className="location-progress-step active">
-              <span className="location-progress-number">2</span>
-
-              <span className="location-progress-label">
-                Location
-              </span>
-            </div>
-
-            <div className="location-progress-line" />
-
-            <div className="location-progress-step">
-              <span className="location-progress-number">3</span>
-
-              <span className="location-progress-label">
-                Service
-              </span>
-            </div>
-
-            <div className="location-progress-line" />
-
-            <div className="location-progress-step">
-              <span className="location-progress-number">4</span>
-
-              <span className="location-progress-label">
-                Review
-              </span>
-            </div>
+            <span className="location-progress-label">
+              Location
+            </span>
           </div>
 
-          {/* Location Workspace */}
-          <div className="location-workspace">
-            {/* Map Panel */}
-            <section className="location-map-panel">
-              <div className="location-map-panel-heading">
-                <h2>Project Location</h2>
+          <div className="location-progress-line" />
 
-                <p>
-                  Search for a location, then draw the project work zone
-                  directly on the map.
-                </p>
-              </div>
+          <div className="location-progress-step">
+            <span className="location-progress-number">3</span>
 
-              {/* Drawing Controls - OUTSIDE the map */}
-              <div
-                className="location-drawing-controls"
+            <span className="location-progress-label">
+              Service
+            </span>
+          </div>
+
+          <div className="location-progress-line" />
+
+          <div className="location-progress-step">
+            <span className="location-progress-number">4</span>
+
+            <span className="location-progress-label">
+              Review
+            </span>
+          </div>
+        </div>
+
+        {/* Location Workspace */}
+        <div className="location-workspace">
+          {/* Map Panel */}
+          <section className="location-map-panel">
+            <div className="location-map-panel-heading">
+              <h2>Project Location</h2>
+
+              <p>
+                Search for a location, then draw the project work zone
+                directly on the map.
+              </p>
+            </div>
+
+            {/* Drawing Controls */}
+            <div
+              className="location-drawing-controls"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "10px",
+                marginTop: "16px",
+                marginBottom: "14px",
+                position: "relative",
+                zIndex: 2,
+              }}
+            >
+              <button
+                type="button"
+                onClick={handleStartDrawing}
+                disabled={drawing}
                 style={{
-                  display: "flex",
+                  display: "inline-flex",
                   alignItems: "center",
-                  flexWrap: "wrap",
-                  gap: "10px",
-                  marginTop: "16px",
-                  marginBottom: "14px",
-                  position: "relative",
-                  zIndex: 2,
+                  justifyContent: "center",
+                  gap: "8px",
+                  padding: "11px 18px",
+                  borderRadius: "9px",
+                  border: "1px solid #ffbf00",
+                  backgroundColor: "#ffbf00",
+                  color: "#111827",
+                  fontFamily: "inherit",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  cursor: drawing ? "not-allowed" : "pointer",
+                  opacity: drawing ? 0.55 : 1,
                 }}
               >
-                <button
-                  type="button"
-                  onClick={handleStartDrawing}
-                  disabled={drawing}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                    padding: "11px 18px",
-                    borderRadius: "9px",
-                    border: "1px solid #ffbf00",
-                    backgroundColor: "#ffbf00",
-                    color: "#111827",
-                    fontFamily: "inherit",
-                    fontSize: "13px",
-                    fontWeight: 700,
-                    cursor: drawing ? "not-allowed" : "pointer",
-                    opacity: drawing ? 0.55 : 1,
-                  }}
-                >
-                  <span aria-hidden="true">✎</span>
-                  Draw Work Zone
-                </button>
+                <span aria-hidden="true">✎</span>
+                Draw Work Zone
+              </button>
 
-                <button
-                  type="button"
-                  onClick={handleFinishDrawing}
-                  disabled={!drawing}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                    padding: "11px 18px",
-                    borderRadius: "9px",
-                    border: "1px solid #111827",
-                    backgroundColor: "#111827",
-                    color: "#ffffff",
-                    fontFamily: "inherit",
-                    fontSize: "13px",
-                    fontWeight: 700,
-                    cursor: !drawing ? "not-allowed" : "pointer",
-                    opacity: !drawing ? 0.45 : 1,
-                  }}
-                >
-                  <span aria-hidden="true">✓</span>
-                  Finish Drawing
-                </button>
+              <button
+                type="button"
+                onClick={handleFinishDrawing}
+                disabled={!drawing}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  padding: "11px 18px",
+                  borderRadius: "9px",
+                  border: "1px solid #111827",
+                  backgroundColor: "#111827",
+                  color: "#ffffff",
+                  fontFamily: "inherit",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  cursor: !drawing ? "not-allowed" : "pointer",
+                  opacity: !drawing ? 0.45 : 1,
+                }}
+              >
+                <span aria-hidden="true">✓</span>
+                Finish Drawing
+              </button>
 
-                <button
-                  type="button"
-                  onClick={handleCancelDrawing}
-                  disabled={
+              <button
+                type="button"
+                onClick={handleCancelDrawing}
+                disabled={!drawing && location.polygon === null}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  padding: "11px 18px",
+                  borderRadius: "9px",
+                  border: "1px solid #d7dce5",
+                  backgroundColor: "#ffffff",
+                  color: "#374151",
+                  fontFamily: "inherit",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  cursor:
                     !drawing && location.polygon === null
-                  }
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                    padding: "11px 18px",
-                    borderRadius: "9px",
-                    border: "1px solid #d7dce5",
-                    backgroundColor: "#ffffff",
-                    color: "#374151",
-                    fontFamily: "inherit",
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    cursor:
-                      !drawing && location.polygon === null
-                        ? "not-allowed"
-                        : "pointer",
-                    opacity:
-                      !drawing && location.polygon === null
-                        ? 0.45
-                        : 1,
-                  }}
-                >
-                  <span aria-hidden="true">×</span>
-                  Cancel
-                </button>
-              </div>
+                      ? "not-allowed"
+                      : "pointer",
+                  opacity:
+                    !drawing && location.polygon === null ? 0.45 : 1,
+                }}
+              >
+                <span aria-hidden="true">×</span>
+                Cancel
+              </button>
+            </div>
 
-              {/* Map */}
-              <div className="location-map-frame">
-                <MamarMap
-                  ref={mapDrawingRef}
-                  onLocationSelect={handleMapLocationSelect}
-                  polygon={location.polygon}
-                />
-              </div>
+            {/* Map */}
+            <div className="location-map-frame">
+              <MamarMap
+                ref={mapDrawingRef}
+                onLocationSelect={handleMapLocationSelect}
+                polygon={location.polygon}
+              />
+            </div>
 
-              {/* Error */}
-              {error && (
-                <p className="location-error" role="alert">
-                  {error}
-                </p>
-              )}
-
-              {workZonePolygon && (
-                <div className="location-selected-message">
-                  <span>✓</span>
-                  Work zone polygon completed successfully
-                </div>
-              )}
-            </section>
-
-            {/* Location Details */}
-            <aside className="location-details-panel">
-              <h2>Location Details</h2>
-
-              <p className="location-details-description">
-                Confirm your project location.
+            {/* Error */}
+            {error && (
+              <p className="location-error" role="alert">
+                {error}
               </p>
+            )}
 
-              <div className="location-detail-section">
-                <span className="location-detail-label">
-                  PROJECT LOCATION
-                </span>
-
-                <strong>
-                  {location.latitude !== null
-                    ? "Selected Map Location"
-                    : location.address.trim() || "No location selected"}
-                </strong>
-
-                {location.latitude !== null &&
-                  location.longitude !== null && (
-                    <p className="location-detail-subtext">
-                      Latitude: {location.latitude.toFixed(6)}
-                      <br />
-                      Longitude: {location.longitude.toFixed(6)}
-                    </p>
-                  )}
+            {workZonePolygon && (
+              <div className="location-selected-message">
+                <span>✓</span>
+                Work zone polygon completed successfully
               </div>
+            )}
+          </section>
 
-              <div className="location-detail-section">
-                <span className="location-detail-label">
-                  WORK ZONE AREA
-                </span>
+          {/* Location Details */}
+          <aside className="location-details-panel">
+            <h2>Location Details</h2>
 
-                <strong>
-                  {location.area !== null
-                    ? `${location.area.toLocaleString()} m²`
-                    : "Calculated automatically"}
-                </strong>
-              </div>
+            <p className="location-details-description">
+              Confirm your project location.
+            </p>
 
-              <div className="location-details-divider" />
+            <div className="location-detail-section">
+              <span className="location-detail-label">
+                PROJECT LOCATION
+              </span>
 
-              <div className="location-work-zone">
-                <span className="location-detail-label">
-                  WORK ZONE
-                </span>
+              <strong>
+                {location.latitude !== null
+                  ? "Selected Map Location"
+                  : location.address.trim() || "No location selected"}
+              </strong>
 
-                <p>
-                  <span
-                   className="location-zone-dot"
-                   style={{
-                     backgroundColor: "#FFBF00",
-                     borderColor: "#FFBF00",
-           }}
-            />
-                  {workZonePolygon
-                    ? "Polygon completed"
-                    : "Work zone"}
-                </p>
-              </div>
-            </aside>
-          </div>
+              {location.latitude !== null &&
+                location.longitude !== null && (
+                  <p className="location-detail-subtext">
+                    Latitude: {location.latitude.toFixed(6)}
+                    <br />
+                    Longitude: {location.longitude.toFixed(6)}
+                  </p>
+                )}
+            </div>
 
-          {/* Navigation Buttons */}
-          <div className="location-page-actions">
-            <button
-              type="button"
-              className="location-back-button"
-              onClick={handleBack}
-            >
-              ← Back
-            </button>
+            <div className="location-detail-section">
+              <span className="location-detail-label">
+                WORK ZONE AREA
+              </span>
 
-            <button
-              type="button"
-              className="location-next-button"
-              onClick={handleContinue}
-            >
-              Next →
-            </button>
-          </div>
-        </main>
+              <strong>
+                {location.area !== null
+                  ? `${location.area.toLocaleString()} m²`
+                  : "Calculated automatically"}
+              </strong>
+            </div>
+
+            <div className="location-details-divider" />
+
+            <div className="location-work-zone">
+              <span className="location-detail-label">
+                WORK ZONE
+              </span>
+
+              <p>
+                <span
+                  className="location-zone-dot"
+                  style={{
+                    backgroundColor: "#FFBF00",
+                    borderColor: "#FFBF00",
+                  }}
+                />
+
+                {workZonePolygon
+                  ? "Polygon completed"
+                  : "Work zone"}
+              </p>
+            </div>
+          </aside>
+        </div>
+
+        {/* Navigation Buttons */}
+        <div className="location-page-actions">
+          <button
+            type="button"
+            className="location-back-button"
+            onClick={handleBack}
+          >
+            ← Back
+          </button>
+
+          <button
+            type="button"
+            className="location-next-button"
+            onClick={handleContinue}
+          >
+            Next →
+          </button>
+        </div>
       </div>
-    </div>
+    </ContractorShell>
   );
 }
 

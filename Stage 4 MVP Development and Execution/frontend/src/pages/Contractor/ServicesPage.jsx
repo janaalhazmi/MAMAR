@@ -1,10 +1,7 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import logo from "../../assets/mamar-logo.svg";
+import { useNavigate } from "react-router-dom";
+import ContractorShell from "../../components/ContractorShell";
 import MamarMap from "../../components/MamarMap";
-import { getSession, logout } from "../../services/auth";
-import Icon from "../../components/Icons";
-
 
 const SERVICE_OPTIONS = [
   {
@@ -41,8 +38,6 @@ function readProject() {
 }
 
 function ServicesPage() {
-  const displayName = getSession()?.user?.full_name || "User";
-
   const navigate = useNavigate();
 
   const [project] = useState(readProject);
@@ -111,220 +106,202 @@ function ServicesPage() {
       : "2 Oct 2026 – 23 Oct 2026";
 
   return (
-    <div className="services-page">
-      {/* Sidebar */}
-      <aside className="services-sidebar">
-        <div className="services-sidebar-logo">
-          <Link to="/contractor-dashboard">
-            <img src={logo} alt="MAMAR" />
-          </Link>
+    <ContractorShell activeKey="create">
+      <div className="services-content">
+        {/* Heading */}
+        <div className="services-page-heading">
+          <h1>Select Traffic-Control Service</h1>
+          <p>
+            Choose the services you need for this project. You can select
+            more than one.
+          </p>
         </div>
 
-        <nav className="services-sidebar-nav">
-          <Link to="/contractor-dashboard">
-            <Icon name="dashboard" />
-            Dashboard
-          </Link>
+        {/* Progress */}
+        <div className="services-progress">
+          <ProgressStep
+            number="✓"
+            label="Project Details"
+            status="completed"
+          />
 
-          <Link to="/my-projects">
-            <Icon name="projects" />
-            My Projects
-          </Link>
+          <div className="services-progress-line completed-line" />
 
-          <Link to="/create-project" className="active">
-            <Icon name="create" />
-            Create Project
-          </Link>
+          <ProgressStep
+            number="✓"
+            label="Location"
+            status="completed"
+          />
 
-          <Link to="/providers">
-            <Icon name="providers" />
-            Providers
-          </Link>
-        </nav>
+          <div className="services-progress-line completed-line" />
 
-        <div className="services-sidebar-bottom">
-          <Link to="/data-disclaimer">ⓘ Data Disclaimer</Link>
-          <Link to="/help">ⓘ Help &amp; Support</Link>
-          <Link to="/login" onClick={logout}>➜ Log out</Link>
+          <ProgressStep
+            number="3"
+            label="Service"
+            status="active"
+          />
+
+          <div className="services-progress-line" />
+
+          <ProgressStep
+            number="4"
+            label="Review"
+            status=""
+          />
         </div>
-      </aside>
 
-      {/* Main */}
-      <main className="services-main">
-        <header className="services-header">
-          <div className="services-account">
-            <div className="services-avatar">
-              {displayName.charAt(0).toUpperCase()}
-            </div>
-
-            <div className="services-user-info">
-              <strong>{displayName}</strong>
-              <span>Contractor</span>
-            </div>
-
-            <span className="services-user-chevron">⌄</span>
-          </div>
-        </header>
-
-        <div className="services-content">
-          {/* Heading */}
-          <div className="services-page-heading">
-            <h1>Select Traffic-Control Service</h1>
-            <p>
-              Choose the services you need for this project. You can select
-              more than one.
-            </p>
-          </div>
-
-          {/* Progress */}
-          <div className="services-progress">
-            <ProgressStep
-              number="✓"
-              label="Project Details"
-              status="completed"
-            />
-
-            <div className="services-progress-line completed-line" />
-
-            <ProgressStep
-              number="✓"
-              label="Location"
-              status="completed"
-            />
-
-            <div className="services-progress-line completed-line" />
-
-            <ProgressStep number="3" label="Service" status="active" />
-
-            <div className="services-progress-line" />
-
-            <ProgressStep number="4" label="Review" status="" />
-          </div>
-
-          {/* Workspace */}
-          <div className="services-workspace">
-            <section className="services-list-panel">
-              <div className="services-panel-heading">
-                <h2>Available Services</h2>
-                <p>
-                  Select the traffic-control services required for your
-                  project.
-                </p>
-              </div>
-
-              <div className="services-options">
-                {SERVICE_OPTIONS.map((service) => {
-                  const isSelected = selectedServices.includes(service.id);
-
-                  return (
-                    <label
-                      key={service.id}
-                      className={`services-option ${
-                        isSelected ? "selected" : ""
-                      }`}
-                    >
-                      <div className="services-option-icon">
-                        {service.icon}
-                      </div>
-
-                      <div className="services-option-content">
-                        <h3>{service.title}</h3>
-                        <p>{service.description}</p>
-
-                        <div className="services-option-tags">
-                          {service.tags.map((tag) => (
-                            <span key={tag}>{tag}</span>
-                          ))}
-                        </div>
-                      </div>
-
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => toggleService(service.id)}
-                        aria-label={`Select ${service.title}`}
-                      />
-                    </label>
-                  );
-                })}
-              </div>
-
-              {error && <p className="services-error">{error}</p>}
-            </section>
-
-            {/* Project Summary */}
-            <aside className="services-summary-panel">
-              <h2>Project Summary</h2>
-
-              <p className="services-summary-description">
-                Review your selected project details before continuing.
+        {/* Workspace */}
+        <div className="services-workspace">
+          <section className="services-list-panel">
+            <div className="services-panel-heading">
+              <h2>Available Services</h2>
+              <p>
+                Select the traffic-control services required for your
+                project.
               </p>
+            </div>
 
-              <div className="services-summary-map">
-                <MamarMap
-                  latitude={project.latitude ?? null}
-                  longitude={project.longitude ?? null}
-                  polygon={project.polygon ?? project.workZone ?? null}
-                  readOnly
-                />
-              </div>
+            <div className="services-options">
+              {SERVICE_OPTIONS.map((service) => {
+                const isSelected = selectedServices.includes(service.id);
 
-              <SummaryItem label="Project Name" value={projectName} />
+                return (
+                  <label
+                    key={service.id}
+                    className={`services-option ${
+                      isSelected ? "selected" : ""
+                    }`}
+                  >
+                    <div className="services-option-icon">
+                      {service.icon}
+                    </div>
 
-              <SummaryItem label="Project Type" value={projectType} />
+                    <div className="services-option-content">
+                      <h3>{service.title}</h3>
+                      <p>{service.description}</p>
 
-              <SummaryItem
-                label="Latitude"
-                value={project.latitude != null ? Number(project.latitude).toFixed(6) : "Not specified"}
+                      <div className="services-option-tags">
+                        {service.tags.map((tag) => (
+                          <span key={tag}>{tag}</span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleService(service.id)}
+                      aria-label={`Select ${service.title}`}
+                    />
+                  </label>
+                );
+              })}
+            </div>
+
+            {error && (
+              <p className="services-error" role="alert">
+                {error}
+              </p>
+            )}
+          </section>
+
+          {/* Project Summary */}
+          <aside className="services-summary-panel">
+            <h2>Project Summary</h2>
+
+            <p className="services-summary-description">
+              Review your selected project details before continuing.
+            </p>
+
+            <div className="services-summary-map">
+              <MamarMap
+                latitude={project.latitude ?? null}
+                longitude={project.longitude ?? null}
+                polygon={project.polygon ?? project.workZone ?? null}
+                readOnly
               />
+            </div>
 
-              <SummaryItem
-                label="Longitude"
-                value={project.longitude != null ? Number(project.longitude).toFixed(6) : "Not specified"}
-              />
+            <SummaryItem
+              label="Project Name"
+              value={projectName}
+            />
 
-              <SummaryItem
-                label="Work Zone Area"
-                value={project.area != null ? `${Number(project.area).toLocaleString()} m²` : "Not specified"}
-              />
+            <SummaryItem
+              label="Project Type"
+              value={projectType}
+            />
 
-              <SummaryItem
-                label="Work Zone"
-                value={project.polygon || project.workZone ? "Polygon completed" : "Not selected"}
-              />
+            <SummaryItem
+              label="Latitude"
+              value={
+                project.latitude != null
+                  ? Number(project.latitude).toFixed(6)
+                  : "Not specified"
+              }
+            />
 
-              <SummaryItem label="Project Dates" value={projectDates} />
+            <SummaryItem
+              label="Longitude"
+              value={
+                project.longitude != null
+                  ? Number(project.longitude).toFixed(6)
+                  : "Not specified"
+              }
+            />
 
-              <SummaryItem
-                label="Services Selected"
-                value={`${selectedServices.length} ${
-                  selectedServices.length === 1 ? "service" : "services"
-                }`}
-              />
-            </aside>
-          </div>
+            <SummaryItem
+              label="Work Zone Area"
+              value={
+                project.area != null
+                  ? `${Number(project.area).toLocaleString()} m²`
+                  : "Not specified"
+              }
+            />
 
-          {/* Actions */}
-          <div className="services-actions">
-            <button
-              type="button"
-              className="services-back-button"
-              onClick={() => navigate("/project-location")}
-            >
-              ← Back
-            </button>
+            <SummaryItem
+              label="Work Zone"
+              value={
+                project.polygon || project.workZone
+                  ? "Polygon completed"
+                  : "Not selected"
+              }
+            />
 
-            <button
-              type="button"
-              className="services-next-button"
-              onClick={handleNext}
-            >
-              Next →
-            </button>
-          </div>
+            <SummaryItem
+              label="Project Dates"
+              value={projectDates}
+            />
+
+            <SummaryItem
+              label="Services Selected"
+              value={`${selectedServices.length} ${
+                selectedServices.length === 1 ? "service" : "services"
+              }`}
+            />
+          </aside>
         </div>
-      </main>
-    </div>
+
+        {/* Actions */}
+        <div className="services-actions">
+          <button
+            type="button"
+            className="services-back-button"
+            onClick={() => navigate("/project-location")}
+          >
+            ← Back
+          </button>
+
+          <button
+            type="button"
+            className="services-next-button"
+            onClick={handleNext}
+          >
+            Next →
+          </button>
+        </div>
+      </div>
+    </ContractorShell>
   );
 }
 

@@ -31,7 +31,7 @@ import FieldWorkerDashboard from "./pages/FieldWorker/FieldWorkerDashboard";
 import FieldExecution from "./pages/FieldWorker/FieldExecution";
 import DeviceVerification from "./pages/FieldWorker/DeviceVerification";
 import MyProjectsPage from "./pages/Contractor/MyProjectsPage";
-
+import NotificationsPage from "./pages/Contractor/NotificationsPage";
 function App() {
   return (
     <Routes>
@@ -54,6 +54,10 @@ function App() {
       <Route path="/field-execution" element={<ProtectedRoute roles={["worker"]}><FieldExecution /></ProtectedRoute>} />
       <Route path="/device-verification" element={<ProtectedRoute roles={["worker"]}><DeviceVerification /></ProtectedRoute>} />
       <Route path="/my-projects" element={<ProtectedRoute roles={["contractor"]}><MyProjectsPage /></ProtectedRoute>} />
+      <Route
+         path="/notifications"
+         element={<NotificationsPage />}
+       />
 
       <Route
         path="/register/verify"

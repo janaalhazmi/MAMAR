@@ -89,6 +89,16 @@ const ICON_PATHS = {
       <circle cx="12" cy="19" r="1.2" />
     </>
   ),
+
+  bell: (
+    <>
+      <circle cx="12" cy="12" r="11" fill="#F4F6F9" stroke="none" />
+      <path
+        d="M12 5C9.5 5 7.5 7 7.5 9.5V13C7.5 14.2 7 15.3 6 16.5L5.5 17.5H18.5L18 16.5C17 15.3 16.5 14.2 16.5 13V9.5C16.5 7 14.5 5 12 5Z"
+      />
+      <path d="M10 20C10.4 21 11.1 21.5 12 21.5C12.9 21.5 13.6 21 14 20" />
+    </>
+  ),
 };
 
 function Icon({ name, size = 20 }) {
@@ -109,6 +119,5 @@ function Icon({ name, size = 20 }) {
     </svg>
   );
 }
-
 
 export default Icon;

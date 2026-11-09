@@ -1136,5 +1136,87 @@ export async function getConfirmedProvider() {
   return id ? getQuotationById(id) : null;
 }
 //this function checks if quotes have been requested for a given project by looking up the project metadata in local storage. It returns true if quotes have been requested, and false otherwise.
+/* ------------------------------------------------------------------ */
+/* NOTIFICATIONS                                                       */
+/* ------------------------------------------------------------------ */
 
+const NOTIFICATIONS_KEY = "mamarNotifications";
+
+const INITIAL_NOTIFICATIONS = [
+  {
+    id: 1,
+    type: "quotation",
+    title: "New Quotation Received",
+    message: "A provider has submitted a quotation for your project.",
+    time: "10 minutes ago",
+    date: "Today",
+    read: false,
+    link: "/quotations",
+  },
+  {
+    id: 2,
+    type: "project",
+    title: "Project Created Successfully",
+    message: "Your project has been created and is ready for provider selection.",
+    time: "2 hours ago",
+    date: "Today",
+    read: false,
+    link: "/my-projects",
+  },
+  {
+    id: 3,
+    type: "provider",
+    title: "Provider Confirmed",
+    message: "Your selected service provider has been confirmed.",
+    time: "Yesterday",
+    date: "Yesterday",
+    read: true,
+    link: "/my-projects",
+  },
+  {
+    id: 4,
+    type: "update",
+    title: "Project Status Updated",
+    message: "Your project status has been updated.",
+    time: "2 days ago",
+    date: "Earlier",
+    read: true,
+    link: "/my-projects",
+  },
+];
+
+export function getNotifications() {
+  return readJSON(NOTIFICATIONS_KEY, INITIAL_NOTIFICATIONS);
+}
+
+export function markNotificationAsRead(id) {
+  const notifications = getNotifications();
+
+  const updated = notifications.map((notification) =>
+    notification.id === id
+      ? { ...notification, read: true }
+      : notification
+  );
+
+  sessionStorage.setItem(
+    NOTIFICATIONS_KEY,
+    JSON.stringify(updated)
+  );
+
+  return updated;
+}
+
+export function markAllNotificationsAsRead() {
+  const updated = getNotifications().map((notification) => ({
+    ...notification,
+    read: true,
+  }));
+
+  sessionStorage.setItem(
+    NOTIFICATIONS_KEY,
+    JSON.stringify(updated)
+  );
+
+  return updated;
+}
 
