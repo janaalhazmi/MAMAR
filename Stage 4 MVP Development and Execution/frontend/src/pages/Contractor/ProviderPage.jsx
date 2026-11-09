@@ -149,7 +149,7 @@ function ProviderPage() {
 
             <span className="pv-found">
               <i aria-hidden="true" />
-              {providers.length} Providers Found
+              {visibleProviders.length} Providers Found
             </span>
           </section>
 
@@ -171,7 +171,7 @@ function ProviderPage() {
                 onChange={(event) => setCity(event.target.value)}
                 aria-label="City"
               >
-                {cities.map((item) => (
+                {CITIES.map((item) => (
                   <option key={item}>{item}</option>
                 ))}
               </select>
@@ -183,7 +183,7 @@ function ProviderPage() {
                 onChange={(event) => setService(event.target.value)}
                 aria-label="Required services"
               >
-                {serviceFilters.map((item) => (
+                {SERVICE_FILTERS.map((item) => (
                   <option key={item}>{item}</option>
                 ))}
               </select>
@@ -273,7 +273,7 @@ function ProviderPage() {
             <button
               type="button"
               className="pv-request"
-              onClick={handleRequestQuotes}
+              onClick={onRequestQuotes}
               disabled={sending}
             >
               <Icon name="quotations" size={18} />
