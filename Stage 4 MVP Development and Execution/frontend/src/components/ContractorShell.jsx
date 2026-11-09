@@ -22,7 +22,6 @@ function playNotificationSound() {
     if (!AudioContext) return;
 
     const audio = new AudioContext();
-
     const oscillator = audio.createOscillator();
     const gain = audio.createGain();
 
@@ -43,7 +42,7 @@ function playNotificationSound() {
 
     oscillator.onended = () => audio.close();
   } catch (error) {
-    console.log("Notification sound unavailable.");
+    console.log("Notification sound unavailable.", error);
   }
 }
 
@@ -63,21 +62,30 @@ function ContractorShell({ activeKey, children }) {
   const previousIds = useRef(
     getNotifications().map((notification) => notification.id)
   );
-useEffect(() => {
-  const checkNotifications = () => {
-    const notifications = getNotifications();
 
-    setHasUnread(
-      notifications.some((notification) => !notification.read)
-    );
-  };
+  useEffect(() => {
+    const checkNotifications = () => {
+      const notifications = getNotifications();
 
-  checkNotifications();
+      const currentIds = notifications.map(
+        (notification) => notification.id
+      );
 
-  const interval = setInterval(checkNotifications, 1500);
+      const newNotification = notifications.some(
+        (notification) =>
+          !previousIds.current.includes(notification.id)
+      );
 
-  return () => clearInterval(interval);
-}, []);
+      if (newNotification) {
+        playNotificationSound();
+      }
+
+      previousIds.current = currentIds;
+
+      setHasUnread(
+        notifications.some((notification) => !notification.read)
+      );
+    };
 
     const interval = setInterval(checkNotifications, 1500);
 
