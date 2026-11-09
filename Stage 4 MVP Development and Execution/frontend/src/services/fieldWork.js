@@ -92,7 +92,16 @@ function initials(name = "") {
 
 // The address saved with the project (older projects: this browser only).
 function locationOf(project) {
-  return project?.location || getProjectMeta(project?.project_id).location || "Not specified";
+  const saved = getProjectMeta(project?.project_id);
+
+  if (project?.location?.trim()) return project.location;
+  if (saved?.location?.trim()) return saved.location;
+
+  if (project?.latitude != null && project?.longitude != null) {
+    return `${Number(project.latitude).toFixed(6)}, ${Number(project.longitude).toFixed(6)}`;
+  }
+
+  return "Not specified";
 }
 
 /* ------------------------------------------------------------------ */
@@ -189,7 +198,9 @@ export async function getFieldExecution(projectId) {
   const p = r.project;
   const photos = (r.photos || []).map(toUiPhoto);
 
-  const services = (p.services || []).map((id) => SHORT_SERVICE_LABELS[id] || id);
+  const services = (p.services || []).map(
+    (id) => SHORT_SERVICE_LABELS[id] || SERVICE_LABELS[id] || id
+  );
 
   return {
     project: {
