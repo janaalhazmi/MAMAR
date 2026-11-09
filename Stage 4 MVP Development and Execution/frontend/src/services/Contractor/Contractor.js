@@ -1136,9 +1136,7 @@ export async function getConfirmedProvider() {
   return id ? getQuotationById(id) : null;
 }
 //this function checks if quotes have been requested for a given project by looking up the project metadata in local storage. It returns true if quotes have been requested, and false otherwise.
-export function hasRequestedQuotes(projectId) {
-  return getProjectMeta(projectId).quotesRequested === true;
-}
+
 
 function markQuotesRequested(projectId, providerIds) {
   saveProjectMeta(projectId, {
