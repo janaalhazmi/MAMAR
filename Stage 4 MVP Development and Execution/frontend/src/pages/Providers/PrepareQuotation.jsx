@@ -4,7 +4,7 @@ import {
   declineProviderRequest,
   getOpenRequestById,
   submitProviderQuotation,
-} from "../../services/providerQuotes";
+} from "../../services/providers/providerQuotes";
 import Button from "../../components/Button";
 import logo from "../../assets/mamar-logo.svg";
 import MamarMap from "../../components/MamarMap";

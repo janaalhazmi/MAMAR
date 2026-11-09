@@ -4,7 +4,7 @@ import ProviderSidebar from "../../components/ProviderSidebar";
 import Button from "../../components/Button";
 import { getSession } from "../../services/auth";
 import { formatDate } from "../../services/projectFlow";
-import { getProviderDashboard } from "../../services/providerQuotes";
+import { getProviderDashboard } from "../../services/providers/providerQuotes";
 
 function ProviderDashboard() {
   const { displayName, initials, data, loading, error } =

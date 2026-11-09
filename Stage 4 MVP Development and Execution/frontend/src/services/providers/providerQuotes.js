@@ -1,4 +1,4 @@
-// src/services/providerQuotes.js
+// src/services/providers/providerQuotes.js
 // ---------------------------------------------------------------------------
 // Provider side of the quotation flow, connected to the REAL backend:
 //   Provider Dashboard (new request) -> Prepare Quotation -> contractor decides
@@ -9,14 +9,14 @@
 //   POST /quotations           the provider's price
 // ---------------------------------------------------------------------------
 
-import { getSession } from "./auth";
+import { getSession } from "../auth";
 import {
   fetchProviderDashboard,
   fetchProviderRequests,
   postQuotation,
-} from "./api";
-import { getProjectMeta } from "./projects";
-import { SERVICE_LABELS } from "./projectFlow";
+} from "../api";
+import { getProjectMeta } from "../projects";
+import { SERVICE_LABELS } from "../projectFlow";
 
 function token() {
   const accessToken = getSession()?.access_token;

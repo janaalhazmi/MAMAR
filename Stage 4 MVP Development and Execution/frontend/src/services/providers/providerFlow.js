@@ -1,4 +1,4 @@
-// src/services/providerFlow.js
+// src/services/providers/providerFlow.js
 // ---------------------------------------------------------------------------
 // Provider pages connected to the REAL backend.
 //
@@ -7,9 +7,9 @@
 //                            site_status, field team count and the quote.
 // ---------------------------------------------------------------------------
 
-import { getSession } from "./auth";
-import { fetchProviderProjects } from "./api";
-import { getProjectMeta } from "./projects";
+import { getSession } from "../auth";
+import { fetchProviderProjects } from "../api";
+import { getProjectMeta } from "../projects";
 
 function token() {
   const accessToken = getSession()?.access_token;

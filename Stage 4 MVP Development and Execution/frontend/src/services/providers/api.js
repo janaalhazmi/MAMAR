@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getProviderProjects } from "../providerFlow";
+import { getProviderProjects } from "./providerFlow";
 import {
   fetchRequestWorkZone,
   postReturnToTeam,
@@ -11,7 +11,7 @@ import {
   sendPasscode,
 } from "../api";
 import { getSession } from "../auth";
-import { getOpenRequestById } from "../providerQuotes";
+import { getOpenRequestById } from "./providerQuotes";
 
 export function useProviderDashboard(readSession, loadDashboard) {
   const user = readSession()?.user;
