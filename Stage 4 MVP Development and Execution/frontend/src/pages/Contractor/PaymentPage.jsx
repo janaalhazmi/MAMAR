@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ContractorShell from "../../components/ContractorShell";
 import {
   formatPrice,
   getCurrentProject,
 } from "../../services/Contractor/Contractor";
-
+import "./payment.css";
 
 function PaymentPage() {
   const navigate = useNavigate();
@@ -23,6 +23,26 @@ function PaymentPage() {
   const [processing, setProcessing] = useState(false);
   const [paid, setPaid] = useState(false);
   const [paymentReference, setPaymentReference] = useState("");
+  const paymentLock = useRef(false);
+
+  // Keep a record per quotation so returning to this page cannot pay it twice.
+  function getQuotationPaymentKey() {
+    if (quotation?.id !== undefined && quotation?.id !== null) {
+      return `quotation-${quotation.id}`;
+    }
+    return `project-${project?.id ?? project?.name ?? "unknown"}-provider-${quotation?.providerName ?? "unknown"}`;
+  }
+
+  function readSavedPayment() {
+    try {
+      const records = JSON.parse(sessionStorage.getItem("mamarDemoPayments") || "{}");
+      return records[getQuotationPaymentKey()] || null;
+    } catch {
+      return null;
+    }
+  }
+
+  const [existingPayment, setExistingPayment] = useState(() => readSavedPayment());
 
   const amount = Number(quotation?.totalPrice || 0);
 
@@ -52,16 +72,19 @@ function PaymentPage() {
   }
 
   function finishDemoPayment() {
+    if (paymentLock.current || readSavedPayment()) {
+      setExistingPayment(readSavedPayment());
+      setError("This quotation has already been paid in demo mode. Duplicate payment is blocked.");
+      return;
+    }
+
+    paymentLock.current = true;
     setProcessing(true);
     setError("");
 
     // Demo only: no card data is sent, stored, or charged.
     window.setTimeout(() => {
       const reference = `DEMO-${Date.now().toString().slice(-8)}`;
-      setPaymentReference(reference);
-      setPaid(true);
-      setProcessing(false);
-
       const demoRecord = {
         reference,
         projectName: project?.name || "Project",
@@ -73,14 +96,24 @@ function PaymentPage() {
         createdAt: new Date().toISOString(),
       };
 
-      sessionStorage.setItem(
-        "mamarLastDemoPayment",
-        JSON.stringify(demoRecord)
-      );
+      const records = JSON.parse(sessionStorage.getItem("mamarDemoPayments") || "{}");
+      records[getQuotationPaymentKey()] = demoRecord;
+      sessionStorage.setItem("mamarDemoPayments", JSON.stringify(records));
+      sessionStorage.setItem("mamarLastDemoPayment", JSON.stringify(demoRecord));
+
+      setPaymentReference(reference);
+      setExistingPayment(demoRecord);
+      setPaid(true);
+      setProcessing(false);
     }, 900);
   }
 
   function handlePay() {
+    if (paymentLock.current || readSavedPayment()) {
+      setExistingPayment(readSavedPayment());
+      setError("This quotation has already been paid in demo mode. Duplicate payment is blocked.");
+      return;
+    }
     if (!quotation) {
       setError("Quotation details are missing. Please return to Quotations and accept a quote again.");
       return;
@@ -95,6 +128,31 @@ function PaymentPage() {
     }
 
     finishDemoPayment();
+  }
+
+  if (existingPayment && !paid) {
+    return (
+      <ContractorShell activeKey="quotations">
+        <div className="payment-page">
+          <section className="payment-success-card">
+            <div className="payment-success-mark">✓</div>
+            <p className="payment-eyebrow">ALREADY COMPLETED</p>
+            <h1>This quotation is already paid</h1>
+            <p className="payment-success-copy">
+              A demo payment has already been recorded for this quotation.
+              You cannot pay for the same quotation twice.
+            </p>
+            <div className="payment-reference">
+              <span>Existing demo reference</span>
+              <strong>{existingPayment.reference}</strong>
+            </div>
+            <button className="payment-primary-button" type="button" onClick={() => navigate("/quotations")}>
+              Back to Quotations
+            </button>
+          </section>
+        </div>
+      </ContractorShell>
+    );
   }
 
   if (paid) {
@@ -165,7 +223,7 @@ function PaymentPage() {
                 onClick={() => { setMethod("apple"); setError(""); }}
               >
                 <span className="payment-apple">●</span>
-                <span><strong>Apple Pay</strong><small>Simulated Apple Pay option</small></span>
+                <span><strong>Apple Pay <em className="payment-inline-demo">DEMO</em></strong><small>Visual simulation only · Not connected to Apple Wallet</small></span>
                 <span className="payment-radio">{method === "apple" ? "●" : "○"}</span>
               </button>
             </div>
@@ -222,11 +280,13 @@ function PaymentPage() {
               </div>
             ) : (
               <div className="payment-apple-info">
-                <div className="payment-apple-large">● Pay</div>
+                <div className="payment-apple-large"> Pay <span>DEMO</span></div>
+                <strong className="payment-apple-demo-title">Apple Pay is not connected</strong>
                 <p>
-                  Apple Pay is shown here as a visual demo. This button will
-                  simulate checkout; it does not open Apple Wallet or process a
-                  real Apple Pay transaction.
+                  This is a visual demonstration for the MAMAR project only.
+                  Selecting “Simulate Apple Pay” will show a sample success
+                  screen. It will not open Apple Wallet, contact your bank, or
+                  charge any money.
                 </p>
               </div>
             )}
@@ -242,12 +302,12 @@ function PaymentPage() {
               {processing
                 ? "Processing demo payment…"
                 : method === "apple"
-                  ? " Pay"
+                  ? "Simulate Apple Pay (Demo)"
                   : `Pay ${formatPrice(amount)}`}
             </button>
 
             <p className="payment-security-note">
-              Demo checkout only. No payment gateway is connected.
+              DEMO ONLY — No real payment is processed. No payment gateway is connected.
             </p>
           </section>
 
