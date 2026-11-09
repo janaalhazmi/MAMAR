@@ -11779,3 +11779,23 @@ textarea {
 .cd-user {
   border-left: 1px solid var(--cd-border);
 }
+
+/* Notification dot on header bell */
+
+.cd-notification-button {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.cd-notification-dot {
+  position: absolute !important;
+  top: -3px !important;
+  right: -3px !important;
+  width: 11px !important;
+  height: 11px !important;
+  display: block !important;
+  background: #f04438 !important;
+  border: 2px solid white !important;
+  border-radius: 50% !important;
+  z-index: 9999 !important;
+}

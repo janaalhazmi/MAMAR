@@ -63,30 +63,21 @@ function ContractorShell({ activeKey, children }) {
   const previousIds = useRef(
     getNotifications().map((notification) => notification.id)
   );
+useEffect(() => {
+  const checkNotifications = () => {
+    const notifications = getNotifications();
 
-  useEffect(() => {
-    const checkNotifications = () => {
-      const notifications = getNotifications();
+    setHasUnread(
+      notifications.some((notification) => !notification.read)
+    );
+  };
 
-      const currentIds = notifications.map(
-        (notification) => notification.id
-      );
+  checkNotifications();
 
-      const newNotification = notifications.some(
-        (notification) =>
-          !previousIds.current.includes(notification.id)
-      );
+  const interval = setInterval(checkNotifications, 1500);
 
-      if (newNotification) {
-        playNotificationSound();
-      }
-
-      previousIds.current = currentIds;
-
-      setHasUnread(
-        notifications.some((notification) => !notification.read)
-      );
-    };
+  return () => clearInterval(interval);
+}, []);
 
     const interval = setInterval(checkNotifications, 1500);
 

@@ -1208,7 +1208,15 @@ const INITIAL_NOTIFICATIONS = [
 ];
 
 export function getNotifications() {
-  return readJSON(NOTIFICATIONS_KEY, INITIAL_NOTIFICATIONS);
+  try {
+    const saved = sessionStorage.getItem(NOTIFICATIONS_KEY);
+
+    return saved
+      ? JSON.parse(saved)
+      : INITIAL_NOTIFICATIONS;
+  } catch (error) {
+    return INITIAL_NOTIFICATIONS;
+  }
 }
 
 export function markNotificationAsRead(id) {
