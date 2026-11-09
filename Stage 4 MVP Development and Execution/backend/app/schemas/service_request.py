@@ -59,6 +59,7 @@ class ServiceRequestResponse(BaseModel):
     status: str
     created_at: datetime
     provider_ids: list[int] | None
+    declined_provider_ids: list[int]
 
 
 class AwardRequest(BaseModel):

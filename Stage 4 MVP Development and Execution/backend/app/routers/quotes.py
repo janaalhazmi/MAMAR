@@ -46,6 +46,8 @@ def submit_quote(
         raise HTTPException(status_code=400, detail=f"The request is {request.status}, quotes are only sent to open requests")
     if not request.invites(user.provider_id):
         raise HTTPException(status_code=403, detail="The contractor did not invite your company to this request")
+    if request.declined_by(user.provider_id):
+        raise HTTPException(status_code=400, detail="Your company declined this request")
     already_sent = select(Quote).where(Quote.request_id == request_id, Quote.provider_id == user.provider_id)
     if db.scalar(already_sent) is not None:
         raise HTTPException(status_code=409, detail="Your company already sent a quote for this request")

@@ -54,7 +54,7 @@ def can_view_project(db: Session, project: Project, user: User) -> bool:
     open_requests = db.scalars(
         select(ServiceRequest).where(ServiceRequest.project_id == project.project_id, ServiceRequest.status == "open")
     )
-    if any(request.invites(user.provider_id) for request in open_requests):
+    if any(request.visible_to(user.provider_id) for request in open_requests):
         return True
     quoted = (
         select(Quote)

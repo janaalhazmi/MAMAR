@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -41,14 +41,22 @@ AWARD_ERRORS = {
 }
 
 
-@router.post("/projects/{project_id}/requests", status_code=201, response_model=ServiceRequestResponse, responses=CREATE_ERRORS)
+@router.post(
+    "/projects/{project_id}/requests",
+    status_code=201,
+    response_model=ServiceRequestResponse,
+    responses={**CREATE_ERRORS, 200: {"model": ServiceRequestResponse, "description": "The project already had an open request, which is updated and returned"}},
+)
 def create_request(
     project_id: int,
     data: ServiceRequestCreate,
+    response: Response,
     user: User = Depends(contractor_only),
     db: Session = Depends(get_db),
 ):
     # Creates a service request for a project of the signed-in contractor (Stage 3, section 4.2.8).
+    # A project has one open request: if it already has one (the contractor went back and asked
+    # again), that request is updated and returned with 200, so providers do not see it twice.
     project = db.get(Project, project_id)
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -59,6 +67,24 @@ def create_request(
         missing = [provider_id for provider_id in data.provider_ids if provider_id not in found]
         if missing:
             raise HTTPException(status_code=422, detail=f"provider_ids: provider {missing[0]} does not exist")
+    existing = db.scalars(
+        select(ServiceRequest)
+        .where(ServiceRequest.project_id == project.project_id, ServiceRequest.status == "open")
+        .order_by(ServiceRequest.request_id.desc())
+    ).first()
+    if existing is not None:
+        existing.title = data.title
+        existing.details = data.details
+        existing.required_by = data.required_by
+        # Invited providers stay invited, so a provider that already quoted is not cut off.
+        if existing.provider_ids is None or data.provider_ids is None:
+            existing.provider_ids = None
+        else:
+            existing.provider_ids = list(dict.fromkeys([*existing.provider_ids, *data.provider_ids]))
+        db.commit()
+        db.refresh(existing)
+        response.status_code = 200
+        return existing.to_dict()
     request = ServiceRequest(project_id=project.project_id, status="open", **data.model_dump())
     db.add(request)
     db.commit()
@@ -90,7 +116,7 @@ def list_requests(
         query = query.where(ServiceRequest.project_id == project_id)
     requests = db.scalars(query.order_by(ServiceRequest.request_id.desc())).all()
     if user.role == "provider":
-        requests = [request for request in requests if request.status != "open" or request.invites(user.provider_id)]
+        requests = [request for request in requests if request.status != "open" or request.visible_to(user.provider_id)]
     return [request.to_dict() for request in requests]
 
 

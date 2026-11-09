@@ -99,7 +99,7 @@ The tables are created automatically when the server starts. For the frontend wo
 | --- | --- |
 | `projects` | `services` (the ids chosen on Select Service), `site_status`, `last_check_in`, `completion_submitted`, `submitted_at`, `change_note`, `location`, `latitude`, `longitude`, `work_zone` (the Location page, so the provider and the field team see the same place) |
 | `quotes` | `start_date`, `services` (optional) |
-| `service_requests` | `provider_ids` (optional): the providers the contractor invited. `null` means every provider |
+| `service_requests` | `provider_ids` (optional): the providers the contractor invited. `null` means every provider. `declined_provider_ids`: the providers that pressed Decline Request |
 
 A new table, `site_photos`, keeps the photos that field workers upload. They are saved in PostgreSQL because the free Render server deletes uploaded files on every deploy.
 
@@ -430,7 +430,7 @@ The provider workflow from Stage 3, sections 3.2, 4.2.8 to 4.2.14. All of them n
 
 | Endpoint | Who | What it does |
 | --- | --- | --- |
-| `POST /projects/{id}/requests` | Contractor of the project | Creates a service request as `open`. Body: `title`, `required_by`, and optional `details` and `provider_ids` (the providers chosen on Select Provider, for example `[1, 3]`). Without `provider_ids` every provider sees the request |
+| `POST /projects/{id}/requests` | Contractor of the project | Creates a service request as `open`. Body: `title`, `required_by`, and optional `details` and `provider_ids` (the providers chosen on Select Provider, for example `[1, 3]`). Without `provider_ids` every provider sees the request. A project keeps one open request: asking again updates that request (new title and dates, the new providers are added) and returns it with 200 instead of 201 |
 | `GET /requests` | Contractor, provider | A contractor sees the requests of their projects. A provider sees the open requests it was invited to, and with `?status=awarded` (or `closed`) the requests its company won. Optional `?status=` and `?project_id=`. Newest first |
 | `POST /requests/{id}/quotes` | Provider invited to the request | Sends a quote as `pending`. Body: `price`, `duration_days`, and optional `notes`. `provider_id` comes from the token |
 | `GET /requests/{id}/quotes` | Contractor of the request, provider | The contractor sees all the quotes, cheapest first. A provider sees only the quote of their company |
@@ -512,6 +512,7 @@ The data of the provider's Dashboard, Service Requests and Projects pages. Only 
 | `GET /provider/projects` | The projects the company won (its quote was accepted), without cancelled ones. Each one has `project`, `status` (`Active`, `Upcoming` or `Completed`), `site_status`, `progress`, `field_team_count`, `last_check_in`, `completion_submitted`, `awaiting_review` (the field team finished and the provider has not sent it yet) and `quote`. `?status=Active` picks one tab |
 | `GET /provider/projects/{id}` | One won project with the same fields plus `submitted_at`, `change_note`, `team` and `photos`. 403 `Your company did not win this project` for other companies |
 | `GET /provider/workers` | The Field Team page: every field worker account of the company, newest first. Each one has `user_id`, `full_name`, `email`, `phone`, `status` (`Active` on an open project, `Available`, or `On Leave` when the account is turned off), `project` (the current project or `null`), `active_projects`, `last_activity` (the last photo or assignment) and `created_at`. `?status=Available` picks one filter. A worker added on the page is listed here as soon as the account is created |
+| `POST /provider/requests/{id}/decline` | Decline Request on Prepare Quotation. Saved in the database: the request leaves this company's requests and dashboard on every device, it cannot be quoted any more (400 `Your company declined this request`), and the contractor sees the company in `declined_provider_ids`. 409 if the company already sent a quote |
 | `POST /provider/projects/{id}/submit-completion` | Field worker -> provider -> contractor: after the field team marks the work `Completed`, the provider sends it to the contractor, which turns on `completion_submitted` (Review Completion). 400 `The field team has not marked the work as Completed yet` before that |
 | `POST /provider/projects/{id}/return-to-team` | Body `{"note": "..."}`. The provider sends the work back to its field team: `Work in Progress`, and the worker sees the note |
 | `GET /provider/dashboard` | `stats` (`assigned`, `active`, `upcoming`, `completed`), `pending_quotes`, `awaiting_review`, `new_requests` (not quoted yet), `next_project` (the first upcoming one, or `null`), `active_projects` and `overview` (`workers_active`, `sites_active`, `field_workers`). Every number is counted by the server |
@@ -739,6 +740,8 @@ pytest
 | `test_contractor_sees_only_the_requests_of_their_projects` | A contractor sees only their own requests, newest first, and `?project_id=` filters them |
 | `test_provider_sees_open_requests_and_the_requests_it_won` | A provider sees the open requests, and with `?status=awarded` only the requests its company won |
 | `test_provider_sees_only_the_requests_it_was_invited_to` | `provider_ids` is saved once per provider, only the invited companies see the request, and another company cannot quote it |
+| `test_asking_again_keeps_one_open_request` | Asking for quotes again updates the same open request and adds the new providers |
+| `test_startup_closes_duplicate_open_requests` | At start, extra open requests of a project without quotes are closed, and the one with a quote stays |
 | `test_create_request_with_unknown_or_empty_provider_ids_returns_422` | An unknown provider or an empty list returns 422 |
 | `test_list_requests_rules` | No token 401, a worker 403, an unknown status 422 |
 | `test_award_accepts_one_quote_and_rejects_the_others` | Award accepts the chosen quote, rejects the other one and returns the Stage 3 response |
@@ -792,6 +795,8 @@ pytest
 | `test_completion_goes_from_the_worker_to_the_provider_to_the_contractor` | The contractor sees the work only after the provider sends it, and a new worker status takes it back |
 | `test_provider_returns_the_work_to_the_field_team` | The provider returns the work with a note, and the worker sees it |
 | `test_only_the_winning_provider_reviews_the_work` | Another company, the contractor and the worker get 403 |
+| `test_provider_declines_a_request` | Decline hides the request from this company only, blocks a quotation, and the contractor sees it |
+| `test_decline_errors` | A missing request 404, a company that was not invited or a contractor 403, a company that already quoted 409 |
 | `test_awarded_request_leaves_the_new_requests` | After the contractor confirms, the request leaves the new requests and appears in `?status=awarded` |
 
 ## Deploy on Render

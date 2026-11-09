@@ -4,7 +4,10 @@ from app.models import Quote, ServiceRequest
 from tests.conftest import REQUEST
 
 # The fields of one service request in Stage 3, section 4.2.8, in the same order.
-REQUEST_FIELDS = ["request_id", "project_id", "title", "details", "required_by", "status", "created_at", "provider_ids"]
+REQUEST_FIELDS = [
+    "request_id", "project_id", "title", "details", "required_by", "status", "created_at", "provider_ids",
+    "declined_provider_ids",
+]
 
 
 def test_create_request_returns_201_as_open(api):
@@ -25,7 +28,8 @@ def test_create_request_without_details(api):
     project_id = api.project(contractor)
     body = {"title": "Detour signs", "required_by": "2026-11-20"}
     assert api.client.post(f"/projects/{project_id}/requests", json=body, headers=contractor).json()["details"] is None
-    assert api.request(contractor, project_id, details="  ")["details"] is None
+    other_project = api.project(contractor)
+    assert api.request(contractor, other_project, details="  ")["details"] is None
 
 
 @pytest.mark.parametrize(
@@ -73,10 +77,10 @@ def test_provider_sees_open_requests_and_the_requests_it_won(api):
     _, provider = api.account("provider", 1)
     _, other = api.account("provider", 2)
     project_id = api.project(contractor)
-    open_request = api.request(contractor, project_id)
     awarded = api.request(contractor, project_id)
     quote = api.quote(provider, awarded["request_id"])
     assert api.award(contractor, awarded["request_id"], quote["quote_id"]).status_code == 200
+    open_request = api.request(contractor, project_id)
     ids = [r["request_id"] for r in api.client.get(f"/requests?project_id={project_id}", headers=provider).json()]
     assert ids == [open_request["request_id"]]
     won = api.client.get(f"/requests?status=awarded&project_id={project_id}", headers=provider).json()
@@ -92,9 +96,13 @@ def test_provider_sees_only_the_requests_it_was_invited_to(api):
     project_id = api.project(contractor)
     request = api.request(contractor, project_id, provider_ids=[1, 3, 1])
     assert request["provider_ids"] == [1, 3]
-    everyone = api.request(contractor, project_id)
+    everyone_project = api.project(contractor)
+    everyone = api.request(contractor, everyone_project)
     assert everyone["provider_ids"] is None
-    seen = lambda headers: [r["request_id"] for r in api.client.get(f"/requests?project_id={project_id}", headers=headers).json()]  # noqa: E731
+    seen = lambda headers: [  # noqa: E731
+        r["request_id"] for r in api.client.get("/requests", headers=headers).json()
+        if r["project_id"] in (project_id, everyone_project)
+    ]
     assert seen(invited) == [everyone["request_id"], request["request_id"]]
     assert seen(not_invited) == [everyone["request_id"]]
     # A provider that was not invited cannot quote or open the project through that request.
@@ -191,3 +199,52 @@ def test_frontend_can_send_a_request_with_the_token(api):
     )
     assert response.status_code == 200
     assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
+
+
+def test_asking_again_keeps_one_open_request(api):
+    # Going back from Quotations and asking again updates the same request.
+    _, contractor = api.account()
+    project_id = api.project(contractor)
+    first = api.request(contractor, project_id, provider_ids=[1])
+    response = api.client.post(
+        f"/projects/{project_id}/requests",
+        json={**REQUEST, "title": "New title", "provider_ids": [2]},
+        headers=contractor,
+    )
+    assert response.status_code == 200
+    again = response.json()
+    assert again["request_id"] == first["request_id"]
+    assert (again["title"], again["provider_ids"]) == ("New title", [1, 2])
+    mine = api.client.get(f"/requests?project_id={project_id}", headers=contractor).json()
+    assert [r["request_id"] for r in mine] == [first["request_id"]]
+    # Open to every provider when one of the two is.
+    response = api.client.post(f"/projects/{project_id}/requests", json=REQUEST, headers=contractor)
+    assert response.json()["provider_ids"] is None
+
+
+def test_startup_closes_duplicate_open_requests(api):
+    from sqlalchemy import text
+
+    from app.db.database import engine
+    from app.db.init_db import CLOSE_DUPLICATE_REQUESTS
+
+    _, contractor = api.account()
+    _, provider = api.account("provider", 1)
+    project_id = api.project(contractor)
+    first = api.request(contractor, project_id)
+    # Duplicates made before this fix (written straight to the database).
+    with engine.begin() as connection:
+        insert = text(
+            "INSERT INTO service_requests (project_id, title, required_by, status) "
+            "VALUES (:p, 'dup', '2026-11-20', 'open') RETURNING request_id"
+        )
+        second = connection.execute(insert, {"p": project_id}).scalar()
+        third = connection.execute(insert, {"p": project_id}).scalar()
+    api.quote(provider, first["request_id"])
+    with engine.begin() as connection:
+        connection.execute(text(CLOSE_DUPLICATE_REQUESTS))
+        connection.execute(text(CLOSE_DUPLICATE_REQUESTS))
+    rows = api.client.get(f"/requests?project_id={project_id}", headers=contractor).json()
+    status = {r["request_id"]: r["status"] for r in rows}
+    # The one with a quote stays open, the extra ones without quotes are closed.
+    assert status == {first["request_id"]: "open", second: "closed", third: "closed"}

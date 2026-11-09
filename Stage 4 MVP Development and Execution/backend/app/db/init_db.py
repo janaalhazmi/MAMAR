@@ -66,7 +66,22 @@ NEW_COLUMNS = [
     "ALTER TABLE quotes ADD COLUMN IF NOT EXISTS start_date DATE",
     "ALTER TABLE quotes ADD COLUMN IF NOT EXISTS services JSON",
     "ALTER TABLE service_requests ADD COLUMN IF NOT EXISTS provider_ids JSON",
+    "ALTER TABLE service_requests ADD COLUMN IF NOT EXISTS declined_provider_ids JSON",
 ]
+
+# A project keeps one open request. Going back from Quotations used to add a new request each
+# time, so providers saw the same project twice. This closes the extra open requests that have
+# no quote, and keeps the one with quotes or the newest one. It changes nothing the second time.
+CLOSE_DUPLICATE_REQUESTS = """
+UPDATE service_requests AS r SET status = 'closed'
+WHERE r.status = 'open'
+  AND NOT EXISTS (SELECT 1 FROM quotes q WHERE q.request_id = r.request_id)
+  AND EXISTS (
+    SELECT 1 FROM service_requests o
+    WHERE o.project_id = r.project_id AND o.status = 'open' AND o.request_id <> r.request_id
+      AND (o.request_id > r.request_id OR EXISTS (SELECT 1 FROM quotes q2 WHERE q2.request_id = o.request_id))
+  )
+"""
 
 
 def upgrade_tables():
@@ -74,6 +89,7 @@ def upgrade_tables():
     with engine.begin() as connection:
         for statement in NEW_COLUMNS:
             connection.execute(text(statement))
+        connection.execute(text(CLOSE_DUPLICATE_REQUESTS))
 
 
 def add_demo_providers():

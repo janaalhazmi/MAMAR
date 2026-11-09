@@ -104,6 +104,8 @@ def submit_quotation(data: QuotationCreate, user: User = Depends(provider_only),
     request = next((item for item in open_requests if item.invites(user.provider_id)), None)
     if request is None:
         raise HTTPException(status_code=403, detail="The contractor did not invite your company to this project")
+    if request.declined_by(user.provider_id):
+        raise HTTPException(status_code=400, detail="Your company declined this request")
     already = select(Quote).where(Quote.request_id == request.request_id, Quote.provider_id == user.provider_id)
     if db.scalar(already) is not None:
         raise HTTPException(status_code=409, detail="Your company already sent a quotation for this project")

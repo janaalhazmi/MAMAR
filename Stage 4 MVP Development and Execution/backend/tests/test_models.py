@@ -23,7 +23,7 @@ EXPECTED_COLUMNS = {
     ],
     "service_requests": [
         "request_id", "project_id", "title", "details",
-        "required_by", "status", "created_at", "provider_ids",
+        "required_by", "status", "created_at", "provider_ids", "declined_provider_ids",
     ],
     "quotes": [
         "quote_id", "request_id", "provider_id", "price",

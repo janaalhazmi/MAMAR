@@ -6,7 +6,7 @@ from tests.test_workflow import PNG, active_project_with_worker, project_with_re
 # The fields of each provider page, in the same order as the response.
 PROVIDER_REQUEST_FIELDS = [
     "request_id", "project_id", "title", "details", "required_by", "status", "created_at", "provider_ids",
-    "project", "quoted", "my_quote",
+    "declined_provider_ids", "project", "quoted", "my_quote",
 ]
 PROVIDER_PROJECT_FIELDS = [
     "project", "status", "site_status", "progress", "field_team_count", "last_check_in",
@@ -298,3 +298,47 @@ def test_only_the_winning_provider_reviews_the_work(api):
         assert api.client.post(url, json=body, headers=other).status_code == 403
         assert api.client.post(url, json=body, headers=contractor).status_code == 403
         assert api.client.post(url, json=body, headers=worker).status_code == 403
+
+
+
+def test_provider_declines_a_request(api):
+    _, contractor = api.account()
+    _, provider = api.account("provider", 1)
+    _, other = api.account("provider", 2)
+    project_id = api.project(contractor)
+    request = api.request(contractor, project_id, provider_ids=[1, 2])
+    url = f"/provider/requests/{request['request_id']}/decline"
+
+    response = api.client.post(url, headers=provider)
+    assert response.status_code == 200
+    assert response.json()["declined_provider_ids"] == [1]
+    # Declining twice changes nothing.
+    assert api.client.post(url, headers=provider).json()["declined_provider_ids"] == [1]
+
+    # It leaves this company's lists, saved in the database, and it cannot be quoted.
+    ids = lambda headers: [r["request_id"] for r in api.client.get("/provider/requests", headers=headers).json()]  # noqa: E731
+    assert request["request_id"] not in ids(provider)
+    assert request["request_id"] in ids(other)
+    assert request["request_id"] not in [r["request_id"] for r in api.client.get("/requests", headers=provider).json()]
+    assert request["request_id"] not in [r["request_id"] for r in api.client.get("/provider/dashboard", headers=provider).json()["new_requests"]]
+    response = api.client.post("/quotations", json={"project_id": project_id, "price": 100, "duration_days": 2}, headers=provider)
+    assert (response.status_code, response.json()) == (400, {"detail": "Your company declined this request"})
+
+    # The contractor sees who declined.
+    mine = api.client.get(f"/requests?project_id={project_id}", headers=contractor).json()
+    assert mine[0]["declined_provider_ids"] == [1]
+
+
+def test_decline_errors(api):
+    _, contractor = api.account()
+    _, provider = api.account("provider", 1)
+    _, not_invited = api.account("provider", 3)
+    project_id = api.project(contractor)
+    request = api.request(contractor, project_id, provider_ids=[1])
+    url = f"/provider/requests/{request['request_id']}/decline"
+    assert api.client.post("/provider/requests/999999/decline", headers=provider).status_code == 404
+    assert api.client.post(url, headers=not_invited).status_code == 403
+    assert api.client.post(url, headers=contractor).status_code == 403
+    api.quote(provider, request["request_id"])
+    response = api.client.post(url, headers=provider)
+    assert (response.status_code, response.json()) == (409, {"detail": "Your company already sent a quote for this request"})

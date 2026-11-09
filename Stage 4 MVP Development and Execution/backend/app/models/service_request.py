@@ -25,6 +25,8 @@ class ServiceRequest(Base):
     # The providers the contractor invited on the Select Provider page. NULL means the request
     # is open to every provider. Last, so a new and an upgraded database match.
     provider_ids: Mapped[list[int] | None] = mapped_column(JSON(none_as_null=True))
+    # The providers that pressed Decline Request. They no longer see the request.
+    declined_provider_ids: Mapped[list[int] | None] = mapped_column(JSON(none_as_null=True))
     # The quotes that providers sent for this request, oldest first.
     quotes: Mapped[list["Quote"]] = relationship(order_by="Quote.quote_id")  # noqa: F821
 
@@ -48,6 +50,17 @@ class ServiceRequest(Base):
         # True when this provider can see the request and send a quote for it.
         return self.provider_ids is None or provider_id in self.provider_ids
 
+    def declined_by(self, provider_id: int | None) -> bool:
+        return provider_id in (self.declined_provider_ids or [])
+
+    def visible_to(self, provider_id: int | None) -> bool:
+        # An open request is listed for a provider that was invited and did not decline it.
+        return self.invites(provider_id) and not self.declined_by(provider_id)
+
+    def decline(self, provider_id: int) -> None:
+        # A new list, so SQLAlchemy saves the change to the JSON column.
+        self.declined_provider_ids = [*(self.declined_provider_ids or []), provider_id]
+
     def close(self) -> None:
         # Marks an open request as closed when no more quotes are needed (Stage 3, section 2.2.4).
         if self.status != "open":
@@ -65,4 +78,5 @@ class ServiceRequest(Base):
             "status": self.status,
             "created_at": self.created_at,
             "provider_ids": self.provider_ids,
+            "declined_provider_ids": self.declined_provider_ids or [],
         }
