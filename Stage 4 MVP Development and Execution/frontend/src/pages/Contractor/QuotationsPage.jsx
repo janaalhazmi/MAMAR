@@ -50,10 +50,16 @@ function QuotationsPage() {
     }
   }
 
-  function handleAccept(quotation) {
-    handleAcceptQuotation(quotation);
-    navigate("/quotations/select");
-  }
+ function handleAccept(quotation) {
+  handleAcceptQuotation(quotation);
+
+  navigate("/payment", {
+    state: {
+      quotation,
+      project,
+    },
+  });
+}
 
   if (project.id == null) {
     return (

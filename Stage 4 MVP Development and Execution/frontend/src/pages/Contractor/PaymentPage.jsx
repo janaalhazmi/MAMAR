@@ -1,0 +1,290 @@
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import ContractorShell from "../../components/ContractorShell";
+import {
+  formatPrice,
+  getCurrentProject,
+} from "../../services/Contractor/Contractor";
+import "./payment.css";
+
+function PaymentPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const project = location.state?.project || getCurrentProject();
+  const quotation = location.state?.quotation || null;
+
+  const [method, setMethod] = useState("card");
+  const [cardholder, setCardholder] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [error, setError] = useState("");
+  const [processing, setProcessing] = useState(false);
+  const [paid, setPaid] = useState(false);
+  const [paymentReference, setPaymentReference] = useState("");
+
+  const amount = Number(quotation?.totalPrice || 0);
+
+  function formatCardNumber(value) {
+    return value
+      .replace(/\D/g, "")
+      .slice(0, 16)
+      .replace(/(.{4})/g, "$1 ")
+      .trim();
+  }
+
+  function formatExpiry(value) {
+    const digits = value.replace(/\D/g, "").slice(0, 4);
+    if (digits.length < 3) return digits;
+    return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  }
+
+  function validateCard() {
+    const digits = cardNumber.replace(/\s/g, "");
+    if (!cardholder.trim()) return "Please enter the cardholder name.";
+    if (digits.length !== 16) return "Enter a valid 16-digit test card number.";
+    if (!/^\d{2}\/\d{2}$/.test(expiry)) return "Enter expiry as MM/YY.";
+    const [month] = expiry.split("/").map(Number);
+    if (month < 1 || month > 12) return "Enter a valid expiry month.";
+    if (!/^\d{3,4}$/.test(cvv)) return "Enter a valid test CVV.";
+    return "";
+  }
+
+  function finishDemoPayment() {
+    setProcessing(true);
+    setError("");
+
+    // Demo only: no card data is sent, stored, or charged.
+    window.setTimeout(() => {
+      const reference = `DEMO-${Date.now().toString().slice(-8)}`;
+      setPaymentReference(reference);
+      setPaid(true);
+      setProcessing(false);
+
+      const demoRecord = {
+        reference,
+        projectName: project?.name || "Project",
+        quotationId: quotation?.id ?? null,
+        providerName: quotation?.providerName || "Selected provider",
+        amount,
+        method,
+        status: "demo-paid",
+        createdAt: new Date().toISOString(),
+      };
+
+      sessionStorage.setItem(
+        "mamarLastDemoPayment",
+        JSON.stringify(demoRecord)
+      );
+    }, 900);
+  }
+
+  function handlePay() {
+    if (!quotation) {
+      setError("Quotation details are missing. Please return to Quotations and accept a quote again.");
+      return;
+    }
+
+    if (method === "card") {
+      const validationError = validateCard();
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+    }
+
+    finishDemoPayment();
+  }
+
+  if (paid) {
+    return (
+      <ContractorShell activeKey="quotations">
+        <div className="payment-page">
+          <section className="payment-success-card">
+            <div className="payment-success-mark">✓</div>
+            <p className="payment-eyebrow">DEMO PAYMENT COMPLETE</p>
+            <h1>Payment successful!</h1>
+            <p className="payment-success-copy">
+              This is a simulated payment. No money was charged and no card
+              details were sent to a payment provider.
+            </p>
+            <div className="payment-reference">
+              <span>Demo reference</span>
+              <strong>{paymentReference}</strong>
+            </div>
+            <div className="payment-success-details">
+              <div><span>Project</span><strong>{project?.name || "—"}</strong></div>
+              <div><span>Provider</span><strong>{quotation?.providerName || "—"}</strong></div>
+              <div><span>Amount</span><strong>{formatPrice(amount)}</strong></div>
+            </div>
+            <button
+              className="payment-primary-button"
+              type="button"
+              onClick={() => navigate("/quotations")}
+            >
+              Back to Quotations
+            </button>
+          </section>
+        </div>
+      </ContractorShell>
+    );
+  }
+
+  return (
+    <ContractorShell activeKey="quotations">
+      <div className="payment-page">
+        <div className="payment-heading">
+          <div>
+            <p className="payment-eyebrow">SECURE CHECKOUT · DEMO MODE</p>
+            <h1>Complete your payment</h1>
+            <p>Review the accepted quotation and choose a payment method.</p>
+          </div>
+          <span className="payment-demo-badge">Test only · No real charge</span>
+        </div>
+
+        <div className="payment-layout">
+          <section className="payment-panel">
+            <h2>Payment method</h2>
+            <p className="payment-muted">Choose how you want to simulate the payment.</p>
+
+            <div className="payment-methods">
+              <button
+                type="button"
+                className={`payment-method ${method === "card" ? "selected" : ""}`}
+                onClick={() => { setMethod("card"); setError(""); }}
+              >
+                <span className="payment-method-symbol">▰</span>
+                <span><strong>Credit / Debit Card</strong><small>Visa, Mastercard</small></span>
+                <span className="payment-radio">{method === "card" ? "●" : "○"}</span>
+              </button>
+
+              <button
+                type="button"
+                className={`payment-method ${method === "apple" ? "selected" : ""}`}
+                onClick={() => { setMethod("apple"); setError(""); }}
+              >
+                <span className="payment-apple">●</span>
+                <span><strong>Apple Pay</strong><small>Simulated Apple Pay option</small></span>
+                <span className="payment-radio">{method === "apple" ? "●" : "○"}</span>
+              </button>
+            </div>
+
+            {method === "card" ? (
+              <div className="payment-form">
+                <label>
+                  Cardholder name
+                  <input
+                    value={cardholder}
+                    onChange={(event) => setCardholder(event.target.value)}
+                    placeholder="Name on card"
+                    autoComplete="off"
+                  />
+                </label>
+
+                <label>
+                  Card number
+                  <input
+                    value={cardNumber}
+                    onChange={(event) => setCardNumber(formatCardNumber(event.target.value))}
+                    placeholder="1234 5678 9012 3456"
+                    inputMode="numeric"
+                    autoComplete="off"
+                  />
+                </label>
+
+                <div className="payment-form-row">
+                  <label>
+                    Expiry date
+                    <input
+                      value={expiry}
+                      onChange={(event) => setExpiry(formatExpiry(event.target.value))}
+                      placeholder="MM/YY"
+                      inputMode="numeric"
+                      autoComplete="off"
+                    />
+                  </label>
+                  <label>
+                    CVV
+                    <input
+                      value={cvv}
+                      onChange={(event) => setCvv(event.target.value.replace(/\D/g, "").slice(0, 4))}
+                      placeholder="123"
+                      inputMode="numeric"
+                      autoComplete="off"
+                    />
+                  </label>
+                </div>
+                <p className="payment-demo-note">
+                  Use any 16 digits, a valid month in MM/YY format, and 3–4 CVV digits.
+                  These are test-only fields; do not enter real card details.
+                </p>
+              </div>
+            ) : (
+              <div className="payment-apple-info">
+                <div className="payment-apple-large">● Pay</div>
+                <p>
+                  Apple Pay is shown here as a visual demo. This button will
+                  simulate checkout; it does not open Apple Wallet or process a
+                  real Apple Pay transaction.
+                </p>
+              </div>
+            )}
+
+            {error && <p className="payment-error" role="alert">{error}</p>}
+
+            <button
+              type="button"
+              className={`payment-primary-button ${method === "apple" ? "apple-button" : ""}`}
+              onClick={handlePay}
+              disabled={processing}
+            >
+              {processing
+                ? "Processing demo payment…"
+                : method === "apple"
+                  ? " Pay"
+                  : `Pay ${formatPrice(amount)}`}
+            </button>
+
+            <p className="payment-security-note">
+              Demo checkout only. No payment gateway is connected.
+            </p>
+          </section>
+
+          <aside className="payment-panel payment-summary">
+            <h2>Order summary</h2>
+            <div className="payment-summary-row">
+              <span>Project</span>
+              <strong>{project?.name || "Not available"}</strong>
+            </div>
+            <div className="payment-summary-row">
+              <span>Provider</span>
+              <strong>{quotation?.providerName || "Not available"}</strong>
+            </div>
+            <div className="payment-summary-row">
+              <span>Quotation ID</span>
+              <strong>{quotation?.id ?? "—"}</strong>
+            </div>
+            <div className="payment-summary-divider" />
+            <div className="payment-total-row">
+              <span>Total due</span>
+              <strong>{formatPrice(amount)}</strong>
+            </div>
+            <p className="payment-summary-footnote">
+              The total is taken from the selected provider quotation.
+            </p>
+            <button
+              type="button"
+              className="payment-back-button"
+              onClick={() => navigate("/quotations")}
+            >
+              ← Back to Quotations
+            </button>
+          </aside>
+        </div>
+      </div>
+    </ContractorShell>
+  );
+}
+
+export default PaymentPage;

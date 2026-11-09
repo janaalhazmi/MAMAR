@@ -32,6 +32,7 @@ import FieldExecution from "./pages/FieldWorker/FieldExecution";
 import DeviceVerification from "./pages/FieldWorker/DeviceVerification";
 import MyProjectsPage from "./pages/Contractor/MyProjectsPage";
 import NotificationsPage from "./pages/Contractor/NotificationsPage";
+import PaymentPage from "./pages/Contractor/PaymentPage";
 function App() {
   return (
     <Routes>
@@ -58,6 +59,11 @@ function App() {
          path="/notifications"
          element={<NotificationsPage />}
        />
+
+      <Route
+        path="/payment"
+        element={<PaymentPage />}
+      />
 
       <Route
         path="/register/verify"
