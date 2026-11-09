@@ -1106,10 +1106,6 @@ export async function getSelectedQuotation() {
 }
 
 /* ---------- Review completion page ---------- */
-export async function getConfirmedProvider() {
-  const id = getConfirmedQuotationId();
-  return id ? getQuotationById(id) : null;
-}
 
 export async function getConfirmedProvider() {
   const id = getConfirmedQuotationId();
