@@ -5,19 +5,16 @@ import MamarMap from "../../components/MamarMap";
 import Icon from "../../components/Icons";
 import {
   formatDateRange,
-  getConfirmedQuotationId,
   getCurrentProject,
   getMonitoringData,
-  getQuotationById,
-} from "../../services/projectFlow";
-
+  hasProjectLocation,
+} from "../../services/Contractor/Contractor";
 
 function ProjectMonitoringPage() {
   const navigate = useNavigate();
   const project = getCurrentProject();
 
   const [data, setData] = useState(null);
-  const [provider, setProvider] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -26,14 +23,6 @@ function ProjectMonitoringPage() {
     getMonitoringData(project.id)
       .then((result) => active && setData(result))
       .catch(() => active && setError("Could not load project progress."));
-
-    // The provider confirmed on the previous step.
-    // TODO(API): the monitoring endpoint should return the assigned provider
-    // itself, then this second call can be removed.
-    const quotationId = getConfirmedQuotationId();
-    if (quotationId) {
-      getQuotationById(quotationId).then((q) => active && setProvider(q));
-    }
 
     return () => {
       active = false;
@@ -44,9 +33,7 @@ function ProjectMonitoringPage() {
   if (error) {
     return (
       <ContractorShell activeKey="projects">
-        <p className="pf-alert" role="alert">
-          {error}
-        </p>
+        <p className="pf-alert" role="alert">{error}</p>
       </ContractorShell>
     );
   }
@@ -59,7 +46,8 @@ function ProjectMonitoringPage() {
     );
   }
 
-  const hasLocation = project.latitude != null && project.longitude != null;
+  const provider = data.provider;
+  const hasLocation = hasProjectLocation(project);
 
   return (
     <ContractorShell activeKey="projects">

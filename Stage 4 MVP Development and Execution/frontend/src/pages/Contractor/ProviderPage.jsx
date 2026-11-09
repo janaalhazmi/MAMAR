@@ -1,82 +1,25 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/mamar-logo.svg";
-import tcmLogo from "../../assets/provider-tcm.jpg";
-import safetyArabiaLogo from "../../assets/provider-safety-arabia.jpg";
-import shawahidLogo from "../../assets/provider-shawahid.jpg";
-import safetyTriangleLogo from "../../assets/provider-safety-triangle.jpg";
-import { logout, getSession } from "../../services/auth";
-import {
-  SERVICE_LABELS,
-  getCurrentProject,
-  requestQuotes,
-} from "../../services/projectFlow";
 import Icon from "../../components/Icons";
-
-
-const providers = [
-  {
-    id: 1,
-    name: "TCM",
-    description: "Traffic and Construction Management",
-    logo: tcmLogo,
-    city: "Riyadh",
-    services: ["TTC Planning", "Road Signs", "Barriers"],
-  },
-  {
-    id: 2,
-    name: "Safety Arabia Co. LTD",
-    description: "Traffic safety service provider",
-    logo: safetyArabiaLogo,
-    city: "Riyadh",
-    services: ["TTC Planning", "Road Signs", "Site Safety"],
-  },
-  {
-    id: 3,
-    name: "Shawahid Roads Industrial Co.",
-    description: "Road safety and traffic-control solutions",
-    logo: shawahidLogo,
-    city: "Riyadh",
-    services: ["Road Signs", "Barriers"],
-  },
-  {
-    id: 4,
-    name: "Safety Triangle Company",
-    description: "Road safety and road traffic-control solutions",
-    logo: safetyTriangleLogo,
-    city: "Riyadh",
-    services: ["TTC Planning", "Road Signs", "Barriers"],
-  },
-];
-
-const cities = ["Riyadh", "Jeddah", "Dammam"];
-const serviceFilters = [
-  "All Required Services",
-  "TTC Planning",
-  "Road Signs",
-  "Barriers",
-  "Site Safety",
-];
+import { logout } from "../../services/auth";
+import {
+  CITIES,
+  PROVIDERS,
+  SERVICE_FILTERS,
+  filterProviders,
+  getCurrentProject,
+  getDisplayUser,
+  getProviderPageSummary,
+  handleRequestQuotes,
+} from "../../services/Contractor/Contractor";
 
 function ProviderPage() {
   const navigate = useNavigate();
 
-  // The real project (saved in sessionStorage when opened from My Projects)
   const currentProject = getCurrentProject();
-  const project = {
-    name: currentProject.name || "No project selected",
-    location: currentProject.location || "Not specified",
-    services:
-      (currentProject.services || [])
-        .map((id) => SERVICE_LABELS[id] || id)
-        .join(" + ") || "Not specified",
-  };
-
-  const sessionUser = getSession()?.user;
-  const rawName = sessionUser?.full_name || sessionUser?.name || "";
-  const displayName =
-    (typeof rawName === "string" ? rawName.trim() : "") || "there";
-  const userInitial = displayName.charAt(0).toUpperCase();
+  const project = getProviderPageSummary(currentProject);
+  const { displayName, userInitial } = getDisplayUser();
 
   const [search, setSearch] = useState("");
   const [city, setCity] = useState("Riyadh");
@@ -85,46 +28,22 @@ function ProviderPage() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 
-  const visibleProviders = useMemo(() => {
-    const term = search.trim().toLowerCase();
-
-    return providers.filter((provider) => {
-      const matchesSearch =
-        !term ||
-        provider.name.toLowerCase().includes(term) ||
-        provider.description.toLowerCase().includes(term);
-      const matchesCity = provider.city === city;
-      const matchesService =
-        service === "All Required Services" ||
-        provider.services.includes(service);
-
-      return matchesSearch && matchesCity && matchesService;
-    });
-  }, [search, city, service]);
+  const visibleProviders = useMemo(
+    () => filterProviders({ search, city, service }),
+    [search, city, service]
+  );
 
   const toggleProvider = (id) => {
     setSelectedIds((current) =>
-      current.includes(id)
-        ? current.filter((providerId) => providerId !== id)
-        : [...current, id]
+      current.includes(id) ? current.filter((x) => x !== id) : [...current, id]
     );
   };
 
-  // CHANGED: now really sends the request to the backend
-  // (POST /projects/{id}/requests) with the selected provider_ids.
-  const handleRequestQuotes = async () => {
-    if (selectedIds.length === 0) {
-      alert("Please select at least one provider.");
-      return;
-    }
-
+  const onRequestQuotes = async () => {
     setSending(true);
     setError("");
-
     try {
-      // must be saved BEFORE requestQuotes(): it reads the ids from here
-      sessionStorage.setItem("selectedProviders", JSON.stringify(selectedIds));
-      await requestQuotes(currentProject);
+      await handleRequestQuotes(currentProject, selectedIds);
       navigate("/quotations");
     } catch (err) {
       setError(err.message || "Could not send the request. Please try again.");

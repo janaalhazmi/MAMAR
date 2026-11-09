@@ -2,30 +2,23 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/mamar-logo.svg";
 import MamarMap from "../../components/MamarMap";
-import { logout } from "../../services/auth";
-import { getSession } from "../../services/auth";
 import Icon from "../../components/Icons";
-import { formatDate } from "../../services/projectFlow";
+import { logout } from "../../services/auth";
 import {
-  buildActivity,
+  buildDashboard,
   fetchProjects,
-  getStats,
+  formatDate,
+  getDisplayUser,
   nextStepFor,
-  openProjectInFlow,
+  openProject,
   startNewProject,
   thumbTone,
-} from "../../services/projects";
+} from "../../services/Contractor/Contractor";
 
 function ContractorDashboard() {
   const navigate = useNavigate();
+  const { displayName, userInitial } = getDisplayUser();
 
-  const sessionUser = getSession()?.user;
-  const rawName = sessionUser?.full_name || sessionUser?.name || "";
-  const displayName =
-    (typeof rawName === "string" ? rawName.trim() : "") || "there";
-  const userInitial = displayName.charAt(0).toUpperCase();
-
-  // Real projects from the backend (GET /projects)
   const [allProjects, setAllProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -35,10 +28,7 @@ function ContractorDashboard() {
 
     fetchProjects()
       .then((list) => active && setAllProjects(list))
-      .catch(
-        (err) =>
-          active && setError(err.message || "Could not load your projects.")
-      )
+      .catch((err) => active && setError(err.message || "Could not load your projects."))
       .finally(() => active && setLoading(false));
 
     return () => {
@@ -46,50 +36,22 @@ function ContractorDashboard() {
     };
   }, []);
 
-  const stats = getStats(allProjects);
-
-  const statistics = [
-    { title: "Total Projects", value: stats.total, icon: "list" },
-    { title: "In Progress", value: stats.inProgress, icon: "clock" },
-    { title: "Completed", value: stats.completed, icon: "check" },
-    { title: "Pending Quotes", value: stats.pendingQuotes, icon: "dots" },
-  ];
-
-  // The dashboard shows the 4 newest. "View all" opens the full page.
-  const projects = allProjects.slice(0, 4);
-  const activities = buildActivity(allProjects);
+  const { statistics, projects, activities } = buildDashboard(allProjects);
 
   function handleCreateProject() {
-    startNewProject(); // so the form starts empty
+    startNewProject();
     navigate("/create-project");
   }
 
   function handleOpenProject(project) {
-    const step = nextStepFor(project);
-    if (!step) return;
-    openProjectInFlow(project);
-    navigate(step.to);
+    const path = openProject(project);
+    if (path) navigate(path);
   }
 
   const quickActions = [
-    {
-      title: "Create New Project",
-      description: "Add a new road project",
-      icon: "plus",
-      onClick: handleCreateProject,
-    },
-    {
-      title: "Browse Providers",
-      description: "Compare traffic control companies",
-      icon: "triangle",
-      onClick: () => navigate("/providers"),
-    },
-    {
-      title: "Open Map",
-      description: "Explore project locations",
-      icon: "target",
-      onClick: () => navigate("/project/location"),
-    },
+    { title: "Create New Project", description: "Add a new road project", icon: "plus", onClick: handleCreateProject },
+    { title: "Browse Providers", description: "Compare traffic control companies", icon: "triangle", onClick: () => navigate("/providers") },
+    { title: "Open Map", description: "Explore project locations", icon: "target", onClick: () => navigate("/project/location") },
   ];
 
   return (

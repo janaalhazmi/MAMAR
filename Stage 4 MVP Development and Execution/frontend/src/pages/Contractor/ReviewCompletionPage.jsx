@@ -4,14 +4,14 @@ import ContractorShell from "../../components/ContractorShell";
 import MamarMap from "../../components/MamarMap";
 import Icon from "../../components/Icons";
 import {
-  approveCompletion,
   formatDate,
   getCompletionData,
-  getConfirmedQuotationId,
+  getConfirmedProvider,
   getCurrentProject,
-  getQuotationById,
-  requestChanges,
-} from "../../services/projectFlow";
+  handleConfirmCompletion,
+  handleSendChanges,
+  hasProjectLocation,
+} from "../../services/Contractor/Contractor";
 
 function ReviewCompletionPage() {
   const navigate = useNavigate();
@@ -31,11 +31,9 @@ function ReviewCompletionPage() {
       .then((result) => active && setData(result))
       .catch(() => active && setError("Could not load the completion details."));
 
-    // TODO(API): return the provider with the completion payload and drop this.
-    const quotationId = getConfirmedQuotationId();
-    if (quotationId) {
-      getQuotationById(quotationId).then((q) => active && setProvider(q));
-    }
+    getConfirmedProvider()
+      .then((q) => active && setProvider(q))
+      .catch(() => {});
 
     return () => {
       active = false;
@@ -43,11 +41,11 @@ function ReviewCompletionPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function handleConfirm() {
+  async function onConfirm() {
     setSaving(true);
     setError("");
     try {
-      await approveCompletion(project.id);
+      await handleConfirmCompletion(project.id);
       navigate("/contractor-dashboard");
     } catch {
       setError("Could not confirm completion. Please try again.");
@@ -55,18 +53,14 @@ function ReviewCompletionPage() {
     }
   }
 
-  async function handleSendChanges() {
-    if (!note.trim()) {
-      setError("Describe the changes you need before sending.");
-      return;
-    }
+  async function onSendChanges() {
     setSaving(true);
     setError("");
     try {
-      await requestChanges(project.id, note.trim());
+      await handleSendChanges(project.id, note);
       navigate("/project-monitoring");
-    } catch {
-      setError("Could not send your request. Please try again.");
+    } catch (err) {
+      setError(err.message || "Could not send your request. Please try again.");
       setSaving(false);
     }
   }
@@ -85,7 +79,7 @@ function ReviewCompletionPage() {
     );
   }
 
-  const hasLocation = project.latitude != null && project.longitude != null;
+  const hasLocation = hasProjectLocation(project);
 
   return (
     <ContractorShell activeKey="projects">

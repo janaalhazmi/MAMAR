@@ -6,13 +6,13 @@ import {
   SERVICE_LABELS,
   formatDate,
   formatPrice,
+  formatServices,
   getCurrentProject,
-  getQuotations,
-  rejectQuotation,
-  saveSelectedQuotation,
-} from "../../services/projectFlow";
-
-const REFRESH_MS = 30000;
+  getReceived,
+  handleAcceptQuotation,
+  handleRejectQuotation,
+  watchQuotations,
+} from "../../services/Contractor/Contractor";
 
 function QuotationsPage() {
   const navigate = useNavigate();
@@ -24,59 +24,37 @@ function QuotationsPage() {
   const [showCompare, setShowCompare] = useState(false);
 
   useEffect(() => {
-    let active = true;
-
     if (project.id == null) {
       setLoading(false);
       return undefined;
     }
 
-    // silent = background refresh: do not show errors or the loading text.
-    const load = (silent) =>
-      getQuotations(project.id)
-        .then((data) => {
-          if (!active) return;
-          setQuotations(data);
-          setError("");
-        })
-        .catch((err) => {
-          if (active && !silent) {
-            setError(err.message || "Could not load quotations. Please try again.");
-          }
-        })
-        .finally(() => active && setLoading(false));
-
-    load(false);
-    const timer = setInterval(() => load(true), REFRESH_MS);
-
-    return () => {
-      active = false;
-      clearInterval(timer);
-    };
+    return watchQuotations(project.id, {
+      onData: (data) => {
+        setQuotations(data);
+        setError("");
+      },
+      onError: setError,
+      onFinish: () => setLoading(false),
+    });
   }, [project.id]);
 
-  const received = quotations.filter((q) => q.status === "received");
+  const received = getReceived(quotations);
   const requestedCount = quotations.length;
 
   async function handleReject(quotation) {
     try {
-      await rejectQuotation(quotation.id);
-      setQuotations((current) =>
-        current.map((q) =>
-          q.id === quotation.id ? { ...q, status: "rejected" } : q
-        )
-      );
+      setQuotations(await handleRejectQuotation(quotations, quotation));
     } catch (err) {
       setError(err.message || "Could not reject this quotation. Please try again.");
     }
   }
 
   function handleAccept(quotation) {
-    saveSelectedQuotation(quotation.id);
+    handleAcceptQuotation(quotation);
     navigate("/quotations/select");
   }
 
-  // Opened from the sidebar without a project.
   if (project.id == null) {
     return (
       <ContractorShell activeKey="quotations">

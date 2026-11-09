@@ -5,29 +5,15 @@ import { MapPin, CalendarDays, Pencil, Check } from "lucide-react";
 import Sidebar from "../../components/Sidebar";
 import Button from "../../components/Button";
 import MamarMap from "../../components/MamarMap";
-import { getSession } from "../../services/auth";
-import { saveProjectToBackend } from "../../services/projects";
 import Icon from "../../components/Icons";
-
-const SERVICE_OPTIONS = [
-  {
-    id: "ttc-plan",
-    title: "Temporary Traffic Control Plan (TTC) Service",
-    description:
-      "Planning and implementation services provided by qualified traffic-control providers.",
-  },
-  {
-    id: "cones-barriers",
-    title: "Traffic Cones & Barriers",
-    description: "Supply and installation of traffic cones and barriers.",
-  },
-  {
-    id: "road-signs",
-    title: "Road Signs & Variable Message Signs",
-    description:
-      "Installation and rental of road signs and variable message signs.",
-  },
-];
+import {
+  formatDateRange,
+  getDisplayUser,
+  getDraftProject,
+  getSelectedServiceOptions,
+  handleConfirmProject,
+  handleSaveDraft,
+} from "../../services/Contractor/Contractor";
 
 const navIcon = (name) =>
   function NavIcon({ size }) {
@@ -35,181 +21,54 @@ const navIcon = (name) =>
   };
 
 const SIDEBAR_ITEMS = [
-  {
-    label: "Dashboard",
-    path: "/contractor-dashboard",
-    icon: navIcon("dashboard"),
-  },
-  {
-    label: "My Projects",
-    path: "/my-projects",
-    icon: navIcon("projects"),
-  },
-  {
-    label: "Create Project",
-    path: "/create-project",
-    icon: navIcon("create"),
-  },
-  {
-    label: "Providers",
-    path: "/providers",
-    icon: navIcon("providers"),
-  },
-  {
-    label: "Quotations",
-    path: "/quotations",
-    icon: navIcon("quotations"),
-  },
+  { label: "Dashboard", path: "/contractor-dashboard", icon: navIcon("dashboard") },
+  { label: "My Projects", path: "/my-projects", icon: navIcon("projects") },
+  { label: "Create Project", path: "/create-project", icon: navIcon("create") },
+  { label: "Providers", path: "/providers", icon: navIcon("providers") },
+  { label: "Quotations", path: "/quotations", icon: navIcon("quotations") },
 ];
 
-function readProject() {
-  try {
-    return JSON.parse(sessionStorage.getItem("mamarNewProject")) || {};
-  } catch {
-    return {};
-  }
-}
-
-function formatDate(value) {
-  if (!value) return "Not specified";
-
-  const date = new Date(`${value}T00:00:00`);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return date.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
 function ReviewPage() {
-  const displayName = getSession()?.user?.full_name || "User";
-
+  const { displayName } = getDisplayUser("User");
   const navigate = useNavigate();
 
-  const [project, setProject] = useState(readProject);
-
+  const [project, setProject] = useState(getDraftProject);
   const [error, setError] = useState("");
   const [savedMessage, setSavedMessage] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const selectedServices = Array.isArray(project.services)
-    ? project.services
-    : [];
+  const services = getSelectedServiceOptions(project);
+  const projectDates = formatDateRange(project.startDate, project.endDate);
 
-  const services = SERVICE_OPTIONS.filter((service) =>
-    selectedServices.includes(service.id)
-  );
+  const handleEditDetails = () => navigate("/create-project");
+  const handleEditLocation = () => navigate("/project-location");
+  const handleEditServices = () => navigate("/services");
 
-  const projectDates =
-    project.startDate && project.endDate
-      ? `${formatDate(project.startDate)} – ${formatDate(project.endDate)}`
-      : "Not specified";
-
-  function handleEditDetails() {
-    navigate("/create-project");
-  }
-
-  function handleEditLocation() {
-    navigate("/project-location");
-  }
-
-  function handleEditServices() {
-    navigate("/services");
-  }
-
-  // Saves the project in the backend (POST /projects the first time,
-  // PATCH /projects/:id after that) and remembers its project_id.
-  async function saveToBackend(status) {
-    const saved = await saveProjectToBackend(project);
-
-    const next = {
-      ...project,
-      id: saved.project_id,
-      projectId: saved.project_id,
-      status,
-    };
-
-    sessionStorage.setItem("mamarNewProject", JSON.stringify(next));
-    setProject(next);
-
-    return next;
-  }
-
-  async function handleSaveDraft() {
+  async function onSaveDraft() {
     if (saving) return;
-
-    if (!project.name || !project.type || !project.startDate || !project.endDate) {
-      setError("Project details are incomplete. Please edit the project details.");
-      setSavedMessage("");
-      return;
-    }
-
     setSaving(true);
     setError("");
     setSavedMessage("");
 
     try {
-      await saveToBackend("draft");
+      setProject(await handleSaveDraft(project));
       setSavedMessage("Project draft saved successfully.");
     } catch (err) {
-      setError(
-        err.message || "Unable to save the project draft. Please try again."
-      );
+      setError(err.message || "Unable to save the project draft. Please try again.");
     } finally {
       setSaving(false);
     }
   }
 
-  async function handleConfirm() {
+  async function onConfirm() {
     if (saving) return;
-
-    if (
-      !project.name ||
-      !project.type ||
-      !project.startDate ||
-      !project.endDate
-    ) {
-      setError(
-        "Project details are incomplete. Please edit the project details."
-      );
-      return;
-    }
-
-    if (project.type.length > 50) {
-      setError("Project type is too long (50 characters maximum).");
-      return;
-    }
-
-    if (
-      project.latitude === null ||
-      project.latitude === undefined ||
-      project.longitude === null ||
-      project.longitude === undefined
-    ) {
-      setError("Please select a project location before continuing.");
-      return;
-    }
-
-    if (selectedServices.length === 0) {
-      setError("Please select at least one service.");
-      return;
-    }
-
     setSaving(true);
     setError("");
     setSavedMessage("");
 
     try {
-      const confirmedProject = await saveToBackend("submitted");
-
-      navigate("/providers", {
-        state: { project: confirmedProject },
-      });
+      const confirmed = await handleConfirmProject(project);
+      navigate("/providers", { state: { project: confirmed } });
     } catch (err) {
       setError(err.message || "Unable to save the project. Please try again.");
       setSaving(false);

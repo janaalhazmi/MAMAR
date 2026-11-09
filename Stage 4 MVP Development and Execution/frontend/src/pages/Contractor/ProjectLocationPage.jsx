@@ -3,176 +3,60 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/mamar-logo.svg";
 import MamarMap from "../../components/MamarMap";
 import Icon from "../../components/Icons";
-import { getSession } from "../../services/auth";
-
-
+import {
+  applyMapSelection,
+  getDisplayUser,
+  getSavedLocation,
+  saveProjectLocation,
+} from "../../services/Contractor/Contractor";
 
 function ProjectLocationPage() {
   const navigate = useNavigate();
-
   const mapDrawingRef = useRef(null);
 
   const [drawing, setDrawing] = useState(false);
-
-  const sessionUser = getSession()?.user;
-  const rawName = sessionUser?.full_name || sessionUser?.name || "";
-  const displayName =
-    (typeof rawName === "string" ? rawName.trim() : "") || "there";
-  const userInitial = displayName.charAt(0).toUpperCase();
-
-
-  // Restore the saved work zone when returning from Services or Review.
-  const [location, setLocation] = useState(() => {
-    try {
-      const project = JSON.parse(
-        sessionStorage.getItem("mamarNewProject") || "{}"
-      );
-
-      return {
-        address: project.location || "",
-        latitude: project.latitude ?? null,
-        longitude: project.longitude ?? null,
-        area: project.area ?? null,
-        polygon: project.polygon ?? project.workZone ?? null,
-      };
-    } catch {
-      return {
-        address: "",
-        latitude: null,
-        longitude: null,
-        area: null,
-        polygon: null,
-      };
-    }
-  });
-
+  const [location, setLocation] = useState(getSavedLocation);
   const [error, setError] = useState("");
-  const [workZonePolygon, setWorkZonePolygon] = useState(
-    () => location.polygon
-  );
 
-  // Receive the completed polygon from the map.
+  const { displayName, userInitial } = getDisplayUser();
+  const workZonePolygon = location.polygon;
+
   const handleMapLocationSelect = (coordinates) => {
-    if (!coordinates) {
-      setLocation((previous) => ({
-        ...previous,
-        address: "",
-        latitude: null,
-        longitude: null,
-        area: null,
-        polygon: null,
-      }));
-
-      setWorkZonePolygon(null);
-      setDrawing(false);
-      setError("");
-      return;
-    }
-
-    setLocation((previous) => ({
-      ...previous,
-      latitude: coordinates.latitude,
-      longitude: coordinates.longitude,
-      address: `${coordinates.latitude}, ${coordinates.longitude}`,
-      area: coordinates.area,
-      polygon: coordinates.polygon,
-    }));
-
-    setWorkZonePolygon(coordinates.polygon ?? null);
+    setLocation((previous) => applyMapSelection(previous, coordinates));
     setDrawing(false);
     setError("");
   };
 
-  const handleAddressChange = (event) => {
-    setLocation((previous) => ({
-      ...previous,
-      address: event.target.value,
-    }));
-
-    setError("");
-  };
-
-  // Start drawing the project work zone.
   const handleStartDrawing = () => {
     if (!mapDrawingRef.current) {
       setError("Map drawing tools are not ready yet.");
       return;
     }
-
     mapDrawingRef.current.startDrawing();
-
     setDrawing(true);
     setError("");
   };
 
-  // Finish the polygon.
-  const handleFinishDrawing = () => {
-    if (!mapDrawingRef.current) return;
+  const handleFinishDrawing = () => mapDrawingRef.current?.finishDrawing();
 
-    mapDrawingRef.current.finishDrawing();
-  };
-
-  // Cancel drawing and remove the selected work zone.
   const handleCancelDrawing = () => {
     if (!mapDrawingRef.current) return;
-
     mapDrawingRef.current.cancelDrawing();
-
     setDrawing(false);
     setError("");
   };
 
   const handleContinue = (event) => {
     event.preventDefault();
-
-    if (!workZonePolygon) {
-      setError(
-        "Please draw and finish the work zone polygon before continuing."
-      );
-      return;
-    }
-
-    if (
-      location.latitude === null ||
-      location.longitude === null ||
-      !location.polygon
-    ) {
-      setError(
-        "Please draw and finish the project work zone before continuing."
-      );
-      return;
-    }
-
-    const savedProject = sessionStorage.getItem("mamarNewProject");
-
-    let project = {};
-
     try {
-      project = savedProject ? JSON.parse(savedProject) : {};
-    } catch {
-      setError("Unable to load the project details. Please try again.");
-      return;
+      saveProjectLocation(location);
+      navigate("/services");
+    } catch (err) {
+      setError(err.message);
     }
-
-    sessionStorage.setItem(
-      "mamarNewProject",
-      JSON.stringify({
-        ...project,
-        location: location.address,
-        latitude: location.latitude,
-        longitude: location.longitude,
-        area: location.area,
-        polygon: location.polygon,
-        workZone: location.polygon,
-      })
-    );
-
-    navigate("/services");
   };
 
-  const handleBack = () => {
-    navigate("/create-project");
-  };
+  const handleBack = () => navigate("/create-project");
 
   return (
     <div className="location-screen">

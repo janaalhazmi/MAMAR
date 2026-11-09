@@ -1,39 +1,20 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
 import logo from "../../assets/mamar-logo.svg";
-import { getSession, logout } from "../../services/auth";
 import Icon from "../../components/Icons";
+import { logout } from "../../services/auth";
+import {
+  PROJECT_TYPES,
+  getDisplayUser,
+  getNextDate,
+  getToday,
+  saveProjectDetails,
+  updateProjectField,
+} from "../../services/Contractor/Contractor";
 
 function CreateProjectPage() {
-  const displayName = getSession()?.user?.full_name || "User";
-
+  const { displayName } = getDisplayUser("User");
   const navigate = useNavigate();
-
-  const getToday = () => {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-  };
- 
- 
-
-  const getNextDate = (dateString) => {
-    if (!dateString) return getToday();
-
-    const date = new Date(`${dateString}T00:00:00`);
-    date.setDate(date.getDate() + 1);
-
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-  };
-
   const today = getToday();
 
   const [project, setProject] = useState({
@@ -43,62 +24,22 @@ function CreateProjectPage() {
     endDate: "",
     description: "",
   });
-
   const [error, setError] = useState("");
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-
-    setProject((previousProject) => {
-      const updatedProject = {
-        ...previousProject,
-        [name]: value,
-      };
-
-      if (
-        name === "startDate" &&
-        updatedProject.endDate &&
-        updatedProject.endDate <= value
-      ) {
-        updatedProject.endDate = "";
-      }
-
-      return updatedProject;
-    });
-
+    setProject((previous) => updateProjectField(previous, name, value));
     setError("");
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
-    if (
-      !project.name.trim() ||
-      !project.type ||
-      !project.startDate ||
-      !project.endDate ||
-      !project.description.trim()
-    ) {
-      setError("Please complete all project details.");
-      return;
+    try {
+      saveProjectDetails(project);
+      navigate("/project-location");
+    } catch (err) {
+      setError(err.message);
     }
-
-    if (project.startDate < today) {
-      setError("Start date cannot be in the past.");
-      return;
-    }
-
-    if (project.endDate <= project.startDate) {
-      setError("End date must be at least one day after the start date.");
-      return;
-    }
-
-    sessionStorage.setItem(
-      "mamarNewProject",
-      JSON.stringify(project)
-    );
-
-    navigate("/project-location");
   };
 
   return (

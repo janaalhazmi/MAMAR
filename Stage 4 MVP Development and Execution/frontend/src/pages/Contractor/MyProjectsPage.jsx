@@ -1,17 +1,17 @@
-
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ContractorShell from "../../components/ContractorShell";
 import Icon from "../../components/Icons";
-import { formatDate } from "../../services/projectFlow";
 import {
   STATUS_FILTERS,
   fetchProjects,
+  filterProjects,
+  formatDate,
   nextStepFor,
-  openProjectInFlow,
+  openProject,
   startNewProject,
   thumbTone,
-} from "../../services/projects";
+} from "../../services/Contractor/Contractor";
 
 function MyProjectsPage() {
   const navigate = useNavigate();
@@ -35,18 +35,10 @@ function MyProjectsPage() {
     };
   }, []);
 
-  const visible = useMemo(() => {
-    const term = search.trim().toLowerCase();
-
-    return projects.filter((project) => {
-      const matchesSearch =
-        !term ||
-        project.name.toLowerCase().includes(term) ||
-        project.location.toLowerCase().includes(term);
-      const matchesStatus = status === "All" || project.statusLabel === status;
-      return matchesSearch && matchesStatus;
-    });
-  }, [projects, search, status]);
+  const visible = useMemo(
+    () => filterProjects(projects, search, status),
+    [projects, search, status]
+  );
 
   function handleCreate() {
     startNewProject();
@@ -54,10 +46,8 @@ function MyProjectsPage() {
   }
 
   function handleOpen(project) {
-    const step = nextStepFor(project);
-    if (!step) return;
-    openProjectInFlow(project);
-    navigate(step.to);
+    const path = openProject(project);
+    if (path) navigate(path);
   }
 
   return (

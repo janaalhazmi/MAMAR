@@ -3,30 +3,15 @@ import { Link, useNavigate } from "react-router-dom";
 import ContractorShell from "../../components/ContractorShell";
 import Icon from "../../components/Icons";
 import {
+  NEXT_STEPS,
   SERVICE_LABELS,
-  confirmProvider,
   formatDate,
   formatDateRange,
   formatPrice,
   getCurrentProject,
-  getQuotationById,
-  getSelectedQuotationId,
-} from "../../services/projectFlow";
-
-const NEXT_STEPS = [
-  {
-    title: "Provider is notified",
-    text: "The selected provider receives the confirmed project request.",
-  },
-  {
-    title: "Work begins",
-    text: "Field execution starts based on the approved project schedule.",
-  },
-  {
-    title: "Track execution",
-    text: "You can monitor project progress from your MAMAR dashboard.",
-  },
-];
+  getSelectedQuotation,
+  handleConfirmProvider,
+} from "../../services/Contractor/Contractor";
 
 function SelectProviderPage() {
   const navigate = useNavigate();
@@ -39,14 +24,8 @@ function SelectProviderPage() {
 
   useEffect(() => {
     let active = true;
-    const quotationId = getSelectedQuotationId();
 
-    if (!quotationId) {
-      setLoading(false);
-      return undefined;
-    }
-
-    getQuotationById(quotationId)
+    getSelectedQuotation()
       .then((data) => active && setQuotation(data))
       .catch(() => active && setError("Could not load this quotation."))
       .finally(() => active && setLoading(false));
@@ -56,16 +35,14 @@ function SelectProviderPage() {
     };
   }, []);
 
-  async function handleConfirm() {
-    if (!quotation) return;
+  async function onConfirm() {
     setSaving(true);
     setError("");
-
     try {
-      await confirmProvider(project.id, quotation.id);
+      await handleConfirmProvider(project, quotation);
       navigate("/project-monitoring");
-    } catch {
-      setError("Could not confirm the provider. Please try again.");
+    } catch (err) {
+      setError(err.message || "Could not confirm the provider. Please try again.");
       setSaving(false);
     }
   }
@@ -77,7 +54,6 @@ function SelectProviderPage() {
       </ContractorShell>
     );
   }
-
   if (!quotation) {
     return (
       <ContractorShell activeKey="quotations">
