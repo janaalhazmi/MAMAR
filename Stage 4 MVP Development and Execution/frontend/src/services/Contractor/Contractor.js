@@ -226,6 +226,17 @@ export function getProjectMeta(projectId) {
   return readMeta()[projectId] || {};
 }
 
+export function hasRequestedQuotes(projectId) {
+  return getProjectMeta(projectId).quotesRequested === true;
+}
+
+function markQuotesRequested(projectId, providerIds) {
+  saveProjectMeta(projectId, {
+    quotesRequested: true,
+    selectedProviderIds: providerIds,
+  });
+}
+
 function saveProjectMeta(projectId, meta) {
   try {
     const all = readMeta();
@@ -313,7 +324,11 @@ export function openProjectInFlow(project) {
 export function nextStepFor(project) {
   switch (project.backendStatus) {
     case "draft":
-      return { label: "Continue", to: "/providers" };
+      return { label: "Continue",
+        to: project.hasRequestedQuotes
+          ? "/quotations"
+          : "/providers",
+      };
     case "active":
       return { label: "Monitor", to: "/project-monitoring" };
     case "completed":
@@ -369,6 +384,7 @@ function toUiProject(raw) {
     longitude: raw.longitude ?? meta.longitude ?? null,
     workZone: raw.work_zone || meta.workZone,
     services: raw.services?.length ? raw.services : meta.services || [],
+    hasRequestedQuotes: meta.quotesRequested === true,
   };
 }
 
@@ -682,8 +698,16 @@ export async function handleRequestQuotes(project, selectedIds) {
   if (!selectedIds || selectedIds.length === 0) {
     throw new Error("Please select at least one provider.");
   }
-  sessionStorage.setItem(KEYS.providerIds, JSON.stringify(selectedIds));
-  return requestQuotes(project, selectedIds);
+  if (hasRequestedQuotes(project.id)) {
+    throw new Error("You have already submitted a quote request.");
+  }
+  const result = await requestQuotes(project, selectedIds);
+  markQuotesRequested(project.id, selectedIds);
+  sessionStorage.setItem(
+    KEYS.providerIds,
+    JSON.stringify(selectedIds)
+  );
+  return result;
 }
 
 export async function handleRejectQuotation(quotations, quotation) {
@@ -1110,4 +1134,15 @@ export async function getSelectedQuotation() {
 export async function getConfirmedProvider() {
   const id = getConfirmedQuotationId();
   return id ? getQuotationById(id) : null;
+}
+//this function checks if quotes have been requested for a given project by looking up the project metadata in local storage. It returns true if quotes have been requested, and false otherwise.
+export function hasRequestedQuotes(projectId) {
+  return getProjectMeta(projectId).quotesRequested === true;
+}
+
+function markQuotesRequested(projectId, providerIds) {
+  saveProjectMeta(projectId, {
+    quotesRequested: true,
+    selectedProviderIds: providerIds,
+  });
 }

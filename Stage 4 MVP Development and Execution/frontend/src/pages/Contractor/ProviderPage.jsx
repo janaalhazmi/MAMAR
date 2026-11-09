@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/mamar-logo.svg";
 import Icon from "../../components/Icons";
@@ -12,6 +12,7 @@ import {
   getDisplayUser,
   getProviderPageSummary,
   handleRequestQuotes,
+  hasRequestedQuotes
 } from "../../services/Contractor/Contractor";
 
 function ProviderPage() {
@@ -19,6 +20,17 @@ function ProviderPage() {
 
   const currentProject = getCurrentProject();
   const project = getProviderPageSummary(currentProject);
+  useEffect(() => {
+  if (
+    currentProject.id &&
+    hasRequestedQuotes(currentProject.id)
+  ) {
+    navigate("/contractor-dashboard", {
+      replace: true,
+    });
+  }
+}, [currentProject.id, navigate]);
+
   const { displayName, userInitial } = getDisplayUser();
 
   const [search, setSearch] = useState("");
@@ -27,7 +39,6 @@ function ProviderPage() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
-
   const visibleProviders = useMemo(
     () => filterProviders({ search, city, service }),
     [search, city, service]
@@ -40,16 +51,30 @@ function ProviderPage() {
   };
 
   const onRequestQuotes = async () => {
-    setSending(true);
-    setError("");
-    try {
-      await handleRequestQuotes(currentProject, selectedIds);
-      navigate("/quotations");
-    } catch (err) {
-      setError(err.message || "Could not send the request. Please try again.");
-      setSending(false);
-    }
-  };
+  if (sending) return;
+
+  if (selectedIds.length === 0) {
+    setError("Please select at least one provider.");
+    return;
+  }
+
+  setSending(true);
+  setError("");
+
+  try {
+    await handleRequestQuotes(currentProject, selectedIds);
+
+    navigate("/contractor-dashboard", {
+      replace: true,
+    });
+
+  } catch (err) {
+    setError(
+      err.message || "Could not send the request. Please try again."
+    );
+    setSending(false);
+  }
+};
 
   return (
     <div className="cd-page">
