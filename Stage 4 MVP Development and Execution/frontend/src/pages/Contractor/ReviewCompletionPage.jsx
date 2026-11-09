@@ -41,30 +41,6 @@ function ReviewCompletionPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function onConfirm() {
-    setSaving(true);
-    setError("");
-    try {
-      await handleConfirmCompletion(project.id);
-      navigate("/contractor-dashboard");
-    } catch {
-      setError("Could not confirm completion. Please try again.");
-      setSaving(false);
-    }
-  }
-
-  async function onSendChanges() {
-    setSaving(true);
-    setError("");
-    try {
-      await handleSendChanges(project.id, note);
-      navigate("/project-monitoring");
-    } catch (err) {
-      setError(err.message || "Could not send your request. Please try again.");
-      setSaving(false);
-    }
-  }
-
   if (!data) {
     return (
       <ContractorShell activeKey="projects">
@@ -213,8 +189,17 @@ function ReviewCompletionPage() {
               <button
                 type="button"
                 className="pf-btn pf-btn-secondary"
-                onClick={handleSendChanges}
                 disabled={saving}
+                onClick={() => {
+                  setSaving(true);
+                  setError("");
+                  handleSendChanges(project.id, note)
+                    .then(() => navigate("/project-monitoring"))
+                    .catch((err) => {
+                      setError(err.message);
+                      setSaving(false);
+                    });
+                }}
               >
                 Send Request
               </button>
@@ -231,8 +216,17 @@ function ReviewCompletionPage() {
             <button
               type="button"
               className="pf-btn pf-btn-primary"
-              onClick={handleConfirm}
               disabled={saving}
+              onClick={() => {
+                setSaving(true);
+                setError("");
+                handleConfirmCompletion(project.id)
+                  .then(() => navigate("/contractor-dashboard"))
+                  .catch(() => {
+                    setError("Could not confirm completion. Please try again.");
+                    setSaving(false);
+                  });
+              }}
             >
               <Icon name="check" size={16} />
               {saving ? "Saving…" : "Confirm Completion"}
