@@ -5,7 +5,7 @@ import {
   formatPrice,
   getCurrentProject,
 } from "../../services/Contractor/Contractor";
-import "./payment.css";
+
 
 function PaymentPage() {
   const navigate = useNavigate();
