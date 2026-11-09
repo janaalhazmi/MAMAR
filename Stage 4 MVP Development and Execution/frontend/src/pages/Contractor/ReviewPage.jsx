@@ -7,6 +7,7 @@ import Button from "../../components/Button";
 import MamarMap from "../../components/MamarMap";
 import Icon from "../../components/Icons";
 import {
+  saveProjectServices,
   formatDateRange,
   getDisplayUser,
   getDraftProject,
@@ -315,7 +316,7 @@ function ReviewPage() {
                 {saving ? "Saving…" : "Save Draft"}
               </Button>
 
-              <Button onClick={handleConfirmProject} disabled={saving}>
+              <Button onClick={saveProjectServices} disabled={saving}>
                 {saving ? "Saving…" : "Confirm & Find Providers →"}
               </Button>
             </div>
