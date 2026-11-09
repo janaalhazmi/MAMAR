@@ -1138,9 +1138,3 @@ export async function getConfirmedProvider() {
 //this function checks if quotes have been requested for a given project by looking up the project metadata in local storage. It returns true if quotes have been requested, and false otherwise.
 
 
-function markQuotesRequested(projectId, providerIds) {
-  saveProjectMeta(projectId, {
-    quotesRequested: true,
-    selectedProviderIds: providerIds,
-  });
-}
