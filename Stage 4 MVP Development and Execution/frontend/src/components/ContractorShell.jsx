@@ -1,6 +1,8 @@
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import { getSession } from "../services/auth";
+import { getNotifications } from "../services/Contractor/Contractor";
 import Sidebar from "./Sidebar";
 import Icon from "./Icons";
 
@@ -12,13 +14,84 @@ const NAV = [
   { key: "quotations", path: "/quotations", icon: "quotations", label: "Quotations" },
 ];
 
+function playNotificationSound() {
+  try {
+    const AudioContext =
+      window.AudioContext || window.webkitAudioContext;
+
+    if (!AudioContext) return;
+
+    const audio = new AudioContext();
+
+    const oscillator = audio.createOscillator();
+    const gain = audio.createGain();
+
+    oscillator.connect(gain);
+    gain.connect(audio.destination);
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(880, audio.currentTime);
+
+    gain.gain.setValueAtTime(0.15, audio.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+      0.001,
+      audio.currentTime + 0.35
+    );
+
+    oscillator.start();
+    oscillator.stop(audio.currentTime + 0.35);
+
+    oscillator.onended = () => audio.close();
+  } catch (error) {
+    console.log("Notification sound unavailable.");
+  }
+}
+
 function ContractorShell({ activeKey, children }) {
   const sessionUser = getSession()?.user;
   const rawName = sessionUser?.full_name || sessionUser?.name || "";
+
   const displayName =
     (typeof rawName === "string" ? rawName.trim() : "") || "there";
 
   const userInitial = displayName.charAt(0).toUpperCase();
+
+  const [hasUnread, setHasUnread] = useState(
+    () => getNotifications().some((notification) => !notification.read)
+  );
+
+  const previousIds = useRef(
+    getNotifications().map((notification) => notification.id)
+  );
+
+  useEffect(() => {
+    const checkNotifications = () => {
+      const notifications = getNotifications();
+
+      const currentIds = notifications.map(
+        (notification) => notification.id
+      );
+
+      const newNotification = notifications.some(
+        (notification) =>
+          !previousIds.current.includes(notification.id)
+      );
+
+      if (newNotification) {
+        playNotificationSound();
+      }
+
+      previousIds.current = currentIds;
+
+      setHasUnread(
+        notifications.some((notification) => !notification.read)
+      );
+    };
+
+    const interval = setInterval(checkNotifications, 1500);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="cd-page">
@@ -35,6 +108,10 @@ function ContractorShell({ activeKey, children }) {
             title="Notifications"
           >
             <Icon name="bell" size={21} />
+
+            {hasUnread && (
+              <span className="cd-notification-dot" />
+            )}
           </Link>
 
           <div className="cd-user">

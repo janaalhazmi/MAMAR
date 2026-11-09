@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -24,6 +24,12 @@ function NotificationsPage() {
   const [notifications, setNotifications] = useState(getNotifications);
 
   const [filter, setFilter] = useState("all");
+  useEffect(() => {
+  const interval = setInterval(() => {
+    setNotifications(getNotifications());
+  }, 1500);
+  return () => clearInterval(interval);
+  }, []);
 
   const unreadCount = notifications.filter(
     (notification) => !notification.read
