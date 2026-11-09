@@ -660,3 +660,458 @@ export async function getCompletionData(projectId) {
     evidence: (r.photos || []).map((photo) => ({
       id: photo.photo_id,
       src: absUrl(photo.url),
+    })),
+    submittedOn: submitted,
+  };
+}
+
+export async function approveCompletion(projectId) {
+  const project = await postCompleteProject(token(), requireProjectId(projectId));
+  return { projectId, status: project.project_status };
+}
+
+export async function requestChanges(projectId, note) {
+  const project = await postRequestChanges(token(), requireProjectId(projectId), note);
+  return { projectId, status: project.project_status, note };
+}
+
+/* ------------------------------------------------------------------ */
+/* BUTTON HANDLERS                                                     */
+/* ------------------------------------------------------------------ */
+export async function handleRequestQuotes(project, selectedIds) {
+  if (!selectedIds || selectedIds.length === 0) {
+    throw new Error("Please select at least one provider.");
+  }
+  sessionStorage.setItem(KEYS.providerIds, JSON.stringify(selectedIds));
+  return requestQuotes(project, selectedIds);
+}
+
+export async function handleRejectQuotation(quotations, quotation) {
+  await rejectQuotation(quotation.id);
+  return quotations.map((q) =>
+    q.id === quotation.id ? { ...q, status: "rejected" } : q
+  );
+}
+
+export function handleAcceptQuotation(quotation) {
+  saveSelectedQuotation(quotation.id);
+}
+
+export async function handleConfirmProvider(project, quotation) {
+  if (!quotation) throw new Error("No quotation selected.");
+  return confirmProvider(project.id, quotation.id);
+}
+
+export async function handleConfirmCompletion(projectId) {
+  return approveCompletion(projectId);
+}
+
+export async function handleSendChanges(projectId, note) {
+  const trimmed = (note || "").trim();
+  if (!trimmed) {
+    throw new Error("Describe the changes you need before sending.");
+  }
+  return requestChanges(projectId, trimmed);
+}
+
+/* ================================================================== */
+/* PAGE LOGIC (كل منطق صفحات الكونتراكتور)                              */
+/* ================================================================== */
+
+/* ---------- User ---------- */
+export function getDisplayUser(fallback = "there") {
+  const user = getSession()?.user;
+  const raw = user?.full_name || user?.name || "";
+  const displayName = (typeof raw === "string" ? raw.trim() : "") || fallback;
+  return {
+    displayName,
+    userInitial: displayName.charAt(0).toUpperCase(),
+    firstName: displayName.split(" ")[0],
+  };
+}
+
+/* ---------- Draft project (sessionStorage) ---------- */
+export function getDraftProject() {
+  return readJSON(KEYS.project, {});
+}
+
+export function saveDraftProject(patch) {
+  const next = { ...getDraftProject(), ...patch };
+  sessionStorage.setItem(KEYS.project, JSON.stringify(next));
+  return next;
+}
+
+/* ---------- Shared small helpers ---------- */
+export function formatServices(ids = []) {
+  return ids.map((id) => SERVICE_LABELS[id] || id).join(" + ") || "Not specified";
+}
+
+export function hasProjectLocation(project) {
+  return project.latitude != null && project.longitude != null;
+}
+
+function toDateString(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export const getToday = () => toDateString(new Date());
+
+export function getNextDate(dateString) {
+  if (!dateString) return getToday();
+  const date = new Date(`${dateString}T00:00:00`);
+  date.setDate(date.getDate() + 1);
+  return toDateString(date);
+}
+
+/* ---------- Dashboard ---------- */
+export function buildDashboard(allProjects) {
+  const stats = getStats(allProjects);
+  return {
+    statistics: [
+      { title: "Total Projects", value: stats.total, icon: "list" },
+      { title: "In Progress", value: stats.inProgress, icon: "clock" },
+      { title: "Completed", value: stats.completed, icon: "check" },
+      { title: "Pending Quotes", value: stats.pendingQuotes, icon: "dots" },
+    ],
+    projects: allProjects.slice(0, 4),
+    activities: buildActivity(allProjects),
+  };
+}
+
+/* ---------- My Projects ---------- */
+export function filterProjects(projects, search, status) {
+  const term = search.trim().toLowerCase();
+  return projects.filter((project) => {
+    const matchesSearch =
+      !term ||
+      project.name.toLowerCase().includes(term) ||
+      project.location.toLowerCase().includes(term);
+    const matchesStatus = status === "All" || project.statusLabel === status;
+    return matchesSearch && matchesStatus;
+  });
+}
+
+// يفتح المشروع في الـflow ويرجع المسار، أو null إذا ما فيه خطوة
+export function openProject(project) {
+  const step = nextStepFor(project);
+  if (!step) return null;
+  openProjectInFlow(project);
+  return step.to;
+}
+
+/* ---------- Step 1: Project details ---------- */
+export const PROJECT_TYPES = [
+  "Infrastructure",
+  "Road Maintenance",
+  "Construction",
+  "Utility Work",
+  "Event Traffic Control",
+];
+
+export function updateProjectField(project, name, value) {
+  const updated = { ...project, [name]: value };
+  if (name === "startDate" && updated.endDate && updated.endDate <= value) {
+    updated.endDate = "";
+  }
+  return updated;
+}
+
+export function saveProjectDetails(project) {
+  if (
+    !project.name.trim() ||
+    !project.type ||
+    !project.startDate ||
+    !project.endDate ||
+    !project.description.trim()
+  ) {
+    throw new Error("Please complete all project details.");
+  }
+  if (project.startDate < getToday()) {
+    throw new Error("Start date cannot be in the past.");
+  }
+  if (project.endDate <= project.startDate) {
+    throw new Error("End date must be at least one day after the start date.");
+  }
+  sessionStorage.setItem(KEYS.project, JSON.stringify(project));
+}
+
+/* ---------- Step 2: Location ---------- */
+const EMPTY_LOCATION = {
+  address: "",
+  latitude: null,
+  longitude: null,
+  area: null,
+  polygon: null,
+};
+
+export function getSavedLocation() {
+  const p = getDraftProject();
+  return {
+    address: p.location || "",
+    latitude: p.latitude ?? null,
+    longitude: p.longitude ?? null,
+    area: p.area ?? null,
+    polygon: p.polygon ?? p.workZone ?? null,
+  };
+}
+
+export function applyMapSelection(previous, coordinates) {
+  if (!coordinates) return { ...previous, ...EMPTY_LOCATION };
+  return {
+    ...previous,
+    latitude: coordinates.latitude,
+    longitude: coordinates.longitude,
+    address: `${coordinates.latitude}, ${coordinates.longitude}`,
+    area: coordinates.area,
+    polygon: coordinates.polygon,
+  };
+}
+
+export function saveProjectLocation(location) {
+  if (!location.polygon) {
+    throw new Error("Please draw and finish the work zone polygon before continuing.");
+  }
+  if (location.latitude === null || location.longitude === null) {
+    throw new Error("Please draw and finish the project work zone before continuing.");
+  }
+  saveDraftProject({
+    location: location.address,
+    latitude: location.latitude,
+    longitude: location.longitude,
+    area: location.area,
+    polygon: location.polygon,
+    workZone: location.polygon,
+  });
+}
+
+/* ---------- Step 3: Services ---------- */
+export const SERVICE_OPTIONS = [
+  {
+    id: "ttc-plan",
+    icon: "A",
+    title: "Temporary Traffic Control Plan (TTC) Service",
+    description:
+      "Planning and implementation services provided by qualified traffic-control providers.",
+    tags: ["Traffic Management Plan", "Site Setup"],
+  },
+  {
+    id: "cones-barriers",
+    icon: "▥",
+    title: "Traffic Cones & Barriers",
+    description: "Supply and installation of traffic cones and barriers.",
+    tags: ["Cones", "Road Barriers"],
+  },
+  {
+    id: "road-signs",
+    icon: "⚠",
+    title: "Road Signs & Variable Message Signs",
+    description: "Installation and rental of road signs and variable message signs.",
+    tags: ["Road Signs", "Variable Message Signs"],
+  },
+];
+
+export function getSelectedServices() {
+  const saved = getDraftProject().services;
+  return Array.isArray(saved) ? saved : ["ttc-plan", "road-signs"];
+}
+
+export function toggleService(current, serviceId) {
+  return current.includes(serviceId)
+    ? current.filter((id) => id !== serviceId)
+    : [...current, serviceId];
+}
+
+export function saveProjectServices(selected) {
+  if (selected.length === 0) throw new Error("Please select at least one service.");
+  saveDraftProject({ services: selected });
+}
+
+export function buildProjectSummary(project) {
+  return {
+    name: project.name || "Not specified",
+    type: project.type || "Not specified",
+    dates: formatDateRange(project.startDate, project.endDate),
+    latitude:
+      project.latitude != null ? Number(project.latitude).toFixed(6) : "Not specified",
+    longitude:
+      project.longitude != null ? Number(project.longitude).toFixed(6) : "Not specified",
+    area:
+      project.area != null
+        ? `${Number(project.area).toLocaleString()} m²`
+        : "Not specified",
+    workZone: project.polygon || project.workZone ? "Polygon completed" : "Not selected",
+  };
+}
+
+/* ---------- Step 4: Review ---------- */
+export function getSelectedServiceOptions(project) {
+  const ids = Array.isArray(project.services) ? project.services : [];
+  return SERVICE_OPTIONS.filter((service) => ids.includes(service.id));
+}
+
+function requireProjectDetails(project) {
+  if (!project.name || !project.type || !project.startDate || !project.endDate) {
+    throw new Error("Project details are incomplete. Please edit the project details.");
+  }
+}
+
+async function persistProject(project, status) {
+  const saved = await saveProjectToBackend(project);
+  return saveDraftProject({
+    ...project,
+    id: saved.project_id,
+    projectId: saved.project_id,
+    status,
+  });
+}
+
+export async function handleSaveDraft(project) {
+  requireProjectDetails(project);
+  return persistProject(project, "draft");
+}
+
+export async function handleConfirmProject(project) {
+  requireProjectDetails(project);
+  if (project.type.length > 50) {
+    throw new Error("Project type is too long (50 characters maximum).");
+  }
+  if (project.latitude == null || project.longitude == null) {
+    throw new Error("Please select a project location before continuing.");
+  }
+  if (!Array.isArray(project.services) || project.services.length === 0) {
+    throw new Error("Please select at least one service.");
+  }
+  return persistProject(project, "submitted");
+}
+
+/* ---------- Providers page ---------- */
+export const PROVIDERS = [
+  {
+    id: 1,
+    name: "TCM",
+    description: "Traffic and Construction Management",
+    logo: PROVIDER_LOGOS[1],
+    city: "Riyadh",
+    services: ["TTC Planning", "Road Signs", "Barriers"],
+  },
+  {
+    id: 2,
+    name: "Safety Arabia Co. LTD",
+    description: "Traffic safety service provider",
+    logo: PROVIDER_LOGOS[2],
+    city: "Riyadh",
+    services: ["TTC Planning", "Road Signs", "Site Safety"],
+  },
+  {
+    id: 3,
+    name: "Shawahid Roads Industrial Co.",
+    description: "Road safety and traffic-control solutions",
+    logo: PROVIDER_LOGOS[3],
+    city: "Riyadh",
+    services: ["Road Signs", "Barriers"],
+  },
+  {
+    id: 4,
+    name: "Safety Triangle Company",
+    description: "Road safety and road traffic-control solutions",
+    logo: PROVIDER_LOGOS[4],
+    city: "Riyadh",
+    services: ["TTC Planning", "Road Signs", "Barriers"],
+  },
+];
+
+export const CITIES = ["Riyadh", "Jeddah", "Dammam"];
+
+export const SERVICE_FILTERS = [
+  "All Required Services",
+  "TTC Planning",
+  "Road Signs",
+  "Barriers",
+  "Site Safety",
+];
+
+export function filterProviders({ search, city, service }) {
+  const term = search.trim().toLowerCase();
+  return PROVIDERS.filter((provider) => {
+    const matchesSearch =
+      !term ||
+      provider.name.toLowerCase().includes(term) ||
+      provider.description.toLowerCase().includes(term);
+    const matchesCity = provider.city === city;
+    const matchesService =
+      service === "All Required Services" || provider.services.includes(service);
+    return matchesSearch && matchesCity && matchesService;
+  });
+}
+
+export function getProviderPageSummary(project = getCurrentProject()) {
+  return {
+    name: project.name || "No project selected",
+    location: project.location || "Not specified",
+    services: formatServices(project.services),
+  };
+}
+
+/* ---------- Quotations page ---------- */
+const QUOTES_REFRESH_MS = 30000;
+
+export const getReceived = (quotations) =>
+  quotations.filter((q) => q.status === "received");
+
+// يحمّل العروض ويحدّثها كل 30 ثانية. يرجع دالة لإيقافها.
+export function watchQuotations(projectId, { onData, onError, onFinish }) {
+  let stopped = false;
+
+  const load = (silent) =>
+    getQuotations(projectId)
+      .then((data) => !stopped && onData(data))
+      .catch((err) => {
+        if (!stopped && !silent) {
+          onError(err.message || "Could not load quotations. Please try again.");
+        }
+      })
+      .finally(() => !stopped && onFinish());
+
+  load(false);
+  const timer = setInterval(() => load(true), QUOTES_REFRESH_MS);
+
+  return () => {
+    stopped = true;
+    clearInterval(timer);
+  };
+}
+
+/* ---------- Select provider page ---------- */
+export const NEXT_STEPS = [
+  {
+    title: "Provider is notified",
+    text: "The selected provider receives the confirmed project request.",
+  },
+  {
+    title: "Work begins",
+    text: "Field execution starts based on the approved project schedule.",
+  },
+  {
+    title: "Track execution",
+    text: "You can monitor project progress from your MAMAR dashboard.",
+  },
+];
+
+export async function getSelectedQuotation() {
+  const id = getSelectedQuotationId();
+  return id ? getQuotationById(id) : null;
+}
+
+/* ---------- Review completion page ---------- */
+export async function getConfirmedProvider() {
+  const id = getConfirmedQuotationId();
+  return id ? getQuotationById(id) : null;
+}
+
+export async function getConfirmedProvider() {
+  const id = getConfirmedQuotationId();
+  return id ? getQuotationById(id) : null;
+}
