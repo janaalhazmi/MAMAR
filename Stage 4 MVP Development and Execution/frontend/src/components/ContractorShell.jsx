@@ -28,13 +28,14 @@ function ContractorShell({ activeKey, children }) {
         </Link>
 
         <div className="cd-header-actions">
-          <button
-            type="button"
+          <Link
+            to="/notifications"
             className="cd-notification-button"
             aria-label="Notifications"
+            title="Notifications"
           >
             <Icon name="bell" size={21} />
-          </button>
+          </Link>
 
           <div className="cd-user">
             <div className="cd-user-avatar">{userInitial}</div>
