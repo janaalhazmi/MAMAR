@@ -11773,3 +11773,62 @@ textarea {
     margin-left: 49px;
   }
 }
+/* Header notification button */
+
+.cd-header-actions {
+
+  height: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 12px;
+
+  margin-left: auto;
+
+}
+
+.cd-notification-button {
+
+  width: 42px;
+
+  height: 42px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: #fdf3d6;
+
+  color: #c99518;
+
+  cursor: pointer;
+
+  transition: background 0.2s ease, transform 0.2s ease;
+
+}
+
+.cd-notification-button:hover {
+
+  background: #f8e7b5;
+
+  transform: scale(1.05);
+
+}
+
+.cd-user {
+
+  border-left: 1px solid var(--cd-border);
+
+}

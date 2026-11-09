@@ -6,10 +6,6 @@ import Icon from "./Icons";
 function Sidebar({ items = [], activeKey }) {
   return (
     <aside className="mamar-sidebar">
-      <Link to="/" className="mamar-sidebar-logo">
-        <img src={logo} alt="MAMAR Logo" />
-      </Link>
-
       <nav className="mamar-sidebar-nav">
         {items.map((item) => (
           <NavLink
