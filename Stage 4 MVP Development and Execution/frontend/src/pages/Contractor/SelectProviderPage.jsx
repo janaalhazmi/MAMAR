@@ -217,7 +217,7 @@ function SelectProviderPage() {
           <button
             type="button"
             className="pf-btn pf-btn-primary"
-            onClick={handleConfirm}
+            onClick={onConfirm}
             disabled={saving}
           >
             {saving ? "Confirming…" : "Confirm Provider →"}
