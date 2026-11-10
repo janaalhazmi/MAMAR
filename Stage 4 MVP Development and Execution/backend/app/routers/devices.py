@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core import arcgis
-from app.core.access import assigned_project
+from app.core.access import assigned_project, open_project_or_400
 from app.core.security import allow_roles
 from app.db.database import get_db
 from app.models import User
@@ -21,6 +21,7 @@ MAX_DISTANCE_METERS = 50
     "/devices/{device}/verify",
     response_model=DeviceVerificationResponse,
     responses={
+        400: {"model": ErrorResponse, "description": "The project is completed or cancelled"},
         401: {"model": ErrorResponse, "description": "The token is missing or not valid"},
         403: {"model": ErrorResponse, "description": "The user is not a field worker, or is not assigned to this project"},
         404: {"model": ErrorResponse, "description": "The project, or the device of this project, does not exist"},
@@ -37,7 +38,7 @@ def verify_device(
     # The phone already checks the distance, but the server checks it again with the planned
     # point from ArcGIS, so a changed phone request cannot pass.
     # device is the device_id (3001) or the device_code (TC-001) of the MAMAR Traffic Devices layer.
-    assigned_project(db, data.project_id, user)
+    open_project_or_400(assigned_project(db, data.project_id, user))
     try:
         planned = arcgis.planned_device_point(device, data.project_id)
     except ValueError as error:

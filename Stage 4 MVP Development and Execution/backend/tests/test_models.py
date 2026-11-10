@@ -22,8 +22,8 @@ EXPECTED_COLUMNS = {
         "location", "latitude", "longitude", "work_zone",
     ],
     "service_requests": [
-        "request_id", "project_id", "provider_id", "title", "details",
-        "required_by", "status", "created_at", "provider_ids",
+        "request_id", "project_id", "title", "details",
+        "required_by", "status", "created_at", "provider_ids", "declined_provider_ids",
     ],
     "quotes": [
         "quote_id", "request_id", "provider_id", "price",
@@ -37,6 +37,11 @@ EXPECTED_COLUMNS = {
         "photo_id", "token", "project_id", "worker_id", "caption",
         "content_type", "data", "created_at",
     ],
+    "payments": [
+        "payment_id", "project_id", "quote_id", "contractor_id", "amount", "currency",
+        "charged_amount", "charged_currency", "paypal_order_id", "paypal_capture_id",
+        "status", "created_at", "paid_at",
+    ],
 }
 
 # The relationships table in Stage 3: (child table, column) -> parent table.
@@ -44,7 +49,6 @@ EXPECTED_FOREIGN_KEYS = {
     ("users", "provider_id"): "providers",
     ("projects", "contractor_id"): "users",
     ("service_requests", "project_id"): "projects",
-    ("service_requests", "provider_id"): "providers",
     ("quotes", "request_id"): "service_requests",
     ("quotes", "provider_id"): "providers",
     ("assignments", "project_id"): "projects",
@@ -52,6 +56,9 @@ EXPECTED_FOREIGN_KEYS = {
     ("assignments", "worker_id"): "users",
     ("site_photos", "project_id"): "projects",
     ("site_photos", "worker_id"): "users",
+    ("payments", "project_id"): "projects",
+    ("payments", "quote_id"): "quotes",
+    ("payments", "contractor_id"): "users",
 }
 
 
@@ -65,7 +72,7 @@ def start_app_and_inspect_database():
 def test_tables_and_columns_match_the_er_diagram():
     inspector = start_app_and_inspect_database()
     for table, columns in EXPECTED_COLUMNS.items():
-        assert set(column["name"] for column in inspector.get_columns(table)) == set(columns)
+        assert [column["name"] for column in inspector.get_columns(table)] == columns
 
 
 def test_foreign_keys_match_the_relationships():

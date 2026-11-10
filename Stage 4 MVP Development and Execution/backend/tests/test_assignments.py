@@ -52,9 +52,9 @@ def test_a_provider_with_a_rejected_or_pending_quote_cannot_assign(api):
     request_id = api.request(contractor, project_id)["request_id"]
     win = api.quote(winner, request_id)
     api.quote(loser, request_id)
-    open_request_id = api.request(contractor, project_id)["request_id"]
-    api.quote(waiting, open_request_id)
     api.award(contractor, request_id, win["quote_id"])
+    # Another project of the same contractor where this company's quote is still pending.
+    api.quote(waiting, api.request(contractor, api.project(contractor))["request_id"])
     url = f"/projects/{project_id}/assignments"
     assert api.client.post(url, json={"worker_id": worker_id}, headers=loser).status_code == 403
     assert api.client.post(url, json={"worker_id": waiting_worker_id}, headers=waiting).status_code == 403

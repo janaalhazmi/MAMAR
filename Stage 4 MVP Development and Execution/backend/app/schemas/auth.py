@@ -36,7 +36,7 @@ class RegisterRequest(BaseModel):
     # Saved in lowercase without spaces, like the register page does.
     email: Annotated[str, StringConstraints(strip_whitespace=True, to_lower=True, max_length=255)]
     # The register page also asks for at least 6 characters.
-    password: Annotated[str, StringConstraints(min_length=6)]
+    password: Annotated[str, StringConstraints(min_length=6, max_length=128)]
     phone: Annotated[str, StringConstraints(strip_whitespace=True, max_length=20)] | None = None
     # admin is not accepted here, because anyone could open this endpoint and make
     # themselves an admin. The users table still allows admin for accounts the team adds.
@@ -88,8 +88,8 @@ class LoginRequest(BaseModel):
     )
 
     # Lowercase without spaces, the same way register saves it.
-    email: Annotated[str, StringConstraints(strip_whitespace=True, to_lower=True)]
-    password: str
+    email: Annotated[str, StringConstraints(strip_whitespace=True, to_lower=True, max_length=255)]
+    password: Annotated[str, StringConstraints(max_length=128)]
 
 
 class LoginUser(BaseModel):

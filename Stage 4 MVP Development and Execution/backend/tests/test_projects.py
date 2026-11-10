@@ -220,13 +220,28 @@ def test_patch_changes_only_the_sent_fields(client, sign_in):
     assert response.json()["project_id"] == project["project_id"]
 
 
-def test_patch_moves_the_status_between_the_four_statuses(client, sign_in):
+def test_patch_moves_the_status_between_draft_active_and_cancelled(client, sign_in):
     _, headers = sign_in()
     project = create_project(client, headers)
-    for status in PROJECT_STATUSES:
-        response = client.patch(f"/projects/{project['project_id']}", json={"project_status": status}, headers=headers)
+    url = f"/projects/{project['project_id']}"
+    for status in ("active", "draft", "cancelled"):
+        response = client.patch(url, json={"project_status": status}, headers=headers)
         assert response.status_code == 200
         assert response.json()["project_status"] == status
+    # A cancelled project cannot change any more.
+    response = client.patch(url, json={"project_status": "active"}, headers=headers)
+    assert (response.status_code, response.json()) == (400, {"detail": "The project is cancelled"})
+    assert client.patch(url, json={"project_name": "New"}, headers=headers).status_code == 400
+
+
+def test_patch_cannot_complete_a_project(client, sign_in):
+    # "completed" comes only from approving the work the provider sent.
+    _, headers = sign_in()
+    project = create_project(client, headers)
+    response = client.patch(f"/projects/{project['project_id']}", json={"project_status": "completed"}, headers=headers)
+    assert (response.status_code, response.json()) == (
+        400, {"detail": "A project is completed by approving the work (Review Completion)"}
+    )
 
 
 @pytest.mark.parametrize(

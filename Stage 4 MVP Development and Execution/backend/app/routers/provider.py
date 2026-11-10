@@ -12,6 +12,7 @@ from app.models.project import SITE_PROGRESS
 from app.routers.field_work import utc_now
 from app.routers.workflow import project_photos
 from app.schemas.error import ErrorResponse
+from app.schemas.service_request import ServiceRequestResponse
 from app.schemas.workflow import ChangeRequest
 from app.schemas.provider_view import (
     ProjectTab,
@@ -113,7 +114,7 @@ def invited_requests(db: Session, provider_id: int) -> list[dict]:
     }
     result = []
     for request, project in rows:
-        if not request.invites(provider_id):
+        if not request.visible_to(provider_id):
             continue
         quote = quotes.get(request.request_id)
         result.append(
@@ -344,3 +345,33 @@ def return_to_team(
     db.commit()
     db.refresh(project)
     return project_detail(db, project, quote)
+
+
+DECLINE_ERRORS = {
+    401: TOKEN_ERRORS[401],
+    400: {"model": ErrorResponse, "description": "The request is not open"},
+    403: {"model": ErrorResponse, "description": "The user is not a provider, or the company was not invited"},
+    404: {"model": ErrorResponse, "description": "The request does not exist"},
+    409: {"model": ErrorResponse, "description": "The company already sent a quote for this request"},
+}
+
+
+@router.post("/requests/{request_id}/decline", response_model=ServiceRequestResponse, responses=DECLINE_ERRORS)
+def decline_request(request_id: int, user: User = Depends(provider_only), db: Session = Depends(get_db)):
+    # Decline Request on Prepare Quotation: the request leaves this company's lists for good
+    # (saved in the database, not in the browser). The contractor sees it in declined_provider_ids.
+    request = db.get(ServiceRequest, request_id)
+    if request is None:
+        raise HTTPException(status_code=404, detail="Request not found")
+    if request.status != "open":
+        raise HTTPException(status_code=400, detail=f"The request is {request.status}")
+    if not request.invites(user.provider_id):
+        raise HTTPException(status_code=403, detail="The contractor did not invite your company to this request")
+    quoted = select(Quote).where(Quote.request_id == request_id, Quote.provider_id == user.provider_id)
+    if db.scalar(quoted) is not None:
+        raise HTTPException(status_code=409, detail="Your company already sent a quote for this request")
+    if not request.declined_by(user.provider_id):
+        request.decline(user.provider_id)
+        db.commit()
+        db.refresh(request)
+    return request.to_dict()

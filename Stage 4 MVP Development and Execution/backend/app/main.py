@@ -6,8 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 
 from app.core.config import FRONTEND_ORIGINS
+from app.core.limits import MAX_BODY_BYTES
 from app.db.init_db import add_demo_providers, create_tables, upgrade_tables
-from app.routers import assignments, auth, devices, field_work, health, projects, provider, quotes, service_requests, workflow
+from app.routers import assignments, auth, devices, field_work, health, payments, projects, provider, quotes, service_requests, workflow
 
 
 @asynccontextmanager
@@ -20,6 +21,16 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="MAMAR API", lifespan=lifespan)
+
+
+@app.middleware("http")
+async def limit_body_size(request: Request, call_next):
+    # Refuses a huge upload before it is read, so one request cannot fill the server.
+    length = request.headers.get("content-length")
+    if length and length.isdigit() and int(length) > MAX_BODY_BYTES:
+        return JSONResponse(status_code=413, content={"detail": "The request is too big"})
+    return await call_next(request)
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -38,6 +49,7 @@ app.include_router(workflow.router)
 app.include_router(field_work.router)
 app.include_router(devices.router)
 app.include_router(provider.router)
+app.include_router(payments.router)
 
 
 @app.exception_handler(RequestValidationError)

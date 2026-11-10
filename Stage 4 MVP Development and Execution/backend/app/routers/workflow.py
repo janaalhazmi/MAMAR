@@ -3,7 +3,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.core.access import accepted_quote, get_project, own_project
+from app.core.access import accepted_quote, get_project, own_project, open_project_or_400
 from app.core.security import allow_roles
 from app.db.database import get_db
 from app.models import Assignment, Project, Provider, Quote, ServiceRequest, SitePhoto, User
@@ -104,6 +104,8 @@ def submit_quotation(data: QuotationCreate, user: User = Depends(provider_only),
     request = next((item for item in open_requests if item.invites(user.provider_id)), None)
     if request is None:
         raise HTTPException(status_code=403, detail="The contractor did not invite your company to this project")
+    if request.declined_by(user.provider_id):
+        raise HTTPException(status_code=400, detail="Your company declined this request")
     already = select(Quote).where(Quote.request_id == request.request_id, Quote.provider_id == user.provider_id)
     if db.scalar(already) is not None:
         raise HTTPException(status_code=409, detail="Your company already sent a quotation for this project")
@@ -182,12 +184,12 @@ def confirm_provider(
 ):
     # The Select Provider page: accepts the quote, rejects the other quotes of the request
     # (ServiceRequest.award) and moves the project to active.
-    project = own_project(db, project_id, user)
+    project = open_project_or_400(own_project(db, project_id, user))
     quote = db.get(Quote, data.quote_id)
     request = db.get(ServiceRequest, quote.request_id) if quote else None
     if quote is None or request.project_id != project_id:
         raise HTTPException(status_code=404, detail="Quote not found for this project")
-    if request.status != "open":
+    if request.status != "open" or accepted_quote(db, project_id) is not None:
         raise HTTPException(status_code=400, detail="A provider is already confirmed for this project")
     if quote.status != "pending":
         raise HTTPException(status_code=400, detail=f"The quote is {quote.status}")
@@ -215,7 +217,7 @@ def project_completion(project_id: int, user: User = Depends(contractor_only), d
 
 
 def submitted_project(db: Session, project_id: int, user: User) -> Project:
-    project = own_project(db, project_id, user)
+    project = open_project_or_400(own_project(db, project_id, user))
     if not project.completion_submitted:
         raise HTTPException(status_code=400, detail="The provider has not sent the completed work yet")
     return project

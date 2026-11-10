@@ -30,6 +30,7 @@ backend/
       init_db.py           # Creates the tables, adds the new columns and the demo providers when the server starts
     models/
       user.py              # users table
+      payment.py           # payments table
       provider.py          # providers table
       project.py           # projects table
       service_request.py   # service_requests table
@@ -47,6 +48,7 @@ backend/
       workflow.py          # Quotations, confirm provider, monitoring and completion (contractor pages)
       field_work.py        # Field worker projects, status, check-in and photos, and GET /photos/{token}
       devices.py           # POST /devices/{device}/verify
+      payments.py          # POST /projects/{id}/payments, POST /payments/orders/{id}/capture and /cancel, GET /projects/{id}/payments
       provider.py          # GET /provider/requests, /provider/projects, /provider/projects/{id}, /provider/workers and /provider/dashboard
     schemas/
       auth.py              # Request and response formats of the auth endpoints
@@ -57,6 +59,7 @@ backend/
       assignment.py        # Request and response formats of the assignments endpoints
       workflow.py          # Request and response formats of the workflow, field work and devices endpoints
       provider_view.py     # Response formats of the provider pages
+      payment.py           # Request and response formats of the payments
     main.py                # Creates the FastAPI app, allows the frontend (CORS) and adds the routers
   tests/
     conftest.py            # The api fixture: accounts, projects, requests and quotes for the provider workflow tests
@@ -72,6 +75,7 @@ backend/
     test_session.py        # GET /auth/me (session check) tests
     test_workflow.py       # Quotations, field work, photos, completion and device verification tests
     test_provider.py       # Provider requests, projects and dashboard tests
+    test_payments.py       # PayPal sandbox payment tests (PayPal is replaced by a fake in the tests)
   .env.example             # Example settings, without real passwords
   .gitignore
   README.md
@@ -99,7 +103,7 @@ The tables are created automatically when the server starts. For the frontend wo
 | --- | --- |
 | `projects` | `services` (the ids chosen on Select Service), `site_status`, `last_check_in`, `completion_submitted`, `submitted_at`, `change_note`, `location`, `latitude`, `longitude`, `work_zone` (the Location page, so the provider and the field team see the same place) |
 | `quotes` | `start_date`, `services` (optional) |
-| `service_requests` | `provider_ids` (optional): the providers the contractor invited. `null` means every provider |
+| `service_requests` | `provider_ids` (optional): the providers the contractor invited. `null` means every provider. `declined_provider_ids`: the providers that pressed Decline Request |
 
 A new table, `site_photos`, keeps the photos that field workers upload. They are saved in PostgreSQL because the free Render server deletes uploaded files on every deploy.
 
@@ -192,6 +196,9 @@ The problems we met while setting up the project, and how we solved them.
 | `EMAILJS_TEMPLATE_ID` | EmailJS template of the passcode email | `template_xxxxxxx` |
 | `EMAILJS_PUBLIC_KEY` | EmailJS public key (Account > General) | Empty on a local computer |
 | `EMAILJS_PRIVATE_KEY` | EmailJS private key (Account > Security). Secret, like a password | Empty on a local computer |
+| `PAYPAL_CLIENT_ID` | PayPal sandbox Client ID (developer.paypal.com > Apps & Credentials > Sandbox) | Empty: payments return 503 |
+| `PAYPAL_CLIENT_SECRET` | PayPal sandbox Secret. Secret, like a password | Empty: payments return 503 |
+| `PAYPAL_API_URL` | The PayPal API | `https://api-m.sandbox.paypal.com` (sandbox, no real money) |
 
 The `.env` file is ignored by Git, so passwords are never committed.
 
@@ -430,9 +437,10 @@ The provider workflow from Stage 3, sections 3.2, 4.2.8 to 4.2.14. All of them n
 
 | Endpoint | Who | What it does |
 | --- | --- | --- |
-| `POST /projects/{id}/requests` | Contractor of the project | Creates a service request as `open`. Body: `title`, `required_by`, and optional `details` and `provider_ids` (the providers chosen on Select Provider, for example `[1, 3]`). Without `provider_ids` every provider sees the request |
+| `POST /projects/{id}/requests` | Contractor of the project | Creates a service request as `open`. Body: `title`, `required_by`, and optional `details` and `provider_ids` (the providers chosen on Select Provider, for example `[1, 3]`). Without `provider_ids` every provider sees the request. A project keeps one open request: asking again updates that request (new title and dates, the new providers are added) and returns it with 200 instead of 201. After a provider is confirmed the project takes no new request (409 `A provider is already confirmed for this project`) |
 | `GET /requests` | Contractor, provider | A contractor sees the requests of their projects. A provider sees the open requests it was invited to, and with `?status=awarded` (or `closed`) the requests its company won. Optional `?status=` and `?project_id=`. Newest first |
 | `POST /requests/{id}/quotes` | Provider invited to the request | Sends a quote as `pending`. Body: `price`, `duration_days`, and optional `notes`. `provider_id` comes from the token |
+| `GET /requests/{id}/work-zone` | Contractor of the project, provider | The project's place for the Prepare Quotation map: `project_name`, dates, `location`, `latitude`, `longitude` and `work_zone`. A provider sees it while the request is open for its company (invited and not declined), and later only if it sent a quote |
 | `GET /requests/{id}/quotes` | Contractor of the request, provider | The contractor sees all the quotes, cheapest first. A provider sees only the quote of their company |
 | `POST /requests/{id}/award` | Contractor of the request | Body `{"quote_id": 54}`. Accepts that quote, rejects the others and marks the request as `awarded` |
 | `POST /projects/{id}/assignments` | Provider that won a request of the project | Body `{"worker_id": 15}`. Assigns a field worker of the same company as `active` |
@@ -479,7 +487,7 @@ The endpoints that `frontend/src/services/projectFlow.js` and `fieldWork.js` cal
 | `POST /field-worker/projects/{id}/check-in` | Assigned field worker | Saves the check-in time. A site that was `Not Started` becomes `Work in Progress` |
 | `POST /field-worker/projects/{id}/photos` | Assigned field worker | `multipart/form-data`: one `photos` field per file and optional `captions`. JPEG, PNG or WebP, up to 5 MB each and 10 per upload |
 | `GET /photos/{token}` | Anyone with the link | The photo file. The URL has a random value, so `<img>` can show it without the token header |
-| `POST /devices/{device}/verify` | Assigned field worker | `device` is the `device_id` (3001) or `device_code` (TC-001) in the MAMAR Traffic Devices layer. Body: `project_id`, `latitude`, `longitude`, optional `accuracy`. The server reads the planned point from ArcGIS and refuses more than 50 m |
+| `POST /devices/{device}/verify` | Assigned field worker | `device` is the `device_id` (3001) or `device_code` (TC-001) in the MAMAR Traffic Devices layer. Body: `project_id`, `latitude`, `longitude`, optional `accuracy`. The server reads the planned point from ArcGIS and refuses more than 50 m. A completed or cancelled project is refused with 400 |
 
 `progress` comes from `site_status`: `Not Started` 0, `Work in Progress` and `Paused` 50, `Completed` 100, and 100 for a completed project. Photo URLs are paths like `/photos/3f2a...`, so the frontend adds the API address before them.
 
@@ -512,11 +520,25 @@ The data of the provider's Dashboard, Service Requests and Projects pages. Only 
 | `GET /provider/projects` | The projects the company won (its quote was accepted), without cancelled ones. Each one has `project`, `status` (`Active`, `Upcoming` or `Completed`), `site_status`, `progress`, `field_team_count`, `last_check_in`, `completion_submitted`, `awaiting_review` (the field team finished and the provider has not sent it yet) and `quote`. `?status=Active` picks one tab |
 | `GET /provider/projects/{id}` | One won project with the same fields plus `submitted_at`, `change_note`, `team` and `photos`. 403 `Your company did not win this project` for other companies |
 | `GET /provider/workers` | The Field Team page: every field worker account of the company, newest first. Each one has `user_id`, `full_name`, `email`, `phone`, `status` (`Active` on an open project, `Available`, or `On Leave` when the account is turned off), `project` (the current project or `null`), `active_projects`, `last_activity` (the last photo or assignment) and `created_at`. `?status=Available` picks one filter. A worker added on the page is listed here as soon as the account is created |
+| `POST /provider/requests/{id}/decline` | Decline Request on Prepare Quotation. Saved in the database: the request leaves this company's requests and dashboard on every device, it cannot be quoted any more (400 `Your company declined this request`), and the contractor sees the company in `declined_provider_ids`. 409 if the company already sent a quote |
 | `POST /provider/projects/{id}/submit-completion` | Field worker -> provider -> contractor: after the field team marks the work `Completed`, the provider sends it to the contractor, which turns on `completion_submitted` (Review Completion). 400 `The field team has not marked the work as Completed yet` before that |
 | `POST /provider/projects/{id}/return-to-team` | Body `{"note": "..."}`. The provider sends the work back to its field team: `Work in Progress`, and the worker sees the note |
 | `GET /provider/dashboard` | `stats` (`assigned`, `active`, `upcoming`, `completed`), `pending_quotes`, `awaiting_review`, `new_requests` (not quoted yet), `next_project` (the first upcoming one, or `null`), `active_projects` and `overview` (`workers_active`, `sites_active`, `field_workers`). Every number is counted by the server |
 
 `status` of a won project: `Completed` after the contractor approves it, `Active` when the start date came or the field team already checked in, otherwise `Upcoming`. Today is the date in Riyadh. `progress` is the same as on Project Monitoring.
+
+## Payments (PayPal Sandbox)
+
+Issue #48: the contractor pays for the accepted quotation through PayPal in **sandbox mode**: real PayPal pages, sandbox buyer accounts, no real money. PayPal does not take SAR, so the quote price is charged in US dollars at 3.75 SAR per dollar; both amounts are saved.
+
+| Endpoint | Who | What it does |
+| --- | --- | --- |
+| `POST /projects/{id}/payments` | Contractor of the project | Body `{"return_url", "cancel_url"}` (pages of the MAMAR site). Needs an accepted quotation. Creates a PayPal order, saves the payment as `created`, and returns `{payment, approve_url}`. Open `approve_url` so the contractor pays on PayPal. 409 if the project is already paid |
+| `POST /payments/orders/{order_id}/capture` | Contractor who started it | PayPal sends the contractor back to `return_url?token=<order_id>`; the page calls this. It takes the money and saves `completed`. 400 if not approved on PayPal yet, 402 if declined (`failed`). Calling it again is safe |
+| `POST /payments/orders/{order_id}/cancel` | Contractor who started it | PayPal sends a cancelled payment to `cancel_url?token=<order_id>`; the page calls this and the payment is `cancelled` |
+| `GET /projects/{id}/payments` | Contractor of the project, winning provider | The payments of the project, newest first |
+
+Statuses: `created` (waiting on PayPal), `completed` (paid), `failed` (declined), `cancelled`. Without `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET` the endpoints return 503.
 
 ## Frontend Integration
 
@@ -739,7 +761,11 @@ pytest
 | `test_contractor_sees_only_the_requests_of_their_projects` | A contractor sees only their own requests, newest first, and `?project_id=` filters them |
 | `test_provider_sees_open_requests_and_the_requests_it_won` | A provider sees the open requests, and with `?status=awarded` only the requests its company won |
 | `test_provider_sees_only_the_requests_it_was_invited_to` | `provider_ids` is saved once per provider, only the invited companies see the request, and another company cannot quote it |
+| `test_asking_again_keeps_one_open_request` | Asking for quotes again updates the same open request and adds the new providers |
+| `test_startup_closes_duplicate_open_requests` | At start, extra open requests of a project without quotes are closed, and the one with a quote stays |
 | `test_create_request_with_unknown_or_empty_provider_ids_returns_422` | An unknown provider or an empty list returns 422 |
+| `test_work_zone_is_shown_to_the_owner_and_the_invited_provider` | The owner and the invited company see the work zone; another company, another contractor or a company that declined get 403 |
+| `test_work_zone_after_the_award_is_for_companies_that_quoted` | After the award, the company that quoted still sees it and others do not |
 | `test_list_requests_rules` | No token 401, a worker 403, an unknown status 422 |
 | `test_award_accepts_one_quote_and_rejects_the_others` | Award accepts the chosen quote, rejects the other one and returns the Stage 3 response |
 | `test_award_rules` | Another contractor 403, a provider 403, unknown request 404, quote of another request 404, missing `quote_id` 422, awarding twice 400 |
@@ -777,6 +803,12 @@ pytest
 | `test_device_errors` | Device not in the layer 404, ArcGIS offline 502, a worker of another project 403, a latitude of 95 returns 422 |
 | `test_device_found_by_code` | A device is found by its code, for example `TC-014` |
 | `test_device_filter_accepts_ids_and_codes_only` | Only a number or a code made of letters, digits, `-` and `_` reaches the ArcGIS query |
+| `test_sar_is_charged_in_dollars` | 4,500 SAR is 1,200 USD, rounded to cents |
+| `test_contractor_pays_the_accepted_quotation` | Start, capture, safe to capture again, both sides see it, and a second payment returns 409 |
+| `test_cancel_and_start_again` | A cancelled payment cannot be captured, and a new payment cancels the unfinished one |
+| `test_not_approved_and_declined` | Not approved returns 400, declined returns 402 and saves `failed` |
+| `test_payment_errors` | No accepted quote 400, other users 403, no token 401, a return_url outside the site 422, unknown order 404 |
+| `test_without_paypal_keys_returns_503` | Without the keys, payments return 503 |
 | `test_haversine_matches_the_frontend` | The distance formula gives the same result as `distanceInMeters()` in the frontend |
 | `test_provider_pages_need_a_provider_token` | The four provider pages return 401 without a token and 403 for a contractor or a worker |
 | `test_new_provider_gets_empty_lists_and_zeros` | A company without projects gets `[]`, `null` and zeros |
@@ -792,6 +824,8 @@ pytest
 | `test_completion_goes_from_the_worker_to_the_provider_to_the_contractor` | The contractor sees the work only after the provider sends it, and a new worker status takes it back |
 | `test_provider_returns_the_work_to_the_field_team` | The provider returns the work with a note, and the worker sees it |
 | `test_only_the_winning_provider_reviews_the_work` | Another company, the contractor and the worker get 403 |
+| `test_provider_declines_a_request` | Decline hides the request from this company only, blocks a quotation, and the contractor sees it |
+| `test_decline_errors` | A missing request 404, a company that was not invited or a contractor 403, a company that already quoted 409 |
 | `test_awarded_request_leaves_the_new_requests` | After the contractor confirms, the request leaves the new requests and appears in `?status=awarded` |
 
 ## Deploy on Render

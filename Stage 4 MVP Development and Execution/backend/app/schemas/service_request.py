@@ -53,13 +53,13 @@ class ServiceRequestResponse(BaseModel):
     # One service request as JSON (Stage 3, section 4.2.8).
     request_id: int
     project_id: int
-    provider_id: int | None
     title: str
     details: str | None
     required_by: date
     status: str
     created_at: datetime
     provider_ids: list[int] | None
+    declined_provider_ids: list[int]
 
 
 class AwardRequest(BaseModel):
@@ -81,3 +81,17 @@ class AwardResponse(BaseModel):
     request_id: int
     status: str
     accepted_quote: AcceptedQuote
+
+
+class RequestWorkZone(BaseModel):
+    # The place of the project behind a request, for the provider's Prepare Quotation map.
+    # work_zone is a list of [longitude, latitude] points, or null.
+    request_id: int
+    project_id: int
+    project_name: str
+    start_date: date
+    end_date: date
+    location: str | None
+    latitude: float | None
+    longitude: float | None
+    work_zone: list[list[float]] | None

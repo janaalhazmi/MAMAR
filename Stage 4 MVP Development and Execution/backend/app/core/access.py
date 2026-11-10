@@ -20,6 +20,16 @@ def own_project(db: Session, project_id: int, user: User) -> Project:
     return project
 
 
+CLOSED_STATUSES = ("completed", "cancelled")
+
+
+def open_project_or_400(project: Project) -> Project:
+    # A completed or cancelled project cannot change any more.
+    if project.project_status in CLOSED_STATUSES:
+        raise HTTPException(status_code=400, detail=f"The project is {project.project_status}")
+    return project
+
+
 def accepted_quote(db: Session, project_id: int) -> Quote | None:
     # The quote the contractor confirmed for this project, if any.
     query = (
@@ -54,7 +64,7 @@ def can_view_project(db: Session, project: Project, user: User) -> bool:
     open_requests = db.scalars(
         select(ServiceRequest).where(ServiceRequest.project_id == project.project_id, ServiceRequest.status == "open")
     )
-    if any(request.invites(user.provider_id) for request in open_requests):
+    if any(request.visible_to(user.provider_id) for request in open_requests):
         return True
     quoted = (
         select(Quote)
