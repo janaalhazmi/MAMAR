@@ -60,13 +60,14 @@ export default function ProviderFieldTeam() {
       <ProviderSidebar />
       <div className="provider-main-area">
         <header className="provider-topbar">
-          <NotificationBell />
+          
           <div />
           <div className="provider-account">
             <div className="provider-avatar">{initials(name)}</div>
             <div><strong>{name}</strong><span>Service Provider</span></div>
           </div>
-        </header>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}><NotificationBell /></div>
+</header>
 
         <main className="provider-dashboard-content pft-page">
           {loadingWorkers && (

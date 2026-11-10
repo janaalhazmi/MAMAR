@@ -31,7 +31,7 @@ function ProviderDashboard() {
 
       <div className="provider-main-area">
         <header className="provider-topbar">
-          <NotificationBell />
+          
           <div />
 
           <div className="provider-account">
@@ -42,7 +42,8 @@ function ProviderDashboard() {
               <span>Service Provider</span>
             </div>
           </div>
-        </header>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}><NotificationBell /></div>
+</header>
 
         <main className="provider-dashboard-content">
           <section className="provider-title">

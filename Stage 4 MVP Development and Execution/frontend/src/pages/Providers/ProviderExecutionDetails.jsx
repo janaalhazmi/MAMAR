@@ -45,7 +45,7 @@ export default function ProviderProjectDetails() {
 
       <div className="provider-main-area">
         <header className="provider-topbar">
-          <NotificationBell />
+          
           <div />
           <div className="provider-account">
             <div className="provider-avatar">{initials}</div>
@@ -54,7 +54,8 @@ export default function ProviderProjectDetails() {
               <span>Service Provider</span>
             </div>
           </div>
-        </header>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}><NotificationBell /></div>
+</header>
 
         <main className="provider-dashboard-content">
           <div className="pex-page">

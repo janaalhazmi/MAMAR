@@ -190,7 +190,7 @@ function PrepareQuotation() {
   return (
     <div className="quotation-page">
       <header className="quotation-topbar">
-          <NotificationBell />
+          
         <Link to="/" className="quotation-logo">
           <img src={logo} alt="MAMAR Logo" />
         </Link>
@@ -203,7 +203,8 @@ function PrepareQuotation() {
             <span>Service Provider</span>
           </div>
         </div>
-      </header>
+      <div style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}><NotificationBell /></div>
+</header>
 
       <main className="quotation-content">
         <Link
