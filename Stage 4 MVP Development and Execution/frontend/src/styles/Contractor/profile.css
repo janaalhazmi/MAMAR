@@ -1,0 +1,438 @@
+/* عرض صفحة البروفايل وتحديد أقصى عرض لها */
+.profile-page {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 34px 38px 56px;
+  color: #202020;
+}
+
+/* ترتيب عنوان الصفحة والوصف */
+.profile-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 26px;
+}
+
+/* تنسيق النص الصغير فوق العنوان */
+.profile-eyebrow {
+  color: #b88616;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+}
+
+/* تنسيق العنوان الرئيسي */
+.profile-heading h1 {
+  margin: 8px 0 7px;
+  font-size: 30px;
+  line-height: 1.15;
+  font-weight: 750;
+}
+
+/* تنسيق وصف الصفحة ووصف البطاقات */
+.profile-heading p,
+.profile-card-heading p {
+  margin: 0;
+  color: #171717;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* تقسيم الصفحة إلى عمودين */
+.profile-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+/* ترتيب محتوى الصفحة بشكل عمودي */
+.profile-content {
+  display: grid;
+  gap: 22px;
+  min-width: 0;
+}
+
+/* تصميم البطاقات البيضاء */
+.profile-card {
+  background: #fff;
+  border: 1px solid #eee7d7;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 5px 22px rgba(27, 27, 27, .035);
+}
+
+/* المسافة أسفل عنوان البطاقة */
+.profile-card-heading {
+  margin-bottom: 22px;
+}
+
+/* تنسيق عنوان البطاقة */
+.profile-card-heading h2 {
+  margin: 0 0 6px;
+  color: #0f0f0f;
+  font-size: 16px;
+  font-weight: 750;
+}
+
+/* ترتيب العنوان والأزرار بجانب بعض */
+.profile-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* وضع الصورة في منتصف البطاقة */
+.profile-avatar-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0 18px;
+}
+
+/* تحديد حجم الصورة أو مكانها البديل */
+.profile-avatar-image,
+.profile-avatar-placeholder {
+  width: 116px;
+  height: 116px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* إضافة إطار حول صورة المستخدم */
+.profile-avatar-image {
+  border: 4px solid #fdf3d6;
+}
+
+/* تصميم الدائرة التي تظهر عند عدم وجود صورة */
+.profile-avatar-placeholder {
+  display: grid;
+  place-items: center;
+  background: #fdf3d6;
+  color: #d49b1e;
+  font-size: 42px;
+  font-weight: 750;
+}
+
+/* ترتيب أزرار الصورة في المنتصف */
+.profile-picture-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* إخفاء حقل اختيار الصورة الأصلي */
+.profile-file-input {
+  display: none;
+}
+
+/* تنسيق الملاحظة أسفل أزرار الصورة */
+.profile-hint {
+  display: block;
+  margin-top: 12px;
+  text-align: center;
+  color: #080808;
+  font-size: 11px;
+}
+
+/* ترتيب معلومات الحساب بشكل عمودي */
+.profile-account-meta {
+  display: grid;
+  gap: 0;
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid #eee7d7;
+}
+
+/* ترتيب كل معلومة داخل الحساب */
+.profile-account-meta div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 12px;
+}
+
+/* لون أسماء المعلومات */
+.profile-account-meta span {
+  color: #000000;
+}
+
+/* تنسيق قيم معلومات الحساب */
+.profile-account-meta strong {
+  color: #000000;
+  font-weight: 650;
+  text-transform: capitalize;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* ترتيب حقول النموذج في عمودين */
+.profile-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 17px 15px;
+}
+
+/* ترتيب اسم الحقل ومربع الإدخال */
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* جعل الحقل يأخذ عرض الصف كاملًا */
+.profile-field-full {
+  grid-column: 1 / -1;
+}
+
+/* تنسيق أسماء الحقول */
+.profile-field span {
+  color: #000000;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* تصميم مربعات إدخال البيانات */
+.profile-field input {
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 0 13px;
+  border: 1px solid #e8dfc9;
+  border-radius: 9px;
+  outline: none;
+  background: #fffdf8;
+  color: #000000;
+  font: inherit;
+  font-size: 13px;
+  transition: border-color .18s, box-shadow .18s, background .18s;
+}
+
+/* تغيير شكل الحقل عند الضغط عليه */
+.profile-field input:focus {
+  border-color: #e4b022;
+  box-shadow: 0 0 0 3px rgba(228, 176, 34, .15);
+  background: #fff;
+}
+
+/* تنسيق الحقول غير القابلة للتعديل */
+.profile-field input:disabled {
+  color: #000000;
+  background: #faf8f2;
+  cursor: default;
+}
+
+/* ترتيب أزرار النموذج في الجهة اليمنى */
+.profile-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 22px;
+}
+
+/* التصميم الأساسي لجميع الأزرار */
+.profile-button {
+  min-height: 38px;
+  padding: 0 15px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  transition: .18s ease;
+}
+
+/* شكل الأزرار عند تعطيلها */
+.profile-button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+/* تصميم الزر الرئيسي */
+.profile-button-primary {
+  color: #171717;
+  background: #fdf3d6;
+  border-color: #e4b022;
+}
+
+/* تغيير لون الزر الرئيسي عند المرور عليه */
+.profile-button-primary:hover:not(:disabled) {
+  background: #f5dfaa;
+}
+
+/* تصميم الزر ذي الإطار */
+.profile-button-outline {
+  color: #8a650d;
+  background: #fff;
+  border-color: #e4b022;
+}
+
+/* تغيير خلفية الزر ذي الإطار عند المرور عليه */
+.profile-button-outline:hover:not(:disabled) {
+  background: #fdf3d6;
+}
+
+/* تصميم الزر الثانوي الهادئ */
+.profile-button-quiet {
+  color: #80600e;
+  background: #fffaf0;
+  border-color: #f0dfb5;
+}
+
+/* تغيير خلفية الزر الثانوي عند المرور عليه */
+.profile-button-quiet:hover:not(:disabled) {
+  background: #fdf3d6;
+}
+
+/* تصميم رسائل النجاح والخطأ */
+.profile-alert {
+  margin: 0 0 18px;
+  padding: 12px 15px;
+  border-radius: 9px;
+  font-size: 13px;
+}
+
+/* تنسيق رسالة الخطأ */
+.profile-alert-error {
+  color: #963c36;
+  background: #fff1ef;
+  border: 1px solid #f5d3cf;
+}
+
+/* تنسيق رسالة النجاح بألوان الثيم الأصفر */
+.profile-alert-success {
+  color: #80600e;
+  background: #fff8e5;
+  border: 1px solid #f0d88f;
+}
+
+/* تنسيق شاشة تحميل البيانات */
+.profile-loading {
+  padding: 60px 20px;
+  text-align: center;
+  color: #80600e;
+  background: #fff;
+  border: 1px solid #eee7d7;
+  border-radius: 14px;
+}
+
+/* تعديل توزيع الصفحة على الشاشات المتوسطة */
+@media (max-width: 900px) {
+
+  /* جعل الأعمدة عمودًا واحدًا */
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+
+  /* ترتيب بطاقة الهوية في عمودين */
+  .profile-identity-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 20px;
+    align-items: center;
+  }
+
+  /* جعل العنوان ومعلومات الحساب بعرض كامل */
+  .profile-identity-card .profile-card-heading,
+  .profile-account-meta {
+    grid-column: 1 / -1;
+  }
+
+  /* إزالة المسافة حول الصورة */
+  .profile-avatar-wrap {
+    margin: 0;
+  }
+
+  /* محاذاة أزرار الصورة إلى اليسار */
+  .profile-picture-actions {
+    justify-content: flex-start;
+  }
+
+  /* محاذاة الملاحظة إلى اليسار */
+  .profile-hint {
+    text-align: left;
+  }
+}
+
+/* تعديلات الشاشات الصغيرة والجوال */
+@media (max-width: 600px) {
+
+  /* تقليل المسافات حول الصفحة */
+  .profile-page {
+    padding: 24px 16px 40px;
+  }
+
+  /* تصغير العنوان الرئيسي */
+  .profile-heading h1 {
+    font-size: 25px;
+  }
+
+  /* تقليل المسافة الداخلية للبطاقات */
+  .profile-card {
+    padding: 19px;
+  }
+
+  /* عرض حقول النموذج في عمود واحد */
+  .profile-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* إلغاء امتداد الحقل على عدة أعمدة */
+  .profile-field-full {
+    grid-column: auto;
+  }
+
+  /* ترتيب العنوان والأزرار عموديًا */
+  .profile-heading-row {
+    flex-direction: column;
+  }
+
+  /* إعادة بطاقة الهوية إلى ترتيب عمودي */
+  .profile-identity-card {
+    display: block;
+  }
+
+  /* إعادة توسيط الصورة */
+  .profile-avatar-wrap {
+    margin: 8px 0 18px;
+  }
+
+  /* توسيط أزرار الصورة */
+  .profile-picture-actions {
+    justify-content: center;
+  }
+
+  /* توسيط الملاحظة */
+  .profile-hint {
+    text-align: center;
+  }
+}
+
+.profile-password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.profile-password-wrap input {
+  width: 100%;
+  padding-right: 65px;
+}
+
+.profile-password-wrap button {
+  position: absolute;
+  right: 12px;
+  border: none;
+  background: transparent;
+  color: #987000;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}

@@ -1,0 +1,286 @@
+import pytest
+
+from app.models import Quote, ServiceRequest
+from tests.conftest import REQUEST
+
+# The fields of one service request in Stage 3, section 4.2.8, in the same order.
+REQUEST_FIELDS = [
+    "request_id", "project_id", "title", "details", "required_by", "status", "created_at", "provider_ids",
+    "declined_provider_ids",
+]
+
+
+def test_create_request_returns_201_as_open(api):
+    _, contractor = api.account()
+    project_id = api.project(contractor)
+    response = api.client.post(f"/projects/{project_id}/requests", json=REQUEST, headers=contractor)
+    assert response.status_code == 201
+    request = response.json()
+    assert list(request) == REQUEST_FIELDS
+    assert request["project_id"] == project_id
+    assert request["status"] == "open"
+    for field, value in REQUEST.items():
+        assert request[field] == value
+
+
+def test_create_request_without_details(api):
+    _, contractor = api.account()
+    project_id = api.project(contractor)
+    body = {"title": "Detour signs", "required_by": "2026-11-20"}
+    assert api.client.post(f"/projects/{project_id}/requests", json=body, headers=contractor).json()["details"] is None
+    other_project = api.project(contractor)
+    assert api.request(contractor, other_project, details="  ")["details"] is None
+
+
+@pytest.mark.parametrize(
+    ("changes", "field"),
+    [({"title": ""}, "title"), ({"title": "x" * 151}, "title"), ({"required_by": "next week"}, "required_by"), ({"required_by": None}, "required_by")],
+)
+def test_create_request_with_an_invalid_body_returns_422(api, changes, field):
+    _, contractor = api.account()
+    project_id = api.project(contractor)
+    response = api.client.post(f"/projects/{project_id}/requests", json={**REQUEST, **changes}, headers=contractor)
+    assert response.status_code == 422
+    assert response.json()["detail"].startswith(f"{field}: ")
+
+
+def test_create_request_rules(api):
+    _, owner = api.account()
+    _, other = api.account()
+    _, provider = api.account("provider", 1)
+    project_id = api.project(owner)
+    url = f"/projects/{project_id}/requests"
+    assert api.client.post(url, json=REQUEST).status_code == 401
+    response = api.client.post(url, json=REQUEST, headers=other)
+    assert (response.status_code, response.json()) == (403, {"detail": "This project belongs to another contractor"})
+    response = api.client.post(url, json=REQUEST, headers=provider)
+    assert (response.status_code, response.json()) == (403, {"detail": "Only contractors can create or award service requests"})
+    response = api.client.post("/projects/999999999/requests", json=REQUEST, headers=owner)
+    assert (response.status_code, response.json()) == (404, {"detail": "Project not found"})
+
+
+def test_contractor_sees_only_the_requests_of_their_projects(api):
+    _, owner = api.account()
+    _, other = api.account()
+    first = api.request(owner, api.project(owner))
+    second_project = api.project(owner)
+    second = api.request(owner, second_project)
+    api.request(other, api.project(other))
+    ids = [r["request_id"] for r in api.client.get("/requests", headers=owner).json()]
+    assert ids == [second["request_id"], first["request_id"]]
+    filtered = api.client.get(f"/requests?project_id={second_project}", headers=owner).json()
+    assert [r["request_id"] for r in filtered] == [second["request_id"]]
+
+
+def test_provider_sees_open_requests_and_the_requests_it_won(api):
+    _, contractor = api.account()
+    _, provider = api.account("provider", 1)
+    _, other = api.account("provider", 2)
+    project_id = api.project(contractor)
+    awarded = api.request(contractor, project_id)
+    quote = api.quote(provider, awarded["request_id"])
+    assert api.award(contractor, awarded["request_id"], quote["quote_id"]).status_code == 200
+    # The awarded request leaves the open list.
+    assert api.client.get(f"/requests?project_id={project_id}", headers=provider).json() == []
+    won = api.client.get(f"/requests?status=awarded&project_id={project_id}", headers=provider).json()
+    assert [r["request_id"] for r in won] == [awarded["request_id"]]
+    # Another company did not win it, so it sees nothing awarded.
+    assert api.client.get(f"/requests?status=awarded&project_id={project_id}", headers=other).json() == []
+
+
+def test_provider_sees_only_the_requests_it_was_invited_to(api):
+    _, contractor = api.account()
+    _, invited = api.account("provider", 1)
+    _, not_invited = api.account("provider", 2)
+    project_id = api.project(contractor)
+    request = api.request(contractor, project_id, provider_ids=[1, 3, 1])
+    assert request["provider_ids"] == [1, 3]
+    everyone_project = api.project(contractor)
+    everyone = api.request(contractor, everyone_project)
+    assert everyone["provider_ids"] is None
+    seen = lambda headers: [  # noqa: E731
+        r["request_id"] for r in api.client.get("/requests", headers=headers).json()
+        if r["project_id"] in (project_id, everyone_project)
+    ]
+    assert seen(invited) == [everyone["request_id"], request["request_id"]]
+    assert seen(not_invited) == [everyone["request_id"]]
+    # A provider that was not invited cannot quote or open the project through that request.
+    response = api.client.post(f"/requests/{request['request_id']}/quotes", json={"price": 100, "duration_days": 2}, headers=not_invited)
+    assert (response.status_code, response.json()) == (403, {"detail": "The contractor did not invite your company to this request"})
+    api.quote(invited, request["request_id"])
+
+
+def test_create_request_with_unknown_or_empty_provider_ids_returns_422(api):
+    _, contractor = api.account()
+    project_id = api.project(contractor)
+    response = api.client.post(f"/projects/{project_id}/requests", json={**REQUEST, "provider_ids": [1, 999]}, headers=contractor)
+    assert (response.status_code, response.json()) == (422, {"detail": "provider_ids: provider 999 does not exist"})
+    response = api.client.post(f"/projects/{project_id}/requests", json={**REQUEST, "provider_ids": []}, headers=contractor)
+    assert response.status_code == 422
+
+
+def test_list_requests_rules(api):
+    _, worker = api.account("worker", 1)
+    assert api.client.get("/requests").status_code == 401
+    response = api.client.get("/requests", headers=worker)
+    assert (response.status_code, response.json()) == (403, {"detail": "Only contractors and providers can view service requests"})
+    _, contractor = api.account()
+    response = api.client.get("/requests?status=pending", headers=contractor)
+    assert response.status_code == 422
+    assert response.json()["detail"].startswith("status: ")
+
+
+def test_award_accepts_one_quote_and_rejects_the_others(api):
+    _, contractor = api.account()
+    _, tcm = api.account("provider", 1)
+    _, safety_arabia = api.account("provider", 2)
+    request = api.request(contractor, api.project(contractor))
+    cheap = api.quote(tcm, request["request_id"], price=15000)
+    expensive = api.quote(safety_arabia, request["request_id"], price=21000.5)
+    response = api.award(contractor, request["request_id"], cheap["quote_id"])
+    assert response.status_code == 200
+    assert response.json() == {
+        "request_id": request["request_id"],
+        "status": "awarded",
+        "accepted_quote": {"quote_id": cheap["quote_id"], "provider_id": 1, "price": 15000.0, "status": "accepted"},
+    }
+    quotes = {q["quote_id"]: q["status"] for q in api.client.get(f"/requests/{request['request_id']}/quotes", headers=contractor).json()}
+    assert quotes == {cheap["quote_id"]: "accepted", expensive["quote_id"]: "rejected"}
+
+
+def test_award_rules(api):
+    _, owner = api.account()
+    _, other = api.account()
+    _, provider = api.account("provider", 1)
+    request = api.request(owner, api.project(owner))
+    other_request = api.request(owner, api.project(owner))
+    quote = api.quote(provider, request["request_id"])
+    other_quote = api.quote(provider, other_request["request_id"])
+    request_id = request["request_id"]
+
+    response = api.award(other, request_id, quote["quote_id"])
+    assert (response.status_code, response.json()) == (403, {"detail": "This request belongs to another contractor"})
+    response = api.award(provider, request_id, quote["quote_id"])
+    assert response.status_code == 403
+    response = api.award(owner, 999999999, quote["quote_id"])
+    assert (response.status_code, response.json()) == (404, {"detail": "Request not found"})
+    response = api.award(owner, request_id, other_quote["quote_id"])
+    assert (response.status_code, response.json()) == (404, {"detail": "Quote not found for this request"})
+    response = api.client.post(f"/requests/{request_id}/award", json={}, headers=owner)
+    assert (response.status_code, response.json()) == (422, {"detail": "quote_id: Field required"})
+
+    assert api.award(owner, request_id, quote["quote_id"]).status_code == 200
+    response = api.award(owner, request_id, quote["quote_id"])
+    assert (response.status_code, response.json()) == (400, {"detail": "The request is already awarded"})
+
+
+def test_award_and_close_methods():
+    request = ServiceRequest(status="open")
+    first, second = Quote(quote_id=1, status="pending"), Quote(quote_id=2, status="pending")
+    request.quotes = [first, second]
+    with pytest.raises(LookupError):
+        request.award(3)
+    assert request.award(2) is second
+    assert (request.status, first.status, second.status) == ("awarded", "rejected", "accepted")
+    with pytest.raises(ValueError):
+        request.award(1)
+    with pytest.raises(ValueError):
+        request.close()
+    open_request = ServiceRequest(status="open")
+    open_request.close()
+    assert open_request.status == "closed"
+
+
+def test_frontend_can_send_a_request_with_the_token(api):
+    response = api.client.options(
+        "/projects/1/requests",
+        headers={"Origin": "http://localhost:5173", "Access-Control-Request-Method": "POST", "Access-Control-Request-Headers": "Authorization, Content-Type"},
+    )
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
+
+
+def test_asking_again_keeps_one_open_request(api):
+    # Going back from Quotations and asking again updates the same request.
+    _, contractor = api.account()
+    project_id = api.project(contractor)
+    first = api.request(contractor, project_id, provider_ids=[1])
+    response = api.client.post(
+        f"/projects/{project_id}/requests",
+        json={**REQUEST, "title": "New title", "provider_ids": [2]},
+        headers=contractor,
+    )
+    assert response.status_code == 200
+    again = response.json()
+    assert again["request_id"] == first["request_id"]
+    assert (again["title"], again["provider_ids"]) == ("New title", [1, 2])
+    mine = api.client.get(f"/requests?project_id={project_id}", headers=contractor).json()
+    assert [r["request_id"] for r in mine] == [first["request_id"]]
+    # Open to every provider when one of the two is.
+    response = api.client.post(f"/projects/{project_id}/requests", json=REQUEST, headers=contractor)
+    assert response.json()["provider_ids"] is None
+
+
+def test_startup_closes_duplicate_open_requests(api):
+    from sqlalchemy import text
+
+    from app.db.database import engine
+    from app.db.init_db import CLOSE_DUPLICATE_REQUESTS
+
+    _, contractor = api.account()
+    _, provider = api.account("provider", 1)
+    project_id = api.project(contractor)
+    first = api.request(contractor, project_id)
+    # Duplicates made before this fix (written straight to the database).
+    with engine.begin() as connection:
+        insert = text(
+            "INSERT INTO service_requests (project_id, title, required_by, status) "
+            "VALUES (:p, 'dup', '2026-11-20', 'open') RETURNING request_id"
+        )
+        second = connection.execute(insert, {"p": project_id}).scalar()
+        third = connection.execute(insert, {"p": project_id}).scalar()
+    api.quote(provider, first["request_id"])
+    with engine.begin() as connection:
+        connection.execute(text(CLOSE_DUPLICATE_REQUESTS))
+        connection.execute(text(CLOSE_DUPLICATE_REQUESTS))
+    rows = api.client.get(f"/requests?project_id={project_id}", headers=contractor).json()
+    status = {r["request_id"]: r["status"] for r in rows}
+    # The one with a quote stays open, the extra ones without quotes are closed.
+    assert status == {first["request_id"]: "open", second: "closed", third: "closed"}
+
+
+def test_work_zone_is_shown_to_the_owner_and_the_invited_provider(api):
+    _, contractor = api.account()
+    _, invited = api.account("provider", 1)
+    _, other = api.account("provider", 2)
+    zone = [[46.675, 24.713], [46.676, 24.713], [46.676, 24.714]]
+    project = api.client.post(
+        "/projects",
+        json={"project_name": "Zone", "closure_type": "lane_closure", "start_date": "2026-11-20",
+              "end_date": "2026-11-30", "latitude": 24.71, "longitude": 46.67, "work_zone": zone},
+        headers=contractor,
+    ).json()
+    request = api.request(contractor, project["project_id"], provider_ids=[1])
+    url = f"/requests/{request['request_id']}/work-zone"
+
+    for headers in (contractor, invited):
+        response = api.client.get(url, headers=headers)
+        assert response.status_code == 200
+        assert response.json()["work_zone"] == zone
+    # A company that was not invited does not see where the project is.
+    assert api.client.get(url, headers=other).status_code == 403
+    _, stranger = api.account()
+    assert api.client.get(url, headers=stranger).status_code == 403
+    assert api.client.get("/requests/999999/work-zone", headers=contractor).status_code == 404
+
+    # After declining, the company no longer sees it.
+    api.client.post(f"/provider/requests/{request['request_id']}/decline", headers=invited)
+    assert api.client.get(url, headers=invited).status_code == 403
+
+
+def test_work_zone_after_the_award_is_for_companies_that_quoted(api):
+    project_id, contractor, provider = api.won_project(provider_id=1)
+    request_id = api.client.get(f"/requests?project_id={project_id}", headers=contractor).json()[0]["request_id"]
+    _, other = api.account("provider", 2)
+    assert api.client.get(f"/requests/{request_id}/work-zone", headers=provider).status_code == 200
+    assert api.client.get(f"/requests/{request_id}/work-zone", headers=other).status_code == 403

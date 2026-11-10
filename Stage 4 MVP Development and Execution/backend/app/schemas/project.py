@@ -1,0 +1,165 @@
+from datetime import date, datetime
+from typing import Annotated, Literal
+
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, ValidationInfo, field_validator
+
+# The four statuses of the projects table in Stage 3.
+ProjectStatus = Literal["draft", "active", "completed", "cancelled"]
+
+# The services of the Select Service page (SERVICE_IDS in app/models/project.py).
+ServiceId = Literal["ttc-plan", "cones-barriers", "road-signs"]
+
+
+def unique_services(services: list[str] | None) -> list[str] | None:
+    # The same service twice is saved once, in the order it was sent.
+    return None if services is None else list(dict.fromkeys(services))
+
+# The maximum lengths are the column sizes of the projects table.
+ProjectName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=150)]
+ClosureType = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=50)]
+Description = Annotated[str, StringConstraints(strip_whitespace=True)]
+Location = Annotated[str, StringConstraints(strip_whitespace=True, max_length=255)]
+Latitude = Annotated[float, Field(ge=-90, le=90)]
+Longitude = Annotated[float, Field(ge=-180, le=180)]
+
+# The most points a work zone polygon can have.
+MAX_ZONE_POINTS = 500
+
+
+def check_zone(work_zone: list[list[float]] | None) -> list[list[float]] | None:
+    # The work zone is a list of [longitude, latitude] points, like the ArcGIS polygon.
+    # An empty list is saved as NULL (no zone).
+    if not work_zone:
+        return None
+    if len(work_zone) > MAX_ZONE_POINTS:
+        raise ValueError(f"at most {MAX_ZONE_POINTS} points")
+    for point in work_zone:
+        if len(point) != 2:
+            raise ValueError("each point must be [longitude, latitude]")
+        lng, lat = point
+        if not (-180 <= lng <= 180 and -90 <= lat <= 90):
+            raise ValueError("each point must be [longitude, latitude] inside the valid range")
+    return work_zone
+
+# The example from Stage 3, section 4.2.6.
+PROJECT_EXAMPLE = {
+    "project_name": "King Fahd Road Maintenance",
+    "closure_type": "lane_closure",
+    "start_date": "2026-11-01",
+    "end_date": "2026-12-15",
+    "description": "Night work on the right lane",
+    "services": ["ttc-plan", "road-signs"],
+    "location": "King Fahd Road, Al Olaya, Riyadh",
+    "latitude": 24.7136,
+    "longitude": 46.6753,
+    "work_zone": [[46.675, 24.713], [46.676, 24.713], [46.676, 24.714]],
+}
+
+
+def empty_to_none(description: str | None) -> str | None:
+    # An empty description is saved as NULL, the same as no description.
+    return description or None
+
+
+class ProjectCreate(BaseModel):
+    # The JSON body of POST /projects (Stage 3, section 4.2.6). description is optional.
+    model_config = ConfigDict(json_schema_extra={"examples": [PROJECT_EXAMPLE]})
+
+    project_name: ProjectName
+    closure_type: ClosureType
+    start_date: date
+    end_date: date
+    description: Description | None = None
+    services: list[ServiceId] = []
+    location: Location | None = None
+    latitude: Latitude | None = None
+    longitude: Longitude | None = None
+    work_zone: list[list[float]] | None = None
+
+    @field_validator("services")
+    @classmethod
+    def check_services(cls, services: list[str]) -> list[str]:
+        return unique_services(services)
+
+    @field_validator("location")
+    @classmethod
+    def check_location(cls, location: str | None) -> str | None:
+        return location or None
+
+    @field_validator("work_zone")
+    @classmethod
+    def check_work_zone(cls, work_zone):
+        return check_zone(work_zone)
+
+    @field_validator("end_date")
+    @classmethod
+    def check_end_date(cls, end_date: date, info: ValidationInfo) -> date:
+        # Stage 3: 422 if end_date is before start_date.
+        start_date = info.data.get("start_date")
+        if start_date is not None and end_date < start_date:
+            raise ValueError("cannot be before start_date")
+        return end_date
+
+    @field_validator("description")
+    @classmethod
+    def check_description(cls, description: str | None) -> str | None:
+        return empty_to_none(description)
+
+
+class ProjectUpdate(BaseModel):
+    # The JSON body of PATCH /projects/{id} (Stage 3, section 4.2.7).
+    # Only the fields that are sent are changed.
+    model_config = ConfigDict(json_schema_extra={"examples": [{"project_status": "active"}]})
+
+    project_name: ProjectName | None = None
+    project_status: ProjectStatus | None = None
+    closure_type: ClosureType | None = None
+    start_date: date | None = None
+    end_date: date | None = None
+    description: Description | None = None
+    services: list[ServiceId] | None = None
+    location: Location | None = None
+    latitude: Latitude | None = None
+    longitude: Longitude | None = None
+    work_zone: list[list[float]] | None = None
+
+    @field_validator("location")
+    @classmethod
+    def check_location(cls, location: str | None) -> str | None:
+        return location or None
+
+    @field_validator("work_zone")
+    @classmethod
+    def check_work_zone(cls, work_zone):
+        return check_zone(work_zone)
+
+    @field_validator("project_name", "project_status", "closure_type", "start_date", "end_date", "services")
+    @classmethod
+    def check_not_null(cls, value):
+        # These columns are NOT NULL, so they can be changed but not removed.
+        if value is None:
+            raise ValueError("cannot be null")
+        return value
+
+    @field_validator("description")
+    @classmethod
+    def check_description(cls, description: str | None) -> str | None:
+        return empty_to_none(description)
+
+
+class ProjectResponse(BaseModel):
+    # One project as JSON (Stage 3, section 4.2.5).
+    project_id: int
+    contractor_id: int
+    project_name: str
+    project_status: str
+    closure_type: str
+    start_date: date
+    end_date: date
+    description: str | None
+    created_at: datetime
+    services: list[str]
+    location: str | None
+    latitude: float | None
+    longitude: float | None
+    work_zone: list[list[float]] | None
