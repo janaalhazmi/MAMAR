@@ -198,6 +198,8 @@ The problems we met while setting up the project, and how we solved them.
 | `EMAILJS_PRIVATE_KEY` | EmailJS private key (Account > Security). Secret, like a password | Empty on a local computer |
 | `PAYPAL_CLIENT_ID` | PayPal sandbox Client ID (developer.paypal.com > Apps & Credentials > Sandbox) | Empty: payments return 503 |
 | `PAYPAL_CLIENT_SECRET` | PayPal sandbox Secret. Secret, like a password | Empty: payments return 503 |
+| `ADMIN_EMAIL` | Email of the one admin account. The server creates it when it starts | Empty: no admin account |
+| `ADMIN_PASSWORD` | Password of the admin account, at least 8 characters. Changing it on Render changes the password at the next deploy. Secret | Empty: no admin account |
 | `PAYPAL_API_URL` | The PayPal API | `https://api-m.sandbox.paypal.com` (sandbox, no real money) |
 
 The `.env` file is ignored by Git, so passwords are never committed.
@@ -539,6 +541,18 @@ Issue #48: the contractor pays for the accepted quotation through PayPal in **sa
 | `GET /projects/{id}/payments` | Contractor of the project, winning provider | The payments of the project, newest first |
 
 Statuses: `created` (waiting on PayPal), `completed` (paid), `failed` (declined), `cancelled`. Without `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET` the endpoints return 503.
+
+## Admin Dashboard
+
+One admin account, made from `ADMIN_EMAIL` and `ADMIN_PASSWORD` on Render (never in the code). It logs in with `POST /auth/login` like everyone else and gets `"role": "admin"`. Nobody can sign up as an admin, and an email that already belongs to a contractor, provider or worker never becomes the admin. Every endpoint below needs the admin token (other roles get 403).
+
+| Method | Endpoint | What it does |
+|---|---|---|
+| GET | `/admin/summary` | Counts for the top of the dashboard: contractors, providers, workers, companies, and projects by status |
+| GET | `/admin/users?role=contractor\|provider\|worker&search=` | The users lists, newest first. No role returns all three. Each row has `company_name` and `projects` (contractor: their projects; worker: open assignments; provider: open projects of the company) |
+| GET | `/admin/companies` | The provider companies with their number of users, for the company list in Add User |
+| POST | `/admin/users` | Adds a contractor, provider or worker: `{full_name, email, password (8+), phone, role, provider_id}`. No passcode and no company email rule. 409 if the email exists |
+| PATCH | `/admin/users/{id}` | `{is_active: false}` stops the user's login at once (the token is refused too), `true` allows it again. Also `full_name` and `phone` |
 
 ## Frontend Integration
 

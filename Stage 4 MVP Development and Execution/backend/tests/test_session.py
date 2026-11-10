@@ -15,7 +15,7 @@ from app.models import User
 # The fields of GET /auth/me, the same as the register response.
 USER_FIELDS = [
     "user_id", "full_name", "email", "phone",
-    "role", "provider_id", "is_active", "created_at",
+    "role", "provider_id", "is_active", "created_at", "profile_picture",
 ]
 
 

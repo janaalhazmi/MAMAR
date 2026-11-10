@@ -10,6 +10,7 @@ EXPECTED_COLUMNS = {
     "users": [
         "user_id", "full_name", "email", "password_hash", "phone",
         "role", "provider_id", "is_active", "created_at",
+        "avatar_token", "avatar_content_type", "avatar_data",
     ],
     "providers": [
         "provider_id", "company_name", "service_type", "city",
