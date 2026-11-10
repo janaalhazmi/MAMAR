@@ -31,24 +31,22 @@ function ProviderDashboard() {
       <ProviderSidebar />
 
       <div className="provider-main-area">
-        <header className="cd-header">
-        <Link to="/provider-dashboard" className="cd-header-logo">
-          <img src={logo} alt="MAMAR" />
-        </Link>
+        <header className="provider-topbar">
+          <div />
 
-        <div className="cd-header-actions">
-          <NotificationBell />
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "24px" }}>
+            <NotificationBell />
 
-          <div className="cd-user">
-            <div className="cd-user-avatar">{initials || "P"}</div>
+            <div className="provider-account">
+              <div className="provider-avatar">{initials || "P"}</div>
 
-            <div className="cd-user-info">
-              <strong>{displayName}</strong>
-              <span>Service Provider</span>
+              <div>
+                <strong>{displayName}</strong>
+                <span>Service Provider</span>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
         <main className="provider-dashboard-content">
           <section className="provider-title">
