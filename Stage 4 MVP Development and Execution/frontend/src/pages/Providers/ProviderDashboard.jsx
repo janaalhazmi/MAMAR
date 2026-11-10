@@ -1,3 +1,4 @@
+import logo from "../../assets/mamar-logo.svg";
 import NotificationBell from "../../components/NotificationBell";
 import { useProviderDashboard } from "../../services/providers/api";
 import { Link } from "react-router-dom";
@@ -30,22 +31,24 @@ function ProviderDashboard() {
       <ProviderSidebar />
 
       <div className="provider-main-area">
-        <header className="provider-topbar">
-          <div />
+        <header className="cd-header">
+        <Link to="/provider-dashboard" className="cd-header-logo">
+          <img src={logo} alt="MAMAR" />
+        </Link>
 
-          <div className="cd-header-actions">
-            <NotificationBell />
+        <div className="cd-header-actions">
+          <NotificationBell />
 
-            <div className="cd-user">
-              <div className="cd-user-avatar">{initials || "P"}</div>
+          <div className="cd-user">
+            <div className="cd-user-avatar">{initials || "P"}</div>
 
-              <div className="cd-user-info">
-                <strong>{displayName}</strong>
-                <span>Service Provider</span>
-              </div>
+            <div className="cd-user-info">
+              <strong>{displayName}</strong>
+              <span>Service Provider</span>
             </div>
           </div>
-        </header>
+        </div>
+      </header>
 
         <main className="provider-dashboard-content">
           <section className="provider-title">
