@@ -1,3 +1,4 @@
+import NotificationBell from "./NotificationBell";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
@@ -112,18 +113,7 @@ function ContractorShell({ activeKey, children }) {
         </Link>
 
         <div className="cd-header-actions">
-          <Link
-            to="/notifications"
-            className="cd-notification-button"
-            aria-label="Notifications"
-            title="Notifications"
-          >
-            <Icon name="bell" size={21} />
-
-            {hasUnread && (
-              <span className="cd-notification-dot" />
-            )}
-          </Link>
+          <NotificationBell />
 
           <div className="cd-user">
             <div className="cd-user-avatar">{userInitial}</div>

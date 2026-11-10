@@ -1,3 +1,4 @@
+import NotificationBell from "../../components/NotificationBell";
 import { API_BASE_URL } from "../../services/api";
 import { Link, useParams } from "react-router-dom";
 import ProviderSidebar from "../../components/ProviderSidebar";
@@ -44,6 +45,7 @@ export default function ProviderProjectDetails() {
 
       <div className="provider-main-area">
         <header className="provider-topbar">
+          <NotificationBell />
           <div />
           <div className="provider-account">
             <div className="provider-avatar">{initials}</div>

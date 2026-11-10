@@ -1,3 +1,4 @@
+from app.services.notifications import notify_user
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -67,6 +68,14 @@ def assign_worker(
         raise HTTPException(status_code=409, detail="This worker is already assigned to this project")
     assignment = Assignment(project_id=project_id, provider_id=user.provider_id, worker_id=worker.user_id, status="active")
     db.add(assignment)
+    notify_user(
+        db,
+        worker.user_id,
+        "assignment",
+        "New Project Assignment",
+        f'You have been assigned to project "{project.project_name}".',
+        "/field-worker-dashboard",
+    )
     try:
         db.commit()
     except IntegrityError as error:

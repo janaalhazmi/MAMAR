@@ -1,3 +1,4 @@
+import NotificationBell from "../../components/NotificationBell";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import ProviderSidebar from "../../components/ProviderSidebar";
@@ -18,6 +19,7 @@ export default function ProviderDeviceVerification() {
       <ProviderSidebar />
       <div className="provider-main-area">
         <header className="provider-topbar">
+          <NotificationBell />
           <div />
           <div className="provider-account">
             <div className="provider-avatar">{initials}</div>

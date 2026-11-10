@@ -1,3 +1,4 @@
+import NotificationBell from "../../components/NotificationBell";
 import { useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -189,6 +190,7 @@ function PrepareQuotation() {
   return (
     <div className="quotation-page">
       <header className="quotation-topbar">
+          <NotificationBell />
         <Link to="/" className="quotation-logo">
           <img src={logo} alt="MAMAR Logo" />
         </Link>

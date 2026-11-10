@@ -1,3 +1,4 @@
+from app.services.notifications import notify_provider
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile
@@ -94,7 +95,21 @@ def update_site_status(
     # The provider then sends it to the contractor (POST /provider/projects/{id}/submit-completion).
     # Any other status takes back work that was already sent.
     project = open_project(db, project_id, user)
+    previous_status = project.site_status
     project.site_status = data.status
+
+    if data.status == "Completed" and previous_status != "Completed":
+        quote = accepted_quote(db, project_id)
+        if quote:
+            notify_provider(
+                db,
+                quote.provider_id,
+                "field_completed",
+                "Field Work Completed",
+                f'Field work for project "{project.project_name}" is ready for review.',
+                "/provider/projects",
+            )
+
     if data.status != "Completed":
         project.completion_submitted = False
         project.submitted_at = None

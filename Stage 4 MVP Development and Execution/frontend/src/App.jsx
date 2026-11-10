@@ -59,7 +59,7 @@ function App() {
       <Route path="/data-disclaimer" element={<DataDisclaimerPage />} />
       <Route
          path="/notifications"
-         element={<NotificationsPage />}
+         element={<ProtectedRoute roles={["contractor", "provider", "worker"]}><NotificationsPage /></ProtectedRoute>}
        />
 
       <Route path="/payment" element={<ProtectedRoute roles={["contractor"]}><PaymentPage /></ProtectedRoute>} />

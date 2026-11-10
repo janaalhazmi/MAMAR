@@ -1,3 +1,4 @@
+import NotificationBell from "./NotificationBell";
 import { getSession, logout } from "../services/auth";
 import { Link } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
@@ -14,6 +15,7 @@ function Header() {
       <div className="mamar-header-actions">
         {session ? (
           <>
+            <NotificationBell />
             <Button to={session.user.role === "provider"
               ? "/provider-dashboard" : "/contractor-dashboard"}>
               Dashboard

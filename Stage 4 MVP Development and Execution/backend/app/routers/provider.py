@@ -1,3 +1,4 @@
+from app.services.notifications import notify_user
 from datetime import date, datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -323,6 +324,14 @@ def submit_completion(project_id: int, user: User = Depends(provider_only), db: 
     if not project.completion_submitted:
         project.completion_submitted = True
         project.submitted_at = utc_now()
+        notify_user(
+            db,
+            project.contractor_id,
+            "completion_submitted",
+            "Project Ready for Review",
+            f'Project "{project.project_name}" has been submitted for your review.',
+            "/review-completion",
+        )
         db.commit()
         db.refresh(project)
     return project_detail(db, project, quote)
@@ -342,6 +351,24 @@ def return_to_team(
     project.completion_submitted = False
     project.submitted_at = None
     project.change_note = data.note
+
+    worker_ids = db.scalars(
+        select(Assignment.worker_id).where(
+            Assignment.project_id == project_id,
+            Assignment.status == "active",
+        )
+    ).all()
+
+    for worker_id in set(worker_ids):
+        notify_user(
+            db,
+            worker_id,
+            "changes_requested",
+            "Project Returned to Field Team",
+            f'Project "{project.project_name}" requires additional work.',
+            "/field-worker-dashboard",
+        )
+
     db.commit()
     db.refresh(project)
     return project_detail(db, project, quote)

@@ -1,3 +1,4 @@
+import NotificationBell from "../../components/NotificationBell";
 import { useState } from "react";
 import {
   assignProviderWorker,
@@ -59,6 +60,7 @@ export default function ProviderFieldTeam() {
       <ProviderSidebar />
       <div className="provider-main-area">
         <header className="provider-topbar">
+          <NotificationBell />
           <div />
           <div className="provider-account">
             <div className="provider-avatar">{initials(name)}</div>

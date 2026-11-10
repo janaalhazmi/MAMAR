@@ -1,3 +1,4 @@
+import NotificationBell from "../../components/NotificationBell";
 import { useProviderDashboard } from "../../services/providers/api";
 import { Link } from "react-router-dom";
 import ProviderSidebar from "../../components/ProviderSidebar";
@@ -30,6 +31,7 @@ function ProviderDashboard() {
 
       <div className="provider-main-area">
         <header className="provider-topbar">
+          <NotificationBell />
           <div />
 
           <div className="provider-account">

@@ -1,3 +1,4 @@
+import NotificationBell from "./NotificationBell";
 import { Link } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import { logout, getSession } from "../services/auth";
@@ -28,11 +29,14 @@ function FieldWorkerShell({ activeKey, children }) {
           <img src={logo} alt="MAMAR" />
         </Link>
 
-        <div className="cd-user">
+        <div className="cd-header-actions">
+          <NotificationBell />
+          <div className="cd-user">
           <div className="cd-user-avatar">{userInitial}</div>
           <div className="cd-user-info">
             <strong>{displayName}</strong>
             <span>Field Worker</span>
+          </div>
           </div>
         </div>
       </header>

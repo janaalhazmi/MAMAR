@@ -11,6 +11,9 @@ import {
 } from "lucide-react";
 
 import ContractorShell from "../../components/ContractorShell";
+import FieldWorkerShell from "../../components/FieldWorkerShell";
+import Header from "../../components/Header";
+import { getSession } from "../../services/auth";
 
 import {
   getNotifications,
@@ -128,8 +131,9 @@ function NotificationsPage() {
     }
   }
 
-  return (
-    <ContractorShell activeKey="">
+  const role = getSession()?.user?.role;
+
+  const content = (
       <div className="notifications-page">
 
         {/* Heading */}
@@ -239,7 +243,21 @@ function NotificationsPage() {
           )}
         </section>
       </div>
-    </ContractorShell>
+  );
+
+  if (role === "contractor") {
+    return <ContractorShell activeKey="">{content}</ContractorShell>;
+  }
+
+  if (role === "worker") {
+    return <FieldWorkerShell activeKey="">{content}</FieldWorkerShell>;
+  }
+
+  return (
+    <>
+      <Header />
+      <main className="cd-main">{content}</main>
+    </>
   );
 }
 
