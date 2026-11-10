@@ -214,9 +214,9 @@ function NotificationsPage() {
                   <p>{notification.message}</p>
 
                   <div className="notification-meta">
-                    <span>{new Date(notification.created_at).toLocaleDateString("en-US")}</span>
+                    <span>{new Date(notification.created_at).toLocaleDateString("en-US", { timeZone: "Asia/Riyadh" })}</span>
                     <span>·</span>
-                    <span>{new Date(notification.created_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}</span>
+                    <span>{new Date(notification.created_at).toLocaleTimeString("en-US", { timeZone: "Asia/Riyadh", hour: "2-digit", minute: "2-digit" })}</span>
                   </div>
                 </div>
 
