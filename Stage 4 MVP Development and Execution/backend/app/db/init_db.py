@@ -1,4 +1,4 @@
-from sqlalchemy import text
+from sqlalchemy import select, text
 from sqlalchemy.dialects.postgresql import insert
 
 # Importing the models package loads the six models, so Base knows their tables.
@@ -106,4 +106,26 @@ def add_demo_providers():
                 "(SELECT MAX(provider_id) FROM providers))"
             )
         )
+        db.commit()
+
+
+def add_admin_account():
+    # Creates the admin account from ADMIN_EMAIL and ADMIN_PASSWORD (never written in the code).
+    from app.core import config
+    from app.models import User
+
+    if not config.ADMIN_EMAIL or len(config.ADMIN_PASSWORD) < 8:
+        return
+    with SessionLocal() as db:
+        user = db.scalar(select(User).where(User.email == config.ADMIN_EMAIL))
+        if user is None:
+            user = User(full_name="MAMAR Admin", email=config.ADMIN_EMAIL, role="admin")
+            db.add(user)
+        elif user.role != "admin":
+            # An existing contractor, provider or worker account is never turned into an admin.
+            print(f"ADMIN_EMAIL {config.ADMIN_EMAIL} belongs to a {user.role} account; no admin was made")
+            return
+        if not user.password_hash or not user.check_password(config.ADMIN_PASSWORD):
+            user.set_password(config.ADMIN_PASSWORD)
+        user.is_active = True
         db.commit()
