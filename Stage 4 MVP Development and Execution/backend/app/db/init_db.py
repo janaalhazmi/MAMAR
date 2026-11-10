@@ -67,6 +67,10 @@ NEW_COLUMNS = [
     "ALTER TABLE quotes ADD COLUMN IF NOT EXISTS services JSON",
     "ALTER TABLE service_requests ADD COLUMN IF NOT EXISTS provider_ids JSON",
     "ALTER TABLE service_requests ADD COLUMN IF NOT EXISTS declined_provider_ids JSON",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_token VARCHAR(32)",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_content_type VARCHAR(30)",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_data BYTEA",
+    "CREATE UNIQUE INDEX IF NOT EXISTS ix_users_avatar_token ON users (avatar_token)",
 ]
 
 # A project keeps one open request. Going back from Quotations used to add a new request each

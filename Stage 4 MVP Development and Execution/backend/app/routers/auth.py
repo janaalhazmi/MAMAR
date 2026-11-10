@@ -2,7 +2,9 @@ import logging
 import secrets
 from datetime import datetime, timedelta, timezone
 from urllib.parse import urlparse
-
+from fastapi import File, UploadFile, Response
+from app.schemas.auth import UpdateProfileRequest, ChangePasswordRequest
+from app.models.site_photo import PHOTO_TYPES, MAX_PHOTO_BYTES
 from argon2.exceptions import InvalidHashError, VerificationError
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
@@ -194,4 +196,87 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
 def current_user(user: User = Depends(get_current_user)):
     # Returns the signed-in user. The frontend calls it to check that its saved token is still
     # valid: a wrong, changed or expired token, or a deactivated account, returns 401.
+    return user.to_dict()
+
+@router.patch("/me", response_model=UserResponse)
+def update_profile(
+    data: UpdateProfileRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    changes = data.model_dump(exclude_unset=True)
+
+    if "email" in changes:
+        existing = db.scalar(
+            select(User).where(
+                User.email == changes["email"],
+                User.user_id != user.user_id,
+            )
+        )
+        if existing:
+            raise HTTPException(status_code=409, detail="Email is already registered")
+
+    for field, value in changes.items():
+        setattr(user, field, value)
+
+    try:
+        db.commit()
+    except IntegrityError as error:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="Email is already registered") from error
+
+    db.refresh(user)
+    return user.to_dict()
+
+@router.post("/change-password", response_model=MessageResponse)
+def change_password(
+    data: ChangePasswordRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not user.check_password(data.current_password):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+
+    user.set_password(data.new_password)
+    db.commit()
+
+    return {"message": "Password changed successfully"}
+
+@router.post("/me/avatar", response_model=UserResponse)
+async def upload_avatar(
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if file.content_type not in PHOTO_TYPES:
+        raise HTTPException(
+            status_code=422,
+            detail="Only JPEG, PNG or WebP photos are allowed",
+        )
+
+    data = await file.read(MAX_PHOTO_BYTES + 1)
+
+    if not data:
+        raise HTTPException(status_code=422, detail="The image is empty")
+
+    if len(data) > MAX_PHOTO_BYTES:
+        raise HTTPException(status_code=413, detail="The image is bigger than 5 MB")
+
+    user.set_avatar(file.content_type, data)
+
+    db.commit()
+    db.refresh(user)
+
+    return user.to_dict()
+
+@router.delete("/me/avatar", response_model=UserResponse)
+def delete_avatar(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    user.remove_avatar()
+
+    db.commit()
+    db.refresh(user)
+
     return user.to_dict()

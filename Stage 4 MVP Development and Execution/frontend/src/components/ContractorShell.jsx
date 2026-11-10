@@ -1,4 +1,5 @@
 import NotificationBell from "./NotificationBell";
+import { API_BASE_URL } from "../services/api";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
@@ -48,7 +49,10 @@ function playNotificationSound() {
 }
 
 function ContractorShell({ activeKey, children }) {
-  const sessionUser = getSession()?.user;
+  const [sessionUser, setSessionUser] = useState(
+    () => getSession()?.user || {}
+  );
+
   const rawName = sessionUser?.full_name || sessionUser?.name || "";
 
   const displayName =
@@ -56,8 +60,32 @@ function ContractorShell({ activeKey, children }) {
 
   const userInitial = displayName.charAt(0).toUpperCase();
 
+  const picture = sessionUser?.profile_picture
+    ? sessionUser.profile_picture.startsWith("http")
+      ? sessionUser.profile_picture
+      : `${API_BASE_URL}${sessionUser.profile_picture}`
+    : "";
+
   const [hasUnread, setHasUnread] = useState(false);
   const previousIds = useRef(null);
+
+  useEffect(() => {
+    function handleUserUpdate(event) {
+      setSessionUser(event.detail);
+    }
+
+    window.addEventListener(
+      "mamar:session-user-updated",
+      handleUserUpdate
+    );
+
+    return () => {
+      window.removeEventListener(
+        "mamar:session-user-updated",
+        handleUserUpdate
+      );
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -69,6 +97,7 @@ function ContractorShell({ activeKey, children }) {
 
       try {
         const notifications = await getNotifications();
+
         if (!active) return;
 
         const unread = notifications.filter(
@@ -116,7 +145,22 @@ function ContractorShell({ activeKey, children }) {
           <NotificationBell />
 
           <Link to="/profile" className="cd-user">
-            <div className="cd-user-avatar">{userInitial}</div>
+            <div className="cd-user-avatar">
+              {picture ? (
+                <img
+                  src={picture}
+                  alt="Profile"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    borderRadius: "50%",
+                  }}
+                />
+              ) : (
+                userInitial
+              )}
+            </div>
 
             <div className="cd-user-info">
               <strong>{displayName}</strong>

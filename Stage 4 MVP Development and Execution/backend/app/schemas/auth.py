@@ -79,6 +79,7 @@ class UserResponse(BaseModel):
     provider_id: int | None
     is_active: bool
     created_at: datetime
+    profile_picture: str | None = None
 
 
 class LoginRequest(BaseModel):
@@ -125,3 +126,43 @@ class SendPasscodeRequest(BaseModel):
 class MessageResponse(BaseModel):
     # A short success message, for the endpoints that do not return data.
     message: str
+
+class UpdateProfileRequest(BaseModel):
+    full_name: Annotated[
+        str,
+        StringConstraints(strip_whitespace=True, min_length=1, max_length=100)
+    ] | None = None
+
+    email: Annotated[
+        str,
+        StringConstraints(strip_whitespace=True, to_lower=True, max_length=255)
+    ] | None = None
+
+    phone: Annotated[
+        str,
+        StringConstraints(strip_whitespace=True, max_length=20)
+    ] | None = None
+
+    @field_validator("email")
+    @classmethod
+    def check_email(cls, email: str | None) -> str | None:
+        if email is not None and not EMAIL_PATTERN.fullmatch(email):
+            raise ValueError("value is not a valid email address")
+        return email
+
+    @model_validator(mode="after")
+    def check_at_least_one_field(self):
+        if not self.model_fields_set:
+            raise ValueError("Provide at least one field to update")
+        if "full_name" in self.model_fields_set and self.full_name is None:
+            raise ValueError("full_name cannot be null")
+        if "email" in self.model_fields_set and self.email is None:
+            raise ValueError("email cannot be null")
+        if "phone" in self.model_fields_set and self.phone is None:
+            raise ValueError("phone cannot be null")
+        return self
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: Annotated[str, StringConstraints(min_length=1, max_length=128)]
+    new_password: Annotated[str, StringConstraints(min_length=6, max_length=128)]

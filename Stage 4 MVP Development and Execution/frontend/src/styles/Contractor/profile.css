@@ -413,3 +413,26 @@
     text-align: center;
   }
 }
+
+.profile-password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.profile-password-wrap input {
+  width: 100%;
+  padding-right: 65px;
+}
+
+.profile-password-wrap button {
+  position: absolute;
+  right: 12px;
+  border: none;
+  background: transparent;
+  color: #987000;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
