@@ -16,19 +16,38 @@ import {
   getNotifications,
   markNotificationAsRead,
   markAllNotificationsAsRead,
-} from "../../services/Contractor/Contractor";
+} from "../../services/notifications";
 
 function NotificationsPage() {
   const navigate = useNavigate();
 
-  const [notifications, setNotifications] = useState(getNotifications);
-
+  const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState("all");
+  const [error, setError] = useState("");
+
   useEffect(() => {
-  const interval = setInterval(() => {
-    setNotifications(getNotifications());
-  }, 1500);
-  return () => clearInterval(interval);
+    let active = true;
+
+    async function loadNotifications() {
+      try {
+        const data = await getNotifications();
+        if (active) {
+          setNotifications(data);
+          setError("");
+        }
+      } catch (err) {
+        if (active) setError(err.message);
+      }
+    }
+
+    loadNotifications();
+
+    const interval = setInterval(loadNotifications, 10000);
+
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
   }, []);
 
   const unreadCount = notifications.filter(
@@ -40,16 +59,50 @@ function NotificationsPage() {
     return true;
   });
 
-  function markAsRead(id) {
-    setNotifications(markNotificationAsRead(id));
+  async function markAsRead(id) {
+    try {
+      await markNotificationAsRead(id);
+      setNotifications((current) =>
+        current.map((notification) =>
+          notification.id === id
+            ? { ...notification, read: true }
+            : notification
+        )
+      );
+      setError("");
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
-  function markAllAsRead() {
-    setNotifications(markAllNotificationsAsRead());
+  async function markAllAsRead() {
+    try {
+      await markAllNotificationsAsRead();
+      setNotifications((current) =>
+        current.map((notification) => ({ ...notification, read: true }))
+      );
+      setError("");
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
-  function openNotification(notification) {
-    markAsRead(notification.id);
+  async function openNotification(notification) {
+    if (!notification.read) {
+      try {
+        await markNotificationAsRead(notification.id);
+        setNotifications((current) =>
+          current.map((item) =>
+            item.id === notification.id
+              ? { ...item, read: true }
+              : item
+          )
+        );
+      } catch (err) {
+        setError(err.message);
+        return;
+      }
+    }
 
     if (notification.link) {
       navigate(notification.link);
@@ -92,6 +145,8 @@ function NotificationsPage() {
             {unreadCount} Unread
           </span>
         </div>
+
+        {error && <p role="alert">{error}</p>}
 
         {/* Toolbar */}
         <div className="notifications-toolbar">
@@ -155,9 +210,9 @@ function NotificationsPage() {
                   <p>{notification.message}</p>
 
                   <div className="notification-meta">
-                    <span>{notification.date}</span>
+                    <span>{new Date(notification.created_at).toLocaleDateString("en-US")}</span>
                     <span>·</span>
-                    <span>{notification.time}</span>
+                    <span>{new Date(notification.created_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}</span>
                   </div>
                 </div>
 

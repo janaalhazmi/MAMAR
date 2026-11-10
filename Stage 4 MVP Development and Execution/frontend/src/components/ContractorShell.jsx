@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import { getSession } from "../services/auth";
-import { getNotifications } from "../services/Contractor/Contractor";
+import { getNotifications } from "../services/notifications";
 import Sidebar from "./Sidebar";
 import Icon from "./Icons";
 
@@ -55,41 +55,53 @@ function ContractorShell({ activeKey, children }) {
 
   const userInitial = displayName.charAt(0).toUpperCase();
 
-  const [hasUnread, setHasUnread] = useState(
-    () => getNotifications().some((notification) => !notification.read)
-  );
-
-  const previousIds = useRef(
-    getNotifications().map((notification) => notification.id)
-  );
+  const [hasUnread, setHasUnread] = useState(false);
+  const previousIds = useRef(null);
 
   useEffect(() => {
-    const checkNotifications = () => {
-      const notifications = getNotifications();
+    let active = true;
+    let checking = false;
 
-      const currentIds = notifications.map(
-        (notification) => notification.id
-      );
+    const checkNotifications = async () => {
+      if (checking) return;
+      checking = true;
 
-      const newNotification = notifications.some(
-        (notification) =>
-          !previousIds.current.includes(notification.id)
-      );
+      try {
+        const notifications = await getNotifications();
+        if (!active) return;
 
-      if (newNotification) {
-        playNotificationSound();
+        const unread = notifications.filter(
+          (notification) => !notification.read
+        );
+
+        const currentIds = unread.map(
+          (notification) => notification.id
+        );
+
+        if (
+          previousIds.current !== null &&
+          currentIds.some((id) => !previousIds.current.includes(id))
+        ) {
+          playNotificationSound();
+        }
+
+        previousIds.current = currentIds;
+        setHasUnread(unread.length > 0);
+      } catch (error) {
+        console.error("Unable to load notifications:", error);
+      } finally {
+        checking = false;
       }
-
-      previousIds.current = currentIds;
-
-      setHasUnread(
-        notifications.some((notification) => !notification.read)
-      );
     };
 
-    const interval = setInterval(checkNotifications, 1500);
+    checkNotifications();
 
-    return () => clearInterval(interval);
+    const interval = setInterval(checkNotifications, 10000);
+
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
   }, []);
 
   return (

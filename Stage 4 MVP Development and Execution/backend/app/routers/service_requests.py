@@ -6,6 +6,7 @@ from app.core.access import accepted_quote, open_project_or_400
 from app.core.security import allow_roles
 from app.db.database import get_db
 from app.models import Project, Provider, Quote, ServiceRequest, User
+from app.services.notifications import notify_provider
 from app.schemas.error import ErrorResponse
 from app.schemas.service_request import (
     RequestWorkZone,
@@ -95,6 +96,22 @@ def create_request(
         return existing.to_dict()
     request = ServiceRequest(project_id=project.project_id, status="open", **data.model_dump())
     db.add(request)
+    db.flush()
+
+    provider_ids = data.provider_ids
+    if provider_ids is None:
+        provider_ids = db.scalars(select(Provider.provider_id)).all()
+
+    for provider_id in set(provider_ids):
+        notify_provider(
+            db=db,
+            provider_id=provider_id,
+            notification_type="request",
+            title="New Service Request",
+            message=f'A new service request is available for project "{project.project_name}".',
+            link="/provider-dashboard",
+        )
+
     db.commit()
     db.refresh(request)
     return request.to_dict()
@@ -154,6 +171,31 @@ def award_request(
         raise HTTPException(status_code=404, detail="Quote not found for this request") from error
     # Same result as confirm-provider: the project with a confirmed provider is active.
     project.update_status("active")
+
+    quotes = db.scalars(
+        select(Quote).where(Quote.request_id == request_id)
+    ).all()
+
+    for submitted_quote in quotes:
+        if submitted_quote.quote_id == quote.quote_id:
+            notify_provider(
+                db=db,
+                provider_id=submitted_quote.provider_id,
+                notification_type="quote_accepted",
+                title="Quotation Accepted",
+                message=f'Your quotation for project {project.project_name} has been accepted.',
+                link="/provider-projects",
+            )
+        else:
+            notify_provider(
+                db=db,
+                provider_id=submitted_quote.provider_id,
+                notification_type="quote_rejected",
+                title="Quotation Not Selected",
+                message=f'Your quotation for project {project.project_name} was not selected.',
+                link="/provider-dashboard",
+            )
+
     db.commit()
     return {
         "request_id": request.request_id,

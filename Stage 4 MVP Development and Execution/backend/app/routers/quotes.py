@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.security import allow_roles
 from app.db.database import get_db
 from app.models import Project, Quote, ServiceRequest, User
+from app.services.notifications import notify_user
 from app.schemas.error import ErrorResponse
 from app.schemas.quote import QuoteCreate, QuoteResponse
 
@@ -53,6 +54,18 @@ def submit_quote(
         raise HTTPException(status_code=409, detail="Your company already sent a quote for this request")
     quote = Quote(request_id=request_id, provider_id=user.provider_id, status="pending", **data.model_dump())
     db.add(quote)
+
+    project = db.get(Project, request.project_id)
+    if project is not None:
+        notify_user(
+            db=db,
+            user_id=project.contractor_id,
+            notification_type="quote",
+            title="New Quotation Received",
+            message=f'A new quotation has been submitted for project "{project.project_name}".',
+            link="/quotations",
+        )
+
     try:
         db.commit()
     except IntegrityError as error:

@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from app.core.config import FRONTEND_ORIGINS
 from app.core.limits import MAX_BODY_BYTES
 from app.db.init_db import add_demo_providers, create_tables, upgrade_tables
-from app.routers import assignments, auth, devices, field_work, health, payments, projects, provider, quotes, service_requests, workflow
+from app.routers import notifications, assignments, auth, devices, field_work, health, payments, projects, provider, quotes, service_requests, workflow
 
 
 @asynccontextmanager
@@ -50,6 +50,7 @@ app.include_router(field_work.router)
 app.include_router(devices.router)
 app.include_router(provider.router)
 app.include_router(payments.router)
+app.include_router(notifications.router)
 
 
 @app.exception_handler(RequestValidationError)
