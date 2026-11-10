@@ -1,5 +1,6 @@
 import { API_BASE_URL } from "../../services/api";
 import { useEffect, useRef, useState } from "react";
+import { updateSessionUser } from "../../services/auth";
 import ContractorShell from "../../components/ContractorShell";
 import {
   fetchMyProfile,
@@ -32,7 +33,9 @@ function getPictureUrl(profile) {
 
 function formatDate(value) {
   if (!value) return "—";
+
   const date = new Date(value);
+
   return Number.isNaN(date.getTime())
     ? value
     : date.toLocaleDateString("en-GB", {
@@ -44,16 +47,23 @@ function formatDate(value) {
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState(EMPTY_PROFILE);
+
   const [form, setForm] = useState({
     full_name: "",
     email: "",
     phone: "",
   });
+
   const [passwords, setPasswords] = useState({
     current_password: "",
     new_password: "",
     confirm_password: "",
   });
+
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
@@ -61,6 +71,7 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
   const fileInput = useRef(null);
 
   async function loadProfile() {
@@ -69,12 +80,16 @@ export default function ProfilePage() {
 
     try {
       const user = await fetchMyProfile();
+
       setProfile({ ...EMPTY_PROFILE, ...user });
+
       setForm({
         full_name: user?.full_name || "",
         email: user?.email || "",
         phone: user?.phone || "",
       });
+
+      updateSessionUser(user);
     } catch (err) {
       setError(getErrorMessage(err, "Unable to load your profile."));
     } finally {
@@ -88,7 +103,11 @@ export default function ProfilePage() {
 
   function updateField(event) {
     const { name, value } = event.target;
-    setForm((current) => ({ ...current, [name]: value }));
+
+    setForm((current) => ({
+      ...current,
+      [name]: value,
+    }));
   }
 
   async function handleSaveProfile(event) {
@@ -110,7 +129,13 @@ export default function ProfilePage() {
         phone: form.phone.trim() || null,
       });
 
-      setProfile((current) => ({ ...current, ...updated }));
+      setProfile((current) => ({
+        ...current,
+        ...updated,
+      }));
+
+      updateSessionUser(updated);
+
       setForm({
         full_name: updated.full_name ?? form.full_name.trim(),
         email: updated.email ?? form.email.trim().toLowerCase(),
@@ -132,13 +157,18 @@ export default function ProfilePage() {
       email: profile.email || "",
       phone: profile.phone || "",
     });
+
     setEditing(false);
     setError("");
   }
 
   function updatePasswordField(event) {
     const { name, value } = event.target;
-    setPasswords((current) => ({ ...current, [name]: value }));
+
+    setPasswords((current) => ({
+      ...current,
+      [name]: value,
+    }));
   }
 
   async function handleChangePassword(event) {
@@ -175,6 +205,10 @@ export default function ProfilePage() {
         confirm_password: "",
       });
 
+      setShowCurrentPassword(false);
+      setShowNewPassword(false);
+      setShowConfirmPassword(false);
+
       setSuccess("Your password has been changed.");
     } catch (err) {
       setError(getErrorMessage(err, "Unable to change your password."));
@@ -189,7 +223,11 @@ export default function ProfilePage() {
 
     if (!file) return;
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+    ];
 
     if (!allowedTypes.includes(file.type)) {
       setError("Only JPG, PNG or WEBP images are allowed.");
@@ -209,7 +247,12 @@ export default function ProfilePage() {
       const updated = await uploadMyProfilePicture(file);
 
       if (updated && typeof updated === "object") {
-        setProfile((current) => ({ ...current, ...updated }));
+        setProfile((current) => ({
+          ...current,
+          ...updated,
+        }));
+
+        updateSessionUser(updated);
       } else {
         await loadProfile();
       }
@@ -232,16 +275,24 @@ export default function ProfilePage() {
     try {
       const updated = await deleteMyProfilePicture();
 
-      if (updated && typeof updated === "object") {
-        setProfile((current) => ({ ...current, ...updated }));
-      } else {
-        setProfile((current) => ({
-          ...current,
-          profile_picture: "",
-          profile_picture_url: "",
-          avatar_url: "",
-        }));
-      }
+      const updatedProfile =
+        updated && typeof updated === "object"
+          ? updated
+          : {
+              ...profile,
+              profile_picture: null,
+            };
+
+      setProfile((current) => ({
+        ...current,
+        ...updatedProfile,
+        profile_picture: updatedProfile.profile_picture || "",
+      }));
+
+      updateSessionUser({
+        ...updatedProfile,
+        profile_picture: updatedProfile.profile_picture || "",
+      });
 
       setSuccess("Your profile picture has been removed.");
     } catch (err) {
@@ -254,7 +305,11 @@ export default function ProfilePage() {
   }
 
   const picture = getPictureUrl(profile);
-  const initial = (profile.full_name || "U").trim().charAt(0).toUpperCase();
+
+  const initial = (profile.full_name || "U")
+    .trim()
+    .charAt(0)
+    .toUpperCase();
 
   return (
     <ContractorShell activeKey="profile">
@@ -299,7 +354,9 @@ export default function ProfilePage() {
                     alt="Profile"
                   />
                 ) : (
-                  <div className="profile-avatar-placeholder">{initial}</div>
+                  <div className="profile-avatar-placeholder">
+                    {initial}
+                  </div>
                 )}
               </div>
 
@@ -328,7 +385,7 @@ export default function ProfilePage() {
                   ref={fileInput}
                   className="profile-file-input"
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp"
                   onChange={handlePictureSelected}
                 />
               </div>
@@ -342,10 +399,12 @@ export default function ProfilePage() {
                   <span>Account type</span>
                   <strong>{profile.role || "Contractor"}</strong>
                 </div>
+
                 <div>
                   <span>Member since</span>
                   <strong>{formatDate(profile.created_at)}</strong>
                 </div>
+
                 <div>
                   <span>User ID</span>
                   <strong>{profile.user_id ?? "—"}</strong>
@@ -443,35 +502,86 @@ export default function ProfilePage() {
                   <div className="profile-form-grid">
                     <label className="profile-field profile-field-full">
                       <span>Current password</span>
-                      <input
-                        name="current_password"
-                        type="password"
-                        value={passwords.current_password}
-                        onChange={updatePasswordField}
-                        autoComplete="current-password"
-                      />
+
+                      <div className="profile-password-wrap">
+                        <input
+                          name="current_password"
+                          type={showCurrentPassword ? "text" : "password"}
+                          value={passwords.current_password}
+                          onChange={updatePasswordField}
+                          autoComplete="current-password"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setShowCurrentPassword((value) => !value)
+                          }
+                          aria-label={
+                            showCurrentPassword
+                              ? "Hide password"
+                              : "Show password"
+                          }
+                        >
+                          {showCurrentPassword ? "Hide" : "Show"}
+                        </button>
+                      </div>
                     </label>
 
                     <label className="profile-field">
                       <span>New password</span>
-                      <input
-                        name="new_password"
-                        type="password"
-                        value={passwords.new_password}
-                        onChange={updatePasswordField}
-                        autoComplete="new-password"
-                      />
+
+                      <div className="profile-password-wrap">
+                        <input
+                          name="new_password"
+                          type={showNewPassword ? "text" : "password"}
+                          value={passwords.new_password}
+                          onChange={updatePasswordField}
+                          autoComplete="new-password"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setShowNewPassword((value) => !value)
+                          }
+                          aria-label={
+                            showNewPassword
+                              ? "Hide password"
+                              : "Show password"
+                          }
+                        >
+                          {showNewPassword ? "Hide" : "Show"}
+                        </button>
+                      </div>
                     </label>
 
                     <label className="profile-field">
                       <span>Confirm new password</span>
-                      <input
-                        name="confirm_password"
-                        type="password"
-                        value={passwords.confirm_password}
-                        onChange={updatePasswordField}
-                        autoComplete="new-password"
-                      />
+
+                      <div className="profile-password-wrap">
+                        <input
+                          name="confirm_password"
+                          type={showConfirmPassword ? "text" : "password"}
+                          value={passwords.confirm_password}
+                          onChange={updatePasswordField}
+                          autoComplete="new-password"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setShowConfirmPassword((value) => !value)
+                          }
+                          aria-label={
+                            showConfirmPassword
+                              ? "Hide password"
+                              : "Show password"
+                          }
+                        >
+                          {showConfirmPassword ? "Hide" : "Show"}
+                        </button>
+                      </div>
                     </label>
                   </div>
 

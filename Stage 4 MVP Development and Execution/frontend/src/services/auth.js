@@ -90,3 +90,28 @@ export function saveSession(data) {
   localStorage.removeItem("mamarUsers");
   if (!getSession()) throw new Error("Invalid or expired login token.");
 }
+
+export function updateSessionUser(userData) {
+  const session = getSession();
+
+  if (!session || !userData) return;
+
+  const updatedUser = {
+    ...session.user,
+    ...userData,
+  };
+
+  sessionStorage.setItem(
+    KEY,
+    JSON.stringify({
+      ...session,
+      user: updatedUser,
+    })
+  );
+
+  window.dispatchEvent(
+    new CustomEvent("mamar:session-user-updated", {
+      detail: updatedUser,
+    })
+  );
+}
