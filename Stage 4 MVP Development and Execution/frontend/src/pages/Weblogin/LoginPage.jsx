@@ -26,6 +26,7 @@ const dashboardRoutes = {
   contractor: "/contractor-dashboard",
   provider: "/provider-dashboard",
   worker: "/field-worker-dashboard",
+  admin: "/admin",
 };
 
 function LoginPage() {
@@ -42,10 +43,6 @@ function LoginPage() {
     event.preventDefault();
     if (loading) return;
     setError("");
-    if (!role) {
-      setError("Please select your account type.");
-      return;
-    }
     const form = event.currentTarget;
     const email = form.loginEmail.value.trim().toLowerCase();
     const password = form.loginPassword.value;
@@ -53,7 +50,11 @@ function LoginPage() {
     try {
       logout();
       const data = await loginUser(email, password);
-      if (data.user.role !== role) {
+      // The admin has no account type button: any choice (or none) signs the admin in.
+      if (data.user.role !== "admin" && !role) {
+        throw new Error("Please select your account type.");
+      }
+      if (data.user.role !== "admin" && data.user.role !== role) {
         throw new Error("The selected account type does not match your account.");
       }
       saveSession(data);

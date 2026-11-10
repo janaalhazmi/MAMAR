@@ -339,3 +339,26 @@ export const postCancelPayment = (token, orderId) =>
 
 export const fetchProjectPayments = (token, projectId) =>
   authed(`/projects/${encodeURIComponent(projectId)}/payments`, token);
+
+/* ---------- Admin ---------- */
+export const fetchAdminSummary = (token) => authed("/admin/summary", token);
+
+export const fetchAdminUsers = (token, role, search) => {
+  const query = new URLSearchParams();
+  if (role) query.set("role", role);
+  if (search) query.set("search", search);
+  const text = query.toString();
+  return authed(`/admin/users${text ? `?${text}` : ""}`, token);
+};
+
+export const fetchAdminCompanies = (token) => authed("/admin/companies", token);
+
+export const postAdminUser = (token, body) =>
+  authed("/admin/users", token, { method: "POST", headers: JSON_H, body: asJson(body) });
+
+export const patchAdminUser = (token, userId, changes) =>
+  authed(`/admin/users/${encodeURIComponent(userId)}`, token, {
+    method: "PATCH",
+    headers: JSON_H,
+    body: asJson(changes),
+  });
