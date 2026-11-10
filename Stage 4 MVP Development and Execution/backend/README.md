@@ -30,6 +30,7 @@ backend/
       init_db.py           # Creates the tables, adds the new columns and the demo providers when the server starts
     models/
       user.py              # users table
+      payment.py           # payments table
       provider.py          # providers table
       project.py           # projects table
       service_request.py   # service_requests table
@@ -47,6 +48,7 @@ backend/
       workflow.py          # Quotations, confirm provider, monitoring and completion (contractor pages)
       field_work.py        # Field worker projects, status, check-in and photos, and GET /photos/{token}
       devices.py           # POST /devices/{device}/verify
+      payments.py          # POST /projects/{id}/payments, POST /payments/orders/{id}/capture and /cancel, GET /projects/{id}/payments
       provider.py          # GET /provider/requests, /provider/projects, /provider/projects/{id}, /provider/workers and /provider/dashboard
     schemas/
       auth.py              # Request and response formats of the auth endpoints
@@ -57,6 +59,7 @@ backend/
       assignment.py        # Request and response formats of the assignments endpoints
       workflow.py          # Request and response formats of the workflow, field work and devices endpoints
       provider_view.py     # Response formats of the provider pages
+      payment.py           # Request and response formats of the payments
     main.py                # Creates the FastAPI app, allows the frontend (CORS) and adds the routers
   tests/
     conftest.py            # The api fixture: accounts, projects, requests and quotes for the provider workflow tests
@@ -72,6 +75,7 @@ backend/
     test_session.py        # GET /auth/me (session check) tests
     test_workflow.py       # Quotations, field work, photos, completion and device verification tests
     test_provider.py       # Provider requests, projects and dashboard tests
+    test_payments.py       # PayPal sandbox payment tests (PayPal is replaced by a fake in the tests)
   .env.example             # Example settings, without real passwords
   .gitignore
   README.md
@@ -192,6 +196,9 @@ The problems we met while setting up the project, and how we solved them.
 | `EMAILJS_TEMPLATE_ID` | EmailJS template of the passcode email | `template_xxxxxxx` |
 | `EMAILJS_PUBLIC_KEY` | EmailJS public key (Account > General) | Empty on a local computer |
 | `EMAILJS_PRIVATE_KEY` | EmailJS private key (Account > Security). Secret, like a password | Empty on a local computer |
+| `PAYPAL_CLIENT_ID` | PayPal sandbox Client ID (developer.paypal.com > Apps & Credentials > Sandbox) | Empty: payments return 503 |
+| `PAYPAL_CLIENT_SECRET` | PayPal sandbox Secret. Secret, like a password | Empty: payments return 503 |
+| `PAYPAL_API_URL` | The PayPal API | `https://api-m.sandbox.paypal.com` (sandbox, no real money) |
 
 The `.env` file is ignored by Git, so passwords are never committed.
 
@@ -519,6 +526,19 @@ The data of the provider's Dashboard, Service Requests and Projects pages. Only 
 
 `status` of a won project: `Completed` after the contractor approves it, `Active` when the start date came or the field team already checked in, otherwise `Upcoming`. Today is the date in Riyadh. `progress` is the same as on Project Monitoring.
 
+## Payments (PayPal Sandbox)
+
+Issue #48: the contractor pays for the accepted quotation through PayPal in **sandbox mode**: real PayPal pages, sandbox buyer accounts, no real money. PayPal does not take SAR, so the quote price is charged in US dollars at 3.75 SAR per dollar; both amounts are saved.
+
+| Endpoint | Who | What it does |
+| --- | --- | --- |
+| `POST /projects/{id}/payments` | Contractor of the project | Body `{"return_url", "cancel_url"}` (pages of the MAMAR site). Needs an accepted quotation. Creates a PayPal order, saves the payment as `created`, and returns `{payment, approve_url}`. Open `approve_url` so the contractor pays on PayPal. 409 if the project is already paid |
+| `POST /payments/orders/{order_id}/capture` | Contractor who started it | PayPal sends the contractor back to `return_url?token=<order_id>`; the page calls this. It takes the money and saves `completed`. 400 if not approved on PayPal yet, 402 if declined (`failed`). Calling it again is safe |
+| `POST /payments/orders/{order_id}/cancel` | Contractor who started it | PayPal sends a cancelled payment to `cancel_url?token=<order_id>`; the page calls this and the payment is `cancelled` |
+| `GET /projects/{id}/payments` | Contractor of the project, winning provider | The payments of the project, newest first |
+
+Statuses: `created` (waiting on PayPal), `completed` (paid), `failed` (declined), `cancelled`. Without `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET` the endpoints return 503.
+
 ## Frontend Integration
 
 The React frontend runs on Vite at `http://localhost:5173`, which is allowed in `FRONTEND_ORIGINS`. CORS allows the methods used by the API (`GET`, `POST` and `PATCH`) and the `Authorization` and `Content-Type` headers, so the frontend can send JSON and the token. The deployed frontend, `https://mammar-blush.vercel.app`, is also allowed in `FRONTEND_ORIGINS` on Render.
@@ -780,6 +800,12 @@ pytest
 | `test_device_errors` | Device not in the layer 404, ArcGIS offline 502, a worker of another project 403, a latitude of 95 returns 422 |
 | `test_device_found_by_code` | A device is found by its code, for example `TC-014` |
 | `test_device_filter_accepts_ids_and_codes_only` | Only a number or a code made of letters, digits, `-` and `_` reaches the ArcGIS query |
+| `test_sar_is_charged_in_dollars` | 4,500 SAR is 1,200 USD, rounded to cents |
+| `test_contractor_pays_the_accepted_quotation` | Start, capture, safe to capture again, both sides see it, and a second payment returns 409 |
+| `test_cancel_and_start_again` | A cancelled payment cannot be captured, and a new payment cancels the unfinished one |
+| `test_not_approved_and_declined` | Not approved returns 400, declined returns 402 and saves `failed` |
+| `test_payment_errors` | No accepted quote 400, other users 403, no token 401, a return_url outside the site 422, unknown order 404 |
+| `test_without_paypal_keys_returns_503` | Without the keys, payments return 503 |
 | `test_haversine_matches_the_frontend` | The distance formula gives the same result as `distanceInMeters()` in the frontend |
 | `test_provider_pages_need_a_provider_token` | The four provider pages return 401 without a token and 403 for a contractor or a worker |
 | `test_new_provider_gets_empty_lists_and_zeros` | A company without projects gets `[]`, `null` and zeros |

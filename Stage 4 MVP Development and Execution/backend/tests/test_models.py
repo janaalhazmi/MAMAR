@@ -37,6 +37,11 @@ EXPECTED_COLUMNS = {
         "photo_id", "token", "project_id", "worker_id", "caption",
         "content_type", "data", "created_at",
     ],
+    "payments": [
+        "payment_id", "project_id", "quote_id", "contractor_id", "amount", "currency",
+        "charged_amount", "charged_currency", "paypal_order_id", "paypal_capture_id",
+        "status", "created_at", "paid_at",
+    ],
 }
 
 # The relationships table in Stage 3: (child table, column) -> parent table.
@@ -51,6 +56,9 @@ EXPECTED_FOREIGN_KEYS = {
     ("assignments", "worker_id"): "users",
     ("site_photos", "project_id"): "projects",
     ("site_photos", "worker_id"): "users",
+    ("payments", "project_id"): "projects",
+    ("payments", "quote_id"): "quotes",
+    ("payments", "contractor_id"): "users",
 }
 
 
