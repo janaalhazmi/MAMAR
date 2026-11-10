@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import * as providerProfileService from "../Contractor/profileService";
+import { PROVIDERS as PROVIDER_DIRECTORY } from "../Contractor/Contractor";
+import { useEffect, useState, useRef } from "react";
 import { getProviderProjects } from "./providerFlow";
 import {
   fetchRequestWorkZone,
@@ -422,4 +424,260 @@ export function useFieldWorkerRegistration(onCreated) {
   }
 
   return { worker, busy, error, created, submit };
+}
+
+export { providerProfileService };
+
+export function getProviderCompanyName(profile) {
+  if (profile?.company_name) return profile.company_name;
+  if (profile?.provider_id == null) return "";
+
+  return PROVIDER_DIRECTORY.find(
+    (company) => String(company.id) === String(profile.provider_id)
+  )?.name ?? "";
+}
+
+// Provider Profile: account settings, password and profile picture.
+const {
+  fetchMyProfile,
+  updateMyProfile,
+  changeMyPassword,
+  uploadMyProfilePicture,
+  deleteMyProfilePicture,
+} = providerProfileService;
+
+const EMPTY_PROVIDER_PROFILE = {
+  full_name: "",
+  email: "",
+  phone: "",
+  role: "provider",
+  profile_picture: "",
+  created_at: "",
+};
+
+function getProviderProfileErrorMessage(error, fallback) {
+  return error?.message || fallback;
+}
+
+function getProviderProfilePictureUrl(profile) {
+  return profile?.profile_picture_url || profile?.profile_picture || profile?.avatar_url || "";
+}
+
+function formatProviderProfileDate(value) {
+  if (!value) return "—";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+}
+
+export function useProviderProfile() {
+  const [profile, setProfile] = useState(EMPTY_PROVIDER_PROFILE);
+  const [form, setForm] = useState({ full_name: "", email: "", phone: "" });
+  const [passwords, setPasswords] = useState({
+    current_password: "",
+    new_password: "",
+    confirm_password: "",
+  });
+  const [loading, setLoading] = useState(true);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
+  const [pictureBusy, setPictureBusy] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const fileInput = useRef(null);
+
+  async function loadProfile() {
+    setLoading(true);
+    setError("");
+    try {
+      const user = await fetchMyProfile();
+      setProfile({ ...EMPTY_PROVIDER_PROFILE, ...user });
+      setForm({
+        full_name: user?.full_name || "",
+        email: user?.email || "",
+        phone: user?.phone || "",
+      });
+    } catch (err) {
+      setError(getProviderProfileErrorMessage(err, "Unable to load your profile."));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  function updateField(event) {
+    const { name, value } = event.target;
+    setForm((current) => ({ ...current, [name]: value }));
+  }
+
+  async function handleSaveProfile(event) {
+    event.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (!form.full_name.trim() || !form.email.trim()) {
+      setError("Name and email are required.");
+      return;
+    }
+
+    setSavingProfile(true);
+    try {
+      const updated = await updateMyProfile({
+        full_name: form.full_name.trim(),
+        email: form.email.trim().toLowerCase(),
+        phone: form.phone.trim() || null,
+      });
+      setProfile((current) => ({ ...current, ...updated }));
+      setForm({
+        full_name: updated.full_name ?? form.full_name.trim(),
+        email: updated.email ?? form.email.trim().toLowerCase(),
+        phone: updated.phone ?? form.phone.trim(),
+      });
+      setEditing(false);
+      setSuccess("Your profile details have been updated.");
+    } catch (err) {
+      setError(getProviderProfileErrorMessage(err, "Unable to update your profile."));
+    } finally {
+      setSavingProfile(false);
+    }
+  }
+
+  function handleCancelEdit() {
+    setForm({
+      full_name: profile.full_name || "",
+      email: profile.email || "",
+      phone: profile.phone || "",
+    });
+    setEditing(false);
+    setError("");
+  }
+
+  function updatePasswordField(event) {
+    const { name, value } = event.target;
+    setPasswords((current) => ({ ...current, [name]: value }));
+  }
+
+  async function handleChangePassword(event) {
+    event.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (!passwords.current_password || !passwords.new_password) {
+      setError("Enter your current password and a new password.");
+      return;
+    }
+    if (passwords.new_password.length < 8) {
+      setError("Your new password must contain at least 8 characters.");
+      return;
+    }
+    if (passwords.new_password !== passwords.confirm_password) {
+      setError("The new password and confirmation do not match.");
+      return;
+    }
+
+    setSavingPassword(true);
+    try {
+      await changeMyPassword({
+        current_password: passwords.current_password,
+        new_password: passwords.new_password,
+      });
+      setPasswords({ current_password: "", new_password: "", confirm_password: "" });
+      setSuccess("Your password has been changed.");
+    } catch (err) {
+      setError(getProviderProfileErrorMessage(err, "Unable to change your password."));
+    } finally {
+      setSavingPassword(false);
+    }
+  }
+
+  async function handlePictureSelected(event) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setError("Please select an image file.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError("The image must be 5 MB or smaller.");
+      return;
+    }
+
+    setError("");
+    setSuccess("");
+    setPictureBusy(true);
+    try {
+      const updated = await uploadMyProfilePicture(file);
+      if (updated && typeof updated === "object") {
+        setProfile((current) => ({ ...current, ...updated }));
+      } else {
+        await loadProfile();
+      }
+      setSuccess("Your profile picture has been updated.");
+    } catch (err) {
+      setError(getProviderProfileErrorMessage(err, "Unable to upload your profile picture."));
+    } finally {
+      setPictureBusy(false);
+    }
+  }
+
+  async function handleDeletePicture() {
+    setError("");
+    setSuccess("");
+    setPictureBusy(true);
+    try {
+      const updated = await deleteMyProfilePicture();
+      if (updated && typeof updated === "object") {
+        setProfile((current) => ({ ...current, ...updated }));
+      } else {
+        setProfile((current) => ({
+          ...current,
+          profile_picture: "",
+          profile_picture_url: "",
+          avatar_url: "",
+        }));
+      }
+      setSuccess("Your profile picture has been removed.");
+    } catch (err) {
+      setError(getProviderProfileErrorMessage(err, "Unable to remove your profile picture."));
+    } finally {
+      setPictureBusy(false);
+    }
+  }
+
+  const picture = getProviderProfilePictureUrl(profile);
+  const initial = (profile.full_name || "U").trim().charAt(0).toUpperCase();
+  const companyName = getProviderCompanyName(profile) || "—";
+
+  return {
+    profile,
+    form,
+    passwords,
+    loading,
+    savingProfile,
+    savingPassword,
+    pictureBusy,
+    editing,
+    error,
+    success,
+    fileInput,
+    picture,
+    initial,
+    setEditing,
+    updateField,
+    updatePasswordField,
+    handleSaveProfile,
+    handleCancelEdit,
+    handleChangePassword,
+    handlePictureSelected,
+    handleDeletePicture,
+    formatDate: formatProviderProfileDate,
+    companyName,
+  };
 }

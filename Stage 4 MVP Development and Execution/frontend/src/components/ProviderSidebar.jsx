@@ -34,6 +34,11 @@ const providerNavigation = [
     path: "/provider/field-team",
     icon: Users,
   },
+  {
+    label: "My Profile",
+    path: "/provider/profile",
+    icon: Users,
+  },
 ];
 
 function ProviderSidebar() {

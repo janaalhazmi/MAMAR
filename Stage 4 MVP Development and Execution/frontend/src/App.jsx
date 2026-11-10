@@ -35,6 +35,7 @@ import NotificationsPage from "./pages/Contractor/NotificationsPage";
 import PaymentPage from "./pages/Contractor/PaymentPage";
 import DataDisclaimerPage from "./pages/Weblogin/DataDisclaimerPage";
 import ProfilePage from "./pages/Contractor/ProfilePage";
+import ProviderProfilePage from "./pages/Providers/ProviderProfilePage";
 
 function App() {
   return (
@@ -61,6 +62,14 @@ function App() {
 
 
       <Route path="/profile" element={<ProfilePage />} />
+      <Route
+        path="/provider/profile"
+        element={
+          <ProtectedRoute roles={["provider"]}>
+            <ProviderProfilePage />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/data-disclaimer" element={<DataDisclaimerPage />} />
       <Route
          path="/notifications"

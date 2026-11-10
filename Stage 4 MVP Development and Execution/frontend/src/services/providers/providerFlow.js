@@ -1,6 +1,6 @@
 // src/services/providers/providerFlow.js
 // ---------------------------------------------------------------------------
-// Provider pages connected to the REAL backend.
+// Provider pages connected to the backend.
 //
 //   GET /provider/projects   the projects this provider's company won, with
 //                            status (Active / Upcoming / Completed), progress,

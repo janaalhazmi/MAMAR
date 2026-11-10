@@ -1,0 +1,43 @@
+@import "../Contractor/profile.css";
+
+.provider-profile-page {
+  --profile-yellow: #ffcc00;
+  --profile-yellow-hover: #e6b800;
+  --profile-yellow-soft: #fff4bf;
+  --profile-yellow-text: #5f4900;
+}
+
+.provider-profile-page .profile-button-primary {
+  color: #202b2a;
+  background: var(--profile-yellow);
+  border-color: var(--profile-yellow);
+}
+
+.provider-profile-page .profile-button-primary:hover:not(:disabled) {
+  background: var(--profile-yellow-hover);
+  border-color: var(--profile-yellow-hover);
+}
+
+.provider-profile-page .profile-button-outline {
+  color: var(--profile-yellow-text);
+  border-color: var(--profile-yellow-hover);
+}
+
+.provider-profile-page .profile-button-outline:hover:not(:disabled),
+.provider-profile-page .profile-avatar-placeholder {
+  color: var(--profile-yellow-text);
+  background: var(--profile-yellow-soft);
+}
+
+.provider-profile-page .profile-avatar-image {
+  border-color: var(--profile-yellow-soft);
+}
+
+.provider-profile-page .profile-eyebrow {
+  color: var(--profile-yellow-text);
+}
+
+.provider-profile-page .profile-field input:focus {
+  border-color: #997a00;
+  box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.25);
+}

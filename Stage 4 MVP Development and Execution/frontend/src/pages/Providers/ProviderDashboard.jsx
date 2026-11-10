@@ -38,7 +38,12 @@ function ProviderDashboard() {
             <NotificationBell />
 
             <div className="provider-account">
-              <div className="provider-avatar">{initials || "P"}</div>
+              <Link
+              to="/provider/profile"
+              className="provider-avatar"
+              aria-label="Open my profile"
+              style={{ textDecoration: "none" }}
+            >{initials || "P"}</Link>
 
               <div>
                 <strong>{displayName}</strong>
