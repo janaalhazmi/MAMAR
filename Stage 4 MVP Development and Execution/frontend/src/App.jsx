@@ -33,6 +33,7 @@ import DeviceVerification from "./pages/FieldWorker/DeviceVerification";
 import MyProjectsPage from "./pages/Contractor/MyProjectsPage";
 import NotificationsPage from "./pages/Contractor/NotificationsPage";
 import PaymentPage from "./pages/Contractor/PaymentPage";
+import DataDisclaimerPage from "./pages/Weblogin/DataDisclaimerPage";
 function App() {
   return (
     <Routes>
@@ -55,6 +56,7 @@ function App() {
       <Route path="/field-execution" element={<ProtectedRoute roles={["worker"]}><FieldExecution /></ProtectedRoute>} />
       <Route path="/device-verification" element={<ProtectedRoute roles={["worker"]}><DeviceVerification /></ProtectedRoute>} />
       <Route path="/my-projects" element={<ProtectedRoute roles={["contractor"]}><MyProjectsPage /></ProtectedRoute>} />
+      <Route path="/data-disclaimer" element={<DataDisclaimerPage />} />
       <Route
          path="/notifications"
          element={<NotificationsPage />}
