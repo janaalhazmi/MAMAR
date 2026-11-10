@@ -329,7 +329,7 @@ export async function uploadSitePhotos(projectId, photos) {
 // There is no GET /devices/{id}: the project comes from the page address,
 //   /device-verification?deviceId=TC-014&projectId=12
 export async function getDevice(deviceId, projectId) {
-  let project = null;
+  let project;
 
   if (projectId) {
     project = (await fetchFieldProject(token(), projectId)).project;
@@ -344,6 +344,8 @@ export async function getDevice(deviceId, projectId) {
     projectId: project?.project_id ?? null,
     projectName: project?.project_name || "Project",
     status: "Pending Verification",
+    // The location the contractor picked for the project (null if none was saved).
+    planned: getPlannedLocation(project?.project_id, project),
   };
 }
 

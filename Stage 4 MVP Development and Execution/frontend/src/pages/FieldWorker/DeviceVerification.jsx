@@ -9,7 +9,6 @@ import {
   distanceInMeters,
   formatDistance,
   getDevice,
-  getPlannedLocation,
   saveDeviceVerification,
 } from "../../services/fieldWork";
 
@@ -19,10 +18,8 @@ function DeviceVerification() {
   const [searchParams] = useSearchParams();
   // e.g. /device-verification?deviceId=TC-014
   const deviceId = searchParams.get("deviceId") || "TC-014";
-
-  // Planned point = the location the CONTRACTOR selected for the project.
-  // TODO(API): load it from the backend (see getPlannedLocation).
-  const planned = getPlannedLocation();
+  // Field Execution opens this page with ?projectId=<id>.
+  const projectId = searchParams.get("projectId");
 
   const [device, setDevice] = useState(null);
   const [captured, setCaptured] = useState(null);
@@ -32,20 +29,26 @@ function DeviceVerification() {
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState("");
 
+  // Planned point = the location the CONTRACTOR selected for the project.
+  const planned = device?.planned;
+  const hasPlannedPoint =
+    planned != null && Number.isFinite(planned.latitude) && Number.isFinite(planned.longitude);
+
   useEffect(() => {
     let active = true;
-    getDevice(deviceId)
+    getDevice(deviceId, projectId)
       .then((result) => active && setDevice(result))
       .catch(() => active && setError("Could not load this device."));
     return () => {
       active = false;
     };
-  }, [deviceId]);
+  }, [deviceId, projectId]);
 
   const tooFar = distance != null && distance > MAX_DISTANCE_METERS;
-  const canSave = captured && !tooFar && !verified && !saving;
+  const canSave = hasPlannedPoint && captured && !tooFar && !verified && !saving;
 
   async function handleCapture() {
+    if (!hasPlannedPoint) return;
     setCapturing(true);
     setError("");
     setVerified(false);
@@ -92,6 +95,20 @@ function DeviceVerification() {
     }
   }
 
+  if (device && !hasPlannedPoint) {
+    return (
+      <FieldWorkerShell activeKey="team">
+        <Link to={projectId ? `/field-execution?projectId=${projectId}` : "/field-execution"} className="pf-backlink">
+          ← Back to Field Execution
+        </Link>
+        <p className="pf-alert" role="alert">
+          The contractor has not saved a location for {device.projectName} yet, so the device
+          cannot be verified.
+        </p>
+      </FieldWorkerShell>
+    );
+  }
+
   if (!device) {
     return (
       <FieldWorkerShell activeKey="team">
@@ -108,7 +125,7 @@ function DeviceVerification() {
 
   return (
     <FieldWorkerShell activeKey="team">
-      <Link to="/field-execution" className="pf-backlink">
+      <Link to={projectId ? `/field-execution?projectId=${projectId}` : "/field-execution"} className="pf-backlink">
         ← Back to Field Execution
       </Link>
 
