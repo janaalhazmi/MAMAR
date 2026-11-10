@@ -322,3 +322,20 @@ export const postDeviceVerify = (token, device, body) =>
     headers: JSON_H,
     body: asJson(body), // { project_id, latitude, longitude, accuracy }
   });
+
+/* ---------- Payments (PayPal sandbox, issue #48) ---------- */
+export const postStartPayment = (token, projectId, returnUrl, cancelUrl) =>
+  authed(`/projects/${encodeURIComponent(projectId)}/payments`, token, {
+    method: "POST",
+    headers: JSON_H,
+    body: asJson({ return_url: returnUrl, cancel_url: cancelUrl }),
+  });
+
+export const postCapturePayment = (token, orderId) =>
+  authed(`/payments/orders/${encodeURIComponent(orderId)}/capture`, token, { method: "POST" });
+
+export const postCancelPayment = (token, orderId) =>
+  authed(`/payments/orders/${encodeURIComponent(orderId)}/cancel`, token, { method: "POST" });
+
+export const fetchProjectPayments = (token, projectId) =>
+  authed(`/projects/${encodeURIComponent(projectId)}/payments`, token);

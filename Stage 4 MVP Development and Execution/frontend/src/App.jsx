@@ -62,10 +62,10 @@ function App() {
          element={<NotificationsPage />}
        />
 
-      <Route
-        path="/payment"
-        element={<PaymentPage />}
-      />
+      <Route path="/payment" element={<ProtectedRoute roles={["contractor"]}><PaymentPage /></ProtectedRoute>} />
+      {/* PayPal sends the contractor back here with ?token=<order id>. */}
+      <Route path="/payment/return" element={<ProtectedRoute roles={["contractor"]}><PaymentPage /></ProtectedRoute>} />
+      <Route path="/payment/cancel" element={<ProtectedRoute roles={["contractor"]}><PaymentPage /></ProtectedRoute>} />
 
       <Route
         path="/register/verify"
