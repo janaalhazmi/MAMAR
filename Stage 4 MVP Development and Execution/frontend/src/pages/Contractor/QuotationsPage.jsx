@@ -1,123 +1,209 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ContractorShell from "../../components/ContractorShell";
 import Icon from "../../components/Icons";
 import {
   SERVICE_LABELS,
+  fetchProjects,
   formatDate,
   formatPrice,
-  formatServices,
-  getCurrentProject,
-  getReceived,
+  getQuotations,
   handleAcceptQuotation,
   handleRejectQuotation,
-  watchQuotations,
 } from "../../services/Contractor/Contractor";
+
+function normalizeStatus(status) {
+  if (status === "rejected") return "rejected";
+  if (status === "accepted") return "accepted";
+  return "received";
+}
 
 function QuotationsPage() {
   const navigate = useNavigate();
-  const project = getCurrentProject();
 
   const [quotations, setQuotations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [showCompare, setShowCompare] = useState(false);
+  const [rejectingId, setRejectingId] = useState(null);
 
   useEffect(() => {
-    if (project.id == null) {
-      setLoading(false);
-      return undefined;
+    let active = true;
+
+    async function loadAllQuotations() {
+      setLoading(true);
+      setError("");
+
+      try {
+        // Load every contractor project, then fetch its quotations.
+        const projects = await fetchProjects();
+
+        const results = await Promise.allSettled(
+          projects.map(async (project) => {
+            const projectQuotes = await getQuotations(project.id);
+            return projectQuotes.map((quotation) => ({
+              ...quotation,
+              status: normalizeStatus(
+                quotation.backendStatus || quotation.status
+              ),
+              projectId: project.id,
+              projectName: project.name || `Project #${project.id}`,
+              project,
+            }));
+          })
+        );
+
+        if (!active) return;
+
+        const successfulQuotes = [];
+        const failedProjects = [];
+
+        results.forEach((result, index) => {
+          if (result.status === "fulfilled") {
+            successfulQuotes.push(...result.value);
+          } else {
+            failedProjects.push(projects[index]?.name || `Project #${projects[index]?.id}`);
+          }
+        });
+
+        // Newest quotations first when the API provides a creation date.
+        successfulQuotes.sort((a, b) =>
+          String(b.createdAt || b.created_at || "").localeCompare(
+            String(a.createdAt || a.created_at || "")
+          )
+        );
+
+        setQuotations(successfulQuotes);
+
+        if (failedProjects.length) {
+          setError(
+            `Could not load quotations for: ${failedProjects.join(", ")}. Other quotations are still shown.`
+          );
+        } else if (projects.length === 0) {
+          setError("");
+        }
+      } catch (err) {
+        if (active) {
+          setError(err.message || "Could not load your projects and quotations.");
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
     }
 
-    return watchQuotations(project.id, {
-      onData: (data) => {
-        setQuotations(data);
-        setError("");
-      },
-      onError: setError,
-      onFinish: () => setLoading(false),
-    });
-  }, [project.id]);
+    loadAllQuotations();
 
-  const received = getReceived(quotations);
-  const requestedCount = quotations.length;
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const filteredQuotations = useMemo(() => {
+    const term = search.trim().toLowerCase();
+
+    return quotations.filter((quotation) => {
+      const matchesSearch =
+        !term ||
+        quotation.projectName?.toLowerCase().includes(term) ||
+        quotation.providerName?.toLowerCase().includes(term);
+
+      const matchesStatus =
+        statusFilter === "all" || quotation.status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [quotations, search, statusFilter]);
+
+  const received = filteredQuotations.filter(
+    (quotation) => quotation.status === "received"
+  );
+
+  const counts = {
+    all: quotations.length,
+    received: quotations.filter((q) => q.status === "received").length,
+    accepted: quotations.filter((q) => q.status === "accepted").length,
+    rejected: quotations.filter((q) => q.status === "rejected").length,
+  };
 
   async function handleReject(quotation) {
+    setError("");
+    setRejectingId(quotation.id);
+
     try {
-      setQuotations(await handleRejectQuotation(quotations, quotation));
+      const updated = await handleRejectQuotation(quotations, quotation);
+      setQuotations(
+        updated.map((item) =>
+          item.id === quotation.id
+            ? { ...item, status: "rejected", backendStatus: "rejected" }
+            : item
+        )
+      );
     } catch (err) {
       setError(err.message || "Could not reject this quotation. Please try again.");
+    } finally {
+      setRejectingId(null);
     }
   }
 
- function handleAccept(quotation) {
-  handleAcceptQuotation(quotation);
+  function handleAccept(quotation) {
+    handleAcceptQuotation(quotation);
 
-  navigate("/payment", {
-    state: {
-      quotation,
-      project,
-    },
-  });
-}
-
-  if (project.id == null) {
-    return (
-      <ContractorShell activeKey="quotations">
-        <section className="pf-heading">
-          <h1>Quotations</h1>
-          <p>Open a project from My Projects to see its quotations.</p>
-        </section>
-        <div className="pf-actions">
-          <button
-            type="button"
-            className="pf-btn pf-btn-primary"
-            onClick={() => navigate("/my-projects")}
-          >
-            Go to My Projects
-          </button>
-        </div>
-      </ContractorShell>
-    );
+    navigate("/payment", {
+      state: {
+        quotation,
+        project: quotation.project,
+      },
+    });
   }
 
   return (
     <ContractorShell activeKey="quotations">
-      <section className="pf-heading">
+      <div className="pf-heading">
         <h1>Quotations</h1>
-        <p>Review and compare quotations received for your project.</p>
-      </section>
+        <p>View and manage quotations received across all your projects.</p>
+      </div>
 
-      <section className="pf-summary">
-        <div className="pf-summary-item">
-          <span className="pf-label">Project</span>
-          <strong>{project.name}</strong>
+      <div className="pf-quote-overview">
+        <div className="pf-card pf-quote-overview-card">
+          <span className="pf-label">All quotations</span>
+          <strong>{counts.all}</strong>
         </div>
-        <div className="pf-summary-item">
-          <span className="pf-label">Location</span>
-          <strong>{project.location || "Not specified"}</strong>
+        <div className="pf-card pf-quote-overview-card">
+          <span className="pf-label">Awaiting decision</span>
+          <strong>{counts.received}</strong>
         </div>
-        <div className="pf-summary-item">
-          <span className="pf-label">Services</span>
-          <strong>
-            {(project.services || [])
-              .map((id) => SERVICE_LABELS[id] || id)
-              .join(" + ") || "Not specified"}
-          </strong>
+        <div className="pf-card pf-quote-overview-card">
+          <span className="pf-label">Accepted</span>
+          <strong>{counts.accepted}</strong>
         </div>
-        <span className="pf-pill pf-pill-yellow">
-          <i aria-hidden="true" />
-          {received.length} {received.length === 1 ? "Quote" : "Quotes"} Received
-        </span>
-      </section>
+        <div className="pf-card pf-quote-overview-card">
+          <span className="pf-label">Rejected</span>
+          <strong>{counts.rejected}</strong>
+        </div>
+      </div>
 
-      <section className="pf-section">
-        <h2>Received Quotations</h2>
-        <p className="pf-sub">
-          Prices and estimated durations are provided by each provider based on
-          project requirements. This page refreshes automatically.
-        </p>
-      </section>
+      <div className="pf-quotation-toolbar">
+        <input
+          type="search"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Search by project or provider..."
+          aria-label="Search quotations"
+        />
+
+        <select
+          value={statusFilter}
+          onChange={(event) => setStatusFilter(event.target.value)}
+          aria-label="Filter quotations by status"
+        >
+          <option value="all">All statuses</option>
+          <option value="received">Awaiting decision</option>
+          <option value="accepted">Accepted</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
 
       {error && (
         <p className="pf-alert" role="alert">
@@ -126,22 +212,48 @@ function QuotationsPage() {
       )}
 
       {loading ? (
-        <p className="pf-empty">Loading quotations…</p>
-      ) : quotations.length === 0 ? (
-        <p className="pf-empty">
-          No quotations yet. Providers will appear here as soon as they send a
-          price.
-        </p>
+        <p className="pf-empty">Loading quotations from your projects…</p>
+      ) : filteredQuotations.length === 0 ? (
+        <div className="pf-empty-state">
+          <h2>
+            {quotations.length === 0
+              ? "No quotations received yet"
+              : "No quotations match your search"}
+          </h2>
+          <p>
+            {quotations.length === 0
+              ? "When providers submit prices for any of your projects, their quotations will appear here."
+              : "Try changing your search or status filter."}
+          </p>
+          {quotations.length === 0 && (
+            <button
+              type="button"
+              className="pf-btn pf-btn-primary"
+              onClick={() => navigate("/my-projects")}
+            >
+              View My Projects
+            </button>
+          )}
+        </div>
       ) : (
         <div className="pf-quote-grid">
-          {quotations.map((quotation) => {
+          {filteredQuotations.map((quotation) => {
             const rejected = quotation.status === "rejected";
+            const accepted = quotation.status === "accepted";
+            const locked = rejected || accepted;
 
             return (
               <article
-                key={quotation.id}
-                className={`pf-card pf-quote ${rejected ? "pf-quote-rejected" : ""}`}
+                key={`${quotation.projectId}-${quotation.id}`}
+                className={`pf-card pf-quote ${
+                  rejected ? "pf-quote-rejected" : ""
+                }`}
               >
+                <div className="pf-quote-project">
+                  <span className="pf-label">Project</span>
+                  <strong>{quotation.projectName}</strong>
+                </div>
+
                 <div className="pf-quote-head">
                   {quotation.providerLogo ? (
                     <img
@@ -162,17 +274,28 @@ function QuotationsPage() {
                         fontWeight: 700,
                       }}
                     >
-                      {quotation.providerName.charAt(0).toUpperCase()}
+                      {(quotation.providerName || "P").charAt(0).toUpperCase()}
                     </div>
                   )}
+
                   <div>
                     <h3>{quotation.providerName}</h3>
                     <p>{quotation.providerDescription}</p>
                     <span
-                      className={`pf-pill ${rejected ? "pf-pill-red" : "pf-pill-green"}`}
+                      className={`pf-pill ${
+                        rejected
+                          ? "pf-pill-red"
+                          : accepted
+                            ? "pf-pill-green"
+                            : "pf-pill-yellow"
+                      }`}
                     >
                       <i aria-hidden="true" />
-                      {rejected ? "Rejected" : "Received"}
+                      {accepted
+                        ? "Accepted"
+                        : rejected
+                          ? "Rejected"
+                          : "Awaiting decision"}
                     </span>
                   </div>
                 </div>
@@ -186,20 +309,26 @@ function QuotationsPage() {
                   </div>
                   <div>
                     <span className="pf-label">Estimated Duration</span>
-                    <strong className="pf-mid">{quotation.durationDays} Days</strong>
+                    <strong className="pf-mid">
+                      {quotation.durationDays} Days
+                    </strong>
                   </div>
                 </div>
 
                 <div className="pf-quote-services">
                   <span className="pf-label">Included Services</span>
-                  <ul>
-                    {quotation.services.map((id) => (
-                      <li key={id}>
-                        <Icon name="check" size={14} />
-                        {SERVICE_LABELS[id] || id}
-                      </li>
-                    ))}
-                  </ul>
+                  {quotation.services?.length ? (
+                    <ul>
+                      {quotation.services.map((service, index) => (
+                        <li key={`${service}-${index}`}>
+                          <Icon name="check" size={14} />
+                          {SERVICE_LABELS[service] || service}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="pf-muted">No service details provided.</p>
+                  )}
                 </div>
 
                 {quotation.notes && (
@@ -214,22 +343,30 @@ function QuotationsPage() {
                   </div>
                 )}
 
+                {quotation.startDate && (
+                  <div className="pf-quote-services">
+                    <span className="pf-label">Proposed Start Date</span>
+                    <p className="pf-muted">{formatDate(quotation.startDate)}</p>
+                  </div>
+                )}
+
                 <div className="pf-quote-actions">
                   <button
                     type="button"
                     className="pf-btn pf-btn-reject"
-                    disabled={rejected}
+                    disabled={locked || rejectingId === quotation.id}
                     onClick={() => handleReject(quotation)}
                   >
-                    <span aria-hidden="true">✕</span> Reject
+                    {rejectingId === quotation.id ? "Rejecting…" : "✕ Reject"}
                   </button>
                   <button
                     type="button"
                     className="pf-btn pf-btn-accept"
-                    disabled={rejected}
+                    disabled={locked}
                     onClick={() => handleAccept(quotation)}
                   >
-                    <Icon name="check" size={16} /> Accept
+                    <Icon name="check" size={16} />
+                    {accepted ? "Accepted" : "Accept"}
                   </button>
                 </div>
               </article>
@@ -242,7 +379,9 @@ function QuotationsPage() {
         <section className="pf-compare-banner">
           <div>
             <h2>Compare Quotations</h2>
-            <p>Compare price, duration and included services before selecting a provider.</p>
+            <p>
+              Compare prices, durations and services across your projects.
+            </p>
           </div>
           <button
             type="button"
@@ -259,6 +398,7 @@ function QuotationsPage() {
           <table className="pf-table">
             <thead>
               <tr>
+                <th>Project</th>
                 <th>Provider</th>
                 <th>Total price</th>
                 <th>Duration</th>
@@ -267,32 +407,20 @@ function QuotationsPage() {
               </tr>
             </thead>
             <tbody>
-              {received.map((q) => (
-                <tr key={q.id}>
-                  <td>{q.providerName}</td>
-                  <td>{formatPrice(q.totalPrice)}</td>
-                  <td>{q.durationDays} days</td>
-                  <td>{formatDate(q.startDate)}</td>
-                  <td>{q.services.length}</td>
+              {received.map((quotation) => (
+                <tr key={`${quotation.projectId}-${quotation.id}`}>
+                  <td>{quotation.projectName}</td>
+                  <td>{quotation.providerName}</td>
+                  <td>{formatPrice(quotation.totalPrice)}</td>
+                  <td>{quotation.durationDays} days</td>
+                  <td>{formatDate(quotation.startDate)}</td>
+                  <td>{quotation.services?.length || 0}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
-
-      <section className="pf-section">
-        <h2>Quote Requests</h2>
-        <div className="pf-card pf-request-row">
-          <span>
-            <Icon name="check" size={14} />
-            {received.length} of {requestedCount} quotations still open
-          </span>
-          <span className="pf-muted">
-            {requestedCount === 0 ? "Waiting for providers" : "Review and decide"}
-          </span>
-        </div>
-      </section>
     </ContractorShell>
   );
 }
