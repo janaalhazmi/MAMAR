@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from app.services.notifications import notify_user, notify_provider
 
 from app.core.access import accepted_quote, get_project, own_project, open_project_or_400
 from app.core.security import allow_roles
@@ -116,6 +117,16 @@ def submit_quotation(data: QuotationCreate, user: User = Depends(provider_only),
         **data.model_dump(exclude={"project_id"}),
     )
     db.add(quote)
+    project = db.get(Project, request.project_id)
+    if project is not None:
+        notify_user(
+            db=db,
+            user_id=project.contractor_id,
+            notification_type="quote",
+            title="New Quotation Received",
+            message=f'A new quotation has been submitted for project "{project.project_name}".',
+            link="/quotations",
+        )
     try:
         db.commit()
     except IntegrityError as error:
@@ -163,6 +174,14 @@ def reject_quote(quote_id: int, user: User = Depends(contractor_only), db: Sessi
     if quote.status != "pending":
         raise HTTPException(status_code=400, detail=f"The quote is already {quote.status}")
     quote.reject()
+    notify_provider(
+        db=db,
+        provider_id=quote.provider_id,
+        notification_type="quote_rejected",
+        title="Quotation Rejected",
+        message=f"Your quotation #{quote.quote_id} has been rejected.",
+        link="/provider-dashboard",
+    )
     db.commit()
     return quote.to_dict()
 
@@ -195,6 +214,14 @@ def confirm_provider(
         raise HTTPException(status_code=400, detail=f"The quote is {quote.status}")
     request.award(quote.quote_id)
     project.update_status("active")
+    notify_provider(
+        db=db,
+        provider_id=quote.provider_id,
+        notification_type="quote_accepted",
+        title="Quotation Accepted",
+        message=f'Your quotation for project "{project.project_name}" has been accepted.',
+        link="/provider-dashboard",
+    )
     db.commit()
     db.refresh(project)
     return {"project": project.to_dict(), "quote": quote.to_dict()}
@@ -233,8 +260,23 @@ COMPLETION_ERRORS = {
 def approve_completion(project_id: int, user: User = Depends(contractor_only), db: Session = Depends(get_db)):
     project = submitted_project(db, project_id, user)
     project.update_status("completed")
-    for assignment in db.scalars(select(Assignment).where(Assignment.project_id == project_id)):
+
+    for assignment in db.scalars(
+        select(Assignment).where(Assignment.project_id == project_id)
+    ):
         assignment.complete()
+
+    quote = accepted_quote(db, project_id)
+    if quote is not None:
+        notify_provider(
+            db=db,
+            provider_id=quote.provider_id,
+            notification_type="project_completed",
+            title="Project Completed",
+            message=f'Project "{project.project_name}" has been approved and marked as completed.',
+            link="/provider-dashboard",
+        )
+
     db.commit()
     db.refresh(project)
     return project.to_dict()
@@ -253,6 +295,18 @@ def request_changes(
     project.submitted_at = None
     project.site_status = "Work in Progress"
     project.change_note = data.note
+
+    quote = accepted_quote(db, project_id)
+    if quote is not None:
+        notify_provider(
+            db=db,
+            provider_id=quote.provider_id,
+            notification_type="changes_requested",
+            title="Project Changes Requested",
+            message=f'Changes have been requested for project "{project.project_name}". Please review the contractor feedback.',
+            link="/provider-dashboard",
+        )
+
     db.commit()
     db.refresh(project)
     return project.to_dict()
