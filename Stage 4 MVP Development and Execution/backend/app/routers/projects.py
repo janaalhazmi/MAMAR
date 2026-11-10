@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.core.access import accepted_quote, can_view_project, get_project, open_project_or_400
 from app.core.security import get_current_user
 from app.db.database import get_db
-from app.models import Project, ServiceRequest, User
+from app.models import Assignment, Project, ServiceRequest, User
 from app.schemas.error import ErrorResponse
 from app.schemas.project import ProjectCreate, ProjectResponse, ProjectStatus, ProjectUpdate
 
@@ -134,6 +134,11 @@ def update_project(
             select(ServiceRequest).where(ServiceRequest.project_id == project.project_id, ServiceRequest.status == "open")
         ):
             request.close()
+        # Its field workers are free again for other projects.
+        for assignment in db.scalars(
+            select(Assignment).where(Assignment.project_id == project.project_id, Assignment.status == "active")
+        ):
+            assignment.status = "cancelled"
     for field, value in changes.items():
         setattr(project, field, value)
     if status is not None:
