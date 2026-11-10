@@ -80,9 +80,8 @@ def test_provider_sees_open_requests_and_the_requests_it_won(api):
     awarded = api.request(contractor, project_id)
     quote = api.quote(provider, awarded["request_id"])
     assert api.award(contractor, awarded["request_id"], quote["quote_id"]).status_code == 200
-    open_request = api.request(contractor, project_id)
-    ids = [r["request_id"] for r in api.client.get(f"/requests?project_id={project_id}", headers=provider).json()]
-    assert ids == [open_request["request_id"]]
+    # The awarded request leaves the open list.
+    assert api.client.get(f"/requests?project_id={project_id}", headers=provider).json() == []
     won = api.client.get(f"/requests?status=awarded&project_id={project_id}", headers=provider).json()
     assert [r["request_id"] for r in won] == [awarded["request_id"]]
     # Another company did not win it, so it sees nothing awarded.

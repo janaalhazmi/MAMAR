@@ -437,7 +437,7 @@ The provider workflow from Stage 3, sections 3.2, 4.2.8 to 4.2.14. All of them n
 
 | Endpoint | Who | What it does |
 | --- | --- | --- |
-| `POST /projects/{id}/requests` | Contractor of the project | Creates a service request as `open`. Body: `title`, `required_by`, and optional `details` and `provider_ids` (the providers chosen on Select Provider, for example `[1, 3]`). Without `provider_ids` every provider sees the request. A project keeps one open request: asking again updates that request (new title and dates, the new providers are added) and returns it with 200 instead of 201 |
+| `POST /projects/{id}/requests` | Contractor of the project | Creates a service request as `open`. Body: `title`, `required_by`, and optional `details` and `provider_ids` (the providers chosen on Select Provider, for example `[1, 3]`). Without `provider_ids` every provider sees the request. A project keeps one open request: asking again updates that request (new title and dates, the new providers are added) and returns it with 200 instead of 201. After a provider is confirmed the project takes no new request (409 `A provider is already confirmed for this project`) |
 | `GET /requests` | Contractor, provider | A contractor sees the requests of their projects. A provider sees the open requests it was invited to, and with `?status=awarded` (or `closed`) the requests its company won. Optional `?status=` and `?project_id=`. Newest first |
 | `POST /requests/{id}/quotes` | Provider invited to the request | Sends a quote as `pending`. Body: `price`, `duration_days`, and optional `notes`. `provider_id` comes from the token |
 | `GET /requests/{id}/work-zone` | Contractor of the project, provider | The project's place for the Prepare Quotation map: `project_name`, dates, `location`, `latitude`, `longitude` and `work_zone`. A provider sees it while the request is open for its company (invited and not declined), and later only if it sent a quote |
@@ -487,7 +487,7 @@ The endpoints that `frontend/src/services/projectFlow.js` and `fieldWork.js` cal
 | `POST /field-worker/projects/{id}/check-in` | Assigned field worker | Saves the check-in time. A site that was `Not Started` becomes `Work in Progress` |
 | `POST /field-worker/projects/{id}/photos` | Assigned field worker | `multipart/form-data`: one `photos` field per file and optional `captions`. JPEG, PNG or WebP, up to 5 MB each and 10 per upload |
 | `GET /photos/{token}` | Anyone with the link | The photo file. The URL has a random value, so `<img>` can show it without the token header |
-| `POST /devices/{device}/verify` | Assigned field worker | `device` is the `device_id` (3001) or `device_code` (TC-001) in the MAMAR Traffic Devices layer. Body: `project_id`, `latitude`, `longitude`, optional `accuracy`. The server reads the planned point from ArcGIS and refuses more than 50 m |
+| `POST /devices/{device}/verify` | Assigned field worker | `device` is the `device_id` (3001) or `device_code` (TC-001) in the MAMAR Traffic Devices layer. Body: `project_id`, `latitude`, `longitude`, optional `accuracy`. The server reads the planned point from ArcGIS and refuses more than 50 m. A completed or cancelled project is refused with 400 |
 
 `progress` comes from `site_status`: `Not Started` 0, `Work in Progress` and `Paused` 50, `Completed` 100, and 100 for a completed project. Photo URLs are paths like `/photos/3f2a...`, so the frontend adds the API address before them.
 

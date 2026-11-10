@@ -189,7 +189,7 @@ def confirm_provider(
     request = db.get(ServiceRequest, quote.request_id) if quote else None
     if quote is None or request.project_id != project_id:
         raise HTTPException(status_code=404, detail="Quote not found for this project")
-    if request.status != "open":
+    if request.status != "open" or accepted_quote(db, project_id) is not None:
         raise HTTPException(status_code=400, detail="A provider is already confirmed for this project")
     if quote.status != "pending":
         raise HTTPException(status_code=400, detail=f"The quote is {quote.status}")

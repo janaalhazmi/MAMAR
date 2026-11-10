@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.core.access import open_project_or_400
+from app.core.access import accepted_quote, open_project_or_400
 from app.core.security import allow_roles
 from app.db.database import get_db
 from app.models import Project, Provider, Quote, ServiceRequest, User
@@ -28,6 +28,7 @@ CREATE_ERRORS = {
     400: {"model": ErrorResponse, "description": "The project is completed or cancelled"},
     403: {"model": ErrorResponse, "description": "The user is not a contractor, or the project belongs to another contractor"},
     404: {"model": ErrorResponse, "description": "The project does not exist"},
+    409: {"model": ErrorResponse, "description": "A provider is already confirmed for this project"},
     422: {"model": ErrorResponse, "description": "A field is missing or not valid, or a provider_id does not exist"},
 }
 LIST_ERRORS = {
@@ -37,7 +38,7 @@ LIST_ERRORS = {
 }
 AWARD_ERRORS = {
     **TOKEN_ERROR,
-    400: {"model": ErrorResponse, "description": "The request is already awarded or closed"},
+    400: {"model": ErrorResponse, "description": "The request is already awarded or closed, the project is closed, or a provider is already confirmed"},
     403: {"model": ErrorResponse, "description": "The user is not a contractor, or the request belongs to another contractor"},
     404: {"model": ErrorResponse, "description": "The request does not exist, or the quote does not belong to this request"},
     422: {"model": ErrorResponse, "description": "quote_id is missing or not a number"},
@@ -66,6 +67,9 @@ def create_request(
     if project.contractor_id != user.user_id:
         raise HTTPException(status_code=403, detail="This project belongs to another contractor")
     open_project_or_400(project)
+    if accepted_quote(db, project.project_id) is not None:
+        # One provider per project: after a quotation is confirmed, no new request is sent out.
+        raise HTTPException(status_code=409, detail="A provider is already confirmed for this project")
     if data.provider_ids:
         found = set(db.scalars(select(Provider.provider_id).where(Provider.provider_id.in_(data.provider_ids))))
         missing = [provider_id for provider_id in data.provider_ids if provider_id not in found]
@@ -136,14 +140,20 @@ def award_request(
     request = db.get(ServiceRequest, request_id)
     if request is None:
         raise HTTPException(status_code=404, detail="Request not found")
-    if db.get(Project, request.project_id).contractor_id != user.user_id:
+    project = db.get(Project, request.project_id)
+    if project.contractor_id != user.user_id:
         raise HTTPException(status_code=403, detail="This request belongs to another contractor")
     if request.status != "open":
         raise HTTPException(status_code=400, detail=f"The request is already {request.status}")
+    open_project_or_400(project)
+    if accepted_quote(db, project.project_id) is not None:
+        raise HTTPException(status_code=400, detail="A provider is already confirmed for this project")
     try:
         quote = request.award(data.quote_id)
     except LookupError as error:
         raise HTTPException(status_code=404, detail="Quote not found for this request") from error
+    # Same result as confirm-provider: the project with a confirmed provider is active.
+    project.update_status("active")
     db.commit()
     return {
         "request_id": request.request_id,
