@@ -11,6 +11,7 @@ import {
   handleAcceptQuotation,
   handleRejectQuotation,
 } from "../../services/Contractor/Contractor";
+import "../../styles/Contractor/quotations.css";
 
 function normalizeStatus(status) {
   if (status === "rejected") return "rejected";
