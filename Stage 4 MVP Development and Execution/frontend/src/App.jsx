@@ -4,6 +4,7 @@ import { useEffect as useExecutionEffect, useRef as useExecutionRef } from "reac
 import { useNavigate as useExecutionNavigate } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminPage from "./pages/Admin/AdminPage";
 
 import LandingPage from "./pages/Weblogin/LandingPage";
 import LoginPage from "./pages/Weblogin/LoginPage";
@@ -96,6 +97,15 @@ function App() {
         element={
           <ProtectedRoute roles={["contractor"]}>
             <ContractorDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute roles={["admin"]}>
+            <AdminPage />
           </ProtectedRoute>
         }
       />
