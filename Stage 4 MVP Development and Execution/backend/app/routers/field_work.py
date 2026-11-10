@@ -70,10 +70,11 @@ def open_project(db: Session, project_id: int, user: User) -> Project:
 @router.get("/field-worker/projects", response_model=list[FieldProject], responses=TOKEN_ERROR)
 def my_projects(user: User = Depends(worker_only), db: Session = Depends(get_db)):
     # The Field Worker Dashboard: the projects this worker is assigned to, newest first.
+    # A cancelled project leaves the list (completed ones stay, for the Completed count).
     projects = db.scalars(
         select(Project)
         .join(Assignment, Assignment.project_id == Project.project_id)
-        .where(Assignment.worker_id == user.user_id)
+        .where(Assignment.worker_id == user.user_id, Project.project_status != "cancelled")
         .order_by(Project.project_id.desc())
     ).all()
     return [field_project(db, project) for project in projects]

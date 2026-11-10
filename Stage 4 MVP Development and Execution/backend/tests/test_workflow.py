@@ -357,6 +357,24 @@ def test_device_errors(api, monkeypatch):
     assert verify(api, worker, project_id, 95, 0).status_code == 422
 
 
+def test_device_uses_the_project_location_when_the_map_has_no_device(api, monkeypatch):
+    # A new project has no devices in the ArcGIS layer: the contractor's saved point is used.
+    project_id, contractor, _, worker = active_project_with_worker(api)
+    location = {"latitude": PLANNED[0], "longitude": PLANNED[1]}
+    assert api.client.patch(f"/projects/{project_id}", json=location, headers=contractor).status_code == 200
+    monkeypatch.setattr(arcgis, "planned_device_point", lambda device, project_id: None)
+    response = verify(api, worker, project_id, PLANNED[0] + 38 / 111320, PLANNED[1], device_id="TC-014")
+    assert response.status_code == 200 and 37 <= response.json()["distance_m"] <= 39
+    response = verify(api, worker, project_id, PLANNED[0] + 200 / 111320, PLANNED[1])
+    assert response.status_code == 422
+
+    def offline(device, project_id):
+        raise arcgis.ArcGISError("The map service could not be reached")
+
+    monkeypatch.setattr(arcgis, "planned_device_point", offline)
+    assert verify(api, worker, project_id, *PLANNED).status_code == 200
+
+
 def test_device_found_by_code(api, monkeypatch):
     project_id, _, _, worker = active_project_with_worker(api)
     seen = []

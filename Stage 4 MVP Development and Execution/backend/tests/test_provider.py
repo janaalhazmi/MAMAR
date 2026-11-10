@@ -252,6 +252,27 @@ def test_provider_workers_shows_the_current_project_and_filters(api):
     row = next(r for r in api.client.get("/provider/workers", headers=provider).json() if r["user_id"] == worker_id)
     assert (row["status"], row["project"], row["active_projects"]) == ("Available", None, 0)
 
+    # The free worker can be assigned to the next project of the same company.
+    _, next_contractor = api.account()
+    next_id = api.project(next_contractor)
+    request = api.request(next_contractor, next_id)
+    quote = api.quote(provider, request["request_id"])
+    api.client.post(f"/projects/{next_id}/confirm-provider", json={"quote_id": quote["quote_id"]}, headers=next_contractor)
+    response = api.client.post(f"/projects/{next_id}/assignments", json={"worker_id": worker_id}, headers=provider)
+    assert response.status_code == 201
+    row = next(r for r in api.client.get("/provider/workers", headers=provider).json() if r["user_id"] == worker_id)
+    assert (row["status"], row["project"]["project_id"]) == ("Active", next_id)
+
+    # Cancelling that project frees the worker again.
+    api.client.patch(f"/projects/{next_id}", json={"project_status": "cancelled"}, headers=next_contractor)
+    statuses = {a["project_id"]: a["status"] for a in api.client.get("/assignments", headers=provider).json()}
+    assert statuses[project_id] == "completed" and statuses[next_id] == "cancelled"
+    row = next(r for r in api.client.get("/provider/workers", headers=provider).json() if r["user_id"] == worker_id)
+    assert (row["status"], row["project"]) == ("Available", None)
+    # The worker no longer sees the cancelled project; the completed one stays for the Completed count.
+    mine = [p["project"]["project_id"] for p in api.client.get("/field-worker/projects", headers=worker).json()]
+    assert mine == [project_id]
+
 
 
 def test_completion_goes_from_the_worker_to_the_provider_to_the_contractor(api):

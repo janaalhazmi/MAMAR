@@ -481,7 +481,7 @@ The endpoints that `frontend/src/services/projectFlow.js` and `fieldWork.js` cal
 | `GET /projects/{id}/completion` | Contractor of the project | The same data, for Review Completion |
 | `POST /projects/{id}/complete` | Contractor of the project | After the provider sends the work: the project becomes `completed` and its assignments too |
 | `POST /projects/{id}/request-changes` | Contractor of the project | Body `{"note": "..."}`. Sends the work back: `Work in Progress`, and the worker sees the note |
-| `GET /field-worker/projects` | Field worker | The projects the worker is assigned to, newest first |
+| `GET /field-worker/projects` | Field worker | The projects the worker is assigned to, newest first. A cancelled project is left out. When a project is completed or cancelled its workers show as Available on the Field Team page and can be assigned to another project |
 | `GET /field-worker/projects/{id}` | Assigned field worker | The project, `site_status`, `progress`, `team`, `photos` and the contractor's `change_note` |
 | `PATCH /field-worker/projects/{id}/status` | Assigned field worker | Body `{"status": "Completed"}`. One of `Not Started`, `Work in Progress`, `Paused`, `Completed`. `Completed` tells the provider the work is done (the provider sends it to the contractor). Any other status takes back work that was already sent |
 | `POST /field-worker/projects/{id}/check-in` | Assigned field worker | Saves the check-in time. A site that was `Not Started` becomes `Work in Progress` |
