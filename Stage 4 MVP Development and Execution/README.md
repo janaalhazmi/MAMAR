@@ -275,6 +275,7 @@ Task statuses will be tracked using:
 - To Do
 - In Progress
 - In Review
+
 - Done
 - Blocked
 
