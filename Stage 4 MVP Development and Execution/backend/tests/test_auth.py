@@ -17,7 +17,7 @@ from app.routers.auth import company_domain
 # The fields of the 201 response in Stage 3, section 4.2.3, in the same order.
 USER_FIELDS = [
     "user_id", "full_name", "email", "phone",
-    "role", "provider_id", "is_active", "created_at",
+    "role", "provider_id", "is_active", "created_at", "profile_picture",
 ]
 
 

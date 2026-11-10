@@ -206,6 +206,12 @@ def update_profile(
 ):
     changes = data.model_dump(exclude_unset=True)
 
+    if "email" in changes and user.provider_id is not None:
+        # Same rule as sign up: a provider or worker keeps the company email.
+        domain = company_domain(db.get(Provider, user.provider_id).website)
+        if domain and not changes["email"].endswith(f"@{domain}"):
+            raise HTTPException(status_code=422, detail=f"email: use your company email (@{domain})")
+
     if "email" in changes:
         existing = db.scalar(
             select(User).where(
