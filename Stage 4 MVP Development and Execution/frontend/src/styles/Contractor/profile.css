@@ -15,7 +15,7 @@
 }
 /* تنسيق النص الصغير فوق العنوان */
 .profile-eyebrow {
-  color: #8b987f;
+  color: #151615;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 1.8px;
@@ -31,7 +31,7 @@
 .profile-heading p,
 .profile-card-heading p {
   margin: 0;
-  color: #d1d67e;
+  color: #171715;
   font-size: 13px;
   line-height: 1.6;
 }
@@ -63,7 +63,7 @@
 /* تنسيق عنوان البطاقة */
 .profile-card-heading h2 {
   margin: 0 0 6px;
-  color: #26332e;
+  color: #0f0f0f;
   font-size: 16px;
   font-weight: 750;
 }
@@ -96,7 +96,7 @@
 .profile-avatar-placeholder {
   display: grid;
   place-items: center;
-  background: #e8eee6;
+  background: #eec41d;
   color: #f3bd57;
   font-size: 42px;
   font-weight: 750;
@@ -117,7 +117,7 @@
   display: block;
   margin-top: 12px;
   text-align: center;
-  color: #929b95;
+  color: #080808;
   font-size: 11px;
 }
 /* ترتيب معلومات الحساب بشكل عمودي */
@@ -138,11 +138,11 @@
 }
 /* لون أسماء المعلومات */
 .profile-account-meta span {
-  color: #89928c;
+  color: #000000;
 }
 /* تنسيق قيم معلومات الحساب */
 .profile-account-meta strong {
-  color: #34413a;
+  color: #000000;
   font-weight: 650;
   text-transform: capitalize;
   text-align: right;
@@ -167,7 +167,7 @@
 }
 /* تنسيق أسماء الحقول */
 .profile-field span {
-  color: #4b5750;
+  color: #000000;
   font-size: 12px;
   font-weight: 700;
 }
@@ -181,20 +181,20 @@
   border-radius: 9px;
   outline: none;
   background: #fbfcfb;
-  color: #27332c;
+  color: #000000;
   font: inherit;
   font-size: 13px;
   transition: border-color .18s, box-shadow .18s, background .18s;
 }
 /* تغيير شكل الحقل عند الضغط عليه */
 .profile-field input:focus {
-  border-color: #81977e;
+  border-color: #000000;
   box-shadow: 0 0 0 3px rgba(129, 151, 126, .12);
   background: #fff;
 }
 /* تنسيق الحقول غير القابلة للتعديل */
 .profile-field input:disabled {
-  color: #68736c;
+  color: #000000;
   background: #f7f9f7;
   cursor: default;
 }
@@ -225,18 +225,18 @@
 /* تصميم الزر الرئيسي */
 .profile-button-primary {
   color: #fff;
-  background: #536f59;
-  border-color: #536f59;
+  background: #e5c32e;
+  border-color: #e4b022;
 }
 /* تغيير لون الزر الرئيسي عند المرور عليه */
 .profile-button-primary:hover:not(:disabled) {
-  background: #435d49;
+  background: #e0a824;
 }
 /* تصميم الزر ذي الإطار */
 .profile-button-outline {
-  color: #536f59;
-  background: #fff;
-  border-color: #cbd7cb;
+  color: #d9d442;
+  background: #e5c32e;
+  border-color: #e4b022;
 }
 /* تغيير خلفية الزر ذي الإطار عند المرور عليه */
 .profile-button-outline:hover:not(:disabled) {
@@ -244,7 +244,7 @@
 }
 /* تصميم الزر الثانوي الهادئ */
 .profile-button-quiet {
-  color: #66716a;
+  color: #e5c32e;
   background: #f5f7f5;
   border-color: #e8ece8;
 }
@@ -275,7 +275,7 @@
 .profile-loading {
   padding: 60px 20px;
   text-align: center;
-  color: #7c8780;
+  color: #aeaea9;
   background: #fff;
   border: 1px solid #e8ece8;
   border-radius: 14px;
