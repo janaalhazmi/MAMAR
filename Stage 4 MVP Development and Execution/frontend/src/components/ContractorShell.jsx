@@ -115,14 +115,14 @@ function ContractorShell({ activeKey, children }) {
         <div className="cd-header-actions">
           <NotificationBell />
 
-          <div className="cd-user">
+          <Link to="/profile" className="cd-user">
             <div className="cd-user-avatar">{userInitial}</div>
 
             <div className="cd-user-info">
               <strong>{displayName}</strong>
               <span>Contractor</span>
             </div>
-          </div>
+          </Link>
         </div>
       </header>
 
