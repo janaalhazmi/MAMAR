@@ -153,7 +153,16 @@ export default function ProviderFieldTeam() {
                       <td>{worker.project || "Not assigned"}</td>
                       <td><span className="pft-status" data-status={worker.status}>{worker.status}</span></td>
                       <td>{worker.activity}</td>
-                      <td><button className="pft-view" type="button" onClick={() => setSelected(worker)}>View →</button></td>
+                      <td>
+                        {/* A free worker can be assigned straight from the list. */}
+                        <button
+                          className={worker.status === "Available" ? "pft-primary" : "pft-view"}
+                          type="button"
+                          onClick={() => setSelected(worker)}
+                        >
+                          {worker.status === "Available" ? "Assign →" : "View →"}
+                        </button>
+                      </td>
                     </tr>
                   ))}
                   {!loadingWorkers && !workersError && visible.length === 0 && <tr><td colSpan={6}>{workers.length ? "No workers match these filters." : "No field workers to display yet."}</td></tr>}
@@ -284,13 +293,17 @@ function WorkerAssignmentForm({ worker, onAssigned }) {
             disabled={!projects?.length || saving} required>
             <option value="">Select a project</option>
             {projects?.map((project) => (
-              <option key={project.id} value={project.id}>{project.name}</option>
+              <option key={project.id} value={project.id}>
+                {project.name} · {project.status} · {project.dates}
+              </option>
             ))}
           </select>
         </label>
       </div>
       {!projects && !error && <p role="status">Loading projects…</p>}
-      {projects?.length === 0 && <p>No projects available for assignment.</p>}
+      {projects?.length === 0 && (
+        <p>No open projects yet. A project shows here after the contractor confirms your quotation.</p>
+      )}
       {error && <p role="alert">{error}</p>}
       <button className="pft-primary" type="submit" disabled={!projectId || saving}>
         {saving ? "Saving…" : "Save Assignment"}

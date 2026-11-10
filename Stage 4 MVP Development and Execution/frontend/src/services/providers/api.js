@@ -336,7 +336,10 @@ export function useWorkerAssignmentProjects(canAssign, setError) {
     let active = true;
 
     getProviderProjects()
-      .then((items) => { if (active) setProjects(items); })
+      // Only open projects take new workers: completed and cancelled ones are left out.
+      .then((items) => {
+        if (active) setProjects(items.filter((item) => item.status === "Active" || item.status === "Upcoming"));
+      })
       .catch(() => { if (active) setError("Could not load assigned projects."); });
 
     return () => { active = false; };
