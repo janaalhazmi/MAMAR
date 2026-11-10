@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.access import open_project_or_400
 from app.core.security import allow_roles
 from app.db.database import get_db
 from app.models import Project, Provider, Quote, ServiceRequest, User
@@ -23,6 +24,7 @@ contractor_or_provider = allow_roles("contractor", "provider", detail="Only cont
 TOKEN_ERROR = {401: {"model": ErrorResponse, "description": "The token is missing or not valid"}}
 CREATE_ERRORS = {
     **TOKEN_ERROR,
+    400: {"model": ErrorResponse, "description": "The project is completed or cancelled"},
     403: {"model": ErrorResponse, "description": "The user is not a contractor, or the project belongs to another contractor"},
     404: {"model": ErrorResponse, "description": "The project does not exist"},
     422: {"model": ErrorResponse, "description": "A field is missing or not valid, or a provider_id does not exist"},
@@ -62,6 +64,7 @@ def create_request(
         raise HTTPException(status_code=404, detail="Project not found")
     if project.contractor_id != user.user_id:
         raise HTTPException(status_code=403, detail="This project belongs to another contractor")
+    open_project_or_400(project)
     if data.provider_ids:
         found = set(db.scalars(select(Provider.provider_id).where(Provider.provider_id.in_(data.provider_ids))))
         missing = [provider_id for provider_id in data.provider_ids if provider_id not in found]

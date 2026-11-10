@@ -42,8 +42,11 @@ def assign_worker(
 ):
     # Assigns a field worker of the provider to a project (Stage 3, section 4.2.13). Only the
     # provider whose quote was accepted for a request of this project can do it.
-    if db.get(Project, project_id) is None:
+    project = db.get(Project, project_id)
+    if project is None:
         raise HTTPException(status_code=404, detail="Project not found")
+    if project.project_status in ("completed", "cancelled"):
+        raise HTTPException(status_code=400, detail=f"The project is {project.project_status}")
     won = (
         select(Quote)
         .join(ServiceRequest)

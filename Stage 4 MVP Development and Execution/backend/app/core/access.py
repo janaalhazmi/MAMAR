@@ -20,6 +20,16 @@ def own_project(db: Session, project_id: int, user: User) -> Project:
     return project
 
 
+CLOSED_STATUSES = ("completed", "cancelled")
+
+
+def open_project_or_400(project: Project) -> Project:
+    # A completed or cancelled project cannot change any more.
+    if project.project_status in CLOSED_STATUSES:
+        raise HTTPException(status_code=400, detail=f"The project is {project.project_status}")
+    return project
+
+
 def accepted_quote(db: Session, project_id: int) -> Quote | None:
     # The quote the contractor confirmed for this project, if any.
     query = (

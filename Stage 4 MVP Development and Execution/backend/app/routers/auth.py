@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.core import config
 from app.core.email import send_passcode
+from app.core.limits import clear_failed_logins, login_blocked, record_failed_login
 from app.core.security import create_access_token, get_current_user
 from app.db.database import get_db
 from app.models import EmailPasscode, Provider, User
@@ -47,6 +48,7 @@ REGISTER_ERRORS = {
 }
 LOGIN_ERRORS = {
     401: {"model": ErrorResponse, "description": "The email or password is wrong"},
+    429: {"model": ErrorResponse, "description": "Too many wrong passwords for this email, wait 15 minutes"},
     422: {"model": ErrorResponse, "description": "A field is missing or not valid"},
 }
 ME_ERRORS = {
@@ -168,10 +170,14 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
 @router.post("/login", response_model=LoginResponse, responses=LOGIN_ERRORS)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
     # Checks the email and password, then returns a token for the next requests (Stage 3, section 4.2.4).
+    if login_blocked(data.email):
+        raise HTTPException(status_code=429, detail="Too many wrong passwords. Try again in 15 minutes")
     user = db.scalar(select(User).where(User.email == data.email))
     # The same message for a wrong email and a wrong password, so the API does not tell which one is wrong.
     if user is None or not user.is_active or not user.check_password(data.password):
+        record_failed_login(data.email)
         raise HTTPException(status_code=401, detail="Email or password is wrong")
+    clear_failed_logins(data.email)
     return {
         "access_token": create_access_token(user),
         "token_type": "bearer",

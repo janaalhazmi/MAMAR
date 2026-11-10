@@ -53,7 +53,7 @@ def own_payment(db: Session, order_id: str, user: User) -> Payment:
     responses={
         **TOKEN_ERROR,
         **PAYPAL_ERRORS,
-        400: {"model": ErrorResponse, "description": "No quotation is accepted for this project yet"},
+        400: {"model": ErrorResponse, "description": "No quotation is accepted for this project yet, or the project is cancelled"},
         403: {"model": ErrorResponse, "description": "The user is not a contractor, or the project belongs to another contractor"},
         404: {"model": ErrorResponse, "description": "The project does not exist"},
         409: {"model": ErrorResponse, "description": "The project is already paid"},
@@ -67,6 +67,8 @@ def start_payment(
     db: Session = Depends(get_db),
 ):
     project = own_project(db, project_id, user)
+    if project.project_status == "cancelled":
+        raise HTTPException(status_code=400, detail="The project is cancelled")
     quote = accepted_quote(db, project_id)
     if quote is None:
         raise HTTPException(status_code=400, detail="Confirm a provider's quotation before paying")
@@ -85,10 +87,10 @@ def start_payment(
             return_url=return_url,
             cancel_url=cancel_url,
         )
-    except paypal.PayPalNotConfigured:
-        raise HTTPException(status_code=503, detail=NOT_CONFIGURED)
+    except paypal.PayPalNotConfigured as error:
+        raise HTTPException(status_code=503, detail=NOT_CONFIGURED) from error
     except paypal.PayPalError as error:
-        raise HTTPException(status_code=502, detail=str(error))
+        raise HTTPException(status_code=502, detail=str(error)) from error
 
     # Only the newest unfinished payment stays open.
     for old in db.scalars(select(Payment).where(Payment.project_id == project_id, Payment.status == "created")):
@@ -131,10 +133,10 @@ def capture_payment(order_id: str, user: User = Depends(contractor_only), db: Se
         raise HTTPException(status_code=400, detail="This payment was cancelled. Start a new payment")
     try:
         result, capture_id = paypal.capture_order(order_id)
-    except paypal.PayPalNotConfigured:
-        raise HTTPException(status_code=503, detail=NOT_CONFIGURED)
+    except paypal.PayPalNotConfigured as error:
+        raise HTTPException(status_code=503, detail=NOT_CONFIGURED) from error
     except paypal.PayPalError as error:
-        raise HTTPException(status_code=502, detail=str(error))
+        raise HTTPException(status_code=502, detail=str(error)) from error
     if result == "NOT_APPROVED":
         raise HTTPException(status_code=400, detail="The payment was not approved on PayPal yet")
     if result == "COMPLETED":

@@ -3,7 +3,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.core.access import accepted_quote, get_project, own_project
+from app.core.access import accepted_quote, get_project, own_project, open_project_or_400
 from app.core.security import allow_roles
 from app.db.database import get_db
 from app.models import Assignment, Project, Provider, Quote, ServiceRequest, SitePhoto, User
@@ -184,7 +184,7 @@ def confirm_provider(
 ):
     # The Select Provider page: accepts the quote, rejects the other quotes of the request
     # (ServiceRequest.award) and moves the project to active.
-    project = own_project(db, project_id, user)
+    project = open_project_or_400(own_project(db, project_id, user))
     quote = db.get(Quote, data.quote_id)
     request = db.get(ServiceRequest, quote.request_id) if quote else None
     if quote is None or request.project_id != project_id:
@@ -217,7 +217,7 @@ def project_completion(project_id: int, user: User = Depends(contractor_only), d
 
 
 def submitted_project(db: Session, project_id: int, user: User) -> Project:
-    project = own_project(db, project_id, user)
+    project = open_project_or_400(own_project(db, project_id, user))
     if not project.completion_submitted:
         raise HTTPException(status_code=400, detail="The provider has not sent the completed work yet")
     return project

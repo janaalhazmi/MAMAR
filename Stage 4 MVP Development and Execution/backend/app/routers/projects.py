@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.core.access import can_view_project, get_project
+from app.core.access import accepted_quote, can_view_project, get_project, open_project_or_400
 from app.core.security import get_current_user
 from app.db.database import get_db
-from app.models import Project, User
+from app.models import Project, ServiceRequest, User
 from app.schemas.error import ErrorResponse
 from app.schemas.project import ProjectCreate, ProjectResponse, ProjectStatus, ProjectUpdate
 
@@ -26,6 +26,10 @@ CREATE_ERRORS = {
 }
 UPDATE_ERRORS = {
     401: TOKEN_ERRORS[401],
+    400: {
+        "model": ErrorResponse,
+        "description": "The project is completed or cancelled, or the status change is not allowed (completed only through POST /projects/{id}/complete)",
+    },
     403: {"model": ErrorResponse, "description": "The user is not a contractor, or the project belongs to another contractor"},
     404: {"model": ErrorResponse, "description": "The project does not exist"},
     422: {
@@ -116,7 +120,20 @@ def update_project(
     if changes.get("end_date", project.end_date) < changes.get("start_date", project.start_date):
         raise HTTPException(status_code=422, detail="end_date: cannot be before start_date")
 
+    # A finished project keeps its data, and "completed" comes only from approving the work
+    # (POST /projects/{id}/complete), after the field team and the provider sent it.
+    open_project_or_400(project)
     status = changes.pop("project_status", None)
+    if status == "completed":
+        raise HTTPException(status_code=400, detail="A project is completed by approving the work (Review Completion)")
+    if status == "draft" and project.project_status != "draft" and accepted_quote(db, project.project_id) is not None:
+        raise HTTPException(status_code=400, detail="A project with a confirmed provider cannot go back to draft")
+    if status == "cancelled":
+        # Providers stop seeing the requests of a cancelled project.
+        for request in db.scalars(
+            select(ServiceRequest).where(ServiceRequest.project_id == project.project_id, ServiceRequest.status == "open")
+        ):
+            request.close()
     for field, value in changes.items():
         setattr(project, field, value)
     if status is not None:

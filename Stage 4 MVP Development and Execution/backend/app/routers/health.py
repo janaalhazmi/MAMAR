@@ -12,6 +12,6 @@ router = APIRouter(tags=["health"])
 def health_check(db: Session = Depends(get_db)):
     try:
         db.execute(text("SELECT 1"))
-    except SQLAlchemyError:
-        raise HTTPException(status_code=503, detail="Database connection failed")
+    except SQLAlchemyError as error:
+        raise HTTPException(status_code=503, detail="Database connection failed") from error
     return {"status": "ok", "database": "connected"}
