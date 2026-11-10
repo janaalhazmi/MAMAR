@@ -248,3 +248,40 @@ def test_startup_closes_duplicate_open_requests(api):
     status = {r["request_id"]: r["status"] for r in rows}
     # The one with a quote stays open, the extra ones without quotes are closed.
     assert status == {first["request_id"]: "open", second: "closed", third: "closed"}
+
+
+def test_work_zone_is_shown_to_the_owner_and_the_invited_provider(api):
+    _, contractor = api.account()
+    _, invited = api.account("provider", 1)
+    _, other = api.account("provider", 2)
+    zone = [[46.675, 24.713], [46.676, 24.713], [46.676, 24.714]]
+    project = api.client.post(
+        "/projects",
+        json={"project_name": "Zone", "closure_type": "lane_closure", "start_date": "2026-11-20",
+              "end_date": "2026-11-30", "latitude": 24.71, "longitude": 46.67, "work_zone": zone},
+        headers=contractor,
+    ).json()
+    request = api.request(contractor, project["project_id"], provider_ids=[1])
+    url = f"/requests/{request['request_id']}/work-zone"
+
+    for headers in (contractor, invited):
+        response = api.client.get(url, headers=headers)
+        assert response.status_code == 200
+        assert response.json()["work_zone"] == zone
+    # A company that was not invited does not see where the project is.
+    assert api.client.get(url, headers=other).status_code == 403
+    _, stranger = api.account()
+    assert api.client.get(url, headers=stranger).status_code == 403
+    assert api.client.get("/requests/999999/work-zone", headers=contractor).status_code == 404
+
+    # After declining, the company no longer sees it.
+    api.client.post(f"/provider/requests/{request['request_id']}/decline", headers=invited)
+    assert api.client.get(url, headers=invited).status_code == 403
+
+
+def test_work_zone_after_the_award_is_for_companies_that_quoted(api):
+    project_id, contractor, provider = api.won_project(provider_id=1)
+    request_id = api.client.get(f"/requests?project_id={project_id}", headers=contractor).json()[0]["request_id"]
+    _, other = api.account("provider", 2)
+    assert api.client.get(f"/requests/{request_id}/work-zone", headers=provider).status_code == 200
+    assert api.client.get(f"/requests/{request_id}/work-zone", headers=other).status_code == 403

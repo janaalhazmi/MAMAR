@@ -440,6 +440,7 @@ The provider workflow from Stage 3, sections 3.2, 4.2.8 to 4.2.14. All of them n
 | `POST /projects/{id}/requests` | Contractor of the project | Creates a service request as `open`. Body: `title`, `required_by`, and optional `details` and `provider_ids` (the providers chosen on Select Provider, for example `[1, 3]`). Without `provider_ids` every provider sees the request. A project keeps one open request: asking again updates that request (new title and dates, the new providers are added) and returns it with 200 instead of 201 |
 | `GET /requests` | Contractor, provider | A contractor sees the requests of their projects. A provider sees the open requests it was invited to, and with `?status=awarded` (or `closed`) the requests its company won. Optional `?status=` and `?project_id=`. Newest first |
 | `POST /requests/{id}/quotes` | Provider invited to the request | Sends a quote as `pending`. Body: `price`, `duration_days`, and optional `notes`. `provider_id` comes from the token |
+| `GET /requests/{id}/work-zone` | Contractor of the project, provider | The project's place for the Prepare Quotation map: `project_name`, dates, `location`, `latitude`, `longitude` and `work_zone`. A provider sees it while the request is open for its company (invited and not declined), and later only if it sent a quote |
 | `GET /requests/{id}/quotes` | Contractor of the request, provider | The contractor sees all the quotes, cheapest first. A provider sees only the quote of their company |
 | `POST /requests/{id}/award` | Contractor of the request | Body `{"quote_id": 54}`. Accepts that quote, rejects the others and marks the request as `awarded` |
 | `POST /projects/{id}/assignments` | Provider that won a request of the project | Body `{"worker_id": 15}`. Assigns a field worker of the same company as `active` |
@@ -763,6 +764,8 @@ pytest
 | `test_asking_again_keeps_one_open_request` | Asking for quotes again updates the same open request and adds the new providers |
 | `test_startup_closes_duplicate_open_requests` | At start, extra open requests of a project without quotes are closed, and the one with a quote stays |
 | `test_create_request_with_unknown_or_empty_provider_ids_returns_422` | An unknown provider or an empty list returns 422 |
+| `test_work_zone_is_shown_to_the_owner_and_the_invited_provider` | The owner and the invited company see the work zone; another company, another contractor or a company that declined get 403 |
+| `test_work_zone_after_the_award_is_for_companies_that_quoted` | After the award, the company that quoted still sees it and others do not |
 | `test_list_requests_rules` | No token 401, a worker 403, an unknown status 422 |
 | `test_award_accepts_one_quote_and_rejects_the_others` | Award accepts the chosen quote, rejects the other one and returns the Stage 3 response |
 | `test_award_rules` | Another contractor 403, a provider 403, unknown request 404, quote of another request 404, missing `quote_id` 422, awarding twice 400 |

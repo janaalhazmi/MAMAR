@@ -2,7 +2,6 @@ import { Link, NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   FolderKanban,
-  Wrench,
   BadgeCheck,
   Users,
   Info,
@@ -12,6 +11,7 @@ import {
 
 import logo from "../assets/mamar-logo.svg";
 import { logout } from "../services/auth";
+
 
 const providerNavigation = [
   {
@@ -23,11 +23,6 @@ const providerNavigation = [
     label: "Projects",
     path: "/provider/projects",
     icon: FolderKanban,
-  },
-  {
-    label: "Execution",
-    path: "/provider/execution",
-    icon: Wrench,
   },
   {
     label: "Device Verification",
@@ -43,7 +38,7 @@ const providerNavigation = [
 
 function ProviderSidebar() {
   return (
-    <aside className="mamar-sidebar">
+    <aside className="mamar-sidebar provider-sidebar">
       <Link to="/" className="mamar-sidebar-logo">
         <img src={logo} alt="MAMAR Logo" />
       </Link>
@@ -73,7 +68,7 @@ function ProviderSidebar() {
           <span>Data Disclaimer</span>
         </Link>
 
-        <Link to="/support">
+        <Link to="/help">
           <CircleHelp size={18} />
           <span>Help & Support</span>
         </Link>

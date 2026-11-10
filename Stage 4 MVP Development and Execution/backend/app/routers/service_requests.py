@@ -8,6 +8,7 @@ from app.db.database import get_db
 from app.models import Project, Provider, Quote, ServiceRequest, User
 from app.schemas.error import ErrorResponse
 from app.schemas.service_request import (
+    RequestWorkZone,
     AwardRequest,
     AwardResponse,
     RequestStatus,
@@ -153,4 +154,46 @@ def award_request(
             "price": float(quote.price),
             "status": quote.status,
         },
+    }
+
+
+@router.get(
+    "/requests/{request_id}/work-zone",
+    response_model=RequestWorkZone,
+    responses={
+        **TOKEN_ERROR,
+        403: {"model": ErrorResponse, "description": "The user cannot view this request"},
+        404: {"model": ErrorResponse, "description": "The request does not exist"},
+    },
+)
+def get_request_work_zone(
+    request_id: int,
+    user: User = Depends(contractor_or_provider),
+    db: Session = Depends(get_db),
+):
+    # Prepare Quotation map. The contractor sees the place of their own requests. A provider sees it
+    # while the request is open for its company (invited, not declined), and after that only if
+    # its company sent a quote, so another company never sees where the project is.
+    request = db.get(ServiceRequest, request_id)
+    if request is None:
+        raise HTTPException(status_code=404, detail="Request not found")
+    project = db.get(Project, request.project_id)
+    if user.role == "contractor":
+        if project.contractor_id != user.user_id:
+            raise HTTPException(status_code=403, detail="This project belongs to another contractor")
+    else:
+        quoted = select(Quote).where(Quote.request_id == request_id, Quote.provider_id == user.provider_id)
+        open_for_company = request.status == "open" and request.visible_to(user.provider_id)
+        if not open_for_company and db.scalar(quoted) is None:
+            raise HTTPException(status_code=403, detail="This request is not open for your company")
+    return {
+        "request_id": request.request_id,
+        "project_id": project.project_id,
+        "project_name": project.project_name,
+        "start_date": project.start_date,
+        "end_date": project.end_date,
+        "location": project.location,
+        "latitude": project.latitude,
+        "longitude": project.longitude,
+        "work_zone": project.work_zone,
     }
