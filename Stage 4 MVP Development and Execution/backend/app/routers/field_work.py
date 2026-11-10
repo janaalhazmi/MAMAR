@@ -178,14 +178,33 @@ async def upload_photos(
     return [photo.to_dict() for photo in saved]
 
 
-@router.get("/photos/{token}", response_class=Response, responses={404: {"description": "The photo does not exist"}})
+@router.get("/photos/{token}", response_class=Response)
 def get_photo(token: str, db: Session = Depends(get_db)):
-    # Opened by <img src>, which cannot send the token header, so the URL holds a random value.
-    photo = db.scalar(select(SitePhoto).options(undefer(SitePhoto.data)).where(SitePhoto.token == token))
-    if photo is None:
+
+    photo = db.scalar(
+        select(SitePhoto)
+        .options(undefer(SitePhoto.data))
+        .where(SitePhoto.token == token)
+    )
+
+    if photo is not None:
+        return Response(
+            content=photo.data,
+            media_type=photo.content_type,
+            headers={"Cache-Control": "private, max-age=86400"},
+        )
+
+    user = db.scalar(
+        select(User)
+        .options(undefer(User.avatar_data))
+        .where(User.avatar_token == token)
+    )
+
+    if user is None or user.avatar_data is None:
         raise HTTPException(status_code=404, detail="Photo not found")
+
     return Response(
-        content=photo.data,
-        media_type=photo.content_type,
+        content=user.avatar_data,
+        media_type=user.avatar_content_type,
         headers={"Cache-Control": "private, max-age=86400"},
     )

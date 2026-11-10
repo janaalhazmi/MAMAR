@@ -26,13 +26,13 @@ export async function updateMyProfile(profileData) {
 }
 
 // 3. Change password
-export async function changeMyPassword(passwordData) {
+export async function changeMyPassword(currentPassword, newPassword) {
   return authed("/auth/change-password", getToken(), {
     method: "POST",
     headers: JSON_H,
     body: asJson({
-      current_password: passwordData.current_password,
-      new_password: passwordData.new_password,
+      current_password: currentPassword,
+      new_password: newPassword,
     }),
   });
 }

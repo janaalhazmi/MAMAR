@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../services/api";
 import { useEffect, useRef, useState } from "react";
 import ContractorShell from "../../components/ContractorShell";
 import {
@@ -23,7 +24,10 @@ function getErrorMessage(error, fallback) {
 }
 
 function getPictureUrl(profile) {
-  return profile?.profile_picture_url || profile?.profile_picture || profile?.avatar_url || "";
+  const picture = profile?.profile_picture || "";
+  if (!picture) return "";
+  if (picture.startsWith("http")) return picture;
+  return `${API_BASE_URL}${picture}`;
 }
 
 function formatDate(value) {
@@ -31,12 +35,20 @@ function formatDate(value) {
   const date = new Date(value);
   return Number.isNaN(date.getTime())
     ? value
-    : date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+    : date.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
 }
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState(EMPTY_PROFILE);
-  const [form, setForm] = useState({ full_name: "", email: "", phone: "" });
+  const [form, setForm] = useState({
+    full_name: "",
+    email: "",
+    phone: "",
+  });
   const [passwords, setPasswords] = useState({
     current_password: "",
     new_password: "",
@@ -54,6 +66,7 @@ export default function ProfilePage() {
   async function loadProfile() {
     setLoading(true);
     setError("");
+
     try {
       const user = await fetchMyProfile();
       setProfile({ ...EMPTY_PROFILE, ...user });
@@ -89,18 +102,21 @@ export default function ProfilePage() {
     }
 
     setSavingProfile(true);
+
     try {
       const updated = await updateMyProfile({
         full_name: form.full_name.trim(),
         email: form.email.trim().toLowerCase(),
         phone: form.phone.trim() || null,
       });
+
       setProfile((current) => ({ ...current, ...updated }));
       setForm({
         full_name: updated.full_name ?? form.full_name.trim(),
         email: updated.email ?? form.email.trim().toLowerCase(),
         phone: updated.phone ?? form.phone.trim(),
       });
+
       setEditing(false);
       setSuccess("Your profile details have been updated.");
     } catch (err) {
@@ -134,19 +150,31 @@ export default function ProfilePage() {
       setError("Enter your current password and a new password.");
       return;
     }
+
     if (passwords.new_password.length < 8) {
       setError("Your new password must contain at least 8 characters.");
       return;
     }
+
     if (passwords.new_password !== passwords.confirm_password) {
       setError("The new password and confirmation do not match.");
       return;
     }
 
     setSavingPassword(true);
+
     try {
-      await changeMyPassword(passwords.current_password, passwords.new_password);
-      setPasswords({ current_password: "", new_password: "", confirm_password: "" });
+      await changeMyPassword(
+        passwords.current_password,
+        passwords.new_password
+      );
+
+      setPasswords({
+        current_password: "",
+        new_password: "",
+        confirm_password: "",
+      });
+
       setSuccess("Your password has been changed.");
     } catch (err) {
       setError(getErrorMessage(err, "Unable to change your password."));
@@ -158,12 +186,16 @@ export default function ProfilePage() {
   async function handlePictureSelected(event) {
     const file = event.target.files?.[0];
     event.target.value = "";
+
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      setError("Please select an image file.");
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+    if (!allowedTypes.includes(file.type)) {
+      setError("Only JPG, PNG or WEBP images are allowed.");
       return;
     }
+
     if (file.size > 5 * 1024 * 1024) {
       setError("The image must be 5 MB or smaller.");
       return;
@@ -172,16 +204,21 @@ export default function ProfilePage() {
     setError("");
     setSuccess("");
     setPictureBusy(true);
+
     try {
       const updated = await uploadMyProfilePicture(file);
+
       if (updated && typeof updated === "object") {
         setProfile((current) => ({ ...current, ...updated }));
       } else {
         await loadProfile();
       }
+
       setSuccess("Your profile picture has been updated.");
     } catch (err) {
-      setError(getErrorMessage(err, "Unable to upload your profile picture."));
+      setError(
+        getErrorMessage(err, "Unable to upload your profile picture.")
+      );
     } finally {
       setPictureBusy(false);
     }
@@ -191,8 +228,10 @@ export default function ProfilePage() {
     setError("");
     setSuccess("");
     setPictureBusy(true);
+
     try {
       const updated = await deleteMyProfilePicture();
+
       if (updated && typeof updated === "object") {
         setProfile((current) => ({ ...current, ...updated }));
       } else {
@@ -203,9 +242,12 @@ export default function ProfilePage() {
           avatar_url: "",
         }));
       }
+
       setSuccess("Your profile picture has been removed.");
     } catch (err) {
-      setError(getErrorMessage(err, "Unable to remove your profile picture."));
+      setError(
+        getErrorMessage(err, "Unable to remove your profile picture.")
+      );
     } finally {
       setPictureBusy(false);
     }
@@ -225,8 +267,17 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {error && <div className="profile-alert profile-alert-error" role="alert">{error}</div>}
-        {success && <div className="profile-alert profile-alert-success" role="status">{success}</div>}
+        {error && (
+          <div className="profile-alert profile-alert-error" role="alert">
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="profile-alert profile-alert-success" role="status">
+            {success}
+          </div>
+        )}
 
         {loading ? (
           <div className="profile-loading">Loading your profile…</div>
@@ -242,11 +293,16 @@ export default function ProfilePage() {
 
               <div className="profile-avatar-wrap">
                 {picture ? (
-                  <img className="profile-avatar-image" src={picture} alt="Profile" />
+                  <img
+                    className="profile-avatar-image"
+                    src={picture}
+                    alt="Profile"
+                  />
                 ) : (
                   <div className="profile-avatar-placeholder">{initial}</div>
                 )}
               </div>
+
               <div className="profile-picture-actions">
                 <button
                   className="profile-button profile-button-primary"
@@ -256,6 +312,7 @@ export default function ProfilePage() {
                 >
                   {pictureBusy ? "Please wait…" : "Upload picture"}
                 </button>
+
                 {picture && (
                   <button
                     className="profile-button profile-button-quiet"
@@ -266,6 +323,7 @@ export default function ProfilePage() {
                     Remove
                   </button>
                 )}
+
                 <input
                   ref={fileInput}
                   className="profile-file-input"
@@ -274,12 +332,24 @@ export default function ProfilePage() {
                   onChange={handlePictureSelected}
                 />
               </div>
-              <span className="profile-hint">JPG, PNG or WEBP · Maximum 5 MB</span>
+
+              <span className="profile-hint">
+                JPG, PNG or WEBP · Maximum 5 MB
+              </span>
 
               <div className="profile-account-meta">
-                <div><span>Account type</span><strong>{profile.role || "Contractor"}</strong></div>
-                <div><span>Member since</span><strong>{formatDate(profile.created_at)}</strong></div>
-                <div><span>User ID</span><strong>{profile.user_id ?? "—"}</strong></div>
+                <div>
+                  <span>Account type</span>
+                  <strong>{profile.role || "Contractor"}</strong>
+                </div>
+                <div>
+                  <span>Member since</span>
+                  <strong>{formatDate(profile.created_at)}</strong>
+                </div>
+                <div>
+                  <span>User ID</span>
+                  <strong>{profile.user_id ?? "—"}</strong>
+                </div>
               </div>
             </section>
 
@@ -290,8 +360,13 @@ export default function ProfilePage() {
                     <h2>Personal information</h2>
                     <p>Keep your contact details up to date.</p>
                   </div>
+
                   {!editing && (
-                    <button className="profile-button profile-button-outline" type="button" onClick={() => setEditing(true)}>
+                    <button
+                      className="profile-button profile-button-outline"
+                      type="button"
+                      onClick={() => setEditing(true)}
+                    >
                       Edit details
                     </button>
                   )}
@@ -301,22 +376,56 @@ export default function ProfilePage() {
                   <div className="profile-form-grid">
                     <label className="profile-field">
                       <span>Full name</span>
-                      <input name="full_name" value={form.full_name} onChange={updateField} disabled={!editing} autoComplete="name" />
+                      <input
+                        name="full_name"
+                        value={form.full_name}
+                        onChange={updateField}
+                        disabled={!editing}
+                        autoComplete="name"
+                      />
                     </label>
+
                     <label className="profile-field">
                       <span>Email address</span>
-                      <input name="email" type="email" value={form.email} onChange={updateField} disabled={!editing} autoComplete="email" />
+                      <input
+                        name="email"
+                        type="email"
+                        value={form.email}
+                        onChange={updateField}
+                        disabled={!editing}
+                        autoComplete="email"
+                      />
                     </label>
+
                     <label className="profile-field profile-field-full">
                       <span>Phone number</span>
-                      <input name="phone" type="tel" value={form.phone} onChange={updateField} disabled={!editing} autoComplete="tel" />
+                      <input
+                        name="phone"
+                        type="tel"
+                        value={form.phone}
+                        onChange={updateField}
+                        disabled={!editing}
+                        autoComplete="tel"
+                      />
                     </label>
                   </div>
 
                   {editing && (
                     <div className="profile-form-actions">
-                      <button className="profile-button profile-button-quiet" type="button" onClick={handleCancelEdit} disabled={savingProfile}>Cancel</button>
-                      <button className="profile-button profile-button-primary" type="submit" disabled={savingProfile}>
+                      <button
+                        className="profile-button profile-button-quiet"
+                        type="button"
+                        onClick={handleCancelEdit}
+                        disabled={savingProfile}
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        className="profile-button profile-button-primary"
+                        type="submit"
+                        disabled={savingProfile}
+                      >
                         {savingProfile ? "Saving…" : "Save changes"}
                       </button>
                     </div>
@@ -334,19 +443,44 @@ export default function ProfilePage() {
                   <div className="profile-form-grid">
                     <label className="profile-field profile-field-full">
                       <span>Current password</span>
-                      <input name="current_password" type="password" value={passwords.current_password} onChange={updatePasswordField} autoComplete="current-password" />
+                      <input
+                        name="current_password"
+                        type="password"
+                        value={passwords.current_password}
+                        onChange={updatePasswordField}
+                        autoComplete="current-password"
+                      />
                     </label>
+
                     <label className="profile-field">
                       <span>New password</span>
-                      <input name="new_password" type="password" value={passwords.new_password} onChange={updatePasswordField} autoComplete="new-password" />
+                      <input
+                        name="new_password"
+                        type="password"
+                        value={passwords.new_password}
+                        onChange={updatePasswordField}
+                        autoComplete="new-password"
+                      />
                     </label>
+
                     <label className="profile-field">
                       <span>Confirm new password</span>
-                      <input name="confirm_password" type="password" value={passwords.confirm_password} onChange={updatePasswordField} autoComplete="new-password" />
+                      <input
+                        name="confirm_password"
+                        type="password"
+                        value={passwords.confirm_password}
+                        onChange={updatePasswordField}
+                        autoComplete="new-password"
+                      />
                     </label>
                   </div>
+
                   <div className="profile-form-actions">
-                    <button className="profile-button profile-button-primary" type="submit" disabled={savingPassword}>
+                    <button
+                      className="profile-button profile-button-primary"
+                      type="submit"
+                      disabled={savingPassword}
+                    >
                       {savingPassword ? "Updating…" : "Update password"}
                     </button>
                   </div>
