@@ -116,7 +116,7 @@ function ContractorDashboard() {
         <div className="cd-column">
           <section className="cd-panel" id="locations">
             <div className="cd-panel-heading">
-              <h2>Project Locations</h2>
+              <h2>Projects Location</h2>
             </div>
 
             <div className="cd-map-frame">
