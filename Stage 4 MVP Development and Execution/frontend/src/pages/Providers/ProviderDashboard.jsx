@@ -17,7 +17,7 @@ function ProviderDashboard() {
   const summaryCards = [
     { label: "Assigned Projects", value: stats.assigned, icon: "＋", color: "yellow" },
     { label: "Active Execution", value: stats.active, icon: "✓", color: "green" },
-    { label: "Upcoming", value: stats.upcoming, icon: "□", color: "blue" },
+    { label: "Upcoming", value: stats.upcoming, icon: "⟳", color: "blue" },
     { label: "Completed Projects", value: stats.completed, icon: "✓", color: "gray" },
   ];
 
