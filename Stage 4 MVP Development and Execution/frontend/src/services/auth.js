@@ -8,10 +8,8 @@ const CHANNEL_NAME = "mamar_auth_channel";
 
 let checkedToken = null;
 
-const channel =
-  typeof BroadcastChannel !== "undefined"
-    ? new BroadcastChannel(CHANNEL_NAME)
-    : null;
+const channel = null;
+  
 
 // Validate and read the session from this tab.
 export function getSession() {
@@ -265,6 +263,3 @@ if (channel) {
 
 // Request a session when this tab opens.
 // Repeated requests allow an already-open tab time to respond.
-if (channel) {
-  requestSession();
-}
