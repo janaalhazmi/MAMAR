@@ -11,6 +11,7 @@ function Sidebar({ items = [], activeKey }) {
           <NavLink
             key={item.key}
             to={item.path}
+            state={item.key === "providers" ? { source: "sidebar" } : undefined}
             className={item.key === activeKey ? "active" : ""}
           >
             <Icon name={item.icon} size={20} />

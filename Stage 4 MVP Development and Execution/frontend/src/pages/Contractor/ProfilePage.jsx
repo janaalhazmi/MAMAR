@@ -1,605 +1,265 @@
-import { API_BASE_URL } from "../../services/api";
-import { useEffect, useRef, useState } from "react";
-import { updateSessionUser } from "../../services/auth";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import Icon from "../../components/Icons";
 import ContractorShell from "../../components/ContractorShell";
+
 import {
-  fetchMyProfile,
-  updateMyProfile,
-  changeMyPassword,
-  uploadMyProfilePicture,
-  deleteMyProfilePicture,
-} from "../../services/Contractor/profileService";
-import "../../styles/Contractor/profile.css";
+  CITIES,
+  SERVICE_FILTERS,
+  filterProviders,
+  getCurrentProject,
+  getProviderPageSummary,
+  handleRequestQuotes,
+  hasRequestedQuotes,
+} from "../../services/Contractor/Contractor";
 
-const EMPTY_PROFILE = {
-  full_name: "",
-  email: "",
-  phone: "",
-  role: "contractor",
-  profile_picture: "",
-  created_at: "",
-};
-
-function getErrorMessage(error, fallback) {
-  return error?.message || fallback;
-}
-
-function getPictureUrl(profile) {
-  const picture = profile?.profile_picture || "";
-  if (!picture) return "";
-  if (picture.startsWith("http")) return picture;
-  return `${API_BASE_URL}${picture}`;
-}
-
-function formatDate(value) {
-  if (!value) return "—";
-
-  const date = new Date(value);
-
-  return Number.isNaN(date.getTime())
-    ? value
-    : date.toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      });
-}
-
-export default function ProfilePage() {
-  const [profile, setProfile] = useState(EMPTY_PROFILE);
-
-  const [form, setForm] = useState({
-    full_name: "",
-    email: "",
-    phone: "",
-  });
-
-  const [passwords, setPasswords] = useState({
-    current_password: "",
-    new_password: "",
-    confirm_password: "",
-  });
-
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const [loading, setLoading] = useState(true);
-  const [savingProfile, setSavingProfile] = useState(false);
-  const [savingPassword, setSavingPassword] = useState(false);
-  const [pictureBusy, setPictureBusy] = useState(false);
-  const [editing, setEditing] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
-  const fileInput = useRef(null);
-
-  async function loadProfile() {
-    setLoading(true);
-    setError("");
-
-    try {
-      const user = await fetchMyProfile();
-
-      setProfile({ ...EMPTY_PROFILE, ...user });
-
-      setForm({
-        full_name: user?.full_name || "",
-        email: user?.email || "",
-        phone: user?.phone || "",
-      });
-
-      updateSessionUser(user);
-    } catch (err) {
-      setError(getErrorMessage(err, "Unable to load your profile."));
-    } finally {
-      setLoading(false);
-    }
-  }
+function ProviderPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isFromSidebar = location.state?.source === "sidebar";
+  const currentProject = getCurrentProject();
+  const project = getProviderPageSummary(currentProject);
 
   useEffect(() => {
-    loadProfile();
-  }, []);
+    if (
+      currentProject.id &&
+      hasRequestedQuotes(currentProject.id)
+    ) {
+      navigate("/contractor-dashboard", {
+        replace: true,
+      });
+    }
+  }, [currentProject.id, navigate]);
 
-  function updateField(event) {
-    const { name, value } = event.target;
+  const [search, setSearch] = useState("");
+  const [city, setCity] = useState("Riyadh");
+  const [service, setService] = useState("All Required Services");
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
-    setForm((current) => ({
-      ...current,
-      [name]: value,
-    }));
-  }
+  const visibleProviders = useMemo(
+    () => filterProviders({ search, city, service }),
+    [search, city, service]
+  );
 
-  async function handleSaveProfile(event) {
-    event.preventDefault();
-    setError("");
-    setSuccess("");
+  const toggleProvider = (id) => {
+    setSelectedIds((current) =>
+      current.includes(id)
+        ? current.filter((x) => x !== id)
+        : [...current, id]
+    );
+  };
 
-    if (!form.full_name.trim() || !form.email.trim()) {
-      setError("Name and email are required.");
+  const onRequestQuotes = async () => {
+    if (sending) return;
+
+    if (selectedIds.length === 0) {
+      setError("Please select at least one provider.");
       return;
     }
 
-    setSavingProfile(true);
+    setSending(true);
+    setError("");
 
     try {
-      const updated = await updateMyProfile({
-        full_name: form.full_name.trim(),
-        email: form.email.trim().toLowerCase(),
-        phone: form.phone.trim() || null,
+      await handleRequestQuotes(currentProject, selectedIds);
+
+      navigate("/contractor-dashboard", {
+        replace: true,
       });
-
-      setProfile((current) => ({
-        ...current,
-        ...updated,
-      }));
-
-      updateSessionUser(updated);
-
-      setForm({
-        full_name: updated.full_name ?? form.full_name.trim(),
-        email: updated.email ?? form.email.trim().toLowerCase(),
-        phone: updated.phone ?? form.phone.trim(),
-      });
-
-      setEditing(false);
-      setSuccess("Your profile details have been updated.");
-    } catch (err) {
-      setError(getErrorMessage(err, "Unable to update your profile."));
-    } finally {
-      setSavingProfile(false);
-    }
-  }
-
-  function handleCancelEdit() {
-    setForm({
-      full_name: profile.full_name || "",
-      email: profile.email || "",
-      phone: profile.phone || "",
-    });
-
-    setEditing(false);
-    setError("");
-  }
-
-  function updatePasswordField(event) {
-    const { name, value } = event.target;
-
-    setPasswords((current) => ({
-      ...current,
-      [name]: value,
-    }));
-  }
-
-  async function handleChangePassword(event) {
-    event.preventDefault();
-    setError("");
-    setSuccess("");
-
-    if (!passwords.current_password || !passwords.new_password) {
-      setError("Enter your current password and a new password.");
-      return;
-    }
-
-    if (passwords.new_password.length < 8) {
-      setError("Your new password must contain at least 8 characters.");
-      return;
-    }
-
-    if (passwords.new_password !== passwords.confirm_password) {
-      setError("The new password and confirmation do not match.");
-      return;
-    }
-
-    setSavingPassword(true);
-
-    try {
-      await changeMyPassword(
-        passwords.current_password,
-        passwords.new_password
-      );
-
-      setPasswords({
-        current_password: "",
-        new_password: "",
-        confirm_password: "",
-      });
-
-      setShowCurrentPassword(false);
-      setShowNewPassword(false);
-      setShowConfirmPassword(false);
-
-      setSuccess("Your password has been changed.");
-    } catch (err) {
-      setError(getErrorMessage(err, "Unable to change your password."));
-    } finally {
-      setSavingPassword(false);
-    }
-  }
-
-  async function handlePictureSelected(event) {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-
-    if (!file) return;
-
-    const allowedTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-    ];
-
-    if (!allowedTypes.includes(file.type)) {
-      setError("Only JPG, PNG or WEBP images are allowed.");
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setError("The image must be 5 MB or smaller.");
-      return;
-    }
-
-    setError("");
-    setSuccess("");
-    setPictureBusy(true);
-
-    try {
-      const updated = await uploadMyProfilePicture(file);
-
-      if (updated && typeof updated === "object") {
-        setProfile((current) => ({
-          ...current,
-          ...updated,
-        }));
-
-        updateSessionUser(updated);
-      } else {
-        await loadProfile();
-      }
-
-      setSuccess("Your profile picture has been updated.");
     } catch (err) {
       setError(
-        getErrorMessage(err, "Unable to upload your profile picture.")
+        err.message || "Could not send the request. Please try again."
       );
-    } finally {
-      setPictureBusy(false);
+      setSending(false);
     }
-  }
-
-  async function handleDeletePicture() {
-    setError("");
-    setSuccess("");
-    setPictureBusy(true);
-
-    try {
-      const updated = await deleteMyProfilePicture();
-
-      const updatedProfile =
-        updated && typeof updated === "object"
-          ? updated
-          : {
-              ...profile,
-              profile_picture: null,
-            };
-
-      setProfile((current) => ({
-        ...current,
-        ...updatedProfile,
-        profile_picture: updatedProfile.profile_picture || "",
-      }));
-
-      updateSessionUser({
-        ...updatedProfile,
-        profile_picture: updatedProfile.profile_picture || "",
-      });
-
-      setSuccess("Your profile picture has been removed.");
-    } catch (err) {
-      setError(
-        getErrorMessage(err, "Unable to remove your profile picture.")
-      );
-    } finally {
-      setPictureBusy(false);
-    }
-  }
-
-  const picture = getPictureUrl(profile);
-
-  const initial = (profile.full_name || "U")
-    .trim()
-    .charAt(0)
-    .toUpperCase();
+  };
 
   return (
-    <ContractorShell activeKey="profile">
-      <div className="profile-page">
-        <div className="profile-heading">
-          <div>
-            <span className="profile-eyebrow">ACCOUNT SETTINGS</span>
-            <h1>My Profile</h1>
-            <p>Manage your personal information and account security.</p>
-          </div>
-        </div>
+    <ContractorShell activeKey="providers">
+      <div className="pv-main">
+        <section className="pv-heading">
+          <h1>Matching Service Providers</h1>
+          <p>
+            Select providers that match your project location and required
+            services.
+          </p>
+        </section>
 
-        {error && (
-          <div className="profile-alert profile-alert-error" role="alert">
-            {error}
+        {/* Project summary */}
+        <section className="pv-summary">
+          <div className="pv-summary-item">
+            <span className="pv-label">PROJECT</span>
+            <strong>{project.name}</strong>
           </div>
+
+          <div className="pv-summary-item">
+            <span className="pv-label">LOCATION</span>
+            <strong>{project.location}</strong>
+          </div>
+
+          <div className="pv-summary-item">
+            <span className="pv-label">REQUIRED SERVICES</span>
+            <strong>{project.services}</strong>
+          </div>
+
+          <span className="pv-found">
+            <i aria-hidden="true" />
+            {visibleProviders.length} Providers Found
+          </span>
+        </section>
+
+        {/* Filters */}
+        <section className="pv-filters">
+          <label className="pv-search">
+            <Icon name="target" size={16} />
+            <input
+              type="text"
+              placeholder="Search providers"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </label>
+
+          <div className="pv-select">
+            <select
+              value={city}
+              onChange={(event) => setCity(event.target.value)}
+              aria-label="City"
+            >
+              {CITIES.map((item) => (
+                <option key={item}>{item}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="pv-select pv-select-wide">
+            <select
+              value={service}
+              onChange={(event) => setService(event.target.value)}
+              aria-label="Required services"
+            >
+              {SERVICE_FILTERS.map((item) => (
+                <option key={item}>{item}</option>
+              ))}
+            </select>
+          </div>
+        {!isFromSidebar && (
+          <span className="pv-selected-count">
+            {selectedIds.length} provider
+            {selectedIds.length === 1 ? "" : "s"} selected
+          </span>
         )}
+        </section>
 
-        {success && (
-          <div className="profile-alert profile-alert-success" role="status">
-            {success}
-          </div>
-        )}
+        {/* Provider cards */}
+        <section className="pv-grid" aria-label="Providers">
+          {visibleProviders.map((provider) => {
+            const isSelected = selectedIds.includes(provider.id);
 
-        {loading ? (
-          <div className="profile-loading">Loading your profile…</div>
-        ) : (
-          <div className="profile-layout">
-            <section className="profile-card profile-identity-card">
-              <div className="profile-card-heading">
-                <div>
-                  <h2>Profile picture</h2>
-                  <p>This image represents you across MAMAR.</p>
-                </div>
-              </div>
-
-              <div className="profile-avatar-wrap">
-                {picture ? (
-                  <img
-                    className="profile-avatar-image"
-                    src={picture}
-                    alt="Profile"
-                  />
-                ) : (
-                  <div className="profile-avatar-placeholder">
-                    {initial}
-                  </div>
-                )}
-              </div>
-
-              <div className="profile-picture-actions">
+            return (
+              <article
+                key={provider.id}
+                className={`pv-card ${
+                  isSelected ? "pv-card-selected" : ""
+                }`}
+                onClick={() => {
+                  if (!isFromSidebar) 
+                  toggleProvider(provider.id);}}
+              >
+              {!isFromSidebar && (
                 <button
-                  className="profile-button profile-button-primary"
                   type="button"
-                  onClick={() => fileInput.current?.click()}
-                  disabled={pictureBusy}
+                  className={`pv-check ${
+                    isSelected ? "pv-check-on" : ""
+                  }`}
+                  aria-pressed={isSelected}
+                  aria-label={`Select ${provider.name}`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    toggleProvider(provider.id);
+                  }}
                 >
-                  {pictureBusy ? "Please wait…" : "Upload picture"}
+                  {isSelected && <Icon name="check" size={14} />}
                 </button>
+              )}
 
-                {picture && (
-                  <button
-                    className="profile-button profile-button-quiet"
-                    type="button"
-                    onClick={handleDeletePicture}
-                    disabled={pictureBusy}
-                  >
-                    Remove
-                  </button>
-                )}
+                <div className="pv-card-top">
+                  <img
+                    className="pv-logo"
+                    src={provider.logo}
+                    alt={`${provider.name} logo`}
+                  />
 
-                <input
-                  ref={fileInput}
-                  className="profile-file-input"
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={handlePictureSelected}
-                />
-              </div>
+                  <div className="pv-card-info">
+                    <h3>{provider.name}</h3>
+                    <p>{provider.description}</p>
 
-              <span className="profile-hint">
-                JPG, PNG or WEBP · Maximum 5 MB
-              </span>
-
-              <div className="profile-account-meta">
-                <div>
-                  <span>Account type</span>
-                  <strong>{profile.role || "Contractor"}</strong>
-                </div>
-
-                <div>
-                  <span>Member since</span>
-                  <strong>{formatDate(profile.created_at)}</strong>
-                </div>
-
-                <div>
-                  <span>User ID</span>
-                  <strong>{profile.user_id ?? "—"}</strong>
-                </div>
-              </div>
-            </section>
-
-            <div className="profile-content">
-              <section className="profile-card">
-                <div className="profile-card-heading profile-heading-row">
-                  <div>
-                    <h2>Personal information</h2>
-                    <p>Keep your contact details up to date.</p>
+                    <span className="pv-match">
+                      <i aria-hidden="true" />
+                      Project Match
+                    </span>
                   </div>
-
-                  {!editing && (
-                    <button
-                      className="profile-button profile-button-outline"
-                      type="button"
-                      onClick={() => setEditing(true)}
-                    >
-                      Edit details
-                    </button>
-                  )}
                 </div>
 
-                <form onSubmit={handleSaveProfile}>
-                  <div className="profile-form-grid">
-                    <label className="profile-field">
-                      <span>Full name</span>
-                      <input
-                        name="full_name"
-                        value={form.full_name}
-                        onChange={updateField}
-                        disabled={!editing}
-                        autoComplete="name"
-                      />
-                    </label>
-
-                    <label className="profile-field">
-                      <span>Email address</span>
-                      <input
-                        name="email"
-                        type="email"
-                        value={form.email}
-                        onChange={updateField}
-                        disabled={!editing}
-                        autoComplete="email"
-                      />
-                    </label>
-
-                    <label className="profile-field profile-field-full">
-                      <span>Phone number</span>
-                      <input
-                        name="phone"
-                        type="tel"
-                        value={form.phone}
-                        onChange={updateField}
-                        disabled={!editing}
-                        autoComplete="tel"
-                      />
-                    </label>
-                  </div>
-
-                  {editing && (
-                    <div className="profile-form-actions">
-                      <button
-                        className="profile-button profile-button-quiet"
-                        type="button"
-                        onClick={handleCancelEdit}
-                        disabled={savingProfile}
-                      >
-                        Cancel
-                      </button>
-
-                      <button
-                        className="profile-button profile-button-primary"
-                        type="submit"
-                        disabled={savingProfile}
-                      >
-                        {savingProfile ? "Saving…" : "Save changes"}
-                      </button>
-                    </div>
-                  )}
-                </form>
-              </section>
-
-              <section className="profile-card">
-                <div className="profile-card-heading">
-                  <h2>Change password</h2>
-                  <p>Choose a strong password you do not use elsewhere.</p>
+                <div className="pv-tags">
+                  {provider.services.map((item) => (
+                    <span key={item}>{item}</span>
+                  ))}
                 </div>
+              </article>
+            );
+          })}
 
-                <form onSubmit={handleChangePassword}>
-                  <div className="profile-form-grid">
-                    <label className="profile-field profile-field-full">
-                      <span>Current password</span>
+          {visibleProviders.length === 0 && (
+            <p className="pv-empty">
+              No providers match your search. Try changing the filters.
+            </p>
+          )}
+        </section>
 
-                      <div className="profile-password-wrap">
-                        <input
-                          name="current_password"
-                          type={showCurrentPassword ? "text" : "password"}
-                          value={passwords.current_password}
-                          onChange={updatePasswordField}
-                          autoComplete="current-password"
-                        />
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setShowCurrentPassword((value) => !value)
-                          }
-                          aria-label={
-                            showCurrentPassword
-                              ? "Hide password"
-                              : "Show password"
-                          }
-                        >
-                          {showCurrentPassword ? "Hide" : "Show"}
-                        </button>
-                      </div>
-                    </label>
-
-                    <label className="profile-field">
-                      <span>New password</span>
-
-                      <div className="profile-password-wrap">
-                        <input
-                          name="new_password"
-                          type={showNewPassword ? "text" : "password"}
-                          value={passwords.new_password}
-                          onChange={updatePasswordField}
-                          autoComplete="new-password"
-                        />
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setShowNewPassword((value) => !value)
-                          }
-                          aria-label={
-                            showNewPassword
-                              ? "Hide password"
-                              : "Show password"
-                          }
-                        >
-                          {showNewPassword ? "Hide" : "Show"}
-                        </button>
-                      </div>
-                    </label>
-
-                    <label className="profile-field">
-                      <span>Confirm new password</span>
-
-                      <div className="profile-password-wrap">
-                        <input
-                          name="confirm_password"
-                          type={showConfirmPassword ? "text" : "password"}
-                          value={passwords.confirm_password}
-                          onChange={updatePasswordField}
-                          autoComplete="new-password"
-                        />
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setShowConfirmPassword((value) => !value)
-                          }
-                          aria-label={
-                            showConfirmPassword
-                              ? "Hide password"
-                              : "Show password"
-                          }
-                        >
-                          {showConfirmPassword ? "Hide" : "Show"}
-                        </button>
-                      </div>
-                    </label>
-                  </div>
-
-                  <div className="profile-form-actions">
-                    <button
-                      className="profile-button profile-button-primary"
-                      type="submit"
-                      disabled={savingPassword}
-                    >
-                      {savingPassword ? "Updating…" : "Update password"}
-                    </button>
-                  </div>
-                </form>
-              </section>
-            </div>
-          </div>
+        {/* Error message */}
+        {error && (
+          <p
+            role="alert"
+            style={{ color: "crimson", margin: "12px 0" }}
+          >
+            {error}
+          </p>
         )}
+
+        {/* Actions */}
+      {!isFromSidebar && (
+        <footer className="pv-actions">
+          <button
+            type="button"
+            className="pv-back"
+            onClick={() => navigate(-1)}
+            disabled={sending}
+          >
+            ← Back
+          </button>
+
+          <button
+            type="button"
+            className="pv-request"
+            onClick={onRequestQuotes}
+            disabled={sending}
+          >
+            <Icon name="quotations" size={18} />
+
+            {sending
+              ? "Sending…"
+              : `Request Quotes (${selectedIds.length})`}
+
+            <Icon name="logout" size={16} />
+          </button>
+        </footer>
+      )}
       </div>
     </ContractorShell>
   );
 }
+
+export default ProviderPage;
