@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { loginUser } from "../../services/api";
-import { logout, saveSession } from "../../services/auth";
+import { forgetSessionHere, saveSession } from "../../services/auth";
 import Header from "../../components/Header";
 import Button from "../../components/Button";
 import logo from "../../assets/mamar-logo.svg";
@@ -48,7 +48,7 @@ function LoginPage() {
     const password = form.loginPassword.value;
     setLoading(true);
     try {
-      logout();
+      forgetSessionHere();
       const data = await loginUser(email, password);
       // The admin has no account type button: any choice (or none) signs the admin in.
       if (data.user.role !== "admin" && !role) {
