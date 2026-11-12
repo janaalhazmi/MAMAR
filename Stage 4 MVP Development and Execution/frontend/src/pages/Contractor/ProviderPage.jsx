@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icons";
 import ContractorShell from "../../components/ContractorShell";
 
@@ -15,7 +15,8 @@ import {
 
 function ProviderPage() {
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const isFromSidebar = location.state?.source === "sidebar";
   const currentProject = getCurrentProject();
   const project = getProviderPageSummary(currentProject);
 
@@ -224,6 +225,7 @@ function ProviderPage() {
         )}
 
         {/* Actions */}
+      {!isFromSidebar && (
         <footer className="pv-actions">
           <button
             type="button"
@@ -249,6 +251,7 @@ function ProviderPage() {
             <Icon name="logout" size={16} />
           </button>
         </footer>
+      )}
       </div>
     </ContractorShell>
   );
