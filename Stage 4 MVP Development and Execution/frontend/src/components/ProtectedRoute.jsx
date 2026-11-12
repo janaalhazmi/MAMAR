@@ -7,40 +7,89 @@ const SIGN_IN_FIRST = "Please sign in to continue.";
 
 export default function ProtectedRoute({ children, roles }) {
   const [ended, setEnded] = useState(false);
+  const [sessionVersion, setSessionVersion] = useState(0);
+
   const session = getSession();
   const expiresAt = session?.expiresAt;
   const token = session?.access_token;
 
+  // Listen for logout and account changes from other tabs.
+  useEffect(() => {
+    function handleLogout() {
+      setEnded(true);
+    }
+
+    function handleSessionUpdate() {
+      setSessionVersion((version) => version + 1);
+    }
+
+    window.addEventListener("mamar:logout", handleLogout);
+    window.addEventListener(
+      "mamar:session-user-updated",
+      handleSessionUpdate
+    );
+
+    return () => {
+      window.removeEventListener("mamar:logout", handleLogout);
+      window.removeEventListener(
+        "mamar:session-user-updated",
+        handleSessionUpdate
+      );
+    };
+  }, []);
+
   // Logs out when the token expires while the page is open.
   useEffect(() => {
     if (!expiresAt) return;
+
     const timer = setTimeout(() => {
       logout();
       setEnded(true);
     }, Math.max(0, expiresAt - Date.now()));
+
     return () => clearTimeout(timer);
   }, [expiresAt]);
 
-  // Asks the backend if the token is still valid (GET /auth/me).
+  // Asks the backend if the token is still valid.
   useEffect(() => {
     if (!token) return;
+
     let active = true;
+
     verifySession().then((valid) => {
-      if (active && !valid) setEnded(true);
+      if (active && !valid) {
+        setEnded(true);
+      }
     });
+
     return () => {
       active = false;
     };
   }, [token]);
 
   if (ended) {
-    return <Navigate to="/login" replace state={{ message: SESSION_ENDED }} />;
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{ message: SESSION_ENDED }}
+      />
+    );
   }
+
   if (!session) {
-    return <Navigate to="/login" replace state={{ message: SIGN_IN_FIRST }} />;
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{ message: SIGN_IN_FIRST }}
+      />
+    );
   }
+
   if (!roles.includes(session.user.role)) {
     return <Navigate to="/" replace />;
   }
+
   return children;
 }

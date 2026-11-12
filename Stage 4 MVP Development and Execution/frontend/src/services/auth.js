@@ -1,60 +1,93 @@
 import { getCurrentUser } from "./api";
 
 const KEY = "mamarSession";
-// The user_id of the last account that signed in on this tab.
 const LAST_USER_KEY = "mamarLastUser";
-// Kept when the account changes: the login itself and a sign up that is waiting for its code.
-const KEEP_KEYS = [KEY, LAST_USER_KEY, "mamarPendingRegistration"];
+const KEEP_KEYS = [LAST_USER_KEY, "mamarPendingRegistration"];
 
-// The token that the backend already accepted, so normal navigation does not ask again.
+// The token that the backend already accepted.
 let checkedToken = null;
 
 export function logout() {
-  sessionStorage.removeItem(KEY);
+  localStorage.removeItem(KEY);
   localStorage.removeItem("mamarUsers");
   checkedToken = null;
 }
 
 export function getSession() {
   try {
-    const session = JSON.parse(sessionStorage.getItem(KEY));
-    if (!session?.access_token || !session?.user) return null;
+    const session = JSON.parse(localStorage.getItem(KEY));
+
+    if (!session?.access_token || !session?.user) {
+      return null;
+    }
+
     const payload = session.access_token.split(".")[1];
+
+    if (!payload) {
+      throw new Error("Invalid token.");
+    }
+
     const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const claims = JSON.parse(atob(normalized.padEnd(
-      Math.ceil(normalized.length / 4) * 4, "="
-    )));
-    if (!Number.isFinite(claims.exp) || claims.exp * 1000 <= Date.now()) {
-      sessionStorage.removeItem(KEY);
+
+    const claims = JSON.parse(
+      atob(
+        normalized.padEnd(
+          Math.ceil(normalized.length / 4) * 4,
+          "="
+        )
+      )
+    );
+
+    if (
+      !Number.isFinite(claims.exp) ||
+      claims.exp * 1000 <= Date.now()
+    ) {
+      localStorage.removeItem(KEY);
+      checkedToken = null;
       return null;
     }
-    // The saved user must be the user of the token, so editing the saved role does not open other pages.
-    if (claims.role !== session.user.role || String(claims.sub) !== String(session.user.user_id)) {
-      sessionStorage.removeItem(KEY);
+
+    // Verify that the saved user matches the JWT.
+    if (
+      claims.role !== session.user.role ||
+      String(claims.sub) !== String(session.user.user_id)
+    ) {
+      localStorage.removeItem(KEY);
+      checkedToken = null;
       return null;
     }
-    return { ...session, expiresAt: claims.exp * 1000 };
+
+    return {
+      ...session,
+      expiresAt: claims.exp * 1000,
+    };
   } catch {
-    sessionStorage.removeItem(KEY);
+    localStorage.removeItem(KEY);
+    checkedToken = null;
     return null;
   }
 }
 
 export async function verifySession() {
-  // Asks the backend if the saved token is still valid. Returns false only when the
-  // backend refuses it (401) or the saved role is not the role of the account, and then
-  // removes the session. A network error keeps the session, because the free server can
-  // be asleep and the token is checked again on the next page.
   const session = getSession();
+
   if (!session) return false;
-  if (checkedToken === session.access_token) return true;
+
+  if (checkedToken === session.access_token) {
+    return true;
+  }
 
   try {
     const user = await getCurrentUser(session.access_token);
-    if (user.role !== session.user.role || user.user_id !== session.user.user_id) {
+
+    if (
+      user.role !== session.user.role ||
+      String(user.user_id) !== String(session.user.user_id)
+    ) {
       logout();
       return false;
     }
+
     checkedToken = session.access_token;
     return true;
   } catch (error) {
@@ -62,22 +95,27 @@ export async function verifySession() {
       logout();
       return false;
     }
+
+    // Keep the session if the server is temporarily unavailable.
     return true;
   }
 }
 
-// When another account signs in on the same tab, the work of the previous account (its project,
-// selected providers, quotations, payment, notifications) is removed, so it does not show up for
-// the new account. The same account signing in again (for example after the token expired)
-// keeps its work.
+// Clear previous account work in this tab when the account changes.
 function clearPreviousAccountWork(userId) {
   const lastUser = sessionStorage.getItem(LAST_USER_KEY);
-  if (lastUser !== null && lastUser !== String(userId)) {
+
+  if (
+    lastUser !== null &&
+    lastUser !== String(userId)
+  ) {
     Object.keys(sessionStorage)
       .filter((key) => !KEEP_KEYS.includes(key))
       .forEach((key) => sessionStorage.removeItem(key));
+
     localStorage.removeItem("providerQuotationDraft");
   }
+
   sessionStorage.setItem(LAST_USER_KEY, String(userId));
 }
 
@@ -85,10 +123,17 @@ export function saveSession(data) {
   if (!data?.access_token || !data?.user?.role) {
     throw new Error("Invalid login response.");
   }
+
   clearPreviousAccountWork(data.user.user_id);
-  sessionStorage.setItem(KEY, JSON.stringify(data));
+
+  localStorage.setItem(KEY, JSON.stringify(data));
   localStorage.removeItem("mamarUsers");
-  if (!getSession()) throw new Error("Invalid or expired login token.");
+
+  checkedToken = null;
+
+  if (!getSession()) {
+    throw new Error("Invalid or expired login token.");
+  }
 }
 
 export function updateSessionUser(userData) {
@@ -101,13 +146,12 @@ export function updateSessionUser(userData) {
     ...userData,
   };
 
-  sessionStorage.setItem(
-    KEY,
-    JSON.stringify({
-      ...session,
-      user: updatedUser,
-    })
-  );
+  const updatedSession = {
+    ...session,
+    user: updatedUser,
+  };
+
+  localStorage.setItem(KEY, JSON.stringify(updatedSession));
 
   window.dispatchEvent(
     new CustomEvent("mamar:session-user-updated", {
@@ -115,3 +159,41 @@ export function updateSessionUser(userData) {
     })
   );
 }
+
+// Synchronize login, logout, and account changes across browser tabs.
+window.addEventListener("storage", (event) => {
+  if (event.key !== KEY) return;
+
+  checkedToken = null;
+
+  // Another tab logged out.
+  if (event.newValue === null) {
+    window.dispatchEvent(
+      new CustomEvent("mamar:logout")
+    );
+
+    return;
+  }
+
+  try {
+    const newSession = JSON.parse(event.newValue);
+
+    if (
+      !newSession?.access_token ||
+      !newSession?.user?.user_id
+    ) {
+      return;
+    }
+
+    // Clear this tab's previous account data if the account changed.
+    clearPreviousAccountWork(newSession.user.user_id);
+
+    window.dispatchEvent(
+      new CustomEvent("mamar:session-user-updated", {
+        detail: newSession.user,
+      })
+    );
+  } catch {
+    // Ignore invalid session data.
+  }
+});
