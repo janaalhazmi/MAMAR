@@ -145,11 +145,12 @@ function ProviderPage() {
               ))}
             </select>
           </div>
-
+        {!isFromSidebar && (
           <span className="pv-selected-count">
             {selectedIds.length} provider
             {selectedIds.length === 1 ? "" : "s"} selected
           </span>
+        )}
         </section>
 
         {/* Provider cards */}
@@ -163,8 +164,11 @@ function ProviderPage() {
                 className={`pv-card ${
                   isSelected ? "pv-card-selected" : ""
                 }`}
-                onClick={() => toggleProvider(provider.id)}
+                onClick={() => {
+                  if (!isFromSidebar) 
+                  toggleProvider(provider.id);}}
               >
+              {!isFromSidebar && (
                 <button
                   type="button"
                   className={`pv-check ${
@@ -179,6 +183,7 @@ function ProviderPage() {
                 >
                   {isSelected && <Icon name="check" size={14} />}
                 </button>
+              )}
 
                 <div className="pv-card-top">
                   <img
