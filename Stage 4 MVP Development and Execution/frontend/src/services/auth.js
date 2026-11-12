@@ -8,7 +8,10 @@ const CHANNEL_NAME = "mamar_auth_channel";
 
 let checkedToken = null;
 
-const channel = null;
+const channel = 
+    typeof BroadcastChannel !== "undefined"
+    ? new BroadcastChannel(CHANNEL_NAME)
+    : null;
   
 
 // Validate and read the session from this tab.
