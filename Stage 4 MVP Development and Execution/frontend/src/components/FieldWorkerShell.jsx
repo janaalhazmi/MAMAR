@@ -5,10 +5,11 @@ import { logout, getSession } from "../services/auth";
 import Icon from "./Icons";
 
 // Same cd-* header/sidebar classes as the contractor pages.
-// activeKey: "dashboard" | "team"
+// activeKey: "dashboard" | "team" | "attendance"
 const NAV = [
   { key: "dashboard", to: "/field-worker-dashboard", icon: "dashboard", label: "Dashboard" },
   { key: "team", to: "/field-execution", icon: "providers", label: "Field Team" },
+  { key: "attendance", to: "/attendance", icon: "clock", label: "Attendance" },
 ];
 
 function FieldWorkerShell({ activeKey, children }) {

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import {
   getSession,
   logout,
@@ -11,6 +11,7 @@ const SESSION_ENDED = "Your session has ended. Please sign in again.";
 const SIGN_IN_FIRST = "Please sign in to continue.";
 
 export default function ProtectedRoute({ children, roles }) {
+  const location = useLocation();
   const [ended, setEnded] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
   const [, setSessionVersion] = useState(0);
@@ -128,7 +129,8 @@ export default function ProtectedRoute({ children, roles }) {
       <Navigate
         to="/login"
         replace
-        state={{ message: SIGN_IN_FIRST }}
+        // After signing in, the login page comes back here (for example a scanned QR link).
+        state={{ message: SIGN_IN_FIRST, from: location.pathname + location.search }}
       />
     );
   }

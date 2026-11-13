@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icons";
 import ContractorShell from "../../components/ContractorShell";
 import Stars from "../../components/Stars";
+import ProviderReviews from "../../components/ProviderReviews";
 import { useProviderRatings } from "../../services/ratings";
 
 import {
@@ -198,6 +199,7 @@ function ProviderPage() {
                   <div className="pv-card-info">
                     <h3>{provider.name}</h3>
                     <Stars rating={ratings.byId[String(provider.id)]} />
+                    <ProviderReviews providerId={provider.id} count={ratings.byId[String(provider.id)]?.count} />
                     <p>{provider.description}</p>
 
                     <span className="pv-match">

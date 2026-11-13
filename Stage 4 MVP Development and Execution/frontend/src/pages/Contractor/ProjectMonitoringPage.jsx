@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import ContractorShell from "../../components/ContractorShell";
 import MamarMap from "../../components/MamarMap";
 import WeatherCard from "../../components/WeatherCard";
+import TrafficCard from "../../components/TrafficCard";
+import TeamOnSiteCard from "../../components/TeamOnSiteCard";
 import Icon from "../../components/Icons";
 import {
   formatDateRange,
@@ -94,6 +96,8 @@ function ProjectMonitoringPage() {
       </section>
 
       <WeatherCard projectId={project.id} />
+      <TrafficCard projectId={project.id} />
+      <TeamOnSiteCard projectId={project.id} />
 
       <div className="pf-mon-grid">
         <section className="pf-card pf-pad">
