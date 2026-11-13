@@ -6,9 +6,11 @@ import urllib.request
 
 from app.core import config
 
-# Twilio SMS. Each notification is also sent as a text message to the user's phone when
+# Twilio SMS or WhatsApp. Each notification is also sent to the user's phone when
 # TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN and TWILIO_FROM are set on Render. A Twilio trial
 # account only sends to numbers verified in the Twilio console.
+# WhatsApp: set TWILIO_FROM to "whatsapp:+14155238886" (the Twilio sandbox number); each phone
+# first joins the sandbox by sending the "join ..." code to that number on WhatsApp.
 
 
 def enabled() -> bool:
@@ -36,6 +38,8 @@ def saudi_number(phone: str | None) -> str | None:
 def post(to: str, text: str) -> None:
     url = f"https://api.twilio.com/2010-04-01/Accounts/{config.TWILIO_ACCOUNT_SID}/Messages.json"
     auth = base64.b64encode(f"{config.TWILIO_ACCOUNT_SID}:{config.TWILIO_AUTH_TOKEN}".encode()).decode()
+    if config.TWILIO_FROM.startswith("whatsapp:"):
+        to = f"whatsapp:{to}"
     body = urllib.parse.urlencode({"To": to, "From": config.TWILIO_FROM, "Body": text}).encode()
     request = urllib.request.Request(url, data=body, headers={"Authorization": f"Basic {auth}"})
     try:

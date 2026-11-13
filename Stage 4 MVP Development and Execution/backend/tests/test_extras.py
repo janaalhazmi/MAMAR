@@ -192,3 +192,22 @@ def test_admin_activity_and_map(api, monkeypatch):
     rows = {p["project_id"]: p for p in api.client.get("/admin/projects", headers=admin).json()}
     assert rows[project_id]["provider"] and rows[project_id]["latitude"] == 24.7
     assert api.client.get("/admin/activity", headers=contractor).status_code == 403
+
+
+def test_whatsapp_sender(monkeypatch):
+    calls = []
+    monkeypatch.setattr(config, "TWILIO_ACCOUNT_SID", "AC1")
+    monkeypatch.setattr(config, "TWILIO_AUTH_TOKEN", "t")
+    monkeypatch.setattr(config, "TWILIO_FROM", "whatsapp:+14155238886")
+
+    class Done:
+        def close(self):
+            pass
+
+    def fake_urlopen(request, timeout):
+        calls.append(request.data.decode())
+        return Done()
+
+    monkeypatch.setattr(sms.urllib.request, "urlopen", fake_urlopen)
+    sms.post("+966501234567", "hello")
+    assert "To=whatsapp%3A%2B966501234567" in calls[0] and "From=whatsapp%3A%2B14155238886" in calls[0]

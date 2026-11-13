@@ -564,7 +564,7 @@ One admin account, made from `ADMIN_EMAIL` and `ADMIN_PASSWORD` on Render (never
 | Open-Meteo (weather, free, no key) | `GET /projects/{id}/weather` | Daily forecast at the work zone for the project days (or the next 7 days), with alerts for extreme heat (45°C+), rain (1 mm+) and strong wind (50 km/h+). The contractor, the provider and the assigned workers can open it. 400 when the project has no location, 502 when Open-Meteo cannot be reached |
 | ReportLab (PDF) | `GET /payments/{payment_id}/receipt` | A PDF receipt of a completed payment, for the contractor and the winning provider |
 | Cloudflare Turnstile | `turnstile_token` in `POST /auth/login` and `POST /auth/register` | When `TURNSTILE_SECRET_KEY` is set, the token from the widget is checked with Cloudflare; a missing or wrong token gets 400 |
-| Twilio SMS | every notification | When the Twilio settings are set, each notification is also sent by SMS to the user's phone (Saudi numbers like 05xxxxxxxx) |
+| Twilio SMS or WhatsApp | every notification | When the Twilio settings are set, each notification is also sent to the user's phone (Saudi numbers like 05xxxxxxxx). With `TWILIO_FROM=whatsapp:+14155238886` it goes by WhatsApp (Twilio sandbox) |
 | UptimeRobot | outside the code | Calls `/health` every 5 minutes so the free Render server does not sleep |
 
 | Ratings | `POST /projects/{id}/review`, `GET /projects/{id}/review`, `GET /providers/ratings`, `GET /providers/{id}/reviews` | After approving the work the contractor rates the provider once (1 to 5 stars and a comment, 409 the second time). The averages show next to each company |
