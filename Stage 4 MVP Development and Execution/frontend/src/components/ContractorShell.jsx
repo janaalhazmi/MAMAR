@@ -6,6 +6,7 @@ import { getSession } from "../services/auth";
 import { getNotifications } from "../services/notifications";
 import Sidebar from "./Sidebar";
 import { getPictureUrl } from "../services/Contractor/profileUtils";
+import { fetchMyProfile } from "../services/Contractor/profileService";
 
 const NAV = [
   { key: "dashboard", path: "/contractor-dashboard", icon: "dashboard", label: "Dashboard" },
@@ -49,13 +50,46 @@ function ContractorShell({ activeKey, children }) {
   const previousIds = useRef(null);
 
   useEffect(() => {
-    function handleUserUpdate(event) {
-      setSessionUser(event.detail || {});
-    }
+  let active = true;
+  function handleUserUpdate(event) {
+    setSessionUser((current) => ({
+      ...current,
+      ...(event.detail || {}),
+    }));
+  }
+  window.addEventListener(
+    "mamar:session-user-updated",
+    handleUserUpdate
+  );
+  async function loadUserProfile() {
+    try {
+      const profile = await fetchMyProfile();
 
-    window.addEventListener("mamar:session-user-updated", handleUserUpdate);
-    return () => window.removeEventListener("mamar:session-user-updated", handleUserUpdate);
-  }, []);
+      if (!active) return;
+
+      setSessionUser((current) => ({
+        ...current,
+        ...profile,
+      }));
+
+      window.dispatchEvent(
+        new CustomEvent("mamar:session-user-updated", {
+          detail: profile,
+        })
+      );
+    } catch (error) {
+      console.error("Unable to load contractor profile:", error);
+    }
+  }
+  loadUserProfile();
+  return () => {
+    active = false;
+    window.removeEventListener(
+      "mamar:session-user-updated",
+      handleUserUpdate
+    );
+  };
+}, []);
 
   useEffect(() => {
     let active = true;

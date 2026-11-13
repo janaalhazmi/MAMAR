@@ -1,6 +1,7 @@
+import { useEffect, useState } from "react";
 import logo from "../../assets/mamar-logo.svg";
 import NotificationBell from "../../components/NotificationBell";
-import { useProviderDashboard } from "../../services/providers/api";
+import { useProviderDashboard, providerProfileService} from "../../services/providers/api";
 import { Link } from "react-router-dom";
 import ProviderSidebar from "../../components/ProviderSidebar";
 import Button from "../../components/Button";
@@ -8,11 +9,83 @@ import { getSession } from "../../services/auth";
 import { formatDate } from "../../services/projectFlow";
 import { getProviderDashboard } from "../../services/providers/providerQuotes";
 
+
+const API_URL = (
+  import.meta.env.VITE_API_URL || "https://mamar-api.onrender.com"
+).replace(/\/+$/, "");
+
+function getProfilePictureUrl(user) {
+  const path =
+    user?.profile_picture_url ||
+    user?.profile_picture ||
+    user?.avatar_url ||
+    "";
+
+  if (!path) return "";
+  if (/^https?:\/\//i.test(path)) return path;
+
+  return `${API_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+
 function ProviderDashboard() {
   const { displayName, initials, data, loading, error } =
     useProviderDashboard(getSession, getProviderDashboard);
 
-  const stats = data?.stats || { assigned: 0, active: 0, upcoming: 0, completed: 0 };
+  // Keep the top-bar avatar in sync when the profile picture is changed.
+  const [sessionUser, setSessionUser] = useState(
+    () => getSession()?.user || {}
+  );
+
+  useEffect(() => {
+  let active = true;
+  function handleUserUpdate(event) {
+    if (event.detail) {
+      setSessionUser((current) => ({
+        ...current,
+        ...event.detail,
+      }));
+    }
+  }
+  window.addEventListener(
+    "mamar:session-user-updated",
+    handleUserUpdate
+  );
+  async function loadUserProfile() {
+    try {
+      const profile =
+        await providerProfileService.fetchMyProfile();
+      if (!active) return;
+      setSessionUser((current) => ({
+        ...current,
+        ...profile,
+      }));
+      window.dispatchEvent(
+        new CustomEvent("mamar:session-user-updated", {
+          detail: profile,
+        })
+      );
+    } catch (error) {
+      console.error("Unable to load provider profile:", error);
+    }
+  }
+  loadUserProfile();
+  return () => {
+    active = false;
+    window.removeEventListener(
+      "mamar:session-user-updated",
+      handleUserUpdate
+    );
+  };
+}, []);
+
+  const picture = getProfilePictureUrl(sessionUser);
+
+  const stats = data?.stats || {
+    assigned: 0,
+    active: 0,
+    upcoming: 0,
+    completed: 0,
+  };
 
   const summaryCards = [
     { label: "Assigned Projects", value: stats.assigned, icon: "＋", color: "yellow" },
@@ -34,16 +107,44 @@ function ProviderDashboard() {
         <header className="provider-topbar">
           <div />
 
-          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "24px" }}>
+          <div
+            style={{
+              marginLeft: "auto",
+              display: "flex",
+              alignItems: "center",
+              gap: "24px",
+            }}
+          >
             <NotificationBell />
 
             <div className="provider-account">
               <Link
-              to="/provider/profile"
-              className="provider-avatar"
-              aria-label="Open my profile"
-              style={{ textDecoration: "none" }}
-            >{initials || "P"}</Link>
+                to="/provider/profile"
+                className="provider-avatar"
+                aria-label="Open my profile"
+                style={{
+                  textDecoration: "none",
+                  overflow: "hidden",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {picture ? (
+                  <img
+                    src={picture}
+                    alt="Profile"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      borderRadius: "50%",
+                    }}
+                  />
+                ) : (
+                  initials || "P"
+                )}
+              </Link>
 
               <div>
                 <strong>{displayName}</strong>
@@ -56,7 +157,6 @@ function ProviderDashboard() {
         <main className="provider-dashboard-content">
           <section className="provider-title">
             <h1>Provider Dashboard</h1>
-
             <p>
               Review service requests, manage assigned projects and track field
               execution.
@@ -75,7 +175,6 @@ function ProviderDashboard() {
                 <div className={`provider-summary-icon ${card.color}`}>
                   {card.icon}
                 </div>
-
                 <div>
                   <span>{card.label}</span>
                   <strong>{loading ? "–" : card.value}</strong>
@@ -102,9 +201,7 @@ function ProviderDashboard() {
                   style={{ marginBottom: 16 }}
                 >
                   <span className="request-badge">● &nbsp; NEW REQUEST</span>
-
                   <h3>{request.name}</h3>
-
                   <p className="request-company">{request.type}</p>
 
                   <div className="request-details">
@@ -112,17 +209,14 @@ function ProviderDashboard() {
                       <span>LOCATION</span>
                       <strong>{request.location}</strong>
                     </div>
-
                     <div>
                       <span>START DATE</span>
                       <strong>{formatDate(request.startDate)}</strong>
                     </div>
-
                     <div>
                       <span>END DATE</span>
                       <strong>{formatDate(request.endDate)}</strong>
                     </div>
-
                     <div>
                       <span>STATUS</span>
                       <strong className="request-status">{request.status}</strong>
@@ -135,7 +229,6 @@ function ProviderDashboard() {
                         <span key={service}>{service}</span>
                       ))}
                     </div>
-
                     <Button to={`/provider/quotation?requestId=${request.id}`}>
                       Prepare Quotation →
                     </Button>
@@ -159,15 +252,13 @@ function ProviderDashboard() {
               <article className="assigned-project-card">
                 <div>
                   <span className="accepted-badge">QUOTE ACCEPTED</span>
-
                   <h3>{newProject.name}</h3>
-
                   <p>{newProject.subtitle}</p>
-
                   <span className="ready-status">{newProject.status}</span>
                 </div>
-
-                <Button to={`/provider/projects/${encodeURIComponent(newProject.id)}`}>View Project →</Button>
+                <Button to={`/provider/projects/${encodeURIComponent(newProject.id)}`}>
+                  View Project →
+                </Button>
               </article>
             )}
           </section>
@@ -194,15 +285,12 @@ function ProviderDashboard() {
                 <div className="active-project-row" key={project.id}>
                   <span>{project.name}</span>
                   <span>{project.city}</span>
-
                   <div className="progress-area">
                     <div className="progress-bar">
                       <div style={{ width: `${project.progress}%` }} />
                     </div>
-
                     <span>{project.progress}%</span>
                   </div>
-
                   <span className="active-badge">Active</span>
                 </div>
               ))}
@@ -213,7 +301,6 @@ function ProviderDashboard() {
 
               <div className="execution-item">
                 <span className="execution-icon yellow">✓</span>
-
                 <div>
                   <small>FIELD TEAM</small>
                   <p>{overview.workersActive} Workers Active</p>
@@ -222,7 +309,6 @@ function ProviderDashboard() {
 
               <div className="execution-item">
                 <span className="execution-icon green">✓</span>
-
                 <div>
                   <small>SITE EXECUTION</small>
                   <p>{overview.sitesActive} Sites Active</p>

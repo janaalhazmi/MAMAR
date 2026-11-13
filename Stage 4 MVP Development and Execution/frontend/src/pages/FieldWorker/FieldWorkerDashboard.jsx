@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FieldWorkerShell from "../../components/FieldWorkerShell";
 import Icon from "../../components/Icons";
-import { formatDate, getFieldWorkerDashboard } from "../../services/fieldWork";
+import { formatDate, getFieldWorkerDashboard } from "../../services/FieldWorker/FieldWorker";
 
 const pad = (n) => String(n).padStart(2, "0");
 

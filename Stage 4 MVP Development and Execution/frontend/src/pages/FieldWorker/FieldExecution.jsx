@@ -15,7 +15,7 @@ import {
   getFieldWorkerDashboard,
   updateSiteStatus,
   uploadSitePhotos,
-} from "../../services/fieldWork";
+} from "../../services/FieldWorker/FieldWorker";
 
 function FieldExecution() {
   const navigate = useNavigate();

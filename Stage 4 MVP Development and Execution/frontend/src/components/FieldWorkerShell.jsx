@@ -1,23 +1,99 @@
+import { useEffect, useState } from "react";
 import NotificationBell from "./NotificationBell";
 import { Link } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import { logout, getSession } from "../services/auth";
+import { getCurrentUser, API_BASE_URL } from "../services/api";
 import Icon from "./Icons";
 
-// Same cd-* header/sidebar classes as the contractor pages.
-// activeKey: "dashboard" | "team" | "attendance"
 const NAV = [
-  { key: "dashboard", to: "/field-worker-dashboard", icon: "dashboard", label: "Dashboard" },
-  { key: "team", to: "/field-execution", icon: "providers", label: "Field Team" },
-  { key: "attendance", to: "/attendance", icon: "clock", label: "Attendance" },
+  {
+    key: "dashboard",
+    to: "/field-worker-dashboard",
+    icon: "dashboard",
+    label: "Dashboard",
+  },
+  {
+    key: "team",
+    to: "/field-execution",
+    icon: "providers",
+    label: "Field Team",
+  },
+  {
+    key: "attendance",
+    to: "/attendance",
+    icon: "clock",
+    label: "Attendance",
+  },
+  {
+    key: "profile",
+    to: "/field-worker/profile",
+    icon: "user",
+    label: "My Profile",
+  },
 ];
 
+function getPictureUrl(user) {
+  const picture =
+    user?.profile_picture_url ||
+    user?.profile_picture ||
+    user?.avatar_url;
+
+  if (!picture || typeof picture !== "string") return null;
+
+  if (
+    picture.startsWith("http://") ||
+    picture.startsWith("https://") ||
+    picture.startsWith("data:")
+  ) {
+    return picture;
+  }
+
+  return `${API_BASE_URL}${picture.startsWith("/") ? "" : "/"}${picture}`;
+}
+
 function FieldWorkerShell({ activeKey, children }) {
-  const sessionUser = getSession()?.user;
-  const rawName = sessionUser?.full_name || sessionUser?.name || "";
+  const [user, setUser] = useState(() => getSession()?.user || null);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadUser() {
+      try {
+        const accessToken = getSession()?.access_token;
+        if (!accessToken) return;
+
+        const currentUser = await getCurrentUser(accessToken);
+
+        if (mounted) {
+          setUser(currentUser);
+          setImageError(false);
+        }
+      } catch (error) {
+        console.error("Could not load field worker profile:", error);
+      }
+    }
+
+    loadUser();
+
+    const handleUserUpdate = () => loadUser();
+    window.addEventListener("mamar:session-user-updated", handleUserUpdate);
+
+    return () => {
+      mounted = false;
+      window.removeEventListener(
+        "mamar:session-user-updated",
+        handleUserUpdate
+      );
+    };
+  }, []);
+
+  const rawName = user?.full_name || user?.name || "";
   const displayName =
-    (typeof rawName === "string" ? rawName.trim() : "") || "there";
+    (typeof rawName === "string" ? rawName.trim() : "") || "Field Worker";
   const userInitial = displayName.charAt(0).toUpperCase();
+  const pictureUrl = getPictureUrl(user);
 
   return (
     <div className="cd-page">
@@ -32,13 +108,35 @@ function FieldWorkerShell({ activeKey, children }) {
 
         <div className="cd-header-actions">
           <NotificationBell />
-          <div className="cd-user">
-          <div className="cd-user-avatar">{userInitial}</div>
-          <div className="cd-user-info">
-            <strong>{displayName}</strong>
-            <span>Field Worker</span>
-          </div>
-          </div>
+
+          <Link
+            to="/field-worker/profile"
+            className="cd-user"
+            aria-label="My Profile"
+          >
+            <div className="cd-user-avatar">
+              {pictureUrl && !imageError ? (
+                <img
+                  src={pictureUrl}
+                  alt={displayName}
+                  onError={() => setImageError(true)}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    borderRadius: "50%",
+                  }}
+                />
+              ) : (
+                userInitial
+              )}
+            </div>
+
+            <div className="cd-user-info">
+              <strong>{displayName}</strong>
+              <span>Field Worker</span>
+            </div>
+          </Link>
         </div>
       </header>
 

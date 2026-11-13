@@ -4,7 +4,7 @@ import FieldWorkerShell from "../../components/FieldWorkerShell";
 import AttendanceCard from "../../components/AttendanceCard";
 import TrafficCard from "../../components/TrafficCard";
 import { getSession } from "../../services/auth";
-import { fetchFieldProjects } from "../../services/api";
+import { fetchFieldProjects } from "../../services/FieldWorker/FieldWorker";
 
 // Opened by scanning the site QR: /attendance?projectId=12&code=AB12CD34EF
 // Without a project in the link, the worker picks one of their projects.

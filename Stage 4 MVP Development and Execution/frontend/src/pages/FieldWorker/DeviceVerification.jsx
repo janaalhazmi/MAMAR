@@ -10,7 +10,7 @@ import {
   formatDistance,
   getDevice,
   saveDeviceVerification,
-} from "../../services/fieldWork";
+} from "../../services/FieldWorker/FieldWorker";
 
 const format = (n) => Number(n).toFixed(6);
 

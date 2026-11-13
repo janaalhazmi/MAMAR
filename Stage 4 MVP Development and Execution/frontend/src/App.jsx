@@ -38,6 +38,8 @@ import PaymentPage from "./pages/Contractor/PaymentPage";
 import DataDisclaimerPage from "./pages/Weblogin/DataDisclaimerPage";
 import ProfilePage from "./pages/Contractor/ProfilePage";
 import ProviderProfilePage from "./pages/Providers/ProviderProfilePage";
+import FieldWorkerProfile from "./pages/FieldWorker/FieldWorkerProfile";
+
 
 function App() {
   return (
@@ -62,7 +64,14 @@ function App() {
       <Route path="/device-verification" element={<ProtectedRoute roles={["worker"]}><DeviceVerification /></ProtectedRoute>} />
       <Route path="/attendance" element={<ProtectedRoute roles={["worker"]}><AttendancePage /></ProtectedRoute>} />
       <Route path="/my-projects" element={<ProtectedRoute roles={["contractor"]}><MyProjectsPage /></ProtectedRoute>} />
-
+      <Route
+      path="/field-worker/profile"
+      element={
+        <ProtectedRoute roles={["worker"]}>
+        <FieldWorkerProfile />
+        </ProtectedRoute>
+      }
+      />
 
       <Route path="/profile" element={<ProfilePage />} />
       <Route
