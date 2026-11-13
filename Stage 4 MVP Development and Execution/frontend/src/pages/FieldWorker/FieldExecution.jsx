@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import FieldWorkerShell from "../../components/FieldWorkerShell";
 import MamarMap from "../../components/MamarMap";
+import WeatherCard from "../../components/WeatherCard";
 import Icon from "../../components/Icons";
 import {
   SITE_STATUSES,
@@ -205,6 +206,8 @@ function FieldExecution() {
           </div>
         </div>
       </section>
+
+      <WeatherCard projectId={projectId} />
 
       {error && (
         <p className="pf-alert" role="alert">

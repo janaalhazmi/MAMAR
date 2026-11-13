@@ -362,6 +362,9 @@ export function useFieldWorkerRegistration(onCreated) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [created, setCreated] = useState(false);
+  // The robot check token for the sign up of the worker (only when Turnstile is on).
+  const [captcha, setCaptcha] = useState("");
+  const [captchaReset, setCaptchaReset] = useState(0);
 
   async function submit(event) {
     event.preventDefault();
@@ -378,7 +381,7 @@ export function useFieldWorkerRegistration(onCreated) {
           throw new Error("Enter the 6-digit passcode.");
         }
 
-        const registered = await registerUser(worker, passcode);
+        const registered = await registerUser(worker, passcode, captcha);
         const user = registered?.user ?? registered;
         const email = worker.email.trim().toLowerCase();
 
@@ -418,12 +421,13 @@ export function useFieldWorkerRegistration(onCreated) {
       setWorker(registration);
     } catch (failure) {
       setError(failure.message || "Could not register the field worker.");
+      setCaptchaReset((count) => count + 1);
     } finally {
       setBusy(false);
     }
   }
 
-  return { worker, busy, error, created, submit };
+  return { worker, busy, error, created, submit, setCaptcha, captchaReset };
 }
 
 export { providerProfileService };

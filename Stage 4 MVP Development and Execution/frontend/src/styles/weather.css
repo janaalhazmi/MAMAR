@@ -1,0 +1,18 @@
+.wx-card { background: #fff; border: 1px solid #eee3cc; border-radius: 14px; padding: 18px; margin: 16px 0; }
+.wx-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.wx-head h2 { margin: 0; font-size: 18px; }
+.wx-head p { margin: 4px 0 0; color: #77706a; font-size: 13px; }
+.wx-badge { padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.wx-badge.ok { background: #e5f6e8; color: #23733a; }
+.wx-badge.warn { background: #fff1d6; color: #9a5b00; }
+.wx-days { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(104px, 1fr); gap: 8px; overflow-x: auto; margin-top: 14px; padding-bottom: 4px; }
+.wx-day { display: grid; gap: 2px; justify-items: center; text-align: center; border: 1px solid #f0e7d4; border-radius: 12px; padding: 10px 6px; background: #fffdf8; }
+.wx-day.warn { border-color: #f5b800; background: #fff8e6; }
+.wx-date { font-size: 12px; color: #77706a; font-weight: 600; }
+.wx-icon { font-size: 24px; line-height: 1.3; }
+.wx-day strong { font-size: 20px; }
+.wx-day small { font-size: 11.5px; color: #5d5650; }
+.wx-alerts { margin: 12px 0 0; padding: 10px 14px 10px 28px; background: #fff8e6; border-radius: 10px; font-size: 13.5px; display: grid; gap: 4px; }
+.wx-empty { color: #77706a; margin: 12px 0 0; }
+.wx-source { margin: 8px 0 0; font-size: 11px; color: #a39b92; }
+.turnstile-box { margin: 10px 0; min-height: 65px; }

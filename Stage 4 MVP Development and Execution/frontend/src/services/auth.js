@@ -240,6 +240,15 @@ if (channel) {
         Object.keys(sessionStorage)
           .filter((key) => !KEEP_KEYS.includes(key))
           .forEach((key) => sessionStorage.removeItem(key));
+        // Another account signed in, in another tab: reload so this tab shows that account's
+        // pages and data, not the old account's page with the new token.
+        try {
+          storeSession(newSession, false);
+        } catch {
+          return;
+        }
+        window.location.reload();
+        return;
       }
 
       try {

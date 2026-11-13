@@ -85,7 +85,7 @@ export function sendPasscode(email) {
   });
 }
 
-export function registerUser(user, passcode) {
+export function registerUser(user, passcode, turnstileToken) {
   const payload = {
     full_name: user.full_name.trim(),
     email: user.email.trim().toLowerCase(),
@@ -94,6 +94,7 @@ export function registerUser(user, passcode) {
     role: user.role,
     provider_id: user.role === "contractor" ? null : Number(user.provider_id),
     passcode: String(passcode).trim(),
+    ...(turnstileToken ? { turnstile_token: turnstileToken } : {}),
   };
 
   return post("/auth/register", payload);
@@ -108,10 +109,12 @@ export function getCurrentUser(accessToken) {
   });
 }
 
-export function loginUser(email, password) {
+export function loginUser(email, password, turnstileToken) {
   return post("/auth/login", {
     email: email.trim().toLowerCase(),
     password,
+    // Cloudflare Turnstile token (only when the check is on).
+    ...(turnstileToken ? { turnstile_token: turnstileToken } : {}),
   });
 }
 
@@ -362,3 +365,31 @@ export const patchAdminUser = (token, userId, changes) =>
     headers: JSON_H,
     body: asJson(changes),
   });
+
+/* ---------- Weather and receipts ---------- */
+export const fetchProjectWeather = (token, projectId) =>
+  authed(`/projects/${encodeURIComponent(projectId)}/weather`, token);
+
+// The PDF receipt of a completed payment, saved as a file.
+export async function downloadReceipt(token, paymentId) {
+  let response;
+  try {
+    response = await fetch(`${API_BASE_URL}/payments/${encodeURIComponent(paymentId)}/receipt`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  } catch {
+    throw new Error("Unable to connect to the server. Please try again.");
+  }
+  if (!response.ok) {
+    const data = await response.json().catch(() => null);
+    throw new Error(data?.detail || `Request failed (${response.status}).`);
+  }
+  const url = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `mamar-receipt-${paymentId}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
