@@ -4,6 +4,7 @@ import FieldWorkerShell from "../../components/FieldWorkerShell";
 import MamarMap from "../../components/MamarMap";
 import WeatherCard from "../../components/WeatherCard";
 import Icon from "../../components/Icons";
+import "../../styles/extras.css";
 import {
   SITE_STATUSES,
   fileToDataUrl,
@@ -115,6 +116,7 @@ function FieldExecution() {
         files.map(async (file, index) => ({
           id: `${Date.now()}-${index}`,
           caption: file.name.replace(/\.[^.]+$/, ""),
+          stage: "during", // before, during or after the work
           file, // the real File: this is what is sent to the backend
           src: await fileToDataUrl(file), // small preview version
         }))
@@ -364,7 +366,20 @@ function FieldExecution() {
                 <figure key={photo.id}>
                   <img src={photo.src} alt={photo.caption} />
                   <figcaption>
-                    Not sent yet
+                    <select
+                      className="photo-stage"
+                      aria-label={`When was ${photo.caption} taken`}
+                      value={photo.stage}
+                      onChange={(event) =>
+                        setPending((current) =>
+                          current.map((p) => (p.id === photo.id ? { ...p, stage: event.target.value } : p))
+                        )
+                      }
+                    >
+                      <option value="before">Before</option>
+                      <option value="during">During</option>
+                      <option value="after">After</option>
+                    </select>
                     <button
                       type="button"
                       className="fw-remove"

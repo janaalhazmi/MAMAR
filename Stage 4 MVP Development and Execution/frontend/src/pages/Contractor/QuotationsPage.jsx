@@ -12,6 +12,8 @@ import {
   handleRejectQuotation,
 } from "../../services/Contractor/Contractor";
 import "../../styles/Contractor/quotations.css";
+import Stars from "../../components/Stars";
+import { useProviderRatings } from "../../services/ratings";
 
 function normalizeStatus(status) {
   if (status === "rejected") return "rejected";
@@ -22,6 +24,7 @@ function normalizeStatus(status) {
 function QuotationsPage() {
   const navigate = useNavigate();
 
+  const ratings = useProviderRatings();
   const [quotations, setQuotations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -281,6 +284,7 @@ function QuotationsPage() {
 
                   <div>
                     <h3>{quotation.providerName}</h3>
+                    <Stars rating={ratings.byName[(quotation.providerName || "").toLowerCase()]} />
                     <p>{quotation.providerDescription}</p>
                     <span
                       className={`pf-pill ${

@@ -676,6 +676,8 @@ export async function getCompletionData(projectId) {
     evidence: (r.photos || []).map((photo) => ({
       id: photo.photo_id,
       src: absUrl(photo.url),
+      stage: photo.stage || "during",
+      caption: photo.caption,
     })),
     submittedOn: submitted,
   };

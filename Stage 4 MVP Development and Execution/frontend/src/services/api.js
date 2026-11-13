@@ -393,3 +393,20 @@ export async function downloadReceipt(token, paymentId) {
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+/* ---------- Ratings, admin activity and map ---------- */
+export const fetchProviderRatings = (token) => authed("/providers/ratings", token);
+
+export const fetchProjectReview = (token, projectId) =>
+  authed(`/projects/${encodeURIComponent(projectId)}/review`, token);
+
+export const postProjectReview = (token, projectId, rating, comment) =>
+  authed(`/projects/${encodeURIComponent(projectId)}/review`, token, {
+    method: "POST",
+    headers: JSON_H,
+    body: asJson({ rating, comment: comment || null }),
+  });
+
+export const fetchAdminActivity = (token, limit = 100) => authed(`/admin/activity?limit=${limit}`, token);
+
+export const fetchAdminProjects = (token) => authed("/admin/projects", token);

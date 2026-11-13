@@ -10,6 +10,7 @@ import {
   postAdminUser,
 } from "../../services/api";
 import "../../styles/Admin/admin.css";
+import AdminInsights from "./AdminInsights";
 
 const TABS = [
   { role: "contractor", label: "Contractors" },
@@ -257,6 +258,8 @@ function AdminPage() {
             {loading && <p className="adm-empty">Loading…</p>}
           </div>
         </section>
+
+        <AdminInsights token={token} />
       </main>
 
       {adding && (

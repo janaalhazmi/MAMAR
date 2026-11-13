@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icons";
 import ContractorShell from "../../components/ContractorShell";
+import Stars from "../../components/Stars";
+import { useProviderRatings } from "../../services/ratings";
 
 import {
   CITIES,
@@ -31,6 +33,7 @@ function ProviderPage() {
     }
   }, [currentProject.id, navigate]);
 
+  const ratings = useProviderRatings();
   const [search, setSearch] = useState("");
   const [city, setCity] = useState("Riyadh");
   const [service, setService] = useState("All Required Services");
@@ -194,6 +197,7 @@ function ProviderPage() {
 
                   <div className="pv-card-info">
                     <h3>{provider.name}</h3>
+                    <Stars rating={ratings.byId[String(provider.id)]} />
                     <p>{provider.description}</p>
 
                     <span className="pv-match">
