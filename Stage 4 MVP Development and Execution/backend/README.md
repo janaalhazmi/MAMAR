@@ -200,6 +200,9 @@ The problems we met while setting up the project, and how we solved them.
 | `PAYPAL_CLIENT_SECRET` | PayPal sandbox Secret. Secret, like a password | Empty: payments return 503 |
 | `ADMIN_EMAIL` | Email of the one admin account. The server creates it when it starts | Empty: no admin account |
 | `ADMIN_PASSWORD` | Password of the admin account, at least 8 characters. Changing it on Render changes the password at the next deploy. Secret | Empty: no admin account |
+| `DEMO_PASSWORD` | Password of the 8 demo accounts (`provider@` and `fieldworker@` tcm.com, safetyarabia.com, shawahid.com, safetytriangle.com). At least 8 characters. Secret | Empty: no demo accounts |
+| `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret key. The frontend needs `VITE_TURNSTILE_SITE_KEY` on Vercel. Secret | Empty: no robot check |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM` | Twilio SMS: each notification is also sent to the user's phone. Secret | Empty: no SMS |
 | `PAYPAL_API_URL` | The PayPal API | `https://api-m.sandbox.paypal.com` (sandbox, no real money) |
 
 The `.env` file is ignored by Git, so passwords are never committed.
@@ -553,6 +556,18 @@ One admin account, made from `ADMIN_EMAIL` and `ADMIN_PASSWORD` on Render (never
 | GET | `/admin/companies` | The provider companies with their number of users, for the company list in Add User |
 | POST | `/admin/users` | Adds a contractor, provider or worker: `{full_name, email, password (8+), phone, role, provider_id}`. No passcode and no company email rule. 409 if the email exists |
 | PATCH | `/admin/users/{id}` | `{is_active: false}` stops the user's login at once (the token is refused too), `true` allows it again. Also `full_name` and `phone` |
+
+## Extra Services
+
+| Service | Endpoint or place | What it does |
+|---|---|---|
+| Open-Meteo (weather, free, no key) | `GET /projects/{id}/weather` | Daily forecast at the work zone for the project days (or the next 7 days), with alerts for extreme heat (45°C+), rain (1 mm+) and strong wind (50 km/h+). The contractor, the provider and the assigned workers can open it. 400 when the project has no location, 502 when Open-Meteo cannot be reached |
+| ReportLab (PDF) | `GET /payments/{payment_id}/receipt` | A PDF receipt of a completed payment, for the contractor and the winning provider |
+| Cloudflare Turnstile | `turnstile_token` in `POST /auth/login` and `POST /auth/register` | When `TURNSTILE_SECRET_KEY` is set, the token from the widget is checked with Cloudflare; a missing or wrong token gets 400 |
+| Twilio SMS | every notification | When the Twilio settings are set, each notification is also sent by SMS to the user's phone (Saudi numbers like 05xxxxxxxx) |
+| UptimeRobot | outside the code | Calls `/health` every 5 minutes so the free Render server does not sleep |
+
+Company emails: a provider or worker can sign up with the domain of the company website or the company's `email_domain` (tcm.com, safetyarabia.com, shawahid.com, safetytriangle.com).
 
 ## Frontend Integration
 

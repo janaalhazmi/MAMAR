@@ -12,6 +12,7 @@ from app.models import Provider
 DEMO_PROVIDERS = [
     {
         "provider_id": 1,
+        "email_domain": "tcm.com",
         "company_name": "Traffic and Construction Management TCM",
         "service_type": "Traffic Management",
         "city": "Riyadh",
@@ -20,6 +21,7 @@ DEMO_PROVIDERS = [
     },
     {
         "provider_id": 2,
+        "email_domain": "safetyarabia.com",
         "company_name": "Safety Arabia Co. LTD",
         "service_type": "Traffic Devices",
         "city": "Riyadh",
@@ -28,6 +30,7 @@ DEMO_PROVIDERS = [
     },
     {
         "provider_id": 3,
+        "email_domain": "shawahid.com",
         "company_name": "Shawahid Roads Industrial Co.",
         "service_type": "Road Safety",
         "city": "Riyadh",
@@ -36,6 +39,7 @@ DEMO_PROVIDERS = [
     },
     {
         "provider_id": 4,
+        "email_domain": "safetytriangle.com",
         "company_name": "Safety Triangle Company",
         "service_type": "Road Safety",
         "city": "Riyadh",
@@ -71,6 +75,7 @@ NEW_COLUMNS = [
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_content_type VARCHAR(30)",
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_data BYTEA",
     "CREATE UNIQUE INDEX IF NOT EXISTS ix_users_avatar_token ON users (avatar_token)",
+    "ALTER TABLE providers ADD COLUMN IF NOT EXISTS email_domain VARCHAR(100)",
 ]
 
 # A project keeps one open request. Going back from Quotations used to add a new request each
@@ -101,6 +106,12 @@ def add_demo_providers():
     # is skipped and not changed, so this is safe to run every time the server starts.
     with SessionLocal() as db:
         db.execute(insert(Provider).values(DEMO_PROVIDERS).on_conflict_do_nothing(index_elements=["provider_id"]))
+        # Companies saved before email_domain existed get their demo email domain once.
+        for demo in DEMO_PROVIDERS:
+            db.execute(
+                text("UPDATE providers SET email_domain = :domain WHERE provider_id = :id AND email_domain IS NULL"),
+                {"domain": demo["email_domain"], "id": demo["provider_id"]},
+            )
         # We chose the provider_id values ourselves, so PostgreSQL's counter for new
         # providers did not move. This moves it after the biggest provider_id, so the
         # next provider gets 5 and not 1 again.
@@ -132,4 +143,37 @@ def add_admin_account():
         if not user.password_hash or not user.check_password(config.ADMIN_PASSWORD):
             user.set_password(config.ADMIN_PASSWORD)
         user.is_active = True
+        db.commit()
+
+
+# The demo accounts: one provider and one field worker for each company, for example
+# provider@tcm.com and fieldworker@tcm.com. Their password is DEMO_PASSWORD on Render
+# (never written in the code); without it no demo account is made.
+DEMO_ROLES = (("provider", "provider", "Provider"), ("fieldworker", "worker", "Field Worker"))
+DEMO_NAMES = {1: "TCM", 2: "Safety Arabia", 3: "Shawahid", 4: "Safety Triangle"}
+
+
+def add_demo_accounts():
+    from app.core import config
+    from app.models import User
+
+    if len(config.DEMO_PASSWORD) < 8:
+        return
+    with SessionLocal() as db:
+        for demo in DEMO_PROVIDERS:
+            for local_part, role, label in DEMO_ROLES:
+                email = f"{local_part}@{demo['email_domain']}"
+                user = db.scalar(select(User).where(User.email == email))
+                if user is None:
+                    user = User(
+                        full_name=f"{DEMO_NAMES[demo['provider_id']]} {label}",
+                        email=email,
+                        role=role,
+                        provider_id=demo["provider_id"],
+                    )
+                    db.add(user)
+                elif user.role != role or user.provider_id != demo["provider_id"]:
+                    continue
+                if not user.password_hash or not user.check_password(config.DEMO_PASSWORD):
+                    user.set_password(config.DEMO_PASSWORD)
         db.commit()

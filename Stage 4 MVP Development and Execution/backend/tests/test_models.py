@@ -14,7 +14,7 @@ EXPECTED_COLUMNS = {
     ],
     "providers": [
         "provider_id", "company_name", "service_type", "city",
-        "phone", "website", "is_verified", "created_at",
+        "phone", "website", "is_verified", "created_at", "email_domain",
     ],
     "projects": [
         "project_id", "contractor_id", "project_name", "project_status",
