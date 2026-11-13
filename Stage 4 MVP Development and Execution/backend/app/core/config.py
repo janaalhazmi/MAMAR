@@ -61,3 +61,6 @@ TURNSTILE_SECRET_KEY = os.getenv("TURNSTILE_SECRET_KEY", "").strip()
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "").strip()
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "").strip()
 TWILIO_FROM = os.getenv("TWILIO_FROM", "").strip()
+
+# TomTom live traffic at the work zone (free key from developer.tomtom.com). Off when empty.
+TOMTOM_API_KEY = os.getenv("TOMTOM_API_KEY", "").strip()

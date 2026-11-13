@@ -1,14 +1,17 @@
+import os
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.core import config, traffic
 from app.core.security import allow_roles
 from app.db.database import get_db
 from app.models import Activity, Assignment, Project, Provider, Quote, ServiceRequest, User
 from app.schemas.admin import AdminCompany, AdminSummary, AdminUser, AdminUserCreate, AdminUserUpdate
 from app.schemas.error import ErrorResponse
+from app.services import sms
 from app.services.activity import log_activity
 
 # The admin dashboard: one admin account (ADMIN_EMAIL and ADMIN_PASSWORD on Render) sees every
@@ -209,4 +212,27 @@ def project_map(user: User = Depends(admin_only), db: Session = Depends(get_db))
             "provider": companies.get(winners.get(p.project_id)),
         }
         for p in projects
+    ]
+
+
+@router.get("/services", responses=ERRORS)
+def services_status(user: User = Depends(admin_only), db: Session = Depends(get_db)):
+    # Which outside services are switched on (only on/off, never the keys themselves).
+    def service(name: str, on: bool, what: str, setting: str) -> dict:
+        return {"name": name, "on": on, "what": what, "setting": setting}
+
+    return [
+        service("Database", True, "PostgreSQL on Render", "DATABASE_URL"),
+        service("PayPal", bool(os.getenv("PAYPAL_CLIENT_ID", "").strip() and os.getenv("PAYPAL_CLIENT_SECRET", "").strip()),
+                "Sandbox payments and receipts", "PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET"),
+        service("WhatsApp / SMS", sms.enabled(), "Notifications on the phone (Twilio)",
+                "TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM"),
+        service("Bot check", bool(config.TURNSTILE_SECRET_KEY), "Cloudflare Turnstile on login and sign up",
+                "TURNSTILE_SECRET_KEY"),
+        service("Live traffic", traffic.enabled(), "TomTom traffic at the work zone", "TOMTOM_API_KEY"),
+        service("Weather", True, "Open-Meteo forecast and safety alerts (no key)", "-"),
+        service("Email codes", bool(config.EMAILJS_SERVICE_ID and config.EMAILJS_PRIVATE_KEY),
+                "Sign-up passcodes by email (EmailJS)", "EMAILJS_*"),
+        service("Demo accounts", bool(config.DEMO_PASSWORD), "provider@ and fieldworker@ for the four companies",
+                "DEMO_PASSWORD"),
     ]

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
-from app.core import weather
+from app.core import traffic, weather
 from app.core.access import accepted_quote, can_view_project, get_project
 from app.core.receipt import receipt_pdf
 from app.core.security import get_current_user
@@ -51,6 +51,33 @@ def project_weather(project_id: int, user: User = Depends(get_current_user), db:
         "source": "Open-Meteo",
         "updated": date.today().isoformat(),
     }
+
+
+@router.get(
+    "/projects/{project_id}/traffic",
+    responses={
+        **TOKEN_ERROR,
+        400: {"model": ErrorResponse, "description": "The project has no saved location"},
+        403: {"model": ErrorResponse, "description": "The user cannot view this project"},
+        404: {"model": ErrorResponse, "description": "The project does not exist"},
+        502: {"model": ErrorResponse, "description": "The traffic service could not be reached"},
+        503: {"model": ErrorResponse, "description": "Live traffic is not set up (TOMTOM_API_KEY)"},
+    },
+)
+def project_traffic(project_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    # Live traffic (TomTom) on the road at the work zone, with advice for the traffic control.
+    project = get_project(db, project_id)
+    if not can_view_project(db, project, user):
+        raise HTTPException(status_code=403, detail="You cannot view this project")
+    if project.latitude is None or project.longitude is None:
+        raise HTTPException(status_code=400, detail="The project has no saved location")
+    try:
+        result = traffic.flow(project.latitude, project.longitude)
+    except traffic.TrafficOff as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
+    except traffic.TrafficError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
+    return {"project_id": project_id, "location": project.location, **result, "source": "TomTom"}
 
 
 @router.get(
