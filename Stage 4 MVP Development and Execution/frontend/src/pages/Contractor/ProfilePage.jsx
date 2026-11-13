@@ -27,6 +27,14 @@ function getErrorMessage(error, fallback) {
   return error?.message || fallback;
 }
 
+function notifyShellUser(profile) {
+  window.dispatchEvent(
+    new CustomEvent("mamar:session-user-updated", {
+      detail: profile,
+    })
+  );
+}
+
 export default function ProfilePage() {
   const [profile, setProfile] = useState(EMPTY_PROFILE);
   const [form, setForm] = useState({ full_name: "", email: "", phone: "" });
@@ -49,7 +57,10 @@ export default function ProfilePage() {
     setError("");
     try {
       const user = await fetchMyProfile();
-      setProfile({ ...EMPTY_PROFILE, ...user });
+      const updatedProfile = { ...EMPTY_PROFILE, ...user };
+
+      setProfile(updatedProfile);
+      notifyShellUser(updatedProfile);
       setForm({
         full_name: user?.full_name || "",
         email: user?.email || "",
@@ -75,10 +86,12 @@ export default function ProfilePage() {
     event.preventDefault();
     setError("");
     setSuccess("");
+
     if (!form.full_name.trim() || !form.email.trim()) {
       setError("Name and email are required.");
       return;
     }
+
     setSavingProfile(true);
     try {
       const updated = await updateMyProfile({
@@ -86,7 +99,13 @@ export default function ProfilePage() {
         email: form.email.trim().toLowerCase(),
         phone: form.phone.trim() || null,
       });
-      setProfile((current) => ({ ...current, ...updated }));
+
+      setProfile((current) => {
+        const nextProfile = { ...current, ...updated };
+        notifyShellUser(nextProfile);
+        return nextProfile;
+      });
+
       setForm({
         full_name: updated.full_name ?? form.full_name.trim(),
         email: updated.email ?? form.email.trim().toLowerCase(),
@@ -120,6 +139,7 @@ export default function ProfilePage() {
     event.preventDefault();
     setError("");
     setSuccess("");
+
     if (!passwords.current_password || !passwords.new_password) {
       setError("Enter your current password and a new password.");
       return;
@@ -132,9 +152,13 @@ export default function ProfilePage() {
       setError("The new password and confirmation do not match.");
       return;
     }
+
     setSavingPassword(true);
     try {
-      await changeMyPassword(passwords.current_password, passwords.new_password);
+      await changeMyPassword(
+        passwords.current_password,
+        passwords.new_password
+      );
       setPasswords({
         current_password: "",
         new_password: "",
@@ -152,6 +176,7 @@ export default function ProfilePage() {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
+
     if (!file.type.startsWith("image/")) {
       setError("Please select an image file.");
       return;
@@ -160,13 +185,20 @@ export default function ProfilePage() {
       setError("The image must be 5 MB or smaller.");
       return;
     }
+
     setError("");
     setSuccess("");
     setPictureBusy(true);
     try {
       await uploadMyProfilePicture(file);
       const updatedProfile = await fetchMyProfile();
-      setProfile((current) => ({ ...current, ...updatedProfile }));
+
+      setProfile((current) => {
+        const nextProfile = { ...current, ...updatedProfile };
+        notifyShellUser(nextProfile);
+        return nextProfile;
+      });
+
       setSuccess("Your profile picture has been updated.");
     } catch (err) {
       setError(getErrorMessage(err, "Unable to upload your profile picture."));
@@ -182,7 +214,13 @@ export default function ProfilePage() {
     try {
       await deleteMyProfilePicture();
       const updatedProfile = await fetchMyProfile();
-      setProfile((current) => ({ ...current, ...updatedProfile }));
+
+      setProfile((current) => {
+        const nextProfile = { ...current, ...updatedProfile };
+        notifyShellUser(nextProfile);
+        return nextProfile;
+      });
+
       setSuccess("Your profile picture has been removed.");
     } catch (err) {
       setError(getErrorMessage(err, "Unable to remove your profile picture."));
