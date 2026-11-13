@@ -1,288 +1,291 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
+import { useEffect, useRef, useState } from "react";
 import FieldWorkerShell from "../../components/FieldWorkerShell";
-import { getSession } from "../../services/auth";
-import { getCurrentUser } from "../../services/api";
+
+import {
+  fetchMyProfile,
+  uploadMyProfilePicture,
+  deleteMyProfilePicture,
+} from "../../services/Contractor/profileService";
+
+import {
+  getPictureUrl,
+  formatProfileDate,
+  getProfileInitial,
+} from "../../services/Contractor/profileUtils";
+
+import "../../styles/Contractor/profile.css";
+
+const EMPTY_PROFILE = {
+  full_name: "",
+  email: "",
+  phone: "",
+  role: "worker",
+  profile_picture: "",
+  created_at: "",
+};
+
+function notifyShellUser(profile) {
+  window.dispatchEvent(
+    new CustomEvent("mamar:session-user-updated", {
+      detail: profile,
+    })
+  );
+}
 
 export default function FieldWorkerProfile() {
-  const navigate = useNavigate();
-
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState(EMPTY_PROFILE);
   const [loading, setLoading] = useState(true);
+  const [pictureBusy, setPictureBusy] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [imageError, setImageError] = useState(false);
+
+  const fileInput = useRef(null);
+
+  async function loadProfile() {
+    setLoading(true);
+    setError("");
+
+    try {
+      const user = await fetchMyProfile();
+      const updatedProfile = {
+        ...EMPTY_PROFILE,
+        ...user,
+        role: "worker",
+      };
+
+      setProfile(updatedProfile);
+      notifyShellUser(updatedProfile);
+    } catch (err) {
+      setError(err?.message || "Unable to load your profile.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    let mounted = true;
+    loadProfile();
+  }, []);
 
-    async function loadProfile() {
-      try {
-        const token = getSession()?.access_token;
+  async function handlePictureSelected(event) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
 
-        if (!token) {
-          navigate("/login");
-          return;
-        }
+    if (!file) return;
 
-        const user = await getCurrentUser(token);
-
-        if (mounted) {
-          setProfile(user);
-        }
-      } catch (err) {
-        if (mounted) {
-          setError(
-            err.message || "Unable to load your profile."
-          );
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setError("Please select a JPG, PNG or WEBP image.");
+      return;
     }
 
-    loadProfile();
+    if (file.size > 5 * 1024 * 1024) {
+      setError("The image must be 5 MB or smaller.");
+      return;
+    }
 
-    return () => {
-      mounted = false;
-    };
-  }, [navigate]);
+    setError("");
+    setSuccess("");
+    setPictureBusy(true);
 
-  const fullName =
-    profile?.full_name ||
-    profile?.name ||
-    profile?.username ||
-    "Field Worker";
+    try {
+      await uploadMyProfilePicture(file);
 
-  const email = profile?.email || "Not provided";
-  const phone =
-    profile?.phone_number ||
-    profile?.phone ||
-    "Not provided";
+      const updatedUser = await fetchMyProfile();
+      const updatedProfile = {
+        ...profile,
+        ...updatedUser,
+        role: "worker",
+      };
 
-  const role = profile?.role || "Field Worker";
-  const initials = fullName
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
+      setProfile(updatedProfile);
+      setImageError(false);
+      notifyShellUser(updatedProfile);
+
+      setSuccess("Your profile picture has been updated.");
+    } catch (err) {
+      setError(
+        err?.message || "Unable to upload your profile picture."
+      );
+    } finally {
+      setPictureBusy(false);
+    }
+  }
+
+  async function handleDeletePicture() {
+    setError("");
+    setSuccess("");
+    setPictureBusy(true);
+
+    try {
+      await deleteMyProfilePicture();
+
+      const updatedUser = await fetchMyProfile();
+      const updatedProfile = {
+        ...profile,
+        ...updatedUser,
+        role: "worker",
+      };
+
+      setProfile(updatedProfile);
+      setImageError(false);
+      notifyShellUser(updatedProfile);
+
+      setSuccess("Your profile picture has been removed.");
+    } catch (err) {
+      setError(
+        err?.message || "Unable to remove your profile picture."
+      );
+    } finally {
+      setPictureBusy(false);
+    }
+  }
+
+  const pictureUrl = getPictureUrl(profile);
 
   return (
     <FieldWorkerShell>
-      <div className="fw-profile-page">
-
-        <div className="fw-profile-header">
+      <div className="profile-page">
+        <div className="profile-heading">
           <div>
+            <span className="profile-eyebrow">ACCOUNT INFORMATION</span>
             <h1>My Profile</h1>
             <p>
-              View your personal information and account details.
+              View your personal information and manage your profile picture.
             </p>
           </div>
         </div>
 
-        {loading ? (
-          <div className="fw-profile-state">
-            Loading your profile...
-          </div>
-        ) : error ? (
-          <div className="fw-profile-error">
+        {error && (
+          <div className="profile-alert profile-alert-error" role="alert">
             {error}
           </div>
-        ) : (
-          <>
-            <section className="fw-profile-card">
-              <div className="fw-profile-identity">
-                <div className="fw-profile-avatar">
-                  {initials || "FW"}
-                </div>
-
-                <div>
-                  <h2>{fullName}</h2>
-                  <span className="fw-profile-role">
-                    {role}
-                  </span>
-                </div>
-              </div>
-            </section>
-
-            <section className="fw-profile-card">
-              <div className="fw-profile-section-header">
-                <div>
-                  <h2>Personal Information</h2>
-                  <p>
-                    Your registered account information.
-                  </p>
-                </div>
-              </div>
-
-              <div className="fw-profile-details">
-
-                <div className="fw-profile-field">
-                  <span>Full Name</span>
-                  <strong>{fullName}</strong>
-                </div>
-
-                <div className="fw-profile-field">
-                  <span>Email Address</span>
-                  <strong>{email}</strong>
-                </div>
-
-                <div className="fw-profile-field">
-                  <span>Phone Number</span>
-                  <strong>{phone}</strong>
-                </div>
-
-                <div className="fw-profile-field">
-                  <span>Account Role</span>
-                  <strong>{role}</strong>
-                </div>
-
-              </div>
-            </section>
-          </>
         )}
 
+        {success && (
+          <div className="profile-alert profile-alert-success" role="status">
+            {success}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="profile-loading">Loading your profile…</div>
+        ) : !error || profile.full_name ? (
+          <div className="profile-layout">
+            <section className="profile-card profile-identity-card">
+              <div className="profile-card-heading">
+                <div>
+                  <h2>Profile picture</h2>
+                  <p>This image represents you across MAMAR.</p>
+                </div>
+              </div>
+
+              <div className="profile-avatar-wrap">
+                {pictureUrl && !imageError ? (
+                  <img
+                    className="profile-avatar-image"
+                    src={pictureUrl}
+                    alt="Profile"
+                    onError={() => setImageError(true)}
+                  />
+                ) : (
+                  <div className="profile-avatar-placeholder">
+                    {getProfileInitial(profile.full_name)}
+                  </div>
+                )}
+              </div>
+
+              <div className="profile-picture-actions">
+                <button
+                  className="profile-button profile-button-primary"
+                  type="button"
+                  onClick={() => fileInput.current?.click()}
+                  disabled={pictureBusy}
+                >
+                  {pictureBusy ? "Please wait…" : "Upload picture"}
+                </button>
+
+                {pictureUrl && (
+                  <button
+                    className="profile-button profile-button-quiet"
+                    type="button"
+                    onClick={handleDeletePicture}
+                    disabled={pictureBusy}
+                  >
+                    Remove
+                  </button>
+                )}
+
+                <input
+                  ref={fileInput}
+                  className="profile-file-input"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handlePictureSelected}
+                />
+              </div>
+
+              <span className="profile-hint">
+                JPG, PNG or WEBP · Maximum 5 MB
+              </span>
+
+              <div className="profile-account-meta">
+                <div>
+                  <span>Account type</span>
+                  <strong>WORKER</strong>
+                </div>
+
+                <div>
+                  <span>Member since</span>
+                  <strong>{formatProfileDate(profile.created_at)}</strong>
+                </div>
+
+                <div>
+                  <span>User ID</span>
+                  <strong>{profile.user_id ?? "—"}</strong>
+                </div>
+              </div>
+            </section>
+
+            <div className="profile-content">
+              <section className="profile-card">
+                <div className="profile-card-heading">
+                  <h2>Personal information</h2>
+                  <p>Your registered account information.</p>
+                </div>
+
+                <div className="profile-form-grid">
+                  <div className="profile-field">
+                    <span>Full name</span>
+                    <input
+                      value={profile.full_name || ""}
+                      disabled
+                      readOnly
+                    />
+                  </div>
+
+                  <div className="profile-field">
+                    <span>Email address</span>
+                    <input
+                      value={profile.email || ""}
+                      disabled
+                      readOnly
+                    />
+                  </div>
+
+                  <div className="profile-field profile-field-full">
+                    <span>Phone number</span>
+                    <input
+                      value={profile.phone || ""}
+                      disabled
+                      readOnly
+                    />
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+        ) : null}
       </div>
-
-      <style>{`
-        .fw-profile-page {
-          width: 100%;
-          max-width: 1100px;
-          margin: 0 auto;
-          padding: 28px;
-          color: #202b38;
-        }
-
-        .fw-profile-header {
-          margin-bottom: 28px;
-        }
-
-        .fw-profile-header h1 {
-          margin: 0 0 8px;
-          font-size: 28px;
-          font-weight: 700;
-        }
-
-        .fw-profile-header p {
-          margin: 0;
-          color: #7a8491;
-          font-size: 14px;
-        }
-
-        .fw-profile-card {
-          background: #fff;
-          border: 1px solid #e8ebef;
-          border-radius: 14px;
-          padding: 26px;
-          margin-bottom: 20px;
-        }
-
-        .fw-profile-identity {
-          display: flex;
-          align-items: center;
-          gap: 18px;
-        }
-
-        .fw-profile-avatar {
-          width: 76px;
-          height: 76px;
-          border-radius: 50%;
-          background: #eaf2ef;
-          color: #26745d;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 25px;
-          font-weight: 700;
-          flex-shrink: 0;
-        }
-
-        .fw-profile-identity h2 {
-          margin: 0 0 8px;
-          font-size: 20px;
-        }
-
-        .fw-profile-role {
-          display: inline-block;
-          padding: 5px 12px;
-          border-radius: 20px;
-          background: #eaf2ef;
-          color: #26745d;
-          font-size: 12px;
-          font-weight: 600;
-          text-transform: capitalize;
-        }
-
-        .fw-profile-section-header {
-          margin-bottom: 24px;
-        }
-
-        .fw-profile-section-header h2 {
-          margin: 0 0 7px;
-          font-size: 18px;
-        }
-
-        .fw-profile-section-header p {
-          margin: 0;
-          color: #89919c;
-          font-size: 13px;
-        }
-
-        .fw-profile-details {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 24px;
-        }
-
-        .fw-profile-field {
-          display: flex;
-          flex-direction: column;
-          gap: 9px;
-          padding-bottom: 16px;
-          border-bottom: 1px solid #edf0f2;
-          min-width: 0;
-        }
-
-        .fw-profile-field span {
-          color: #89919c;
-          font-size: 13px;
-        }
-
-        .fw-profile-field strong {
-          font-size: 14px;
-          font-weight: 600;
-          overflow-wrap: anywhere;
-        }
-
-        .fw-profile-state,
-        .fw-profile-error {
-          padding: 24px;
-          border-radius: 12px;
-          background: #fff;
-          border: 1px solid #e8ebef;
-        }
-
-        .fw-profile-error {
-          color: #b42318;
-        }
-
-        @media (max-width: 650px) {
-          .fw-profile-page {
-            padding: 18px;
-          }
-
-          .fw-profile-details {
-            grid-template-columns: 1fr;
-          }
-
-          .fw-profile-card {
-            padding: 20px;
-          }
-        }
-      `}</style>
     </FieldWorkerShell>
   );
 }
