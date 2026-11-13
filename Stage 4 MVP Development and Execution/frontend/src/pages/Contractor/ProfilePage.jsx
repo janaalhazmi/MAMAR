@@ -7,7 +7,7 @@ import {
   uploadMyProfilePicture,
   deleteMyProfilePicture,
 } from "../../services/Contractor/profileService";
-import "./profile.css";
+import "../../styles/Contractor/profile.css";
 
 const EMPTY_PROFILE = {
   full_name: "",
