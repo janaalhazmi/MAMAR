@@ -8,6 +8,7 @@ from app.db.database import Base
 
 # The photo types a field worker can upload, and the biggest file we accept.
 PHOTO_TYPES = ("image/jpeg", "image/png", "image/webp")
+PHOTO_STAGES = ("before", "during", "after")
 MAX_PHOTO_BYTES = 5 * 1024 * 1024
 
 
@@ -26,6 +27,8 @@ class SitePhoto(Base):
     project_id: Mapped[int] = mapped_column(ForeignKey("projects.project_id"))
     worker_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"))
     caption: Mapped[str] = mapped_column(String(150))
+    # before, during or after the work, for the before/after view of the contractor.
+    stage: Mapped[str] = mapped_column(String(10), default="during", server_default="during")
     content_type: Mapped[str] = mapped_column(String(30))
     # Loaded only when the photo itself is requested, not in the lists.
     data: Mapped[bytes] = deferred(mapped_column(LargeBinary))
@@ -37,5 +40,6 @@ class SitePhoto(Base):
             "photo_id": self.photo_id,
             "url": f"/photos/{self.token}",
             "caption": self.caption,
+            "stage": self.stage,
             "created_at": self.created_at,
         }

@@ -71,6 +71,7 @@ class PhotoResponse(BaseModel):
     photo_id: int
     url: str
     caption: str
+    stage: str = "during"
     created_at: datetime
 
 

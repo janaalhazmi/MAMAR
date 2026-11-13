@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.services.activity import log_activity
 from app.core.access import accepted_quote, open_project_or_400
 from app.core.security import allow_roles
 from app.db.database import get_db
@@ -112,6 +113,7 @@ def create_request(
             link="/provider-dashboard",
         )
 
+    log_activity(db, user, "request_sent", f'Sent a service request for "{project.project_name}"', project.project_id)
     db.commit()
     db.refresh(request)
     return request.to_dict()

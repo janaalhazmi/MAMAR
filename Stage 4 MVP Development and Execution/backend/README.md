@@ -567,6 +567,11 @@ One admin account, made from `ADMIN_EMAIL` and `ADMIN_PASSWORD` on Render (never
 | Twilio SMS | every notification | When the Twilio settings are set, each notification is also sent by SMS to the user's phone (Saudi numbers like 05xxxxxxxx) |
 | UptimeRobot | outside the code | Calls `/health` every 5 minutes so the free Render server does not sleep |
 
+| Ratings | `POST /projects/{id}/review`, `GET /projects/{id}/review`, `GET /providers/ratings`, `GET /providers/{id}/reviews` | After approving the work the contractor rates the provider once (1 to 5 stars and a comment, 409 the second time). The averages show next to each company |
+| Audit log | `GET /admin/activity?limit=` | Who did what and when: sign up, login, project created, request, quote, confirm, assign, site status, completion, payment, rating, admin actions |
+| Admin map | `GET /admin/projects` | Every project with a location, its status, contractor and provider, for the map of work zones |
+| Before/after photos | `stages` in `POST /field-worker/projects/{id}/photos` | Each photo is `before`, `during` (default) or `after`; photos return `stage` |
+
 Company emails: a provider or worker can sign up with the domain of the company website or the company's `email_domain` (tcm.com, safetyarabia.com, shawahid.com, safetytriangle.com).
 
 ## Frontend Integration

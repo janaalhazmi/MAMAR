@@ -28,6 +28,7 @@ from app.schemas.auth import (
     UserResponse,
 )
 from app.schemas.error import ErrorResponse
+from app.services.activity import log_activity
 
 logger = logging.getLogger("mamar.auth")
 
@@ -174,6 +175,8 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
     if passcode_row is not None:
         # The passcode is used once, in the same save as the new account.
         db.delete(passcode_row)
+    db.flush()
+    log_activity(db, user, "register", f"{user.email} signed up as {user.role}")
     try:
         db.commit()
     except IntegrityError as error:
@@ -196,6 +199,8 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
         record_failed_login(data.email)
         raise HTTPException(status_code=401, detail="Email or password is wrong")
     clear_failed_logins(data.email)
+    log_activity(db, user, "login", f"{user.email} signed in as {user.role}")
+    db.commit()
     return {
         "access_token": create_access_token(user),
         "token_type": "bearer",
