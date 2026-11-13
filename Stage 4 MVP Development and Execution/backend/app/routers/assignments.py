@@ -9,6 +9,7 @@ from app.db.database import get_db
 from app.models import Assignment, Project, Quote, ServiceRequest, User
 from app.schemas.assignment import AssignmentCreate, AssignmentResponse, AssignmentStatus
 from app.schemas.error import ErrorResponse
+from app.services.activity import log_activity
 
 router = APIRouter(tags=["assignments"])
 
@@ -76,6 +77,7 @@ def assign_worker(
         f'You have been assigned to project "{project.project_name}".',
         "/field-worker-dashboard",
     )
+    log_activity(db, user, "worker_assigned", f'Assigned {worker.full_name} to "{project.project_name}"', project_id)
     try:
         db.commit()
     except IntegrityError as error:

@@ -8,6 +8,7 @@ from app.db.database import get_db
 from app.models import Assignment, Project, ServiceRequest, User
 from app.schemas.error import ErrorResponse
 from app.schemas.project import ProjectCreate, ProjectResponse, ProjectStatus, ProjectUpdate
+from app.services.activity import log_activity
 
 router = APIRouter(prefix="/projects", tags=["projects"])
 
@@ -91,6 +92,8 @@ def create_project(
     # project_id to save the work zone polygon in the MAMAR_Projects layer.
     project = Project(contractor_id=user.user_id, project_status="draft", **data.model_dump())
     db.add(project)
+    db.flush()
+    log_activity(db, user, "project_created", f'Created project "{project.project_name}"', project.project_id)
     db.commit()
     db.refresh(project)
     return project.to_dict()
@@ -143,6 +146,7 @@ def update_project(
         setattr(project, field, value)
     if status is not None:
         project.update_status(status)
+        log_activity(db, user, "project_status", f'Project "{project.project_name}" is now {status}', project.project_id)
     db.commit()
     db.refresh(project)
     return project.to_dict()

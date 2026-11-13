@@ -24,6 +24,11 @@ def test_health_returns_ok_when_database_is_connected():
     assert response.json() == {"status": "ok", "database": "connected"}
 
 
+# Uptime monitors such as UptimeRobot check the site with HEAD requests.
+def test_health_answers_head_requests():
+    assert client.head("/health").status_code == 200
+
+
 def test_health_returns_503_when_database_is_down():
     app.dependency_overrides[get_db] = get_broken_db
     try:

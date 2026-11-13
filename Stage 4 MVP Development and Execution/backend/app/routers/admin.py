@@ -1,14 +1,18 @@
+import os
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.core import config, traffic
 from app.core.security import allow_roles
 from app.db.database import get_db
-from app.models import Assignment, Project, Provider, User
+from app.models import Activity, Assignment, Project, Provider, Quote, ServiceRequest, User
 from app.schemas.admin import AdminCompany, AdminSummary, AdminUser, AdminUserCreate, AdminUserUpdate
 from app.schemas.error import ErrorResponse
+from app.services import sms
+from app.services.activity import log_activity
 
 # The admin dashboard: one admin account (ADMIN_EMAIL and ADMIN_PASSWORD on Render) sees every
 # contractor, provider and field worker, adds users, and can stop a user's login.
@@ -133,6 +137,7 @@ def add_user(data: AdminUserCreate, user: User = Depends(admin_only), db: Sessio
     )
     new_user.set_password(data.password)
     db.add(new_user)
+    log_activity(db, user, "admin_added_user", f"Added {data.role} {data.email}")
     db.commit()
     db.refresh(new_user)
     return user_rows(db, [new_user])[0]
@@ -156,6 +161,78 @@ def update_user(user_id: int, data: AdminUserUpdate, user: User = Depends(admin_
         raise HTTPException(status_code=400, detail="The admin account is changed from Render (ADMIN_EMAIL, ADMIN_PASSWORD)")
     for field, value in data.model_dump(exclude_none=True).items():
         setattr(target, field, value)
+    if data.is_active is not None:
+        log_activity(db, user, "admin_login_" + ("allowed" if data.is_active else "stopped"), f"{target.email}")
     db.commit()
     db.refresh(target)
     return user_rows(db, [target])[0]
+
+
+@router.get("/activity", responses=ERRORS)
+def activity_log(limit: int = 100, user: User = Depends(admin_only), db: Session = Depends(get_db)):
+    # The audit log, newest first: who did what and when (at most 300 lines).
+    limit = max(1, min(limit, 300))
+    rows = db.execute(
+        select(Activity, User.full_name, User.role)
+        .outerjoin(User, User.user_id == Activity.user_id)
+        .order_by(Activity.activity_id.desc())
+        .limit(limit)
+    ).all()
+    return [{**activity.to_dict(), "user_name": name, "user_role": role} for activity, name, role in rows]
+
+
+@router.get("/projects", responses=ERRORS)
+def project_map(user: User = Depends(admin_only), db: Session = Depends(get_db)):
+    # Every project with a saved location, for the admin map of work zones in Riyadh.
+    companies = dict(db.execute(select(Provider.provider_id, Provider.company_name)).all())
+    winners = dict(
+        db.execute(
+            select(ServiceRequest.project_id, Quote.provider_id)
+            .join(Quote, Quote.request_id == ServiceRequest.request_id)
+            .where(Quote.status == "accepted")
+        ).all()
+    )
+    contractors = dict(db.execute(select(User.user_id, User.full_name).where(User.role == "contractor")).all())
+    projects = db.scalars(
+        select(Project).where(Project.latitude.is_not(None), Project.longitude.is_not(None)).order_by(Project.project_id.desc())
+    ).all()
+    return [
+        {
+            "project_id": p.project_id,
+            "project_name": p.project_name,
+            "project_status": p.project_status,
+            "site_status": p.site_status,
+            "location": p.location,
+            "latitude": p.latitude,
+            "longitude": p.longitude,
+            "work_zone": p.work_zone,
+            "start_date": p.start_date,
+            "end_date": p.end_date,
+            "contractor": contractors.get(p.contractor_id),
+            "provider": companies.get(winners.get(p.project_id)),
+        }
+        for p in projects
+    ]
+
+
+@router.get("/services", responses=ERRORS)
+def services_status(user: User = Depends(admin_only), db: Session = Depends(get_db)):
+    # Which outside services are switched on (only on/off, never the keys themselves).
+    def service(name: str, on: bool, what: str, setting: str) -> dict:
+        return {"name": name, "on": on, "what": what, "setting": setting}
+
+    return [
+        service("Database", True, "PostgreSQL on Render", "DATABASE_URL"),
+        service("PayPal", bool(os.getenv("PAYPAL_CLIENT_ID", "").strip() and os.getenv("PAYPAL_CLIENT_SECRET", "").strip()),
+                "Sandbox payments and receipts", "PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET"),
+        service("WhatsApp / SMS", sms.enabled(), "Notifications on the phone (Twilio)",
+                "TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM"),
+        service("Bot check", bool(config.TURNSTILE_SECRET_KEY), "Cloudflare Turnstile on login and sign up",
+                "TURNSTILE_SECRET_KEY"),
+        service("Live traffic", traffic.enabled(), "TomTom traffic at the work zone", "TOMTOM_API_KEY"),
+        service("Weather", True, "Open-Meteo forecast and safety alerts (no key)", "-"),
+        service("Email codes", bool(config.EMAILJS_SERVICE_ID and config.EMAILJS_PRIVATE_KEY),
+                "Sign-up passcodes by email (EmailJS)", "EMAILJS_*"),
+        service("Demo accounts", bool(config.DEMO_PASSWORD), "provider@ and fieldworker@ for the four companies",
+                "DEMO_PASSWORD"),
+    ]

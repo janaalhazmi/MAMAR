@@ -76,6 +76,7 @@ NEW_COLUMNS = [
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_data BYTEA",
     "CREATE UNIQUE INDEX IF NOT EXISTS ix_users_avatar_token ON users (avatar_token)",
     "ALTER TABLE providers ADD COLUMN IF NOT EXISTS email_domain VARCHAR(100)",
+    "ALTER TABLE site_photos ADD COLUMN IF NOT EXISTS stage VARCHAR(10) NOT NULL DEFAULT 'during'",
 ]
 
 # A project keeps one open request. Going back from Quotations used to add a new request each

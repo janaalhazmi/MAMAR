@@ -202,6 +202,7 @@ The problems we met while setting up the project, and how we solved them.
 | `ADMIN_PASSWORD` | Password of the admin account, at least 8 characters. Changing it on Render changes the password at the next deploy. Secret | Empty: no admin account |
 | `DEMO_PASSWORD` | Password of the 8 demo accounts (`provider@` and `fieldworker@` tcm.com, safetyarabia.com, shawahid.com, safetytriangle.com). At least 8 characters. Secret | Empty: no demo accounts |
 | `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret key. The frontend needs `VITE_TURNSTILE_SITE_KEY` on Vercel. Secret | Empty: no robot check |
+| `TOMTOM_API_KEY` | TomTom key for live traffic at the work zone (free plan, developer.tomtom.com). Secret | Empty: no traffic card |
 | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM` | Twilio SMS: each notification is also sent to the user's phone. Secret | Empty: no SMS |
 | `PAYPAL_API_URL` | The PayPal API | `https://api-m.sandbox.paypal.com` (sandbox, no real money) |
 
@@ -564,8 +565,17 @@ One admin account, made from `ADMIN_EMAIL` and `ADMIN_PASSWORD` on Render (never
 | Open-Meteo (weather, free, no key) | `GET /projects/{id}/weather` | Daily forecast at the work zone for the project days (or the next 7 days), with alerts for extreme heat (45°C+), rain (1 mm+) and strong wind (50 km/h+). The contractor, the provider and the assigned workers can open it. 400 when the project has no location, 502 when Open-Meteo cannot be reached |
 | ReportLab (PDF) | `GET /payments/{payment_id}/receipt` | A PDF receipt of a completed payment, for the contractor and the winning provider |
 | Cloudflare Turnstile | `turnstile_token` in `POST /auth/login` and `POST /auth/register` | When `TURNSTILE_SECRET_KEY` is set, the token from the widget is checked with Cloudflare; a missing or wrong token gets 400 |
-| Twilio SMS | every notification | When the Twilio settings are set, each notification is also sent by SMS to the user's phone (Saudi numbers like 05xxxxxxxx) |
+| Twilio SMS or WhatsApp | every notification | When the Twilio settings are set, each notification is also sent to the user's phone (Saudi numbers like 05xxxxxxxx). With `TWILIO_FROM=whatsapp:+14155238886` it goes by WhatsApp (Twilio sandbox) |
+| Twilio test message | `GET /notifications/channels`, `POST /notifications/test-message` | Shows where notifications go and sends a test to the user's own phone (once a minute) |
+| TomTom live traffic | `GET /projects/{id}/traffic` | Speed now vs. an empty road at the work zone, congestion %, delay and advice for the traffic control. 503 without `TOMTOM_API_KEY` |
+| Worker attendance (QR + GPS) | `GET /projects/{id}/site-code`, `POST /field-worker/projects/{id}/attendance/check-in`, `.../check-out`, `GET /field-worker/projects/{id}/attendance`, `GET /projects/{id}/attendance` | The provider prints the site QR. The worker scans it on arrival: the code must match, the worker must be assigned, and the phone must be inside the work zone or within 300 m. The contractor is notified and both see who is on site now and the hours |
+| Services status | `GET /admin/services` | Admin only: which outside services are on (never the keys) |
 | UptimeRobot | outside the code | Calls `/health` every 5 minutes so the free Render server does not sleep |
+
+| Ratings | `POST /projects/{id}/review`, `GET /projects/{id}/review`, `GET /providers/ratings`, `GET /providers/{id}/reviews` | After approving the work the contractor rates the provider once (1 to 5 stars and a comment, 409 the second time). The averages show next to each company |
+| Audit log | `GET /admin/activity?limit=` | Who did what and when: sign up, login, project created, request, quote, confirm, assign, site status, completion, payment, rating, admin actions |
+| Admin map | `GET /admin/projects` | Every project with a location, its status, contractor and provider, for the map of work zones |
+| Before/after photos | `stages` in `POST /field-worker/projects/{id}/photos` | Each photo is `before`, `during` (default) or `after`; photos return `stage` |
 
 Company emails: a provider or worker can sign up with the domain of the company website or the company's `email_domain` (tcm.com, safetyarabia.com, shawahid.com, safetytriangle.com).
 

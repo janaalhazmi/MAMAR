@@ -142,3 +142,72 @@ def test_demo_accounts_and_company_domains(api, monkeypatch):
         with SessionLocal() as db:
             db.execute(delete(User).where(User.email.in_(set(emails) - existed)))
             db.commit()
+
+
+def finished_project(api):
+    project_id, contractor, provider, worker = active_project_with_worker(api)
+    api.client.patch(f"/field-worker/projects/{project_id}/status", json={"status": "Completed"}, headers=worker)
+    api.client.post(f"/provider/projects/{project_id}/submit-completion", headers=provider)
+    return project_id, contractor, provider, worker
+
+
+def test_rating_the_provider(api):
+    project_id, contractor, provider, worker = active_project_with_worker(api)
+    url = f"/projects/{project_id}/review"
+    assert api.client.post(url, json={"rating": 5}, headers=contractor).status_code == 400  # not finished
+    api.client.patch(f"/field-worker/projects/{project_id}/status", json={"status": "Completed"}, headers=worker)
+    api.client.post(f"/provider/projects/{project_id}/submit-completion", headers=provider)
+    assert api.client.post(f"/projects/{project_id}/complete", headers=contractor).status_code == 200
+    assert api.client.post(url, json={"rating": 6}, headers=contractor).status_code == 422
+    response = api.client.post(url, json={"rating": 4, "comment": "Fast and clean work"}, headers=contractor)
+    assert response.status_code == 201 and response.json()["provider_id"] == 1
+    assert api.client.post(url, json={"rating": 5}, headers=contractor).status_code == 409
+    assert api.client.get(url, headers=contractor).json()["rating"] == 4
+    ratings = {r["provider_id"]: r for r in api.client.get("/providers/ratings", headers=provider).json()}
+    assert ratings[1]["count"] >= 1 and 1 <= ratings[1]["average"] <= 5
+    assert api.client.get("/providers/1/reviews", headers=contractor).json()[0]["comment"]
+    assert api.client.post(url, json={"rating": 3}, headers=provider).status_code == 403
+
+
+def test_photo_stages(api):
+    project_id, _, _, worker = active_project_with_worker(api)
+    files = [("photos", ("a.png", b"\x89PNG a", "image/png")), ("photos", ("b.png", b"\x89PNG b", "image/png"))]
+    data = {"captions": ["Before", "After"], "stages": ["before", "after"]}
+    saved = api.client.post(f"/field-worker/projects/{project_id}/photos", files=files, data=data, headers=worker).json()
+    assert [p["stage"] for p in saved] == ["before", "after"]
+    one = [("photos", ("c.png", b"\x89PNG c", "image/png"))]
+    assert api.client.post(f"/field-worker/projects/{project_id}/photos", files=one, headers=worker).json()[0]["stage"] == "during"
+    bad = api.client.post(f"/field-worker/projects/{project_id}/photos", files=one, data={"stages": ["later"]}, headers=worker)
+    assert bad.status_code == 422
+
+
+def test_admin_activity_and_map(api, monkeypatch):
+    from tests.test_admin import admin_login
+    _, admin = admin_login(api, monkeypatch)
+    project_id, contractor, provider, _ = active_project_with_worker(api)
+    api.client.patch(f"/projects/{project_id}", json={"latitude": 24.7, "longitude": 46.6}, headers=contractor)
+    actions = [a["action"] for a in api.client.get("/admin/activity?limit=300", headers=admin).json()]
+    for action in ("project_created", "request_sent", "quote_sent", "provider_confirmed", "worker_assigned", "login"):
+        assert action in actions
+    rows = {p["project_id"]: p for p in api.client.get("/admin/projects", headers=admin).json()}
+    assert rows[project_id]["provider"] and rows[project_id]["latitude"] == 24.7
+    assert api.client.get("/admin/activity", headers=contractor).status_code == 403
+
+
+def test_whatsapp_sender(monkeypatch):
+    calls = []
+    monkeypatch.setattr(config, "TWILIO_ACCOUNT_SID", "AC1")
+    monkeypatch.setattr(config, "TWILIO_AUTH_TOKEN", "t")
+    monkeypatch.setattr(config, "TWILIO_FROM", "whatsapp:+14155238886")
+
+    class Done:
+        def close(self):
+            pass
+
+    def fake_urlopen(request, timeout):
+        calls.append(request.data.decode())
+        return Done()
+
+    monkeypatch.setattr(sms.urllib.request, "urlopen", fake_urlopen)
+    sms.post("+966501234567", "hello")
+    assert "To=whatsapp%3A%2B966501234567" in calls[0] and "From=whatsapp%3A%2B14155238886" in calls[0]

@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.services.activity import log_activity
 from app.core.access import get_project
 from app.core.security import allow_roles
 from app.db.database import get_db
@@ -332,6 +333,7 @@ def submit_completion(project_id: int, user: User = Depends(provider_only), db: 
             f'Project "{project.project_name}" has been submitted for your review.',
             "/review-completion",
         )
+        log_activity(db, user, "completion_submitted", f'Sent the work of "{project.project_name}" to the contractor', project_id)
         db.commit()
         db.refresh(project)
     return project_detail(db, project, quote)
@@ -369,6 +371,7 @@ def return_to_team(
             "/field-worker-dashboard",
         )
 
+    log_activity(db, user, "returned_to_team", f'Returned "{project.project_name}" to the field team', project_id)
     db.commit()
     db.refresh(project)
     return project_detail(db, project, quote)
@@ -399,6 +402,7 @@ def decline_request(request_id: int, user: User = Depends(provider_only), db: Se
         raise HTTPException(status_code=409, detail="Your company already sent a quote for this request")
     if not request.declined_by(user.provider_id):
         request.decline(user.provider_id)
+        log_activity(db, user, "request_declined", f"Declined request #{request_id}", request.project_id)
         db.commit()
         db.refresh(request)
     return request.to_dict()

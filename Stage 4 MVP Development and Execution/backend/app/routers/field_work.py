@@ -10,10 +10,11 @@ from app.core.security import allow_roles
 from app.db.database import get_db
 from app.models import Assignment, Project, Provider, SitePhoto, User
 from app.models.project import SITE_PROGRESS
-from app.models.site_photo import MAX_PHOTO_BYTES, PHOTO_TYPES
+from app.models.site_photo import MAX_PHOTO_BYTES, PHOTO_STAGES, PHOTO_TYPES
 from app.routers.workflow import project_photos, provider_summary
 from app.schemas.error import ErrorResponse
 from app.schemas.workflow import FieldProject, PhotoResponse, SiteStatusUpdate
+from app.services.activity import log_activity
 
 router = APIRouter(tags=["field work"])
 
@@ -114,6 +115,8 @@ def update_site_status(
     if data.status != "Completed":
         project.completion_submitted = False
         project.submitted_at = None
+    if data.status != previous_status:
+        log_activity(db, user, "site_status", f'Site of "{project.project_name}" is {data.status}', project_id)
     db.commit()
     db.refresh(project)
     return field_project(db, project)
@@ -144,6 +147,7 @@ async def upload_photos(
     project_id: int,
     photos: list[UploadFile] = File(...),
     captions: list[str] = Form(default=[]),
+    stages: list[str] = Form(default=[]),
     user: User = Depends(worker_only),
     db: Session = Depends(get_db),
 ):
@@ -162,11 +166,16 @@ async def upload_photos(
         if len(data) > MAX_PHOTO_BYTES:
             raise HTTPException(status_code=413, detail=f"{upload.filename}: the photo is bigger than 5 MB")
         caption = (captions[index].strip() if index < len(captions) else "")[:150] or "Site photo"
+        # Optional "stages" field: before, during or after the work (during when missing).
+        stage = stages[index].strip().lower() if index < len(stages) else "during"
+        if stage not in PHOTO_STAGES:
+            raise HTTPException(status_code=422, detail=f"{upload.filename}: the stage must be before, during or after")
         saved.append(
             SitePhoto(
                 project_id=project_id,
                 worker_id=user.user_id,
                 caption=caption,
+                stage=stage,
                 content_type=upload.content_type,
                 data=data,
             )

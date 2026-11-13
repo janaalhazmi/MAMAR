@@ -20,6 +20,7 @@ from app.schemas.workflow import (
     SiteProgress,
 )
 from app.schemas.project import ProjectResponse
+from app.services.activity import log_activity
 
 router = APIRouter(tags=["workflow"])
 
@@ -127,6 +128,7 @@ def submit_quotation(data: QuotationCreate, user: User = Depends(provider_only),
             message=f'A new quotation has been submitted for project "{project.project_name}".',
             link="/quotations",
         )
+    log_activity(db, user, "quote_sent", f"Sent a quote of {data.price} SAR", data.project_id)
     try:
         db.commit()
     except IntegrityError as error:
@@ -222,6 +224,7 @@ def confirm_provider(
         message=f'Your quotation for project "{project.project_name}" has been accepted.',
         link="/provider-dashboard",
     )
+    log_activity(db, user, "provider_confirmed", f'Confirmed quote #{quote.quote_id} for "{project.project_name}"', project_id)
     db.commit()
     db.refresh(project)
     return {"project": project.to_dict(), "quote": quote.to_dict()}
@@ -277,6 +280,7 @@ def approve_completion(project_id: int, user: User = Depends(contractor_only), d
             link="/provider-dashboard",
         )
 
+    log_activity(db, user, "project_completed", f'Approved the work of "{project.project_name}"', project_id)
     db.commit()
     db.refresh(project)
     return project.to_dict()
@@ -307,6 +311,7 @@ def request_changes(
             link="/provider-dashboard",
         )
 
+    log_activity(db, user, "changes_requested", f'Asked for changes on "{project.project_name}"', project_id)
     db.commit()
     db.refresh(project)
     return project.to_dict()
