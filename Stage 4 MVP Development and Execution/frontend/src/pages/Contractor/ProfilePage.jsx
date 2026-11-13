@@ -7,6 +7,11 @@ import {
   uploadMyProfilePicture,
   deleteMyProfilePicture,
 } from "../../services/Contractor/profileService";
+import {
+  getPictureUrl,
+  formatProfileDate,
+  getProfileInitial,
+} from "../../services/Contractor/profileUtils";
 import "../../styles/Contractor/profile.css";
 
 const EMPTY_PROFILE = {
@@ -20,18 +25,6 @@ const EMPTY_PROFILE = {
 
 function getErrorMessage(error, fallback) {
   return error?.message || fallback;
-}
-
-function getPictureUrl(profile) {
-  return profile?.profile_picture_url || profile?.profile_picture || profile?.avatar_url || "";
-}
-
-function formatDate(value) {
-  if (!value) return "—";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? value
-    : date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 }
 
 export default function ProfilePage() {
@@ -82,12 +75,10 @@ export default function ProfilePage() {
     event.preventDefault();
     setError("");
     setSuccess("");
-
     if (!form.full_name.trim() || !form.email.trim()) {
       setError("Name and email are required.");
       return;
     }
-
     setSavingProfile(true);
     try {
       const updated = await updateMyProfile({
@@ -129,7 +120,6 @@ export default function ProfilePage() {
     event.preventDefault();
     setError("");
     setSuccess("");
-
     if (!passwords.current_password || !passwords.new_password) {
       setError("Enter your current password and a new password.");
       return;
@@ -142,11 +132,14 @@ export default function ProfilePage() {
       setError("The new password and confirmation do not match.");
       return;
     }
-
     setSavingPassword(true);
     try {
       await changeMyPassword(passwords.current_password, passwords.new_password);
-      setPasswords({ current_password: "", new_password: "", confirm_password: "" });
+      setPasswords({
+        current_password: "",
+        new_password: "",
+        confirm_password: "",
+      });
       setSuccess("Your password has been changed.");
     } catch (err) {
       setError(getErrorMessage(err, "Unable to change your password."));
@@ -159,7 +152,6 @@ export default function ProfilePage() {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
-
     if (!file.type.startsWith("image/")) {
       setError("Please select an image file.");
       return;
@@ -168,17 +160,13 @@ export default function ProfilePage() {
       setError("The image must be 5 MB or smaller.");
       return;
     }
-
     setError("");
     setSuccess("");
     setPictureBusy(true);
     try {
-      const updated = await uploadMyProfilePicture(file);
-      if (updated && typeof updated === "object") {
-        setProfile((current) => ({ ...current, ...updated }));
-      } else {
-        await loadProfile();
-      }
+      await uploadMyProfilePicture(file);
+      const updatedProfile = await fetchMyProfile();
+      setProfile((current) => ({ ...current, ...updatedProfile }));
       setSuccess("Your profile picture has been updated.");
     } catch (err) {
       setError(getErrorMessage(err, "Unable to upload your profile picture."));
@@ -192,17 +180,9 @@ export default function ProfilePage() {
     setSuccess("");
     setPictureBusy(true);
     try {
-      const updated = await deleteMyProfilePicture();
-      if (updated && typeof updated === "object") {
-        setProfile((current) => ({ ...current, ...updated }));
-      } else {
-        setProfile((current) => ({
-          ...current,
-          profile_picture: "",
-          profile_picture_url: "",
-          avatar_url: "",
-        }));
-      }
+      await deleteMyProfilePicture();
+      const updatedProfile = await fetchMyProfile();
+      setProfile((current) => ({ ...current, ...updatedProfile }));
       setSuccess("Your profile picture has been removed.");
     } catch (err) {
       setError(getErrorMessage(err, "Unable to remove your profile picture."));
@@ -210,9 +190,6 @@ export default function ProfilePage() {
       setPictureBusy(false);
     }
   }
-
-  const picture = getPictureUrl(profile);
-  const initial = (profile.full_name || "U").trim().charAt(0).toUpperCase();
 
   return (
     <ContractorShell activeKey="profile">
@@ -241,12 +218,19 @@ export default function ProfilePage() {
               </div>
 
               <div className="profile-avatar-wrap">
-                {picture ? (
-                  <img className="profile-avatar-image" src={picture} alt="Profile" />
+                {getPictureUrl(profile) ? (
+                  <img
+                    className="profile-avatar-image"
+                    src={getPictureUrl(profile)}
+                    alt="Profile"
+                  />
                 ) : (
-                  <div className="profile-avatar-placeholder">{initial}</div>
+                  <div className="profile-avatar-placeholder">
+                    {getProfileInitial(profile.full_name)}
+                  </div>
                 )}
               </div>
+
               <div className="profile-picture-actions">
                 <button
                   className="profile-button profile-button-primary"
@@ -256,7 +240,7 @@ export default function ProfilePage() {
                 >
                   {pictureBusy ? "Please wait…" : "Upload picture"}
                 </button>
-                {picture && (
+                {getPictureUrl(profile) && (
                   <button
                     className="profile-button profile-button-quiet"
                     type="button"
@@ -274,11 +258,12 @@ export default function ProfilePage() {
                   onChange={handlePictureSelected}
                 />
               </div>
+
               <span className="profile-hint">JPG, PNG or WEBP · Maximum 5 MB</span>
 
               <div className="profile-account-meta">
                 <div><span>Account type</span><strong>{profile.role || "Contractor"}</strong></div>
-                <div><span>Member since</span><strong>{formatDate(profile.created_at)}</strong></div>
+                <div><span>Member since</span><strong>{formatProfileDate(profile.created_at)}</strong></div>
                 <div><span>User ID</span><strong>{profile.user_id ?? "—"}</strong></div>
               </div>
             </section>
@@ -291,7 +276,11 @@ export default function ProfilePage() {
                     <p>Keep your contact details up to date.</p>
                   </div>
                   {!editing && (
-                    <button className="profile-button profile-button-outline" type="button" onClick={() => setEditing(true)}>
+                    <button
+                      className="profile-button profile-button-outline"
+                      type="button"
+                      onClick={() => setEditing(true)}
+                    >
                       Edit details
                     </button>
                   )}
@@ -329,7 +318,6 @@ export default function ProfilePage() {
                   <h2>Change password</h2>
                   <p>Choose a strong password you do not use elsewhere.</p>
                 </div>
-
                 <form onSubmit={handleChangePassword}>
                   <div className="profile-form-grid">
                     <label className="profile-field profile-field-full">
