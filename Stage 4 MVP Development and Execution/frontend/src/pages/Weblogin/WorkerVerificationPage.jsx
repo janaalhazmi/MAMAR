@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../../assets/mamar-logo.svg";
+import Turnstile from "../../components/Turnstile";
+import { turnstileOn } from "../../services/turnstile";
 import {
   registerUser,
   sendPasscode,
@@ -14,6 +16,8 @@ function WorkerVerificationPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [captcha, setCaptcha] = useState("");
+  const [captchaReset, setCaptchaReset] = useState(0);
   const [isResending, setIsResending] = useState(false);
   const [resendSeconds, setResendSeconds] = useState(0);
 
@@ -63,6 +67,11 @@ function WorkerVerificationPage() {
       return;
     }
 
+    if (turnstileOn && !captcha) {
+      setError("Please confirm you are not a robot.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -72,7 +81,7 @@ function WorkerVerificationPage() {
         throw new Error("Invalid account type. Please register again.");
       }
 
-      await registerUser(registration, passcode);
+      await registerUser(registration, passcode, captcha);
 
       sessionStorage.removeItem("mamarPendingRegistration");
 
@@ -83,6 +92,7 @@ function WorkerVerificationPage() {
         },
       });
     } catch (requestError) {
+      setCaptchaReset((count) => count + 1);
       setError(requestError.message || "Unable to create your account.");
     } finally {
       setIsSubmitting(false);
@@ -184,6 +194,8 @@ function WorkerVerificationPage() {
                 {success}
               </p>
             )}
+
+            <Turnstile onToken={setCaptcha} resetKey={captchaReset} />
 
             <button
               type="submit"

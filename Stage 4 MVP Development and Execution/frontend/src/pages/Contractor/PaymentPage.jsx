@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ContractorShell from "../../components/ContractorShell";
+import { getSession } from "../../services/auth";
+import { downloadReceipt } from "../../services/api";
 import {
   formatPrice,
   getCurrentProject,
@@ -45,6 +47,7 @@ function PaymentPage() {
   const [checking, setChecking] = useState(true);
   const [paidPayment, setPaidPayment] = useState(null);
   const [existingPayment, setExistingPayment] = useState(null);
+  const [receiptError, setReceiptError] = useState("");
   const paymentLock = useRef(false);
   const started = useRef(false);
 
@@ -142,6 +145,19 @@ function PaymentPage() {
               <div><span>Amount</span><strong>{formatPrice(payment.amount)}</strong></div>
               <div><span>Charged on PayPal</span><strong>{formatUsd(payment.charged_amount)}</strong></div>
             </div>
+            {receiptError && <p className="payment-error" role="alert">{receiptError}</p>}
+            <button
+              className="payment-back-button"
+              type="button"
+              onClick={() => {
+                setReceiptError("");
+                downloadReceipt(getSession()?.access_token, payment.payment_id).catch((err) =>
+                  setReceiptError(err.message)
+                );
+              }}
+            >
+              ⬇ Download PDF Receipt
+            </button>
             <button
               className="payment-primary-button"
               type="button"

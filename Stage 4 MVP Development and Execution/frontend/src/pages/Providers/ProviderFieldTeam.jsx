@@ -7,6 +7,7 @@ import {
   useWorkerAssignmentProjects,
 } from "../../services/providers/api";
 import ProviderSidebar from "../../components/ProviderSidebar";
+import Turnstile from "../../components/Turnstile";
 import { getSession } from "../../services/auth";
 
 
@@ -217,7 +218,7 @@ export default function ProviderFieldTeam() {
 }
 
 function AddFieldWorkerForm({ onClose, onCreated }) {
-  const { worker, busy, error, created, submit } =
+  const { worker, busy, error, created, submit, setCaptcha, captchaReset } =
     useFieldWorkerRegistration(onCreated);
 
   return (
@@ -234,6 +235,7 @@ function AddFieldWorkerForm({ onClose, onCreated }) {
                 Verification code
                 <input name="passcode" inputMode="numeric" autoComplete="one-time-code" maxLength={6} required />
               </label>
+              <Turnstile onToken={setCaptcha} resetKey={captchaReset} />
             </>
           ) : (
             <div className="pft-filters">

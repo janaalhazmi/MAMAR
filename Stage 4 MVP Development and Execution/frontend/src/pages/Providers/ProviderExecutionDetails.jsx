@@ -3,6 +3,7 @@ import { API_BASE_URL } from "../../services/api";
 import { Link, useParams } from "react-router-dom";
 import ProviderSidebar from "../../components/ProviderSidebar";
 import MamarMap from "../../components/MamarMap";
+import WeatherCard from "../../components/WeatherCard";
 import Button from "../../components/Button";
 import { useProviderProjectDetails } from "../../services/providers/api";
 import { formatDate } from "../../services/projectFlow";
@@ -98,6 +99,8 @@ export default function ProviderProjectDetails() {
                     </dd>
                   </div>
                 </dl>
+
+                <WeatherCard projectId={project.project_id} />
 
                 <div className="pex-grid pex-grid-wide">
                   <section className="pex-card">

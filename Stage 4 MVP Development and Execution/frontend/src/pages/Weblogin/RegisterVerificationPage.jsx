@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../../assets/mamar-logo.svg";
+import Turnstile from "../../components/Turnstile";
+import { turnstileOn } from "../../services/turnstile";
 import {
   registerUser,
   sendPasscode,
@@ -14,6 +16,8 @@ function RegisterVerificationPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [captcha, setCaptcha] = useState("");
+  const [captchaReset, setCaptchaReset] = useState(0);
   const [isResending, setIsResending] = useState(false);
   const [resendSeconds, setResendSeconds] = useState(0);
 
@@ -66,12 +70,17 @@ function RegisterVerificationPage() {
       return;
     }
 
+    if (turnstileOn && !captcha) {
+      setError("Please confirm you are not a robot.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       const registration = JSON.parse(saved);
 
-      await registerUser(registration, passcode);
+      await registerUser(registration, passcode, captcha);
 
       sessionStorage.removeItem("mamarPendingRegistration");
 
@@ -82,6 +91,7 @@ function RegisterVerificationPage() {
         },
       });
     } catch (requestError) {
+      setCaptchaReset((count) => count + 1);
       setError(requestError.message || "Unable to create your account.");
     } finally {
       setIsSubmitting(false);
@@ -176,6 +186,8 @@ function RegisterVerificationPage() {
                 {success}
               </p>
             )}
+
+            <Turnstile onToken={setCaptcha} resetKey={captchaReset} />
 
             <button
               type="submit"

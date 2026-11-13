@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { loginUser } from "../../services/api";
 import { logout, saveSession } from "../../services/auth";
+import Turnstile from "../../components/Turnstile";
+import { turnstileOn } from "../../services/turnstile";
 import Header from "../../components/Header";
 import Button from "../../components/Button";
 import logo from "../../assets/mamar-logo.svg";
@@ -38,6 +40,9 @@ function LoginPage() {
   // A message from the page that opened the login page, for example after
   // creating an account or when the session has ended.
   const notice = useLocation().state?.message;
+  // The robot check token, and a counter that gets a new token after a failed try.
+  const [captcha, setCaptcha] = useState("");
+  const [captchaReset, setCaptchaReset] = useState(0);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -46,10 +51,15 @@ function LoginPage() {
     const form = event.currentTarget;
     const email = form.loginEmail.value.trim().toLowerCase();
     const password = form.loginPassword.value;
+    if (turnstileOn && !captcha) {
+      setError("Please confirm you are not a robot.");
+      return;
+    }
     setLoading(true);
     try {
-      logout();
-      const data = await loginUser(email, password);
+      // Only this tab: a wrong password here must not log out the other tabs.
+      logout(false);
+      const data = await loginUser(email, password, captcha);
       // The admin has no account type button: any choice (or none) signs the admin in.
       if (data.user.role !== "admin" && !role) {
         throw new Error("Please select your account type.");
@@ -61,6 +71,7 @@ function LoginPage() {
       navigate(dashboardRoutes[data.user.role], { replace: true });
     } catch (err) {
       setError(err.message);
+      setCaptchaReset((count) => count + 1);
     } finally {
       setLoading(false);
   }
@@ -153,6 +164,7 @@ function LoginPage() {
               </div>
             </div>
 
+            <Turnstile onToken={setCaptcha} resetKey={captchaReset} />
             {error && <p role="alert">{error}</p>}
             {!error && notice && <p role="status">{notice}</p>}
             <Button
