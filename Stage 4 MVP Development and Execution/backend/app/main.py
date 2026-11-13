@@ -7,8 +7,8 @@ from fastapi.responses import JSONResponse, RedirectResponse
 
 from app.core.config import FRONTEND_ORIGINS
 from app.core.limits import MAX_BODY_BYTES
-from app.db.init_db import add_admin_account, add_demo_providers, create_tables, upgrade_tables
-from app.routers import admin, notifications, assignments, auth, devices, field_work, health, payments, projects, provider, quotes, service_requests, workflow
+from app.db.init_db import add_admin_account, add_demo_accounts, add_demo_providers, create_tables, upgrade_tables
+from app.routers import admin, extras, notifications, assignments, auth, devices, field_work, health, payments, projects, provider, quotes, service_requests, workflow
 
 
 @asynccontextmanager
@@ -18,6 +18,7 @@ async def lifespan(app: FastAPI):
     upgrade_tables()
     add_demo_providers()
     add_admin_account()
+    add_demo_accounts()
     yield
 
 
@@ -53,6 +54,7 @@ app.include_router(provider.router)
 app.include_router(payments.router)
 app.include_router(notifications.router)
 app.include_router(admin.router)
+app.include_router(extras.router)
 
 
 @app.exception_handler(RequestValidationError)

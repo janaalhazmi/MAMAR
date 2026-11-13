@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from app.core import config
 from app.core.email import send_passcode
+from app.core.turnstile import check_human
 from app.core.limits import clear_failed_logins, login_blocked, record_failed_login
 from app.core.security import create_access_token, get_current_user
 from app.db.database import get_db
@@ -72,6 +73,20 @@ def company_domain(website: str | None) -> str | None:
     return host.removeprefix("www.") if host else None
 
 
+def company_domains(provider: Provider) -> list[str]:
+    # The email domains of a company: its website's and its email_domain (for example tcm.com).
+    domains = [company_domain(provider.website), provider.email_domain]
+    return [domain for domain in dict.fromkeys(domains) if domain]
+
+
+def company_email_ok(email: str, provider: Provider) -> bool:
+    return any(email.endswith(f"@{domain}") for domain in company_domains(provider))
+
+
+def company_email_detail(provider: Provider) -> str:
+    return "email: use your company email (" + " or ".join(f"@{d}" for d in company_domains(provider)) + ")"
+
+
 def passcode_is_right(row: EmailPasscode, passcode: str) -> bool:
     try:
         return password_hasher.verify(row.passcode_hash, passcode)
@@ -129,17 +144,17 @@ def send_passcode_to_email(data: SendPasscodeRequest, db: Session = Depends(get_
 @router.post("/register", status_code=201, response_model=UserResponse, responses=REGISTER_ERRORS)
 def register(data: RegisterRequest, db: Session = Depends(get_db)):
     # Creates a new user account (Stage 3, section 4.2.3). It does not need a token.
+    check_human(data.turnstile_token)
     if data.provider_id is not None:
         provider = db.get(Provider, data.provider_id)
         if provider is None:
             raise HTTPException(status_code=404, detail="Provider not found")
         # Stage 3: a user cannot link themselves freely to any provider. A provider or
         # worker account must use the company email, the same domain as the provider's website.
-        domain = company_domain(provider.website)
-        if domain is None:
+        if not company_domains(provider):
             raise HTTPException(status_code=422, detail="provider_id: this provider has no company website yet")
-        if not data.email.endswith(f"@{domain}"):
-            raise HTTPException(status_code=422, detail=f"email: use your company email (@{domain})")
+        if not company_email_ok(data.email, provider):
+            raise HTTPException(status_code=422, detail=company_email_detail(provider))
 
     if db.scalar(select(User).where(User.email == data.email)) is not None:
         raise HTTPException(status_code=409, detail="Email is already registered")
@@ -172,6 +187,7 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
 @router.post("/login", response_model=LoginResponse, responses=LOGIN_ERRORS)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
     # Checks the email and password, then returns a token for the next requests (Stage 3, section 4.2.4).
+    check_human(data.turnstile_token)
     if login_blocked(data.email):
         raise HTTPException(status_code=429, detail="Too many wrong passwords. Try again in 15 minutes")
     user = db.scalar(select(User).where(User.email == data.email))
@@ -208,9 +224,9 @@ def update_profile(
 
     if "email" in changes and user.provider_id is not None:
         # Same rule as sign up: a provider or worker keeps the company email.
-        domain = company_domain(db.get(Provider, user.provider_id).website)
-        if domain and not changes["email"].endswith(f"@{domain}"):
-            raise HTTPException(status_code=422, detail=f"email: use your company email (@{domain})")
+        company = db.get(Provider, user.provider_id)
+        if company_domains(company) and not company_email_ok(changes["email"], company):
+            raise HTTPException(status_code=422, detail=company_email_detail(company))
 
     if "email" in changes:
         existing = db.scalar(

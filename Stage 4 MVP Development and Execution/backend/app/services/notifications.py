@@ -2,6 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models import Notification, User
+from app.services.sms import send_sms
 
 
 def notify_user(
@@ -21,6 +22,10 @@ def notify_user(
     )
 
     db.add(notification)
+    # The same message by SMS too, when Twilio is set up and the user saved a phone number.
+    user = db.get(User, user_id)
+    if user is not None:
+        send_sms(user.phone, f"MAMAR: {title}. {message}")
     return notification
 
 

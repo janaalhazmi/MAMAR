@@ -49,3 +49,15 @@ EMAILJS_PRIVATE_KEY = os.getenv("EMAILJS_PRIVATE_KEY", "")
 # updates its password if ADMIN_PASSWORD changes. Without them there is no admin account.
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "").strip().lower()
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
+
+# Password of the demo accounts (provider@tcm.com, fieldworker@tcm.com ...), at least 8 characters.
+DEMO_PASSWORD = os.getenv("DEMO_PASSWORD", "")
+
+# Cloudflare Turnstile (the "I am not a robot" check on login and sign up). Without the
+# secret the check is off.
+TURNSTILE_SECRET_KEY = os.getenv("TURNSTILE_SECRET_KEY", "").strip()
+
+# Twilio SMS. Without these three, notifications stay inside the site only.
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "").strip()
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "").strip()
+TWILIO_FROM = os.getenv("TWILIO_FROM", "").strip()

@@ -44,6 +44,8 @@ class RegisterRequest(BaseModel):
     provider_id: int | None = None
     # The 6-digit passcode sent by POST /auth/send-passcode. Required when email verification is on.
     passcode: Annotated[str, StringConstraints(strip_whitespace=True)] | None = None
+    # The Cloudflare Turnstile token from the page (needed only when TURNSTILE_SECRET_KEY is set).
+    turnstile_token: Annotated[str, StringConstraints(max_length=2048)] | None = None
 
     @field_validator("email")
     @classmethod
@@ -91,6 +93,8 @@ class LoginRequest(BaseModel):
     # Lowercase without spaces, the same way register saves it.
     email: Annotated[str, StringConstraints(strip_whitespace=True, to_lower=True, max_length=255)]
     password: Annotated[str, StringConstraints(max_length=128)]
+    # The Cloudflare Turnstile token from the page (needed only when TURNSTILE_SECRET_KEY is set).
+    turnstile_token: Annotated[str, StringConstraints(max_length=2048)] | None = None
 
 
 class LoginUser(BaseModel):
