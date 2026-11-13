@@ -4,6 +4,10 @@ import { Link, useParams } from "react-router-dom";
 import ProviderSidebar from "../../components/ProviderSidebar";
 import MamarMap from "../../components/MamarMap";
 import WeatherCard from "../../components/WeatherCard";
+import DeviceQrCard from "../../components/DeviceQrCard";
+import TrafficCard from "../../components/TrafficCard";
+import TeamOnSiteCard from "../../components/TeamOnSiteCard";
+import SiteQrCard from "../../components/SiteQrCard";
 import Button from "../../components/Button";
 import { useProviderProjectDetails } from "../../services/providers/api";
 import { formatDate } from "../../services/projectFlow";
@@ -101,6 +105,10 @@ export default function ProviderProjectDetails() {
                 </dl>
 
                 <WeatherCard projectId={project.project_id} />
+                <TrafficCard projectId={project.project_id} />
+                <TeamOnSiteCard projectId={project.project_id} />
+                <SiteQrCard projectId={project.project_id} />
+                <DeviceQrCard projectId={project.project_id} projectName={project.project_name} />
 
                 <div className="pex-grid pex-grid-wide">
                   <section className="pex-card">

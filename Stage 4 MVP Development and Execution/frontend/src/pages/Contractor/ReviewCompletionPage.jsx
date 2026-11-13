@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ContractorShell from "../../components/ContractorShell";
+import RateProvider from "../../components/RateProvider";
 import MamarMap from "../../components/MamarMap";
 import Icon from "../../components/Icons";
 import {
@@ -21,6 +22,7 @@ function ReviewCompletionPage() {
   const [provider, setProvider] = useState(null);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [approved, setApproved] = useState(false);
   const [showChanges, setShowChanges] = useState(false);
   const [note, setNote] = useState("");
 
@@ -56,6 +58,21 @@ function ReviewCompletionPage() {
   }
 
   const hasLocation = hasProjectLocation(project);
+
+  if (approved) {
+    // The work is approved: the contractor can rate the provider (or skip).
+    return (
+      <ContractorShell activeKey="projects">
+        <div style={{ maxWidth: 560, margin: "24px auto" }}>
+          <RateProvider
+            projectId={project.id}
+            providerName={provider?.providerName}
+            onDone={() => navigate("/contractor-dashboard")}
+          />
+        </div>
+      </ContractorShell>
+    );
+  }
 
   return (
     <ContractorShell activeKey="projects">
@@ -147,12 +164,28 @@ function ReviewCompletionPage() {
           <p className="pf-sub">
             Final site photos submitted by {provider?.providerName || "the provider"}.
           </p>
-          {/* TODO(API): evidence photos uploaded by the provider/field worker. */}
-          <div className="pf-evidence">
-            {data.evidence.map((photo) => (
-              <img key={photo.id} src={photo.src} alt="Final site evidence" />
-            ))}
-          </div>
+          {data.evidence.some((photo) => photo.stage !== "during") ? (
+            // Before and after side by side, so the change on site is easy to see.
+            <div className="ba-grid">
+              {[["before", "Before the work"], ["after", "After the work"]].map(([stage, label]) => (
+                <div key={stage}>
+                  <h3>{label}</h3>
+                  <div className="pf-evidence">
+                    {data.evidence.filter((photo) => photo.stage === stage).map((photo) => (
+                      <img key={photo.id} src={photo.src} alt={photo.caption || label} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
+          {data.evidence.some((photo) => photo.stage === "during") && (
+            <div className="pf-evidence">
+              {data.evidence.filter((photo) => photo.stage === "during").map((photo) => (
+                <img key={photo.id} src={photo.src} alt={photo.caption || "Site evidence"} />
+              ))}
+            </div>
+          )}
           <small className="pf-muted">Submitted {formatDate(data.submittedOn)}</small>
         </section>
 
@@ -221,7 +254,7 @@ function ReviewCompletionPage() {
                 setSaving(true);
                 setError("");
                 handleConfirmCompletion(project.id)
-                  .then(() => navigate("/contractor-dashboard"))
+                  .then(() => setApproved(true))
                   .catch(() => {
                     setError("Could not confirm completion. Please try again.");
                     setSaving(false);

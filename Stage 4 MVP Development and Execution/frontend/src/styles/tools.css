@@ -1,0 +1,99 @@
+/* Traffic, attendance, phone alerts, system status and reviews (same look as the weather card). */
+.tl-card { background: #fff; border: 1px solid #eee3cc; border-radius: 14px; padding: 18px; margin: 16px 0; display: grid; gap: 12px; }
+.tl-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+.tl-head h2 { margin: 0; font-size: 18px; }
+.tl-head p { margin: 4px 0 0; color: #77706a; font-size: 13px; max-width: 620px; }
+.tl-empty { margin: 0; color: #77706a; font-size: 14px; }
+.tl-label { display: block; color: #77706a; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.tl-badge { border-radius: 999px; padding: 5px 12px; font-size: 13px; font-weight: 700; background: #f1ede4; color: #5f5850; white-space: nowrap; }
+.tl-badge.ok { background: #e3f4e8; color: #1f7a40; }
+.tl-badge.mid { background: #fff3cf; color: #8a6400; }
+.tl-badge.bad { background: #fde5e2; color: #a3271c; }
+.tl-btn { background: #f5b800; border: none; border-radius: 10px; padding: 9px 16px; font-weight: 700; cursor: pointer; color: #1f1b16; }
+.tl-btn.dark { background: #1f1b16; color: #fff; }
+.tl-btn:disabled { opacity: .6; cursor: default; }
+
+.tl-meter { height: 10px; border-radius: 999px; background: #f1ede4; overflow: hidden; }
+.tl-meter span { display: block; height: 100%; border-radius: 999px; background: #9a928a; transition: width .4s; }
+.tl-meter span.ok { background: #2e9c55; }
+.tl-meter span.mid { background: #f5b800; }
+.tl-meter span.bad { background: #d0442f; }
+.tl-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.tl-stats div { background: #faf7f0; border-radius: 10px; padding: 10px; display: grid; gap: 2px; }
+.tl-stats strong { font-size: 20px; }
+.tl-stats small { color: #77706a; font-size: 12px; }
+.tl-advice { margin: 0; padding: 10px 12px; border-radius: 10px; background: #f6f1e6; font-size: 14px; }
+.tl-advice.ok { background: #eef8f1; }
+.tl-advice.mid { background: #fff7df; }
+.tl-advice.bad { background: #fdeceb; }
+.tl-source { margin: 0; color: #9a928a; font-size: 12px; display: flex; gap: 10px; align-items: center; }
+.tl-source button { background: none; border: none; color: #8a6400; font-weight: 700; cursor: pointer; padding: 0; }
+
+/* Site QR (provider) */
+.att-qr { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.att-qr img { width: 180px; border: 1px dashed #d8cdb4; border-radius: 12px; padding: 8px; }
+.att-qr div { display: grid; gap: 6px; max-width: 380px; }
+.att-qr small { color: #77706a; }
+.att-code { font-size: 26px; letter-spacing: 3px; font-family: ui-monospace, monospace; }
+
+/* Team on site (contractor and provider) */
+.att-team { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.att-team li { display: grid; grid-template-columns: 14px 1fr auto; grid-template-areas: "dot name when" "dot hours hours"; gap: 2px 10px; align-items: center; padding: 10px 12px; border: 1px solid #f1e8d6; border-radius: 10px; }
+.att-team i { grid-area: dot; width: 10px; height: 10px; border-radius: 50%; background: #c9c1b4; }
+.att-team i.on { background: #2e9c55; box-shadow: 0 0 0 4px #e3f4e8; }
+.att-team strong { grid-area: name; }
+.att-team span { grid-area: when; font-size: 13px; color: #5f5850; }
+.att-team small { grid-area: hours; color: #77706a; font-size: 12.5px; }
+.att-log summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+.att-log table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13.5px; }
+.att-log th, .att-log td { text-align: start; padding: 6px 8px; border-bottom: 1px solid #f3ecdc; }
+.att-log th { color: #77706a; font-weight: 600; }
+
+/* My attendance (field worker) */
+.att-card { border-color: #f5d27a; }
+.att-form { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+.att-form label { display: grid; gap: 4px; font-size: 13px; color: #5f5850; font-weight: 600; }
+.att-form input { padding: 9px 12px; border: 1px solid #e3d8c0; border-radius: 10px; font: inherit; letter-spacing: 2px; text-transform: uppercase; min-width: 200px; }
+.att-now { margin: 0; flex: 1; }
+.att-msg { margin: 0; padding: 9px 12px; border-radius: 10px; font-size: 14px; }
+.att-msg.ok { background: #eef8f1; color: #1f6b38; }
+.att-msg.bad { background: #fdeceb; color: #a3271c; }
+.att-total { margin: 0; color: #5f5850; font-size: 13px; display: flex; gap: 8px; flex-wrap: wrap; }
+.att-total span { background: #faf7f0; border-radius: 8px; padding: 1px 8px; }
+.att-pick { display: grid; gap: 6px; max-width: 420px; margin: 8px 0; font-weight: 600; }
+.att-pick select { padding: 9px 12px; border: 1px solid #e3d8c0; border-radius: 10px; font: inherit; }
+.att-where { margin: 4px 0 0; color: #5f5850; }
+
+/* Notifications on the phone */
+.phone-card { margin: 0 0 16px; }
+.phone-channels { list-style: none; margin: 0; padding: 0; display: flex; gap: 10px; flex-wrap: wrap; }
+.phone-channels li { display: grid; gap: 2px; padding: 10px 14px; border-radius: 10px; border: 1px solid #eee3cc; background: #faf7f0; min-width: 180px; }
+.phone-channels li.on { border-color: #bfe3cb; background: #eef8f1; }
+.phone-channels li b::before { content: "○ "; color: #9a928a; }
+.phone-channels li.on b::before { content: "● "; color: #2e9c55; }
+.phone-channels span { color: #5f5850; font-size: 13px; }
+
+/* System status (admin) */
+.svc-line { margin: 0; color: #5f5850; font-size: 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.svc-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.svc-grid li { display: flex; gap: 10px; padding: 10px 12px; border: 1px solid #eee3cc; border-radius: 10px; }
+.svc-grid li i { flex: none; width: 10px; height: 10px; margin-top: 5px; border-radius: 50%; background: #c9c1b4; }
+.svc-grid li.on i { background: #2e9c55; }
+.svc-grid div { display: grid; gap: 2px; }
+.svc-grid span { color: #5f5850; font-size: 13px; }
+.svc-grid small { color: #9a6a00; font-size: 12px; }
+
+/* Provider reviews */
+.rv-box { margin: 4px 0; }
+.rv-toggle { background: none; border: none; padding: 0; color: #8a6400; font-weight: 700; font-size: 13px; cursor: pointer; }
+.rv-list { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 6px; max-height: 220px; overflow: auto; }
+.rv-list li { background: #faf7f0; border-radius: 8px; padding: 8px 10px; font-size: 13px; }
+.rv-list small { color: #9a928a; margin-inline-start: 8px; }
+.rv-list p { margin: 4px 0 0; }
+
+@media (max-width: 640px) {
+  .tl-stats { grid-template-columns: repeat(2, 1fr); }
+  .att-team li { grid-template-columns: 14px 1fr; grid-template-areas: "dot name" "dot when" "dot hours"; }
+  .att-form input { min-width: 0; width: 100%; }
+  .att-form, .att-form label { width: 100%; }
+}

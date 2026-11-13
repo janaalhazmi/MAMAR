@@ -3,14 +3,16 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import FieldWorkerShell from "../../components/FieldWorkerShell";
 import MamarMap from "../../components/MamarMap";
 import WeatherCard from "../../components/WeatherCard";
+import AttendanceCard from "../../components/AttendanceCard";
+import TrafficCard from "../../components/TrafficCard";
 import Icon from "../../components/Icons";
+import "../../styles/extras.css";
 import {
   SITE_STATUSES,
   fileToDataUrl,
   formatDateRange,
   getFieldExecution,
   getFieldWorkerDashboard,
-  siteCheckIn,
   updateSiteStatus,
   uploadSitePhotos,
 } from "../../services/fieldWork";
@@ -68,20 +70,17 @@ function FieldExecution() {
     };
   }, [requestedId]);
 
-  async function handleCheckIn() {
-    setBusy(true);
-    setError("");
+  // Site Check-in uses the site QR code and the GPS (the My Attendance card on this page).
+  function handleCheckIn() {
+    document.getElementById("my-attendance")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  // After a check in or out, reload the project so the times and the status are fresh.
+  async function refreshAfterAttendance() {
     try {
-      const { time } = await siteCheckIn(projectId);
-      setData((current) => ({
-        ...current,
-        site: { ...current.site, todayCheckIn: time, lastUpdate: time },
-      }));
-      setNotice("Checked in at the site.");
-    } catch (err) {
-      setError(err.message || "Could not check in. Please try again.");
-    } finally {
-      setBusy(false);
+      setData(await getFieldExecution(projectId));
+    } catch {
+      // The card already shows the result; the old numbers stay until the next load.
     }
   }
 
@@ -115,6 +114,7 @@ function FieldExecution() {
         files.map(async (file, index) => ({
           id: `${Date.now()}-${index}`,
           caption: file.name.replace(/\.[^.]+$/, ""),
+          stage: "during", // before, during or after the work
           file, // the real File: this is what is sent to the backend
           src: await fileToDataUrl(file), // small preview version
         }))
@@ -208,6 +208,14 @@ function FieldExecution() {
       </section>
 
       <WeatherCard projectId={projectId} />
+      <div id="my-attendance">
+        <AttendanceCard
+          projectId={projectId}
+          initialCode={searchParams.get("code") || ""}
+          onChange={refreshAfterAttendance}
+        />
+      </div>
+      <TrafficCard projectId={projectId} />
 
       {error && (
         <p className="pf-alert" role="alert">
@@ -364,7 +372,20 @@ function FieldExecution() {
                 <figure key={photo.id}>
                   <img src={photo.src} alt={photo.caption} />
                   <figcaption>
-                    Not sent yet
+                    <select
+                      className="photo-stage"
+                      aria-label={`When was ${photo.caption} taken`}
+                      value={photo.stage}
+                      onChange={(event) =>
+                        setPending((current) =>
+                          current.map((p) => (p.id === photo.id ? { ...p, stage: event.target.value } : p))
+                        )
+                      }
+                    >
+                      <option value="before">Before</option>
+                      <option value="during">During</option>
+                      <option value="after">After</option>
+                    </select>
                     <button
                       type="button"
                       className="fw-remove"

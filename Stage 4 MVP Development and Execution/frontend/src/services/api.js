@@ -393,3 +393,55 @@ export async function downloadReceipt(token, paymentId) {
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+/* ---------- Ratings, admin activity and map ---------- */
+export const fetchProviderRatings = (token) => authed("/providers/ratings", token);
+
+export const fetchProjectReview = (token, projectId) =>
+  authed(`/projects/${encodeURIComponent(projectId)}/review`, token);
+
+export const postProjectReview = (token, projectId, rating, comment) =>
+  authed(`/projects/${encodeURIComponent(projectId)}/review`, token, {
+    method: "POST",
+    headers: JSON_H,
+    body: asJson({ rating, comment: comment || null }),
+  });
+
+export const fetchAdminActivity = (token, limit = 100) => authed(`/admin/activity?limit=${limit}`, token);
+
+export const fetchAdminProjects = (token) => authed("/admin/projects", token);
+
+/* ---------- Attendance (site QR + GPS), traffic, phone messages, services ---------- */
+const pid = (projectId) => encodeURIComponent(projectId);
+
+export const fetchProjectTraffic = (token, projectId) => authed(`/projects/${pid(projectId)}/traffic`, token);
+
+export const fetchSiteCode = (token, projectId) => authed(`/projects/${pid(projectId)}/site-code`, token);
+
+export const fetchProjectAttendance = (token, projectId) => authed(`/projects/${pid(projectId)}/attendance`, token);
+
+export const fetchMyAttendance = (token, projectId) =>
+  authed(`/field-worker/projects/${pid(projectId)}/attendance`, token);
+
+export const postAttendanceCheckIn = (token, projectId, body) =>
+  authed(`/field-worker/projects/${pid(projectId)}/attendance/check-in`, token, {
+    method: "POST",
+    headers: JSON_H,
+    body: asJson(body),
+  });
+
+export const postAttendanceCheckOut = (token, projectId, body = {}) =>
+  authed(`/field-worker/projects/${pid(projectId)}/attendance/check-out`, token, {
+    method: "POST",
+    headers: JSON_H,
+    body: asJson(body),
+  });
+
+export const fetchNotificationChannels = (token) => authed("/notifications/channels", token);
+
+export const postTestMessage = (token) => authed("/notifications/test-message", token, { method: "POST" });
+
+export const fetchAdminServices = (token) => authed("/admin/services", token);
+
+export const fetchProviderReviews = (token, providerId) =>
+  authed(`/providers/${encodeURIComponent(providerId)}/reviews`, token);

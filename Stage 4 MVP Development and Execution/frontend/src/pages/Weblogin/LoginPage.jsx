@@ -39,7 +39,12 @@ function LoginPage() {
   const navigate = useNavigate();
   // A message from the page that opened the login page, for example after
   // creating an account or when the session has ended.
-  const notice = useLocation().state?.message;
+  const loginState = useLocation().state;
+  const notice = loginState?.message;
+  // The page that sent the user here (for example a scanned site QR), opened again after login.
+  const from = typeof loginState?.from === "string" && loginState.from.startsWith("/") && !loginState.from.startsWith("//")
+    ? loginState.from
+    : null;
   // The robot check token, and a counter that gets a new token after a failed try.
   const [captcha, setCaptcha] = useState("");
   const [captchaReset, setCaptchaReset] = useState(0);
@@ -68,7 +73,7 @@ function LoginPage() {
         throw new Error("The selected account type does not match your account.");
       }
       saveSession(data);
-      navigate(dashboardRoutes[data.user.role], { replace: true });
+      navigate(from || dashboardRoutes[data.user.role], { replace: true });
     } catch (err) {
       setError(err.message);
       setCaptchaReset((count) => count + 1);
