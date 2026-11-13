@@ -25,12 +25,6 @@ const NAV = [
     icon: "clock",
     label: "Attendance",
   },
-  {
-    key: "profile",
-    to: "/field-worker/profile",
-    icon: "user",
-    label: "My Profile",
-  },
 ];
 
 function getPictureUrl(user) {
