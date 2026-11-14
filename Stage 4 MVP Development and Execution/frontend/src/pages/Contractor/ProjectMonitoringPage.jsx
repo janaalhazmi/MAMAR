@@ -6,6 +6,9 @@ import WeatherCard from "../../components/WeatherCard";
 import TrafficCard from "../../components/TrafficCard";
 import TeamOnSiteCard from "../../components/TeamOnSiteCard";
 import Icon from "../../components/Icons";
+import AiDailySummary from "../../components/AiDailySummary";
+import SafetyBadge from "../../components/SafetyBadge";
+import { useSafetyChecks } from "../../services/ai";
 import {
   formatDateRange,
   getCurrentProject,
@@ -19,6 +22,7 @@ function ProjectMonitoringPage() {
 
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
+  const safety = useSafetyChecks(project.id, data?.photos?.length || 0);
 
   useEffect(() => {
     let active = true;
@@ -96,6 +100,7 @@ function ProjectMonitoringPage() {
       </section>
 
       <WeatherCard projectId={project.id} />
+      <AiDailySummary projectId={project.id} />
       <TrafficCard projectId={project.id} />
       <TeamOnSiteCard projectId={project.id} />
 
@@ -176,6 +181,7 @@ function ProjectMonitoringPage() {
                 <figcaption>
                   <strong>{photo.caption}</strong>
                   <small>{photo.time}</small>
+                  <SafetyBadge photoId={photo.id} safety={safety} />
                 </figcaption>
               </figure>
             ))}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ContractorShell from "../../components/ContractorShell";
+import AiTrafficPlan from "../../components/AiTrafficPlan";
 
 import {
   getNextDate,
@@ -207,6 +208,17 @@ function CreateProjectPage() {
             </div>
           </form>
         </section>
+
+        <AiTrafficPlan
+          startDate={project.startDate}
+          endDate={project.endDate}
+          onUse={(text) =>
+            setProject((previous) => ({
+              ...previous,
+              description: previous.description ? `${previous.description}\n\n${text}` : text,
+            }))
+          }
+        />
       </div>
     </ContractorShell>
   );

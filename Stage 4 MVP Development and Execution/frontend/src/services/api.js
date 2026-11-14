@@ -445,3 +445,20 @@ export const fetchAdminServices = (token) => authed("/admin/services", token);
 
 export const fetchProviderReviews = (token, providerId) =>
   authed(`/providers/${encodeURIComponent(providerId)}/reviews`, token);
+
+/* ---------- AI (Claude): photo safety, traffic plan, quote comparison, daily summary ---------- */
+export const fetchAiStatus = (token) => authed("/ai/status", token);
+
+export const fetchSafetyChecks = (token, projectId) => authed(`/projects/${pid(projectId)}/safety-checks`, token);
+
+export const postSafetyCheck = (token, photoId, refresh = false) =>
+  authed(`/photos/${encodeURIComponent(photoId)}/safety-check${refresh ? "?refresh=true" : ""}`, token, { method: "POST" });
+
+export const postTrafficPlan = (token, body) =>
+  authed("/ai/traffic-plan", token, { method: "POST", headers: JSON_H, body: asJson(body) });
+
+export const fetchQuoteComparison = (token, projectId, refresh = false) =>
+  authed(`/projects/${pid(projectId)}/quotes/ai-compare${refresh ? "?refresh=true" : ""}`, token);
+
+export const fetchDailySummary = (token, projectId, refresh = false) =>
+  authed(`/projects/${pid(projectId)}/ai-summary${refresh ? "?refresh=true" : ""}`, token);

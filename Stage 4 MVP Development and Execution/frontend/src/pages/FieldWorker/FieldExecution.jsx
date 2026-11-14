@@ -7,6 +7,8 @@ import AttendanceCard from "../../components/AttendanceCard";
 import TrafficCard from "../../components/TrafficCard";
 import Icon from "../../components/Icons";
 import "../../styles/extras.css";
+import SafetyBadge from "../../components/SafetyBadge";
+import { useSafetyChecks } from "../../services/ai";
 import {
   SITE_STATUSES,
   fileToDataUrl,
@@ -30,6 +32,7 @@ function FieldExecution() {
 
   const [editingStatus, setEditingStatus] = useState(false);
   const [pending, setPending] = useState([]); // photos chosen but not sent yet
+  const safety = useSafetyChecks(projectId, data?.photos?.length || 0); // AI safety check of the photos
 
   // The project comes from the real backend:
   //   1. /field-execution?projectId=12  (link from the dashboard), or
@@ -361,6 +364,7 @@ function FieldExecution() {
                 <figure key={photo.id}>
                   <img src={photo.src} alt={photo.caption} />
                   <figcaption>Sent</figcaption>
+                  <SafetyBadge photoId={photo.id} safety={safety} />
                 </figure>
               ))}
             </div>
