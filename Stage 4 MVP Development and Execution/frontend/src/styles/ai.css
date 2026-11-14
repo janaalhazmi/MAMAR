@@ -1,0 +1,80 @@
+/* AI features (Claude): same look as the other cards, with a small yellow "✨ AI" tag. */
+.ai-card { background: #fff; border: 1px solid #f1d98c; border-radius: 14px; padding: 18px; margin: 16px 0; display: grid; gap: 12px;
+  background-image: linear-gradient(180deg, #fffbef 0, #fff 90px); }
+.ai-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+.ai-head h2 { margin: 4px 0 0; font-size: 18px; }
+.ai-head p { margin: 4px 0 0; color: #77706a; font-size: 13px; max-width: 640px; }
+.ai-tag { display: inline-block; background: #1f1b16; color: #f5b800; font-size: 11px; font-weight: 800; letter-spacing: .04em; padding: 2px 8px; border-radius: 999px; }
+.ai-btn { background: #f5b800; border: none; border-radius: 10px; padding: 9px 16px; font-weight: 700; cursor: pointer; color: #1f1b16; }
+.ai-btn.ghost { background: #fff; border: 1px solid #e3d8c0; }
+.ai-btn:disabled { opacity: .6; cursor: default; }
+.ai-error { margin: 0; padding: 9px 12px; border-radius: 10px; background: #fdeceb; color: #a3271c; font-size: 14px; }
+.ai-muted { margin: 0; color: #77706a; font-size: 13px; }
+.ai-headline { margin: 0; font-weight: 700; font-size: 16px; }
+.ai-card p { margin: 0; }
+.ai-card h3 { margin: 6px 0 4px; font-size: 14px; }
+.ai-card h4 { margin: 8px 0 4px; font-size: 13px; color: #5f5850; }
+.ai-card ul, .ai-card ol { margin: 0; padding-inline-start: 20px; display: grid; gap: 3px; font-size: 14px; }
+.ai-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.ai-risks li::marker { color: #d0442f; }
+.ai-foot { color: #9a928a; font-size: 12px; }
+.ai-advice { background: #faf7f0; border-radius: 10px; padding: 8px 10px; font-size: 13.5px; }
+.ai-link { background: none; border: none; padding: 0; color: #8a6400; font-weight: 700; font-size: 12.5px; cursor: pointer; justify-self: start; }
+
+/* Safety badge under a photo */
+.ai-pill { display: inline-flex; align-items: center; gap: 4px; border: 1px solid #f1d98c; background: #fffbef; color: #5f4a00;
+  border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 6px; white-space: nowrap; }
+.ai-pill.ok { background: #e3f4e8; border-color: #bfe3cb; color: #1f7a40; }
+.ai-pill.mid { background: #fff3cf; border-color: #f1d98c; color: #8a6400; }
+.ai-pill.bad { background: #fde5e2; border-color: #f5c2bc; color: #a3271c; }
+.ai-pill:disabled { opacity: .6; cursor: default; }
+.ai-safety { display: grid; gap: 6px; }
+.ai-safety-box { display: grid; gap: 6px; background: #fff; border: 1px solid #eee3cc; border-radius: 10px; padding: 8px 10px; font-size: 12.5px; text-align: start; }
+.ai-safety-box ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.ai-safety-box li { display: grid; grid-template-columns: 18px 1fr; column-gap: 4px; }
+.ai-safety-box li small { grid-column: 2; color: #77706a; }
+.ai-safety-box p { margin: 0; }
+.ai-hazards { color: #a3271c; }
+
+/* Traffic plan */
+.ai-plan-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; align-items: end; }
+.ai-plan-form label { display: grid; gap: 4px; font-size: 12.5px; font-weight: 600; color: #5f5850; }
+.ai-plan-form input, .ai-plan-form select { padding: 8px 10px; border: 1px solid #e3d8c0; border-radius: 10px; font: inherit; background: #fff; }
+.ai-plan-form .ai-check { display: flex; align-items: center; gap: 6px; padding-bottom: 8px; }
+.ai-plan { display: grid; gap: 10px; }
+.ai-strip { display: flex; height: 16px; border-radius: 999px; overflow: hidden; gap: 2px; }
+.ai-strip span { min-width: 6px; }
+.ai-zones { list-style: none; padding: 0 !important; }
+.ai-zones li { display: grid; grid-template-columns: 12px 140px 70px 1fr; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid #f3ecdc; }
+.ai-zones i { width: 12px; height: 12px; border-radius: 3px; }
+.ai-zones small { color: #77706a; }
+.ai-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.ai-table th, .ai-table td { text-align: start; padding: 6px 8px; border-bottom: 1px solid #f3ecdc; vertical-align: top; }
+.ai-table th { color: #77706a; font-weight: 600; }
+.ai-table td:first-child { font-weight: 800; width: 50px; }
+.ai-explain { background: #fffbef; border: 1px solid #f6e2a4; border-radius: 12px; padding: 12px 14px; display: grid; gap: 4px; }
+.ai-notes { color: #5f5850; }
+
+/* Quotation advisor */
+.ai-advice-list { display: grid; gap: 10px; }
+.ai-advice-row { border: 1px solid #f1e8d6; border-radius: 12px; padding: 12px; display: grid; gap: 10px; background: #fff; }
+.ai-advice-top { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+.ai-advice-top div { display: grid; }
+.ai-advice-top small { color: #77706a; }
+.ai-compare { display: grid; gap: 8px; }
+.ai-compare-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.ai-compare-grid > div { border: 1px solid #eee3cc; border-radius: 10px; padding: 8px 10px; }
+.ai-compare-grid > div.pick { border-color: #f5b800; box-shadow: 0 0 0 2px #fff0bf; }
+.ai-compare-grid ul { list-style: none; padding: 0; font-size: 13px; }
+.ai-compare-grid .pro { color: #1f6b38; }
+.ai-compare-grid .con { color: #a3271c; }
+.ai-pick { display: inline-block; background: #1f1b16; color: #f5b800; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; margin-bottom: 6px; }
+
+@media (max-width: 640px) {
+  .ai-zones li { grid-template-columns: 12px 1fr auto; }
+  .ai-zones small { grid-column: 2 / 4; }
+}
+
+/* Photos with a safety badge on Review Completion */
+.ai-figure { margin: 0; display: grid; gap: 2px; justify-items: start; }
+.ai-figure img { width: 100%; }

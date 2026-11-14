@@ -14,6 +14,7 @@ import {
 import "../../styles/Contractor/quotations.css";
 import Stars from "../../components/Stars";
 import { useProviderRatings } from "../../services/ratings";
+import AiQuoteAdvisor from "../../components/AiQuoteAdvisor";
 
 function normalizeStatus(status) {
   if (status === "rejected") return "rejected";
@@ -32,6 +33,7 @@ function QuotationsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [showCompare, setShowCompare] = useState(false);
   const [rejectingId, setRejectingId] = useState(null);
+  const [aiPicks, setAiPicks] = useState({}); // projectId -> quote id the AI suggested
 
   useEffect(() => {
     let active = true;
@@ -124,6 +126,17 @@ function QuotationsPage() {
     (quotation) => quotation.status === "received"
   );
 
+  // Projects with two or more quotations still waiting for a decision: the AI can compare them.
+  const toCompare = Object.values(
+    quotations
+      .filter((q) => q.status === "received")
+      .reduce((all, q) => {
+        const item = all[q.projectId] || { id: q.projectId, name: q.projectName, count: 0 };
+        item.count += 1;
+        return { ...all, [q.projectId]: item };
+      }, {})
+  ).filter((item) => item.count >= 2);
+
   const counts = {
     all: quotations.length,
     received: quotations.filter((q) => q.status === "received").length,
@@ -187,6 +200,13 @@ function QuotationsPage() {
           <strong>{counts.rejected}</strong>
         </div>
       </div>
+
+      <AiQuoteAdvisor
+        projects={toCompare}
+        onResult={(projectId, result) =>
+          setAiPicks((current) => ({ ...current, [projectId]: result.recommended_quote_id }))
+        }
+      />
 
       <div className="pf-quotation-toolbar">
         <input
@@ -253,6 +273,10 @@ function QuotationsPage() {
                   rejected ? "pf-quote-rejected" : ""
                 }`}
               >
+                {aiPicks[quotation.projectId] != null &&
+                  String(aiPicks[quotation.projectId]) === String(quotation.id) && (
+                    <span className="ai-pick">✨ AI pick</span>
+                  )}
                 <div className="pf-quote-project">
                   <span className="pf-label">Project</span>
                   <strong>{quotation.projectName}</strong>
