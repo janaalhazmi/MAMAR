@@ -15,10 +15,9 @@ def fake_claude(monkeypatch, answers):
     monkeypatch.setattr(config, "ANTHROPIC_API_KEY", "test-key")
     monkeypatch.setattr(ai, "_used", {})
 
-    def send(system, content, max_tokens):
-        calls.append({"system": system, "content": content})
-        answer = answers(system, content) if callable(answers) else answers
-        return "Here you go:\n```json\n" + json.dumps(answer) + "\n```"
+    def send(system, content, max_tokens, schema=None):
+        calls.append({"system": system, "content": content, "schema": schema})
+        return json.loads(json.dumps(answers(system, content) if callable(answers) else answers))
 
     monkeypatch.setattr(ai, "send", send)
     return calls
@@ -49,6 +48,7 @@ def test_new_photos_are_checked_and_unsafe_ones_raise_an_alert(api, monkeypatch)
     project_id, contractor, provider, worker = active_project_with_worker(api)
     photo = upload(api, worker, project_id)
     assert len(calls) == 1 and calls[0]["content"][0]["type"] == "image"  # checked right after the upload
+    assert calls[0]["schema"]["required"] == ["score", "checks", "hazards", "advice"]
     checks = api.client.get(f"/projects/{project_id}/safety-checks", headers=contractor).json()
     result = checks[str(photo["photo_id"])]
     assert result["score"] == 3 and result["level"] == "Unsafe" and result["checks"][0]["status"] == "missing"
@@ -147,7 +147,7 @@ def test_errors_and_hourly_limit(api, monkeypatch):
     project_id, contractor, _, _ = active_project_with_worker(api)
     monkeypatch.setattr(config, "ANTHROPIC_API_KEY", "test-key")
 
-    def broken(system, content, max_tokens):
+    def broken(system, content, max_tokens, schema=None):
         raise ai.AIError("The AI account has no credit left")
 
     monkeypatch.setattr(ai, "send", broken)
@@ -155,7 +155,7 @@ def test_errors_and_hourly_limit(api, monkeypatch):
     assert response.status_code == 502 and "credit" in response.json()["detail"]
     monkeypatch.setattr(ai, "_used", {})
     monkeypatch.setattr(ai, "HOURLY_LIMIT", 1)
-    fake_ok = lambda system, content, max_tokens: '{"headline": "x"}'  # noqa: E731
+    fake_ok = lambda system, content, max_tokens, schema=None: {"headline": "x"}  # noqa: E731
     monkeypatch.setattr(ai, "send", fake_ok)
     assert api.client.get(f"/projects/{project_id}/ai-summary?refresh=true", headers=contractor).status_code == 200
     assert api.client.get(f"/projects/{project_id}/ai-summary?refresh=true", headers=contractor).status_code == 429
@@ -173,3 +173,30 @@ def test_parse_json_and_services_row(api, monkeypatch):
     rows = {row["name"]: row for row in api.client.get("/admin/services", headers=admin).json()}
     assert "AI assistant" in rows
     assert AIResult.__tablename__ == "ai_results"
+
+
+def test_send_reads_the_tool_answer_and_text(monkeypatch):
+    monkeypatch.setattr(config, "ANTHROPIC_API_KEY", "test-key")
+    sent = []
+
+    def answer_with(content, stop="end_turn"):
+        def post(body):
+            sent.append(body)
+            return {"content": content, "stop_reason": stop}
+        return post
+
+    # The normal way: Claude answers through the give_answer tool with ready JSON.
+    monkeypatch.setattr(ai, "post", answer_with([{"type": "tool_use", "name": "give_answer", "input": {"score": 7}}]))
+    assert ai.ask_json("sys", [{"type": "text", "text": "hi"}], schema={"type": "object"}) == {"score": 7}
+    assert sent[0]["tool_choice"] == {"type": "tool", "name": "give_answer"}
+    assert sent[0]["tools"][0]["input_schema"] == {"type": "object"}
+    # Old style text still works.
+    monkeypatch.setattr(ai, "post", answer_with([{"type": "text", "text": 'Sure ```json {"a": 1} ```'}]))
+    assert ai.ask_json("sys", []) == {"a": 1}
+    # A cut answer gives a clear message.
+    monkeypatch.setattr(ai, "post", answer_with([{"type": "text", "text": '{"a": '}], stop="max_tokens"))
+    try:
+        ai.ask_json("sys", [])
+        raise AssertionError
+    except ai.AIError as error:
+        assert "too long" in str(error)

@@ -36,6 +36,56 @@ AI_ERRORS = {
     503: {"model": ErrorResponse, "description": "The AI is not set up (ANTHROPIC_API_KEY)"},
 }
 
+
+# The shape of each answer: Claude fills these through the give_answer tool.
+PHOTO_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "score": {"type": "integer", "description": "0-10, 10 = fully safe"},
+        "checks": {"type": "array", "items": {"type": "object", "properties": {
+            "item": {"type": "string"},
+            "status": {"type": "string", "enum": ["ok", "missing", "unclear"]},
+            "note": {"type": "string"},
+        }, "required": ["item", "status", "note"]}},
+        "hazards": ai.text_list("Short hazards, empty if none"),
+        "advice": {"type": "string", "description": "One short sentence for the field team"},
+    },
+    "required": ["score", "checks", "hazards", "advice"],
+}
+PLAN_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "summary": {"type": "string"},
+        "steps": ai.text_list("4-6 short set-up steps in order"),
+        "risks": ai.text_list("2-3 short things to watch"),
+    },
+    "required": ["summary", "steps", "risks"],
+}
+COMPARE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "recommended_quote_id": {"type": "integer"},
+        "headline": {"type": "string"},
+        "quotes": {"type": "array", "items": {"type": "object", "properties": {
+            "quote_id": {"type": "integer"},
+            "pros": ai.text_list("Max 3 short"),
+            "cons": ai.text_list("Max 3 short"),
+        }, "required": ["quote_id", "pros", "cons"]}},
+        "tip": {"type": "string"},
+    },
+    "required": ["recommended_quote_id", "headline", "quotes", "tip"],
+}
+SUMMARY_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "headline": {"type": "string"},
+        "summary": {"type": "string"},
+        "highlights": ai.text_list("2-4 short facts"),
+        "risks": ai.text_list("0-3 short items that need attention"),
+    },
+    "required": ["headline", "summary", "highlights", "risks"],
+}
+
 UNSAFE_SCORE = 5
 RIYADH = timezone(timedelta(hours=3))
 
@@ -85,7 +135,7 @@ def ai_status(user: User = Depends(get_current_user)):
 PHOTO_SYSTEM = (
     "You are a traffic control safety inspector for road work zones in Saudi Arabia. "
     "Look at the site photo and check the temporary traffic control. Be strict but fair, and only "
-    "judge what you can see. Return JSON with: "
+    "judge what you can see. Answer with: "
     '"score" (integer 0-10, 10 = fully safe), '
     '"checks" (list of {"item": short name, "status": "ok" | "missing" | "unclear", "note": few words}) for: '
     "Traffic cones / channelizers, Warning signs, Barriers, Workers' reflective vests, Helmets, Lights (if dark), "
@@ -104,7 +154,7 @@ def check_photo(db: Session, photo: SitePhoto) -> dict:
     answer = ai.ask_json(PHOTO_SYSTEM, [
         ai.image_block(photo.data, photo.content_type),
         {"type": "text", "text": f'Photo caption from the worker: "{photo.caption}". Stage: {photo.stage} the work.'},
-    ], max_tokens=700)
+    ], max_tokens=1200, schema=PHOTO_SCHEMA)
     try:
         score = max(0, min(10, int(answer.get("score", 0))))
     except (TypeError, ValueError):
@@ -194,7 +244,7 @@ class PlanRequest(BaseModel):
 
 PLAN_SYSTEM = (
     "You help contractors in Riyadh understand a temporary traffic control plan. You get a plan that "
-    "was calculated with fixed formulas. Do not change any number. Return JSON with: "
+    "was calculated with fixed formulas. Do not change any number. Answer with: "
     '"summary" (2-3 plain sentences: what the setup looks like from the driver\'s view), '
     '"steps" (4-6 short set-up steps in order, from the first sign to the work area), '
     '"risks" (2-3 short things to watch on this kind of road). Simple English.'
@@ -221,7 +271,7 @@ def traffic_plan(data: PlanRequest, user: User = Depends(contractor_only), db: S
                 f"{result['closure']} at {data.speed_kmh} km/h, {data.lanes_closed} of {data.lanes_total} lanes closed, "
                 f"{'night' if data.night_work else 'day'} work for {data.duration_days} days"
                 f"{', at ' + data.location if data.location else ''}.\nZones:\n{numbers}\nDevices:\n{devices}"
-            )}], max_tokens=600)
+            )}], max_tokens=1200, schema=PLAN_SCHEMA)
             explanation = {
                 "summary": str(answer.get("summary", ""))[:600],
                 "steps": [str(s)[:200] for s in answer.get("steps", [])][:6],
@@ -235,7 +285,7 @@ def traffic_plan(data: PlanRequest, user: User = Depends(contractor_only), db: S
 
 COMPARE_SYSTEM = (
     "You help a contractor in Riyadh choose a traffic control provider. Compare the quotes fairly using "
-    "price (SAR), duration, start date, the provider's rating and the notes. Return JSON with: "
+    "price (SAR), duration, start date, the provider's rating and the notes. Answer with: "
     '"recommended_quote_id" (number), "headline" (one sentence: who and why), '
     '"quotes" (list of {"quote_id": number, "pros": [max 3 short], "cons": [max 3 short]}), '
     '"tip" (one short sentence, e.g. what to ask before confirming). Simple English. '
@@ -275,7 +325,7 @@ def compare_quotes(project_id: int, refresh: bool = Query(default=False), user: 
             f"start {quote.start_date or 'not given'}, rating {f'{avg}/5 from {count} reviews' if count else 'no reviews yet'}, "
             f"services {', '.join(quote.services or []) or 'not listed'}, notes: {(quote.notes or 'none')[:300]}"
         )
-    answer = ai_call(ai.ask_json, COMPARE_SYSTEM, [{"type": "text", "text": "\n".join(lines)}], max_tokens=800)
+    answer = ai_call(ai.ask_json, COMPARE_SYSTEM, [{"type": "text", "text": "\n".join(lines)}], max_tokens=1500, schema=COMPARE_SCHEMA)
     ids = {quote.quote_id for quote, _ in rows}
     names = {quote.quote_id: company for quote, company in rows}
     try:
@@ -302,7 +352,7 @@ def compare_quotes(project_id: int, refresh: bool = Query(default=False), user: 
 
 SUMMARY_SYSTEM = (
     "You write a short end-of-day report for a road work project in Riyadh, for the contractor and the "
-    "traffic control provider. Use only the facts given. Return JSON with: "
+    "traffic control provider. Use only the facts given. Answer with: "
     '"headline" (one sentence), "summary" (2-3 sentences), '
     '"highlights" (2-4 short facts), "risks" (0-3 short items that need attention, empty if none). Simple English.'
 )
@@ -366,7 +416,7 @@ def daily_summary(project_id: int, refresh: bool = Query(default=False), user: U
     if old is not None and not refresh:
         return old.result
     ai_call(ai.take_turn, user.user_id)
-    answer = ai_call(ai.ask_json, SUMMARY_SYSTEM, [{"type": "text", "text": facts}], max_tokens=600)
+    answer = ai_call(ai.ask_json, SUMMARY_SYSTEM, [{"type": "text", "text": facts}], max_tokens=1200, schema=SUMMARY_SCHEMA)
     result = {
         "date": day,
         "headline": str(answer.get("headline", ""))[:300],
