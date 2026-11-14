@@ -202,6 +202,8 @@ The problems we met while setting up the project, and how we solved them.
 | `ADMIN_PASSWORD` | Password of the admin account, at least 8 characters. Changing it on Render changes the password at the next deploy. Secret | Empty: no admin account |
 | `DEMO_PASSWORD` | Password of the 8 demo accounts (`provider@` and `fieldworker@` tcm.com, safetyarabia.com, shawahid.com, safetytriangle.com). At least 8 characters. Secret | Empty: no demo accounts |
 | `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret key. The frontend needs `VITE_TURNSTILE_SITE_KEY` on Vercel. Secret | Empty: no robot check |
+| `ANTHROPIC_API_KEY` | Claude key for the AI features (console.anthropic.com). Secret | Empty: AI cards are hidden |
+| `AI_MODEL` | Claude model for the AI features | `claude-haiku-5-5` |
 | `TOMTOM_API_KEY` | TomTom key for live traffic at the work zone (free plan, developer.tomtom.com). Secret | Empty: no traffic card |
 | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM` | Twilio SMS: each notification is also sent to the user's phone. Secret | Empty: no SMS |
 | `PAYPAL_API_URL` | The PayPal API | `https://api-m.sandbox.paypal.com` (sandbox, no real money) |
@@ -570,6 +572,11 @@ One admin account, made from `ADMIN_EMAIL` and `ADMIN_PASSWORD` on Render (never
 | TomTom live traffic | `GET /projects/{id}/traffic` | Speed now vs. an empty road at the work zone, congestion %, delay and advice for the traffic control. 503 without `TOMTOM_API_KEY` |
 | Worker attendance (QR + GPS) | `GET /projects/{id}/site-code`, `POST /field-worker/projects/{id}/attendance/check-in`, `.../check-out`, `GET /field-worker/projects/{id}/attendance`, `GET /projects/{id}/attendance` | The provider prints the site QR. The worker scans it on arrival: the code must match, the worker must be assigned, and the phone must be inside the work zone or within 300 m. The contractor is notified and both see who is on site now and the hours |
 | Services status | `GET /admin/services` | Admin only: which outside services are on (never the keys) |
+| AI photo safety check (Claude) | `POST /photos/{id}/safety-check`, `GET /projects/{id}/safety-checks` | New site photos are checked right after the upload: cones, signs, barriers, vests, helmets, lights and buffer, with a score out of 10. Under 5 notifies the contractor and the provider. Saved, so a photo is checked once |
+| AI traffic plan | `POST /ai/traffic-plan` | Contractor: work zone lengths (advance warning, taper, buffer, work area, end taper) and the devices from fixed formulas; Claude explains them. Works without the AI too |
+| AI quote comparison | `GET /projects/{id}/quotes/ai-compare` | Contractor: compares price, duration, start date, rating and notes of the open quotes and suggests one. Saved until a quote changes |
+| AI daily summary | `GET /projects/{id}/ai-summary` | Contractor and provider: today's attendance, photo checks, weather, traffic and activity in a short report. Saved per day |
+| AI status | `GET /ai/status` | Whether the AI is on (the pages hide the AI cards when it is off). Each user can make 40 new AI requests an hour |
 | UptimeRobot | outside the code | Calls `/health` every 5 minutes so the free Render server does not sleep |
 
 | Ratings | `POST /projects/{id}/review`, `GET /projects/{id}/review`, `GET /providers/ratings`, `GET /providers/{id}/reviews` | After approving the work the contractor rates the provider once (1 to 5 stars and a comment, 409 the second time). The averages show next to each company |
