@@ -64,3 +64,8 @@ TWILIO_FROM = os.getenv("TWILIO_FROM", "").strip()
 
 # TomTom live traffic at the work zone (free key from developer.tomtom.com). Off when empty.
 TOMTOM_API_KEY = os.getenv("TOMTOM_API_KEY", "").strip()
+
+# Claude (Anthropic) for the AI features: photo safety check, traffic plan, quote comparison and
+# the daily summary. Without the key the AI parts are hidden and everything else works.
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
+AI_MODEL = os.getenv("AI_MODEL", "claude-haiku-5-5").strip() or "claude-haiku-5-5"
