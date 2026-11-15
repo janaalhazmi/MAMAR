@@ -11,6 +11,9 @@ import SiteQrCard from "../../components/SiteQrCard";
 import Button from "../../components/Button";
 import { useProviderProjectDetails } from "../../services/providers/api";
 import { formatDate } from "../../services/projectFlow";
+import AiDailySummary from "../../components/AiDailySummary";
+import SafetyBadge from "../../components/SafetyBadge";
+import { useSafetyChecks } from "../../services/ai";
 
 function renderSitePhoto(photo) {
   const path = photo.url || photo.photo_url;
@@ -43,6 +46,7 @@ export default function ProviderProjectDetails() {
   const progress = Math.max(0, Math.min(100, Number(details?.progress) || 0));
   const team = details?.team ?? [];
   const photos = details?.photos ?? [];
+  const safety = useSafetyChecks(project?.project_id, photos.length);
 
   return (
     <div className="provider-dashboard-page">
@@ -105,6 +109,7 @@ export default function ProviderProjectDetails() {
                 </dl>
 
                 <WeatherCard projectId={project.project_id} />
+                <AiDailySummary projectId={project.project_id} />
                 <TrafficCard projectId={project.project_id} />
                 <TeamOnSiteCard projectId={project.project_id} />
                 <SiteQrCard projectId={project.project_id} />
@@ -231,6 +236,7 @@ export default function ProviderProjectDetails() {
                             <li key={photo.photo_id}>
                               {renderSitePhoto(photo)}
                               <div>{photo.caption || "Site photo"}</div>
+                              <SafetyBadge photoId={photo.photo_id} safety={safety} />
                               {photo.created_at && <small>{formatDate(photo.created_at)}</small>}
                             </li>
                           ))}

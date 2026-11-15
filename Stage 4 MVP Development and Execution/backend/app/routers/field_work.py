@@ -1,7 +1,7 @@
 from app.services.notifications import notify_provider
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Response, UploadFile
 from sqlalchemy import select
 from sqlalchemy.orm import Session, undefer
 
@@ -13,6 +13,7 @@ from app.models.project import SITE_PROGRESS
 from app.models.site_photo import MAX_PHOTO_BYTES, PHOTO_STAGES, PHOTO_TYPES
 from app.routers.workflow import project_photos, provider_summary
 from app.schemas.error import ErrorResponse
+from app.routers.ai import check_new_photos
 from app.schemas.workflow import FieldProject, PhotoResponse, SiteStatusUpdate
 from app.services.activity import log_activity
 
@@ -145,6 +146,7 @@ def check_in(project_id: int, user: User = Depends(worker_only), db: Session = D
 )
 async def upload_photos(
     project_id: int,
+    background: BackgroundTasks,
     photos: list[UploadFile] = File(...),
     captions: list[str] = Form(default=[]),
     stages: list[str] = Form(default=[]),
@@ -184,6 +186,8 @@ async def upload_photos(
     db.commit()
     for photo in saved:
         db.refresh(photo)
+    # The AI safety check of the new photos runs after this answer (only when the AI is on).
+    background.add_task(check_new_photos, [photo.photo_id for photo in saved])
     return [photo.to_dict() for photo in saved]
 
 
