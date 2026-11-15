@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ContractorShell from "../../components/ContractorShell";
-
+import "../../styles/Contractor/createproject.css";
 import {
   getNextDate,
   getToday,
