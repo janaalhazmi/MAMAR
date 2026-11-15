@@ -1,10 +1,9 @@
-from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
-from app.core import traffic, weather
+from app.core import traffic
 from app.core.access import accepted_quote, can_view_project, get_project
 from app.core.receipt import receipt_pdf
 from app.core.security import get_current_user
@@ -27,39 +26,19 @@ TOKEN_ERROR = {401: {"model": ErrorResponse, "description": "The token is missin
     },
 )
 def project_weather(project_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    # The forecast at the work zone (Open-Meteo) for the project days, with safety alerts.
-    # Shows the days of the project that are in the next 16 days, or the next 7 days if none are.
+    # Where the work zone is, so the page can show today's weather there (Open-Meteo, asked from the
+    # browser: the free service blocks shared server addresses like Render's).
     project = get_project(db, project_id)
     if not can_view_project(db, project, user):
         raise HTTPException(status_code=403, detail="You cannot view this project")
     if project.latitude is None or project.longitude is None:
         raise HTTPException(status_code=400, detail="The project has no saved location")
-    try:
-        days = weather.forecast(project.latitude, project.longitude)
-    except weather.WeatherError:
-        # Some free services block shared server addresses: the page then asks Open-Meteo itself.
-        return {
-            "project_id": project_id,
-            "location": project.location,
-            "browser": True,
-            "latitude": project.latitude,
-            "longitude": project.longitude,
-            "start_date": project.start_date.isoformat(),
-            "end_date": project.end_date.isoformat(),
-            "days": [],
-            "source": "Open-Meteo",
-        }
-    start, end = project.start_date.isoformat(), project.end_date.isoformat()
-    project_days = [day for day in days if start <= day["date"] <= end]
-    shown = project_days or days[:7]
     return {
         "project_id": project_id,
         "location": project.location,
-        "project_days": bool(project_days),
-        "days": shown,
-        "alerts": sum(1 for day in shown if day["alerts"]),
+        "latitude": project.latitude,
+        "longitude": project.longitude,
         "source": "Open-Meteo",
-        "updated": date.today().isoformat(),
     }
 
 
