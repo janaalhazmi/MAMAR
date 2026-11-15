@@ -24,10 +24,10 @@ def test_weather_for_the_work_zone(api, monkeypatch):
     location = {"latitude": 24.71, "longitude": 46.67, "location": "Olaya"}
     api.client.patch(f"/projects/{project_id}", json=location, headers=contractor)
 
-    monkeypatch.setattr(weather, "fetch", lambda lat, lon: {"daily": DAILY})
     for headers in (contractor, provider, worker):
         body = api.client.get(url, headers=headers).json()
-        assert body["source"] == "Open-Meteo" and body["days"]
+        assert body["latitude"] == 24.71 and body["longitude"] == 46.67 and body["location"] == "Olaya"
+    monkeypatch.setattr(weather, "fetch", lambda lat, lon: {"daily": DAILY})
     days = {d["date"]: d for d in weather.forecast(24.71, 46.67)}
     last = days[DAILY["time"][15]]
     assert last["summary"] == "Thunderstorm" and len(last["alerts"]) == 2
@@ -36,13 +36,6 @@ def test_weather_for_the_work_zone(api, monkeypatch):
 
     _, stranger = api.account()
     assert api.client.get(url, headers=stranger).status_code == 403
-
-    def offline(lat, lon):
-        raise weather.WeatherError("The weather service could not be reached")
-
-    monkeypatch.setattr(weather, "fetch", offline)
-    body = api.client.get(url, headers=contractor).json()
-    assert body["browser"] is True and body["days"] == [] and body["latitude"] == 24.71
 
 
 def test_receipt_pdf(api, monkeypatch):
