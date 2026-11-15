@@ -58,22 +58,6 @@
   background: #f5f7fa;
 }
 
-/* ---------- Landing page hero: readable text over the photo ---------- */
-.hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(90deg, rgba(17, 24, 39, 0.72) 0%, rgba(17, 24, 39, 0.35) 45%, rgba(17, 24, 39, 0) 75%);
-}
-.hero-content {
-  z-index: 2;
-}
-.hero-gray {
-  color: #f3f4f6;
-}
-
 /* Landing page: "Featured Service Providers" is a heading like "How MAMAR Works", not a yellow bar */
 .providers-title {
   width: auto;
@@ -144,25 +128,6 @@
   }
   :is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content, .adm-main) table {
     min-width: 760px;
-  }
-
-  /* Landing hero on phones */
-  .hero::before {
-    background: linear-gradient(180deg, rgba(17, 24, 39, 0.15) 0%, rgba(17, 24, 39, 0.75) 65%);
-  }
-  .hero-content {
-    top: auto;
-    bottom: 32px;
-    left: 20px;
-    right: 20px;
-  }
-  .hero-content h1 {
-    width: 100%;
-    font-size: 28px;
-  }
-  .hero-actions {
-    margin-top: 20px;
-    gap: 10px;
   }
 
   /* My Projects: the search and the filter share the row without overflowing */
