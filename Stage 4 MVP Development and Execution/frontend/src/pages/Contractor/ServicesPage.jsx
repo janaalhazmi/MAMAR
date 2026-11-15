@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ContractorShell from "../../components/ContractorShell";
 import MamarMap from "../../components/MamarMap";
-
+import "../../styles/Contractor/servicepage.css";
 const SERVICE_OPTIONS = [
   {
     id: "ttc-plan",

@@ -7,6 +7,7 @@ import { getNotifications } from "../services/notifications";
 import Sidebar from "./Sidebar";
 import { getPictureUrl } from "../services/Contractor/profileUtils";
 import { fetchMyProfile } from "../services/Contractor/profileService";
+import "../styles/Contractor/servicepage.css";
 
 const NAV = [
   { key: "dashboard", path: "/contractor-dashboard", icon: "dashboard", label: "Dashboard" },

@@ -535,8 +535,7 @@ textarea {
     min-height: 44px;
   }
 
-  .services-back-button,
-  .services-next-button,
+
   .location-back-button,
   .location-next-button,
   .create-project-back-button,
@@ -556,12 +555,7 @@ textarea {
     min-height: 40px;
   }
 
-  .services-option input[type="checkbox"] {
-    top: 12px;
-    right: 12px;
-    width: 22px;
-    height: 22px;
-  }
+
 }
 
 /* ---------- Phones & small tablets: up to 760px ---------- */
@@ -697,8 +691,8 @@ textarea {
     min-height: 44px;
   }
 
-  .services-back-button,
-  .services-next-button,
+
+ 
   .location-back-button,
   .location-next-button,
   .create-project-back-button,
@@ -718,12 +712,7 @@ textarea {
     min-height: 40px;
   }
 
-  .services-option input[type="checkbox"] {
-    top: 12px;
-    right: 12px;
-    width: 22px;
-    height: 22px;
-  }
+  
 }
 
 /* ---------- Phones & small tablets: up to 760px ---------- */
