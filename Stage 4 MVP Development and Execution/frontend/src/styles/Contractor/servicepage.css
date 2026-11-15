@@ -1,0 +1,399 @@
+/* ==========================================
+   SERVICES PAGE
+   (Sidebar and header are provided by ContractorShell)
+========================================== */
+
+.services-page {
+  width: 100%;
+  color: #172033;
+  font-family: Arial, sans-serif;
+}
+
+.services-page *,
+.services-page *::before,
+.services-page *::after {
+  box-sizing: border-box;
+}
+
+.services-page a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ---------- Content wrapper ---------- */
+
+.services-content {
+  width: 100%;
+  max-width: 1250px;
+  margin: 0 auto;
+  padding: 28px 24px 24px;
+}
+
+/* ---------- Page heading ---------- */
+
+.services-page-heading {
+  margin-bottom: 22px;
+}
+
+.services-page-heading h1 {
+  margin: 0;
+  color: #172033;
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.services-page-heading p {
+  margin: 8px 0 0;
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ---------- Progress bar ---------- */
+
+.services-progress {
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 12px 18px;
+  border: 1px solid #f0f1f3;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.services-progress-step {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  white-space: nowrap;
+}
+
+.services-progress-number {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #f2f4f7;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.services-progress-label {
+  color: #667085;
+  font-size: 12px;
+}
+
+.services-progress-step.completed .services-progress-number {
+  background: #32b76a;
+  color: #fff;
+}
+
+.services-progress-step.active .services-progress-number {
+  background: #ffcc00;
+  color: #172033;
+}
+
+.services-progress-step.active .services-progress-label {
+  color: #172033;
+  font-weight: 700;
+}
+
+.services-progress-line {
+  height: 1px;
+  min-width: 12px;
+  flex: 1;
+  background: #eaecf0;
+}
+
+.services-progress-line.completed-line {
+  background: #32b76a;
+}
+
+/* ---------- Workspace (list + summary) ---------- */
+
+.services-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  align-items: start;
+  gap: 16px;
+}
+
+.services-list-panel,
+.services-summary-panel {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #eaecf0;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.services-panel-heading {
+  margin-bottom: 16px;
+}
+
+.services-panel-heading h2,
+.services-summary-panel h2 {
+  margin: 0;
+  color: #172033;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.services-panel-heading p,
+.services-summary-description {
+  margin: 7px 0 0;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* ---------- Service options ---------- */
+
+.services-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.services-option {
+  position: relative;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 40px 12px 12px;
+  border: 1px solid #eaecf0;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.services-option:hover {
+  border-color: #ffe08a;
+}
+
+.services-option.selected {
+  border-color: #ffcc00;
+  background: #fffdf7;
+}
+
+.services-option-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: #fff3d3;
+  color: #f5a800;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.services-option-content {
+  min-width: 0;
+}
+
+.services-option-content h3 {
+  margin: 0;
+  color: #172033;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.services-option-content p {
+  margin: 3px 0 8px;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.services-option-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.services-option-tags span {
+  padding: 3px 9px;
+  border-radius: 10px;
+  background: #f2f4f7;
+  color: #667085;
+  font-size: 11px;
+}
+
+.services-option input[type="checkbox"] {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #f5a800;
+  cursor: pointer;
+}
+
+.services-error {
+  margin: 12px 0 0;
+  color: #d92d20;
+  font-size: 12px;
+}
+
+/* ---------- Project summary ---------- */
+
+.services-summary-description {
+  margin-bottom: 16px;
+}
+
+.services-summary-map {
+  width: 100%;
+  height: 180px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #f2f4f7;
+}
+
+.services-summary-map > * {
+  width: 100%;
+  height: 100%;
+}
+
+.services-summary-map iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.services-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eaecf0;
+}
+
+.services-summary-item:last-child {
+  border-bottom: none;
+}
+
+.services-summary-item span {
+  color: #667085;
+  font-size: 12px;
+}
+
+.services-summary-item strong {
+  color: #172033;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Bottom buttons ---------- */
+
+.services-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.services-back-button,
+.services-next-button {
+  min-width: 106px;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border-radius: 6px;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.services-back-button {
+  border: 1px solid #cbd2dc;
+  background: #fff;
+  color: #344054;
+}
+
+.services-back-button:hover {
+  background: #f9fafb;
+}
+
+.services-next-button {
+  border: 1px solid #ffcc00;
+  background: #ffcc00;
+  color: #111827;
+}
+
+.services-next-button:hover {
+  background: #f2bf00;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 900px) {
+  .services-content {
+    padding: 22px 14px;
+  }
+
+  .services-workspace {
+    grid-template-columns: minmax(0, 1fr) 240px;
+  }
+
+  .services-progress {
+    gap: 7px;
+    padding: 10px;
+  }
+
+  .services-progress-step {
+    gap: 5px;
+  }
+}
+
+@media (max-width: 650px) {
+  .services-page-heading h1 {
+    font-size: 22px;
+  }
+
+  .services-progress {
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+
+  .services-progress-step {
+    flex-shrink: 0;
+  }
+
+  .services-progress-line {
+    flex: 0 0 18px;
+  }
+
+  .services-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .services-list-panel,
+  .services-summary-panel {
+    padding: 14px;
+  }
+
+  .services-option {
+    padding-right: 36px;
+  }
+}
