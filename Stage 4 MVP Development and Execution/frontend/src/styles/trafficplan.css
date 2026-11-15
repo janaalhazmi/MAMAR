@@ -55,7 +55,7 @@
   font-size: 13px;
 }
 
-.tp-intro p {
+.tp-section .tp-intro p {
   margin: 4px 0 0;
   color: #667085;
   font-size: 12px;
@@ -199,7 +199,7 @@
   font-size: 11px;
 }
 
-.tp-result h3 {
+.tp-section .tp-result h3 {
   margin: 20px 0 10px;
   color: #111827;
   font-size: 13px;
@@ -255,11 +255,11 @@
   line-height: 1.7;
 }
 
-.tp-explain h3 {
+.tp-section .tp-explain h3 {
   margin-top: 0;
 }
 
-.tp-explain p {
+.tp-section .tp-explain p {
   margin: 0;
 }
 

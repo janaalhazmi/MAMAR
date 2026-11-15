@@ -1,0 +1,156 @@
+/* ==========================================================================
+   Site-wide polish: spacing, phone layout and small fixes for every role.
+   Loaded last (main.jsx), so it only adjusts what the page styles already do.
+   ========================================================================== */
+
+/* ---------- Shared bits ---------- */
+
+/* Status pills keep their own size instead of stretching in column layouts */
+.pf-pill,
+.cd-status,
+.pv-badge {
+  width: fit-content;
+  align-self: flex-start;
+}
+
+/* Empty states look like a quiet card, not loose text */
+.pf-empty {
+  margin: 0;
+  padding: 32px 20px;
+  border: 1px dashed #e4e7ec;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #6b7280;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+/* Plain "Back to ..." links look like the other back links */
+:is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content) a[href]:not([class]) {
+  color: #475467;
+  font-size: 13px;
+  text-decoration: none;
+}
+:is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content) a[href]:not([class]):hover {
+  color: #111827;
+}
+
+/* Inputs, selects and textareas: one height, one focus colour */
+:is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content, .adm-main) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select) {
+  min-height: 40px;
+}
+:is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content, .adm-main) :is(input, select, textarea):focus {
+  outline: none;
+  border-color: #f5c518;
+  box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.18);
+}
+
+/* Tables: comfortable rows */
+:is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content, .adm-main) table th {
+  white-space: nowrap;
+}
+:is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content, .adm-main) table td {
+  vertical-align: middle;
+}
+
+/* Admin page uses the same light grey background as the other dashboards */
+.adm-page {
+  background: #f5f7fa;
+}
+
+/* Landing page: "Featured Service Providers" is a heading like "How MAMAR Works", not a yellow bar */
+.providers-title {
+  width: auto;
+  height: auto;
+  background: none;
+  border-radius: 0;
+  color: #111827;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   Tablets and phones
+   ========================================================================== */
+@media (max-width: 760px) {
+  /* Contractor menu: a short scrolling strip at the top instead of a full screen */
+  .cd-body .mamar-sidebar {
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    border-right: none;
+    border-bottom: 1px solid #eceef2;
+  }
+  .cd-body .mamar-sidebar-nav {
+    flex-direction: row;
+    margin-top: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .cd-body .mamar-sidebar-nav::-webkit-scrollbar {
+    display: none;
+  }
+  .cd-body .mamar-sidebar-nav a {
+    flex-shrink: 0;
+    min-height: 46px;
+    gap: 8px;
+    padding: 0 14px;
+    font-size: 13px;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+  }
+  .cd-body .mamar-sidebar-nav a.active {
+    border-bottom-color: #ffc400;
+  }
+  .cd-body .mamar-sidebar-bottom {
+    margin-top: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    padding: 8px 14px 10px;
+    border-top: 1px solid #f2f4f7;
+  }
+  .cd-body .mamar-sidebar-bottom a {
+    font-size: 11.5px;
+  }
+
+  /* Page padding a little tighter on phones */
+  .pf-main,
+  .fw-main {
+    padding: 20px 16px 32px;
+  }
+
+  /* Wide tables scroll sideways instead of squeezing the columns */
+  :is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content, .adm-main) :has(> table) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  :is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content, .adm-main) table {
+    min-width: 760px;
+  }
+
+  /* My Projects: the search and the filter share the row without overflowing */
+  .mp-toolbar {
+    flex-wrap: wrap;
+  }
+  .mp-toolbar > * {
+    min-width: 0;
+  }
+  .mp-search {
+    flex: 1 1 100%;
+  }
+
+  /* Contractor guide: one feature per row so the text is not squeezed */
+  .contractor-guide-highlights {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pf-heading h1,
+  :is(.fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content) h1 {
+    font-size: 24px;
+  }
+}

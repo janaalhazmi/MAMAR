@@ -4,6 +4,8 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App.jsx";
 import "./style.css";
 import "./styles/Weblogin/data-disclaimer.css";
+// Loaded last on purpose: site-wide spacing and phone fixes on top of every page style.
+import "./styles/polish.css";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>

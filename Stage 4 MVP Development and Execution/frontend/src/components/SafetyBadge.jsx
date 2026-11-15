@@ -27,9 +27,9 @@ export default function SafetyBadge({ photoId, safety }) {
         className={`ai-pill ${TONE[result.level] || ""}`}
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
-        title="AI safety check (Claude)"
+        title={`AI safety check: ${result.level}, ${result.score} out of 10. Click for details`}
       >
-        ✨ Safety {result.score}/10 · {result.level}
+        ✨ {result.score}/10 {result.level}
       </button>
       {open && (
         <div className="ai-safety-box">
@@ -45,6 +45,7 @@ export default function SafetyBadge({ photoId, safety }) {
           {result.hazards.length > 0 && (
             <p className="ai-hazards">⚠️ {result.hazards.join(" · ")}</p>
           )}
+          <p className="ai-safety-title">✨ Safety check · {result.score}/10 · {result.level}</p>
           {result.advice && <p className="ai-advice">{result.advice}</p>}
           <button type="button" className="ai-link" onClick={() => safety.check(photoId, true)} disabled={busy}>
             {busy ? "Checking again…" : "Check again"}
