@@ -24,7 +24,6 @@ TOKEN_ERROR = {401: {"model": ErrorResponse, "description": "The token is missin
         400: {"model": ErrorResponse, "description": "The project has no saved location"},
         403: {"model": ErrorResponse, "description": "The user cannot view this project"},
         404: {"model": ErrorResponse, "description": "The project does not exist"},
-        502: {"model": ErrorResponse, "description": "The weather service could not be reached"},
     },
 )
 def project_weather(project_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -37,8 +36,19 @@ def project_weather(project_id: int, user: User = Depends(get_current_user), db:
         raise HTTPException(status_code=400, detail="The project has no saved location")
     try:
         days = weather.forecast(project.latitude, project.longitude)
-    except weather.WeatherError as error:
-        raise HTTPException(status_code=502, detail=str(error)) from error
+    except weather.WeatherError:
+        # Some free services block shared server addresses: the page then asks Open-Meteo itself.
+        return {
+            "project_id": project_id,
+            "location": project.location,
+            "browser": True,
+            "latitude": project.latitude,
+            "longitude": project.longitude,
+            "start_date": project.start_date.isoformat(),
+            "end_date": project.end_date.isoformat(),
+            "days": [],
+            "source": "Open-Meteo",
+        }
     start, end = project.start_date.isoformat(), project.end_date.isoformat()
     project_days = [day for day in days if start <= day["date"] <= end]
     shown = project_days or days[:7]

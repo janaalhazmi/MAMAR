@@ -41,7 +41,8 @@ def test_weather_for_the_work_zone(api, monkeypatch):
         raise weather.WeatherError("The weather service could not be reached")
 
     monkeypatch.setattr(weather, "fetch", offline)
-    assert api.client.get(url, headers=contractor).status_code == 502
+    body = api.client.get(url, headers=contractor).json()
+    assert body["browser"] is True and body["days"] == [] and body["latitude"] == 24.71
 
 
 def test_receipt_pdf(api, monkeypatch):
