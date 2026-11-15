@@ -2,7 +2,7 @@ import { useState } from "react";
 import { getSession } from "../services/auth";
 import { postTrafficPlan } from "../services/api";
 import { useAiEnabled } from "../services/ai";
-import "../styles/ai.css";
+import "../styles/trafficplan.css";
 
 const CLOSURES = [
   ["lane_closure", "Lane closure"],
@@ -10,12 +10,13 @@ const CLOSURES = [
   ["one_lane_two_way", "One lane, two-way (flaggers)"],
   ["full_closure", "Full road closure (detour)"],
 ];
-const ZONE_COLORS = ["#f5b800", "#f08c00", "#c9c1b4", "#d0442f", "#7a9a5a"];
+const ZONE_COLORS = ["#ffcc00", "#f59e0b", "#d0d5dd", "#ef4444", "#22c55e"];
 
-// Traffic plan assistant on Create Project: fixed formulas give the zone lengths and the devices,
-// and Claude explains the plan in plain words (when the AI is on).
+// Traffic plan helper on Create Project, in the same style as the project form.
+// Fixed formulas give the zone lengths and the devices; Claude explains them when the AI is on.
 export default function AiTrafficPlan({ startDate, endDate, onUse }) {
   const aiOn = useAiEnabled();
+  const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     closure_type: "lane_closure", speed_kmh: 80, lanes_total: 3, lanes_closed: 1, work_length_m: 100, night_work: false,
   });
@@ -55,99 +56,139 @@ export default function AiTrafficPlan({ startDate, endDate, onUse }) {
   }
 
   return (
-    <section className="ai-card" aria-label="Traffic plan assistant">
-      <div className="ai-head">
-        <div>
-          <span className="ai-tag">{aiOn ? "✨ AI" : "Planner"}</span>
-          <h2>Traffic Plan Assistant</h2>
-          <p>Tell us about the road and get the work zone lengths and the devices you need, before you ask providers for prices.</p>
-        </div>
-      </div>
+    <section className="tp-section" aria-label="Traffic plan assistant">
+      <h2>
+        Traffic Plan Assistant <span className="tp-optional">Optional</span>
+      </h2>
 
-      <form className="ai-plan-form" onSubmit={suggest}>
-        <label>Closure
-          <select name="closure_type" value={form.closure_type} onChange={change}>
-            {CLOSURES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-          </select>
-        </label>
-        <label>Road speed (km/h)
-          <input type="number" name="speed_kmh" min="20" max="140" step="10" value={form.speed_kmh} onChange={change} />
-        </label>
-        <label>Lanes (one way)
-          <input type="number" name="lanes_total" min="1" max="8" value={form.lanes_total} onChange={change} />
-        </label>
-        <label>Lanes closed
-          <input type="number" name="lanes_closed" min="0" max={form.lanes_total} value={form.lanes_closed} onChange={change} />
-        </label>
-        <label>Work area length (m)
-          <input type="number" name="work_length_m" min="10" max="5000" step="10" value={form.work_length_m} onChange={change} />
-        </label>
-        <label className="ai-check">
-          <input type="checkbox" name="night_work" checked={form.night_work} onChange={change} /> Night work
-        </label>
-        <button type="submit" className="ai-btn" disabled={busy}>
-          {busy ? "Planning…" : aiOn ? "✨ Suggest a traffic plan" : "Suggest a traffic plan"}
-        </button>
-      </form>
-
-      {error && <p className="ai-error">{error}</p>}
-
-      {plan && (
-        <div className="ai-plan">
-          <div className="ai-strip" aria-label={`Work zone, ${plan.total_length_m} m in total`}>
-            {plan.zones.map((zone, index) => (
-              <span key={zone.name} style={{ flexGrow: zone.length_m, background: ZONE_COLORS[index] }} title={`${zone.name}: ${zone.length_m} m`} />
-            ))}
+      <div className="tp-card">
+        <div className="tp-intro">
+          <div className="tp-icon" aria-hidden="true">🚧</div>
+          <div>
+            <strong>Not sure what your work zone needs?</strong>
+            <p>
+              Answer a few questions about the road and get the work zone lengths and the list of devices,
+              before you ask providers for prices.
+            </p>
           </div>
-          <p className="ai-muted">Traffic goes this way → · total length {plan.total_length_m} m · {days} day{days > 1 ? "s" : ""}</p>
-          <ol className="ai-zones">
-            {plan.zones.map((zone, index) => (
-              <li key={zone.name}>
-                <i style={{ background: ZONE_COLORS[index] }} aria-hidden="true" />
-                <b>{zone.name}</b> <span>{zone.length_m} m</span>
-                <small>{zone.detail}</small>
-              </li>
-            ))}
-          </ol>
-
-          <h3>Devices you need</h3>
-          <table className="ai-table">
-            <thead><tr><th>Qty</th><th>Device</th><th>Why</th></tr></thead>
-            <tbody>
-              {plan.devices.map((device) => (
-                <tr key={device.name}><td>{device.qty}</td><td>{device.name}</td><td>{device.why}</td></tr>
-              ))}
-            </tbody>
-          </table>
-
-          {plan.explanation && (
-            <div className="ai-explain">
-              <h3>✨ In plain words</h3>
-              <p>{plan.explanation.summary}</p>
-              {plan.explanation.steps.length > 0 && (
-                <>
-                  <h4>Set-up order</h4>
-                  <ol>{plan.explanation.steps.map((step) => <li key={step}>{step}</li>)}</ol>
-                </>
-              )}
-              {plan.explanation.risks.length > 0 && (
-                <>
-                  <h4>Watch out for</h4>
-                  <ul className="ai-risks">{plan.explanation.risks.map((risk) => <li key={risk}>{risk}</li>)}</ul>
-                </>
-              )}
-            </div>
-          )}
-
-          {plan.notes.length > 0 && <ul className="ai-notes">{plan.notes.map((note) => <li key={note}>{note}</li>)}</ul>}
-          <p className="ai-foot">A guide from standard work zone formulas. The final plan follows the municipality permit and the Saudi TTC manual.</p>
-          {onUse && (
-            <button type="button" className="ai-btn ghost" onClick={useInProject} disabled={added}>
-              {added ? "Added to the description ✓" : "Add this plan to the project description"}
-            </button>
-          )}
+          <button type="button" className="tp-toggle" onClick={() => setOpen((value) => !value)} aria-expanded={open}>
+            {open ? "Hide" : "Plan it"}
+          </button>
         </div>
-      )}
+
+        {open && (
+          <form className="tp-form" onSubmit={suggest}>
+            <div className="tp-grid">
+              <div className="create-project-field">
+                <label htmlFor="tp-closure">Closure type</label>
+                <select id="tp-closure" name="closure_type" value={form.closure_type} onChange={change}>
+                  {CLOSURES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                </select>
+              </div>
+              <div className="create-project-field">
+                <label htmlFor="tp-speed">Road speed (km/h)</label>
+                <input id="tp-speed" type="number" name="speed_kmh" min="20" max="140" step="10" value={form.speed_kmh} onChange={change} />
+              </div>
+              <div className="create-project-field">
+                <label htmlFor="tp-lanes">Lanes in one direction</label>
+                <input id="tp-lanes" type="number" name="lanes_total" min="1" max="8" value={form.lanes_total} onChange={change} />
+              </div>
+              <div className="create-project-field">
+                <label htmlFor="tp-closed">Lanes closed</label>
+                <input id="tp-closed" type="number" name="lanes_closed" min="0" max={form.lanes_total} value={form.lanes_closed} onChange={change} />
+              </div>
+              <div className="create-project-field">
+                <label htmlFor="tp-length">Work area length (m)</label>
+                <input id="tp-length" type="number" name="work_length_m" min="10" max="5000" step="10" value={form.work_length_m} onChange={change} />
+              </div>
+              <label className="tp-check" htmlFor="tp-night">
+                <input id="tp-night" type="checkbox" name="night_work" checked={form.night_work} onChange={change} />
+                Night work
+              </label>
+            </div>
+            <div className="create-project-form-actions tp-actions">
+              <button type="submit" className="create-project-next-button" disabled={busy}>
+                {busy ? "Planning…" : "Get the plan"}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {open && error && <p className="create-project-error" role="alert">{error}</p>}
+
+        {open && plan && (
+          <div className="tp-result">
+            <div className="tp-result-head">
+              <span>{plan.closure}</span>
+              <strong>{plan.total_length_m} m total</strong>
+            </div>
+            <div className="tp-strip" aria-hidden="true">
+              {plan.zones.map((zone, index) => (
+                <span key={zone.name} style={{ flexGrow: zone.length_m, background: ZONE_COLORS[index] }} />
+              ))}
+            </div>
+            <p className="tp-direction">Traffic direction →</p>
+
+            <ul className="tp-zones">
+              {plan.zones.map((zone, index) => (
+                <li key={zone.name}>
+                  <i style={{ background: ZONE_COLORS[index] }} aria-hidden="true" />
+                  <span className="tp-zone-name">{zone.name}</span>
+                  <span className="tp-zone-length">{zone.length_m} m</span>
+                  <small>{zone.detail}</small>
+                </li>
+              ))}
+            </ul>
+
+            <h3>Devices you need</h3>
+            <ul className="tp-devices">
+              {plan.devices.map((device) => (
+                <li key={device.name}>
+                  <span className="tp-qty">{device.qty}</span>
+                  <div>
+                    <b>{device.name}</b>
+                    <small>{device.why}</small>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            {plan.explanation && (
+              <div className="tp-explain">
+                <h3>{aiOn ? "✨ " : ""}How it looks on the road</h3>
+                <p>{plan.explanation.summary}</p>
+                {plan.explanation.steps.length > 0 && (
+                  <>
+                    <h4>Set-up order</h4>
+                    <ol>{plan.explanation.steps.map((step) => <li key={step}>{step}</li>)}</ol>
+                  </>
+                )}
+                {plan.explanation.risks.length > 0 && (
+                  <>
+                    <h4>Watch out for</h4>
+                    <ul>{plan.explanation.risks.map((risk) => <li key={risk}>{risk}</li>)}</ul>
+                  </>
+                )}
+              </div>
+            )}
+
+            {plan.notes.length > 0 && (
+              <ul className="tp-notes">{plan.notes.map((note) => <li key={note}>{note}</li>)}</ul>
+            )}
+
+            <p className="tp-foot">
+              Based on standard work zone formulas. The final plan follows the municipality permit and the Saudi TTC manual.
+            </p>
+            {onUse && (
+              <div className="create-project-form-actions tp-actions">
+                <button type="button" className="create-project-back-button" onClick={useInProject} disabled={added}>
+                  {added ? "Added to the description ✓" : "Add to project description"}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </section>
   );
 }
