@@ -119,15 +119,15 @@
 
 .services-workspace {
   display: grid;
-  grid-template-columns: minmax(20px, 1fr) 300px;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
   align-items: start;
-  gap: 16px;
+  gap: 20px;
 }
 
 .services-list-panel,
 .services-summary-panel {
-  min-width: 20px;
-  padding: 18px;
+  min-width: 0;
+  padding: 22px;
   border: 1px solid #eaecf0;
   border-radius: 10px;
   background: #fff;
@@ -158,16 +158,16 @@
 .services-options {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
 .services-option {
   position: relative;
-  min-height: 72px;
+  min-height: 130px;
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 40px 12px 12px;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 44px 18px 16px;
   border: 1px solid #eaecf0;
   border-radius: 8px;
   background: #fff;
@@ -185,8 +185,8 @@
 }
 
 .services-option-icon {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -210,10 +210,10 @@
 }
 
 .services-option-content p {
-  margin: 3px 0 8px;
+  margin: 6px 0 12px;
   color: #667085;
   font-size: 12px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .services-option-tags {
@@ -232,8 +232,8 @@
 
 .services-option input[type="checkbox"] {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 16px;
+  right: 16px;
   width: 16px;
   height: 16px;
   margin: 0;
@@ -255,8 +255,8 @@
 
 .services-summary-map {
   width: 100%;
-  height: 180px;
-  margin-bottom: 8px;
+  height: 240px;
+  margin-bottom: 12px;
   overflow: hidden;
   border-radius: 6px;
   background: #f2f4f7;
@@ -274,16 +274,23 @@
   border: 0;
 }
 
+.services-summary-items {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 24px;
+}
+
 .services-summary-item {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 10px 0;
+  padding: 12px 0;
   border-bottom: 1px solid #eaecf0;
 }
 
-.services-summary-item:last-child {
-  border-bottom: none;
+/* Wide items span both columns */
+.services-summary-item.full {
+  grid-column: 1 / -1;
 }
 
 .services-summary-item span {
@@ -354,7 +361,7 @@
   }
 
   .services-workspace {
-    grid-template-columns: minmax(300px, 1fr) 240px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .services-progress {
@@ -386,6 +393,10 @@
   }
 
   .services-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .services-summary-items {
     grid-template-columns: 1fr;
   }
 

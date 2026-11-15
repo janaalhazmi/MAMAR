@@ -215,30 +215,36 @@ function ServicesPage() {
                 />
               </div>
 
-              <SummaryItem label="Project Name" value={projectName} />
-              <SummaryItem label="Project Type" value={projectType} />
-              <SummaryItem
-                label="Latitude"
-                value={formatCoordinate(project.latitude)}
-              />
-              <SummaryItem
-                label="Longitude"
-                value={formatCoordinate(project.longitude)}
-              />
-              <SummaryItem
-                label="Work Zone Area"
-                value={
-                  project.area != null
-                    ? `${Number(project.area).toLocaleString()} m²`
-                    : "Not specified"
-                }
-              />
-              <SummaryItem
-                label="Work Zone"
-                value={workZone ? "Polygon completed" : "Not selected"}
-              />
-              <SummaryItem label="Project Dates" value={projectDates} />
-              <SummaryItem label="Services Selected" value={servicesCount} />
+              <div className="services-summary-items">
+                <SummaryItem label="Project Name" value={projectName} full />
+                <SummaryItem label="Project Type" value={projectType} />
+                <SummaryItem label="Project Dates" value={projectDates} />
+                <SummaryItem
+                  label="Latitude"
+                  value={formatCoordinate(project.latitude)}
+                />
+                <SummaryItem
+                  label="Longitude"
+                  value={formatCoordinate(project.longitude)}
+                />
+                <SummaryItem
+                  label="Work Zone Area"
+                  value={
+                    project.area != null
+                      ? `${Number(project.area).toLocaleString()} m²`
+                      : "Not specified"
+                  }
+                />
+                <SummaryItem
+                  label="Work Zone"
+                  value={workZone ? "Polygon completed" : "Not selected"}
+                />
+                <SummaryItem
+                  label="Services Selected"
+                  value={servicesCount}
+                  full
+                />
+              </div>
             </aside>
           </div>
 
@@ -287,9 +293,9 @@ function ProgressItem({ step, isFirst }) {
   );
 }
 
-function SummaryItem({ label, value }) {
+function SummaryItem({ label, value, full = false }) {
   return (
-    <div className="services-summary-item">
+    <div className={`services-summary-item${full ? " full" : ""}`}>
       <span>{label}</span>
       <strong>{value}</strong>
     </div>
