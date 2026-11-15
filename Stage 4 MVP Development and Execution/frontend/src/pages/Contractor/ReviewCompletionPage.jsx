@@ -4,6 +4,8 @@ import ContractorShell from "../../components/ContractorShell";
 import RateProvider from "../../components/RateProvider";
 import MamarMap from "../../components/MamarMap";
 import Icon from "../../components/Icons";
+import SafetyBadge from "../../components/SafetyBadge";
+import { useSafetyChecks } from "../../services/ai";
 import {
   formatDate,
   getCompletionData,
@@ -25,6 +27,7 @@ function ReviewCompletionPage() {
   const [approved, setApproved] = useState(false);
   const [showChanges, setShowChanges] = useState(false);
   const [note, setNote] = useState("");
+  const safety = useSafetyChecks(project?.id, data?.evidence?.length || 0);
 
   useEffect(() => {
     let active = true;
@@ -172,7 +175,10 @@ function ReviewCompletionPage() {
                   <h3>{label}</h3>
                   <div className="pf-evidence">
                     {data.evidence.filter((photo) => photo.stage === stage).map((photo) => (
-                      <img key={photo.id} src={photo.src} alt={photo.caption || label} />
+                      <figure key={photo.id} className="ai-figure">
+                        <img src={photo.src} alt={photo.caption || label} />
+                        <SafetyBadge photoId={photo.id} safety={safety} />
+                      </figure>
                     ))}
                   </div>
                 </div>
@@ -182,7 +188,10 @@ function ReviewCompletionPage() {
           {data.evidence.some((photo) => photo.stage === "during") && (
             <div className="pf-evidence">
               {data.evidence.filter((photo) => photo.stage === "during").map((photo) => (
-                <img key={photo.id} src={photo.src} alt={photo.caption || "Site evidence"} />
+                <figure key={photo.id} className="ai-figure">
+                  <img src={photo.src} alt={photo.caption || "Site evidence"} />
+                  <SafetyBadge photoId={photo.id} safety={safety} />
+                </figure>
               ))}
             </div>
           )}

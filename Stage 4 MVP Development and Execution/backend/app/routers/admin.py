@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.core import config, traffic
+from app.core import ai, config, traffic
 from app.core.security import allow_roles
 from app.db.database import get_db
 from app.models import Activity, Assignment, Project, Provider, Quote, ServiceRequest, User
@@ -230,6 +230,8 @@ def services_status(user: User = Depends(admin_only), db: Session = Depends(get_
         service("Bot check", bool(config.TURNSTILE_SECRET_KEY), "Cloudflare Turnstile on login and sign up",
                 "TURNSTILE_SECRET_KEY"),
         service("Live traffic", traffic.enabled(), "TomTom traffic at the work zone", "TOMTOM_API_KEY"),
+        service("AI assistant", ai.enabled(), f"Claude ({config.AI_MODEL}): photo safety, traffic plan, quotes, daily summary",
+                "ANTHROPIC_API_KEY"),
         service("Weather", True, "Open-Meteo forecast and safety alerts (no key)", "-"),
         service("Email codes", bool(config.EMAILJS_SERVICE_ID and config.EMAILJS_PRIVATE_KEY),
                 "Sign-up passcodes by email (EmailJS)", "EMAILJS_*"),
