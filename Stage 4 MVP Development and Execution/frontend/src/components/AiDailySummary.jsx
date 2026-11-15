@@ -38,8 +38,7 @@ export default function AiDailySummary({ projectId }) {
     <section className="ai-card" aria-label="AI daily summary">
       <div className="ai-head">
         <div>
-          <span className="ai-tag">✨ AI</span>
-          <h2>Today&apos;s Summary</h2>
+          <h2>Today&apos;s Summary <span className="ai-tag">✨ AI</span></h2>
           <p>Written by Claude from today&apos;s attendance, safety checks, weather, traffic and activity.</p>
         </div>
         <button type="button" className="ai-btn ghost" onClick={() => load(true)} disabled={busy}>

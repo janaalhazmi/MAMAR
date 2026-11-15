@@ -33,8 +33,7 @@ export default function AiQuoteAdvisor({ projects, onResult }) {
     <section className="ai-card" aria-label="AI quotation advisor">
       <div className="ai-head">
         <div>
-          <span className="ai-tag">✨ AI</span>
-          <h2>Not sure which quotation to pick?</h2>
+          <h2>Not sure which quotation to pick? <span className="ai-tag">✨ AI</span></h2>
           <p>Claude compares the price, duration, start date, rating and notes of each provider. You make the final choice.</p>
         </div>
       </div>
