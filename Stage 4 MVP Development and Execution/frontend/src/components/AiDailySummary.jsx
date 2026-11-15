@@ -35,38 +35,53 @@ export default function AiDailySummary({ projectId }) {
   if (!enabled || !projectId) return null;
 
   return (
-    <section className="ai-card" aria-label="AI daily summary">
-      <div className="ai-head">
-        <div>
+    <section className="ai-card sum-card" aria-label="AI daily summary">
+      <div className="sum-intro">
+        <div className="sum-icon" aria-hidden="true">📝</div>
+        <div className="sum-title">
           <h2>Today&apos;s Summary <span className="ai-tag">✨ AI</span></h2>
-          <p>Written by Claude from today&apos;s attendance, safety checks, weather, traffic and activity.</p>
+          <p>Written from today&apos;s attendance, safety checks, weather, traffic and activity.</p>
         </div>
-        <button type="button" className="ai-btn ghost" onClick={() => load(true)} disabled={busy}>
+        <button type="button" className="sum-refresh" onClick={() => load(true)} disabled={busy}>
           {busy ? "Writing…" : "Refresh"}
         </button>
       </div>
+
       {error && <p className="ai-error">{error}</p>}
-      {!report && !error && <p className="ai-muted">Writing today&apos;s summary…</p>}
+      {!report && !error && <p className="sum-wait">Writing today&apos;s summary…</p>}
+
       {report && (
-        <>
-          <p className="ai-headline">{report.headline}</p>
-          <p>{report.summary}</p>
-          <div className="ai-cols">
+        <div className="sum-body">
+          <p className="sum-headline">{report.headline}</p>
+          <p className="sum-text">{report.summary}</p>
+
+          <div className="sum-cols">
             {report.highlights.length > 0 && (
               <div>
                 <h3>Highlights</h3>
-                <ul>{report.highlights.map((item) => <li key={item}>{item}</li>)}</ul>
+                <ul className="sum-list">
+                  {report.highlights.map((item) => (
+                    <li key={item}><span className="sum-mark ok" aria-hidden="true">✓</span>{item}</li>
+                  ))}
+                </ul>
               </div>
             )}
             <div>
               <h3>Needs attention</h3>
-              {report.risks.length > 0
-                ? <ul className="ai-risks">{report.risks.map((item) => <li key={item}>{item}</li>)}</ul>
-                : <p className="ai-muted">Nothing today 👍</p>}
+              {report.risks.length > 0 ? (
+                <ul className="sum-list">
+                  {report.risks.map((item) => (
+                    <li key={item}><span className="sum-mark bad" aria-hidden="true">!</span>{item}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="sum-none">Nothing today 👍</p>
+              )}
             </div>
           </div>
-          <p className="ai-foot">Report for {report.date} · AI can make mistakes, check the important facts.</p>
-        </>
+
+          <p className="sum-foot">Report for {report.date} · AI can make mistakes, check the important facts.</p>
+        </div>
       )}
     </section>
   );

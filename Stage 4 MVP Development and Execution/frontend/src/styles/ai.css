@@ -64,3 +64,33 @@
 /* Photos with a safety badge on Review Completion */
 .ai-figure { margin: 0; display: grid; gap: 2px; justify-items: start; }
 .ai-figure img { width: 100%; }
+
+/* Today's summary: same look as the Traffic Plan Assistant (icon, title, button, then the result under a line) */
+.ai-card.sum-card { border-left: 1px solid #eceef2; gap: 0; padding: 20px 24px; }
+.sum-intro { display: flex; align-items: center; gap: 14px; }
+.sum-icon { width: 40px; height: 40px; min-width: 40px; display: grid; place-items: center; border-radius: 10px; background: #fff8e6; font-size: 20px; }
+.sum-title { flex: 1; min-width: 0; }
+.sum-title h2 { margin: 0; font-size: 17px; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ai-card .sum-title p { margin: 4px 0 0; color: #667085; font-size: 12.5px; line-height: 1.6; }
+.sum-refresh { min-width: 90px; min-height: 38px; padding: 8px 16px; border: 1px solid #d0d5dd; border-radius: 7px; background: #fff; color: #344054; font-size: 12px; font-weight: 700; cursor: pointer; }
+.sum-refresh:hover { background: #f5f7fa; }
+.sum-refresh:disabled { opacity: .6; cursor: default; }
+.ai-card .sum-wait { margin-top: 18px; color: #667085; font-size: 13px; }
+.sum-card .ai-error { margin-top: 18px; }
+.sum-body { margin-top: 20px; padding-top: 20px; border-top: 1px solid #f0f0f0; display: grid; gap: 10px; }
+.ai-card .sum-headline { color: #111827; font-size: 15px; font-weight: 700; }
+.ai-card .sum-text { color: #475467; font-size: 13.5px; line-height: 1.7; }
+.sum-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 8px; }
+.ai-card .sum-cols h3 { margin: 0 0 10px; color: #111827; font-size: 13px; font-weight: 700; text-transform: none; letter-spacing: 0; }
+.ai-card ul.sum-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.sum-list li { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1px solid #f0f0f0; border-radius: 7px; color: #344054; font-size: 12.5px; line-height: 1.5; }
+.sum-mark { min-width: 22px; height: 22px; display: grid; place-items: center; border-radius: 6px; font-size: 12px; font-weight: 700; }
+.sum-mark.ok { background: #e8f7ee; color: #1a7f45; }
+.sum-mark.bad { background: #fdecec; color: #b42318; }
+.ai-card .sum-none { padding: 10px 12px; border: 1px dashed #e4e7ec; border-radius: 7px; color: #667085; font-size: 12.5px; }
+.ai-card .sum-foot { margin-top: 6px; color: #98a2b3; font-size: 11px; }
+@media (max-width: 640px) {
+  .sum-intro { flex-wrap: wrap; }
+  .sum-refresh { width: 100%; }
+  .sum-cols { grid-template-columns: 1fr; gap: 16px; }
+}
