@@ -59,13 +59,20 @@ def fetch(latitude: float, longitude: float) -> dict:
         "timezone": "Asia/Riyadh",
         "forecast_days": 16,
     })
-    try:
-        with urllib.request.urlopen(f"{OPEN_METEO_URL}?{query}", timeout=15) as response:
-            data = json.loads(response.read())
-    except Exception as error:  # noqa: BLE001 - any network or JSON problem is the same for the page
-        raise WeatherError("The weather service could not be reached") from error
-    _cache[key] = (time.time(), data)
-    return data
+    request = urllib.request.Request(f"{OPEN_METEO_URL}?{query}", headers={"User-Agent": "MAMAR/1.0 (road work platform)"})
+    last_error = None
+    for _ in range(2):  # one retry: the free service sometimes drops a request
+        try:
+            with urllib.request.urlopen(request, timeout=10) as response:
+                data = json.loads(response.read())
+            _cache[key] = (time.time(), data)
+            return data
+        except Exception as error:  # noqa: BLE001 - any network or JSON problem is the same for the page
+            last_error = error
+    print(f"[weather] Open-Meteo failed: {last_error!r}", flush=True)
+    if saved:  # an older forecast is better than nothing
+        return saved[1]
+    raise WeatherError("The weather service could not be reached") from last_error
 
 
 def forecast(latitude: float, longitude: float) -> list[dict]:

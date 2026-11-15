@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getSession } from "../services/auth";
 import { fetchProjectWeather } from "../services/api";
+import { weatherInBrowser } from "../services/weather";
 import "../styles/weather.css";
 
 const ICONS = { Clear: "☀️", "Mostly clear": "🌤️", "Partly cloudy": "⛅", Cloudy: "☁️", Fog: "🌫️", Rain: "🌧️", Snow: "❄️", Thunderstorm: "⛈️" };
@@ -19,6 +20,7 @@ export default function WeatherCard({ projectId }) {
     if (!projectId || !token) return undefined;
     let active = true;
     fetchProjectWeather(token, projectId)
+      .then((result) => (result.browser ? weatherInBrowser(result) : result))
       .then((result) => { if (active) { setData(result); setError(""); } })
       .catch((err) => { if (active) setError(err.message); });
     return () => { active = false; };
