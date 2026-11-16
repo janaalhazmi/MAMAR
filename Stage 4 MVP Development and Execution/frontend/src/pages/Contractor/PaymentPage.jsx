@@ -8,6 +8,7 @@ import {
   getCurrentProject,
   handleConfirmProvider,
   getConfirmedQuotationId,
+  openProjectById,
 } from "../../services/Contractor/Contractor";
 import {
   clearPendingPayment,
@@ -48,6 +49,7 @@ function PaymentPage() {
   const [paidPayment, setPaidPayment] = useState(null);
   const [existingPayment, setExistingPayment] = useState(null);
   const [receiptError, setReceiptError] = useState("");
+  const [opening, setOpening] = useState(false);
   const paymentLock = useRef(false);
   const started = useRef(false);
 
@@ -66,6 +68,7 @@ function PaymentPage() {
           } else {
             setPaidPayment(payment);
             clearPendingPayment();
+            window.history.replaceState(window.history.state, "", "/payment");
           }
         })
         .catch((err) => setError(err?.message || "Could not finish the payment."))
@@ -161,9 +164,21 @@ function PaymentPage() {
             <button
               className="payment-primary-button"
               type="button"
-              onClick={() => navigate("/project-monitoring")}
+              disabled={opening}
+              onClick={async () => {
+                // Open the project that was paid (not the last project opened), then monitor it.
+                setOpening(true);
+                try {
+                  navigate((await openProjectById(payment.project_id)) || "/my-projects");
+                } catch {
+                  navigate("/my-projects");
+                }
+              }}
             >
-              Go to Project Monitoring
+              {opening ? "Opening…" : "Go to Project Monitoring"}
+            </button>
+            <button className="payment-back-button" type="button" onClick={() => navigate("/my-projects")}>
+              Back to My Projects
             </button>
           </section>
         </div>

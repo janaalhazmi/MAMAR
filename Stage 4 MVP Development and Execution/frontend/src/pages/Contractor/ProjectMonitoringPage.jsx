@@ -27,6 +27,7 @@ function ProjectMonitoringPage() {
   useEffect(() => {
     let active = true;
 
+    if (project.id == null) return () => {};
     getMonitoringData(project.id)
       .then((result) => active && setData(result))
       .catch(() => active && setError("Could not load project progress."));
@@ -37,10 +38,20 @@ function ProjectMonitoringPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (error) {
+  if (project.id == null || error) {
     return (
       <ContractorShell activeKey="projects">
-        <p className="pf-alert" role="alert">{error}</p>
+        <Link to="/my-projects" className="pf-backlink">‹ Back to My Projects</Link>
+        {error ? (
+          <p className="pf-alert" role="alert">{error} Open the project again from My Projects.</p>
+        ) : (
+          <div className="pf-empty">
+            No project is open. Choose a project in My Projects and press Monitor.
+          </div>
+        )}
+        <button type="button" className="pf-btn pf-btn-primary" style={{ marginTop: 16 }} onClick={() => navigate("/my-projects")}>
+          Go to My Projects
+        </button>
       </ContractorShell>
     );
   }

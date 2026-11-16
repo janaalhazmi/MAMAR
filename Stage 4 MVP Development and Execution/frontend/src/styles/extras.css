@@ -42,3 +42,5 @@
   .ba-grid { grid-template-columns: 1fr; }
   .adm-activity li { grid-template-columns: 1fr; gap: 2px; }
 }
+.qr-error { margin: 0; padding: 9px 12px; border-radius: 8px; background: #fdecec; color: #b42318; font-size: 13px; }
+.qr-none { margin: 0; color: #6b7280; font-size: 13px; }

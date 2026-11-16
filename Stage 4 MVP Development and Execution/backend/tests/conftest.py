@@ -6,7 +6,7 @@ from sqlalchemy import delete, or_, select
 
 from app.db.database import SessionLocal
 from app.main import app
-from app.models import Activity, AIResult, Assignment, Attendance, Payment, Review, Project, Quote, ServiceRequest, SitePhoto, User
+from app.models import Activity, AIResult, Assignment, Attendance, Payment, Review, Project, ProjectDevice, Quote, ServiceRequest, SitePhoto, User
 
 # The examples from Stage 3, sections 4.2.6, 4.2.8 and 4.2.10.
 PROJECT = {
@@ -76,6 +76,7 @@ class Api:
             db.execute(delete(Review).where(Review.project_id.in_(project_ids)))
             db.execute(delete(AIResult).where(AIResult.project_id.in_(project_ids)))
             db.execute(delete(Attendance).where(or_(Attendance.project_id.in_(project_ids), Attendance.worker_id.in_(user_ids))))
+            db.execute(delete(ProjectDevice).where(or_(ProjectDevice.project_id.in_(project_ids), ProjectDevice.verified_by.in_(user_ids))))
             db.execute(delete(Activity).where(or_(Activity.project_id.in_(project_ids), Activity.user_id.in_(user_ids))))
             db.execute(delete(Payment).where(Payment.project_id.in_(project_ids)))
             db.execute(delete(SitePhoto).where(or_(SitePhoto.project_id.in_(project_ids), SitePhoto.worker_id.in_(user_ids))))
@@ -93,3 +94,18 @@ def api():
         helper = Api(client)
         yield helper
         helper.cleanup()
+
+
+# Unit tests (tests/test_unit.py) check one function with no database. Every other test calls the
+# API through FastAPI's TestClient with the real PostgreSQL database, so it is an integration test.
+#   python -m pytest -m unit          -> unit tests only
+#   python -m pytest -m integration   -> integration tests only
+def pytest_configure(config):
+    config.addinivalue_line("markers", "unit: one function, no database or network")
+    config.addinivalue_line("markers", "integration: the API with the database (TestClient)")
+
+
+def pytest_collection_modifyitems(items):
+    for item in items:
+        if item.get_closest_marker("unit") is None:
+            item.add_marker(pytest.mark.integration)

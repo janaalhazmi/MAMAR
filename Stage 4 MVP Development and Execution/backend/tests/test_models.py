@@ -81,8 +81,9 @@ def start_app_and_inspect_database():
 
 def test_tables_and_columns_match_the_er_diagram():
     inspector = start_app_and_inspect_database()
+    # Compared without the order: a new database and one that got columns added later keep them in a different order.
     for table, columns in EXPECTED_COLUMNS.items():
-        assert [column["name"] for column in inspector.get_columns(table)] == columns
+        assert sorted(column["name"] for column in inspector.get_columns(table)) == sorted(columns)
 
 
 def test_foreign_keys_match_the_relationships():

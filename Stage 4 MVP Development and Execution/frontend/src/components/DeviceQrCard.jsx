@@ -1,13 +1,25 @@
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import { getSession } from "../services/auth";
+import { addProjectDevice, fetchProjectDevices } from "../services/api";
 import "../styles/extras.css";
 
 // QR codes for the devices of a project. The field worker scans one with the phone camera and
 // the Device Verification page opens with the project and the device already filled in.
 export default function DeviceQrCard({ projectId, projectName }) {
-  const [codes, setCodes] = useState(["TC-001"]);
+  const [codes, setCodes] = useState([]);
   const [draft, setDraft] = useState("");
   const [images, setImages] = useState({});
+  const [error, setError] = useState("");
+
+  // The codes are saved with the project, so the Device Verification Status page lists them too.
+  useEffect(() => {
+    let active = true;
+    fetchProjectDevices(getSession()?.access_token, projectId)
+      .then((data) => { if (active) setCodes(data.devices.map((device) => device.code)); })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [projectId]);
 
   useEffect(() => {
     let active = true;
@@ -20,11 +32,19 @@ export default function DeviceQrCard({ projectId, projectName }) {
     return () => { active = false; };
   }, [codes, projectId]);
 
-  function addCode(event) {
+  async function addCode(event) {
     event.preventDefault();
     const code = draft.trim().toUpperCase();
-    if (code && !codes.includes(code)) setCodes([...codes, code]);
-    setDraft("");
+    if (!code) return;
+    if (codes.includes(code)) { setDraft(""); return; }
+    try {
+      const data = await addProjectDevice(getSession()?.access_token, projectId, { code });
+      setCodes(data.devices.map((device) => device.code));
+      setDraft("");
+      setError("");
+    } catch (err) {
+      setError(err.message || "Could not add the device.");
+    }
   }
 
   function printLabels() {
@@ -46,12 +66,14 @@ export default function DeviceQrCard({ projectId, projectName }) {
           <h2>Device QR Codes</h2>
           <p>Stick a code on each device. The field worker scans it to open Device Verification.</p>
         </div>
-        <button type="button" className="qr-print" onClick={printLabels}>Print labels</button>
+        <button type="button" className="qr-print" onClick={printLabels} disabled={!codes.length}>Print labels</button>
       </div>
       <form className="qr-add" onSubmit={addCode}>
         <input value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Device code, e.g. TC-014" maxLength={30} />
         <button type="submit">Add</button>
       </form>
+      {error && <p className="qr-error" role="alert">{error}</p>}
+      {codes.length === 0 && <p className="qr-none">No devices yet. Add the code written on each device, e.g. TC-014.</p>}
       <div className="qr-grid">
         {codes.map((code) => (
           <figure key={code}>
