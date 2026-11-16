@@ -7,7 +7,7 @@ export function describe(code) {
   if (CODES[code]) return CODES[code];
   if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return "Rain";
   if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return "Snow";
-  if (code >= 95) return "Thunderstorm";
+  if ([95, 96, 99].includes(Number(code))) return "Thunderstorm";
   return "Cloudy";
 }
 
