@@ -187,6 +187,25 @@ function ProjectLocationPage() {
 
               <button
                 type="button"
+                onClick={editing ? handleFinishEditing : handleStartEditing}
+                disabled={!workZonePolygon || drawing}
+                style={{
+                  padding: "11px 18px",
+                  borderRadius: "9px",
+                  border: "1px solid #ffbf00",
+                  backgroundColor: editing ? "#111827" : "#fff8e1",
+                  color: editing ? "#ffffff" : "#111827",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  cursor: !workZonePolygon || drawing ? "not-allowed" : "pointer",
+                  opacity: !workZonePolygon || drawing ? 0.45 : 1,
+                }}
+              >
+                {editing ? "✓ Finish Editing" : "✎ Edit Work Zone"}
+              </button>
+
+              <button
+                type="button"
                 onClick={handleFinishDrawing}
                 disabled={!drawing}
                 style={{
@@ -240,24 +259,7 @@ function ProjectLocationPage() {
               </button>
             </div>
 
-              <button
-                type="button"
-                onClick={editing ? handleFinishEditing : handleStartEditing}
-                disabled={!workZonePolygon || drawing}
-                style={{
-                  padding: "11px 18px",
-                  borderRadius: "9px",
-                  border: "1px solid #ffbf00",
-                  backgroundColor: editing ? "#111827" : "#fff8e1",
-                  color: editing ? "#ffffff" : "#111827",
-                  fontSize: "13px",
-                  fontWeight: 700,
-                  cursor: !workZonePolygon || drawing ? "not-allowed" : "pointer",
-                  opacity: !workZonePolygon || drawing ? 0.45 : 1,
-                }}
-              >
-                {editing ? "✓ Finish Editing" : "✎ Edit Work Zone"}
-              </button>
+
 
             {/* Map */}
             <div className="location-map-frame">
