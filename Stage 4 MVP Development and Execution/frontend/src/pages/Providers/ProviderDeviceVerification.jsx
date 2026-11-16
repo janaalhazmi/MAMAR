@@ -185,14 +185,21 @@ function ProjectDeviceStatus({ project }) {
         <section className="pex-card">
           <h2>Work Zone</h2>
 
-          {project.workZone ? (
+          {(project.workZone ||
+              (project.latitude != null && project.longitude != null)) ? (
             <div style={{
               height: 300,
               width: "100%",
               overflow: "hidden",
               borderRadius: 12
             }}>
-              <MamarMap workZone={project.workZone} readOnly />
+              <MamarMap
+                workZone={project.workZone}
+                latitude={project.latitude}
+                longitude={project.longitude}
+                readOnly
+                fitPolygon
+              />
             </div>
           ) : (
             <div className="pex-map-empty">

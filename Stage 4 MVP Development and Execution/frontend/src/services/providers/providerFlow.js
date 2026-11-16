@@ -59,6 +59,9 @@ export async function getProviderProjects() {
       status: row.status, // Active | Upcoming | Completed
       siteStatus: row.site_status,
       teamCount: row.field_team_count,
+      workZone: project.work_zone ?? null,
+      latitude: project.latitude ?? null,
+      longitude: project.longitude ?? null,
       completionSubmitted: row.completion_submitted,
       price: row.quote?.price ?? null,
     };
