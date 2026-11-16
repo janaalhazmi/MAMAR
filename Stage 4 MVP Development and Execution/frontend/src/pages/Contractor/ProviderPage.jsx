@@ -68,6 +68,7 @@ function ProviderPage() {
 
     try {
       await handleRequestQuotes(currentProject, selectedIds);
+      window.alert("Your project has been submitted successfully!");
 
       navigate("/contractor-dashboard", {
         replace: true,
