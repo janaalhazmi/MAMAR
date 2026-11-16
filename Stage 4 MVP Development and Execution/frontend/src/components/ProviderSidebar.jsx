@@ -4,6 +4,7 @@ import {
   FolderKanban,
   BadgeCheck,
   Users,
+  UserRound,
   Info,
   CircleHelp,
   LogOut,
@@ -37,7 +38,7 @@ const providerNavigation = [
   {
     label: "My Profile",
     path: "/provider/profile",
-    icon: Users,
+    icon: UserRound,
   },
 ];
 
