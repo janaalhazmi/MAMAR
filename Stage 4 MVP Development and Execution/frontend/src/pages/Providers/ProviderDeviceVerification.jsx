@@ -46,9 +46,11 @@ export default function ProviderDeviceVerification() {
 
         <main className="provider-dashboard-content">
           <div className="pex-page pex-organized">
-            <Link to="/provider/projects">
-              ← Back to Projects
-            </Link>
+            {projectId && (
+              <Link to="/provider/device-verification">
+                ← Back to Device Verification Status
+              </Link>
+            )}
 
             <div className="pex-heading">
               <div>
@@ -70,29 +72,64 @@ export default function ProviderDeviceVerification() {
             ) : projects === null ? (
               <p role="status">Loading projects...</p>
             ) : !projectId ? (
-              <section className="provider-section">
-                {projects.length === 0 && (
-                  <p>No assigned projects yet.</p>
+              <section aria-label="Projects for device verification">
+                <div className="pdvs-list-heading">
+                  <h2>Your Projects</h2>
+                  <span>
+                    {projects.length} {projects.length === 1 ? "project" : "projects"}
+                  </span>
+                </div>
+
+                {projects.length === 0 ? (
+                  <div className="pdvs-empty">
+                    <h3>No assigned projects yet</h3>
+                    <p>Your assigned projects will appear here.</p>
+                  </div>
+                ) : (
+                  <div className="pdvs-project-grid">
+                    {projects.map((project) => (
+                      <article className="pdvs-project-card" key={project.id}>
+                        <div className="pdvs-card-top">
+                          <span className="pdvs-project-icon" aria-hidden="true">
+                            <svg
+                              width="22"
+                              height="22"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.7"
+                            >
+                              <rect x="4" y="7" width="16" height="14" rx="2" />
+                              <path d="M9 7V4h6v3M8 12h8M8 16h5" />
+                            </svg>
+                          </span>
+
+                          <span className="pdvs-project-status">
+                            {project.status || "Status unavailable"}
+                          </span>
+                        </div>
+
+                        <h2>{project.name}</h2>
+                        <p className="pdvs-project-reference">
+                          Project ID · {project.code || project.id}
+                        </p>
+
+                        <div className="pdvs-card-footer">
+                          <Link
+                            className="pdvs-details-link"
+                            to={
+                              "/provider/device-verification/" +
+                              encodeURIComponent(project.id)
+                            }
+                            aria-label={`View device verification details for ${project.name}`}
+                          >
+                            View Details →
+                          </Link>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
                 )}
-
-                {projects.map((project) => (
-                  <article
-                    className="assigned-project-card"
-                    key={project.id}
-                  >
-                    <div>
-                      <h3>{project.name}</h3>
-                      <p>{project.status || "Not available"}</p>
-                    </div>
-
-                    <Link to={
-                      "/provider/device-verification/" +
-                      encodeURIComponent(project.id)
-                    }>
-                      View Details →
-                    </Link>
-                  </article>
-                ))}
               </section>
             ) : selected ? (
               <ProjectDeviceStatus project={selected} />
