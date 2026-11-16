@@ -133,7 +133,13 @@ describe('Contractor workflow service – formatters and project state', () => {
   });
 
   it('validates and saves project details, location and services', () => {
-    expect(() => contractor.saveProjectDetails({})).toThrow('Please complete all project details.');
+    expect(() => contractor.saveProjectDetails({
+  name: '',
+  type: '',
+  startDate: '',
+  endDate: '',
+  description: '',
+})).toThrow('Please complete all project details.')
     expect(() => contractor.saveProjectDetails({ ...baseProject, startDate: '2000-01-01' })).toThrow('Start date cannot be in the past.');
     expect(() => contractor.saveProjectDetails({ ...baseProject, endDate: baseProject.startDate })).toThrow('End date must be at least one day after the start date.');
     contractor.saveProjectDetails(baseProject);

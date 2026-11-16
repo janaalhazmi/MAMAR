@@ -82,7 +82,13 @@ describe('Contractor project workflow domain logic', () => {
   })
 
   it('validates project details before saving', () => {
-    expect(() => contractor.saveProjectDetails({})).toThrow(/complete all project details/i)
+   expect(() => contractor.saveProjectDetails({
+  name: '',
+  type: '',
+  startDate: '',
+  endDate: '',
+  description: '',
+})).toThrow(/complete all project details/i)
     expect(() => contractor.saveProjectDetails({ name: 'A', type: 'Road', startDate: '2000-01-01', endDate: '2000-01-02', description: 'Details' }))
       .toThrow(/past/i)
     expect(() => contractor.saveProjectDetails({ name: 'A', type: 'Road', startDate: tomorrow(), endDate: tomorrow(), description: 'Details' }))
