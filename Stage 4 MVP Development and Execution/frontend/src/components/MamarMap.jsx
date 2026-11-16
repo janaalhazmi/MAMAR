@@ -175,6 +175,15 @@ const MamarMap = forwardRef(function MamarMap(
 
         sketchRef.current = sketch;
 
+        const updateHandle = sketch.on("update", (event) => {
+          if (event.state === "complete") {
+            const geometry = event.graphics?.[0]?.geometry;
+            publishPolygon(geometry);
+          }
+        });
+
+        sketchRef.current.updateHandle = updateHandle;
+
         sketchHandle = sketch.on("create", (event) => {
           if (event.state !== "complete") return;
 
@@ -224,6 +233,7 @@ const MamarMap = forwardRef(function MamarMap(
       cancelled = true;
 
       sketchHandle?.remove();
+      sketch?.updateHandle?.remove();
 
       if (sketch) {
         sketch.destroy();
@@ -237,6 +247,26 @@ const MamarMap = forwardRef(function MamarMap(
       graphicsLayerRef.current = null;
     };
   }, []);
+
+  // Update coordinates and area after vertex editing.
+  const publishPolygon = (geometry) => {
+    if (!geometry) return;
+
+    const center = geometry.centroid;
+    if (!center) return;
+
+    const area = geometryEngine.geodesicArea(
+      geometry,
+      "square-meters"
+    );
+
+    callbackRef.current?.({
+      latitude: Number(center.latitude.toFixed(6)),
+      longitude: Number(center.longitude.toFixed(6)),
+      area: Number(Math.abs(area).toFixed(2)),
+      polygon: geometry.toJSON(),
+    });
+  };
 
   // Start drawing a new polygon.
   const startDrawing = () => {
@@ -255,6 +285,40 @@ const MamarMap = forwardRef(function MamarMap(
     callbackRef.current?.(null);
 
     sketch.create("polygon");
+  };
+
+  // Edit the existing polygon using its vertices.
+  const startEditing = () => {
+    const sketch = sketchRef.current;
+    const layer = graphicsLayerRef.current;
+
+    if (!sketch || !layer || readOnly) return false;
+
+    const graphic = layer.graphics.find(
+      (item) => item.geometry?.type === "polygon"
+    );
+
+    if (!graphic) return false;
+
+    sketch.cancel();
+
+    sketch.update(graphic, {
+      tool: "reshape",
+      enableRotation: false,
+      enableScaling: false,
+    });
+
+    return true;
+  };
+
+  // Finish editing and keep the updated geometry.
+  const finishEditing = () => {
+    const sketch = sketchRef.current;
+    if (!sketch || readOnly) return;
+
+    if (sketch.state === "active") {
+      sketch.complete();
+    }
   };
 
   // Finish the current polygon.
@@ -285,6 +349,8 @@ const MamarMap = forwardRef(function MamarMap(
     startDrawing,
     finishDrawing,
     cancelDrawing,
+    startEditing,
+    finishEditing,
   }));
 
   return (
