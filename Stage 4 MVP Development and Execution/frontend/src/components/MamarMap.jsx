@@ -63,6 +63,7 @@ const MamarMap = forwardRef(function MamarMap(
   const sketchRef = useRef(null);
   const graphicsLayerRef = useRef(null);
   const callbackRef = useRef(onLocationSelect);
+  const fitViewRef = useRef(null);
 
   // Keep latest callback without rebuilding the map.
   useEffect(() => {
@@ -89,6 +90,8 @@ const MamarMap = forwardRef(function MamarMap(
     let sketch = null;
     let sketchHandle = null;
     let graphicsLayer = null;
+    let resizeObserver = null;
+    let resizeTimer = null;
 
     async function initializeMap() {
       try {
@@ -132,12 +135,29 @@ const MamarMap = forwardRef(function MamarMap(
               if (cancelled) return;
             }
 
-            await view.goTo(
-              savedPolygon.extent.expand(
-                initial.fitPolygon ? 2 : 1.5
-              ),
-              { animate: false }
+            const targetExtent = savedPolygon.extent.expand(
+              initial.fitPolygon ? 1.8 : 1.5
             );
+
+            await view.goTo(targetExtent, { animate: false });
+
+            if (initial.fitPolygon) {
+              fitViewRef.current = () => {
+                if (!cancelled && view.width > 0 && view.height > 0) {
+                  view.goTo(targetExtent, { animate: false }).catch(() => {});
+                }
+              };
+
+              resizeObserver = new ResizeObserver(() => {
+                if (resizeTimer) clearTimeout(resizeTimer);
+
+                resizeTimer = setTimeout(() => {
+                  fitViewRef.current?.();
+                }, 250);
+              });
+
+              resizeObserver.observe(mapElement);
+            }
           }
         } else if (
           initial.latitude != null &&
@@ -231,6 +251,10 @@ const MamarMap = forwardRef(function MamarMap(
 
     return () => {
       cancelled = true;
+
+      resizeObserver?.disconnect();
+      if (resizeTimer) clearTimeout(resizeTimer);
+      fitViewRef.current = null;
 
       sketchHandle?.remove();
       sketch?.updateHandle?.remove();

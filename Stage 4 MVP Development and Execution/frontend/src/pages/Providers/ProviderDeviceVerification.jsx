@@ -188,8 +188,9 @@ function ProjectDeviceStatus({ project }) {
           {(project.workZone ||
               (project.latitude != null && project.longitude != null)) ? (
             <div style={{
-              height: 300,
+              height: 380,
               width: "100%",
+              minWidth: 0,
               overflow: "hidden",
               borderRadius: 12
             }}>
