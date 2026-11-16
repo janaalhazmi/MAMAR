@@ -67,7 +67,7 @@ export default function ProviderProjectDetails() {
 </header>
 
         <main className="provider-dashboard-content">
-          <div className="pex-page">
+          <div className="pex-page pex-organized">
             <Link to="/provider/projects">← Back to Projects</Link>
 
             <div className="pex-heading">
