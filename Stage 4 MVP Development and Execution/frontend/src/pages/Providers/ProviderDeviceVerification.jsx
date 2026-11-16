@@ -47,9 +47,7 @@ export default function ProviderDeviceVerification() {
         <main className="provider-dashboard-content">
           <div className="pex-page pex-organized">
             {projectId && (
-              <Link to="/provider/device-verification">
-                ← Back to Device Verification Status
-              </Link>
+              
             )}
 
             <div className="pex-heading">
