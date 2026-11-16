@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import NotificationBell from "../../components/NotificationBell";
 import ProviderSidebar from "../../components/ProviderSidebar";
 import MamarMap from "../../components/MamarMap";
+import DeviceStatusList from "../../components/DeviceStatusList";
 import { getSession } from "../../services/auth";
 import { useDeviceVerificationProjects } from "../../services/providers/api";
 
@@ -223,25 +224,11 @@ function ProjectDeviceStatus({ project }) {
         </section>
       </div>
 
-      {/* Verification status */}
-      <div className="pex-grid">
-        <section className="pex-card">
-          <h2>Device Verification Status</h2>
-          <p>
-            Verification is performed by assigned field workers.
-          </p>
-          <p role="status">
-            Verification records are not available yet.
-          </p>
-        </section>
-
-        <section className="pex-card">
-          <h2>Device Details</h2>
-          <p>
-            Device details are not available yet.
-          </p>
-        </section>
-      </div>
+      {/* Verification status, saved by the field workers' checks */}
+      <section className="pex-card">
+        <h2>Device Verification Status</h2>
+        <DeviceStatusList projectId={project.id} />
+      </section>
     </>
   );
 }

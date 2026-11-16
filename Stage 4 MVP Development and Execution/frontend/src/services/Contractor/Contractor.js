@@ -843,6 +843,15 @@ export function filterProjects(projects, search, status) {
 }
 
 // يفتح المشروع في الـflow ويرجع المسار، أو null إذا ما فيه خطوة
+// Opens a project by its id (e.g. the project just paid for), so the next page shows that project.
+export async function openProjectById(projectId) {
+  const list = await fetchProjects();
+  const project = list.find((item) => String(item.id) === String(projectId));
+  if (!project) return null;
+  openProjectInFlow(project);
+  return nextStepFor(project)?.to || "/my-projects";
+}
+
 export function openProject(project) {
   const step = nextStepFor(project);
   if (!step) return null;

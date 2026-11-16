@@ -326,6 +326,23 @@ export const postDeviceVerify = (token, device, body) =>
     body: asJson(body), // { project_id, latitude, longitude, accuracy }
   });
 
+/* ---------- Devices of a project (saved verification) ---------- */
+export const fetchProjectDevices = (token, projectId) =>
+  authed(`/provider/projects/${encodeURIComponent(projectId)}/devices`, token);
+
+export const fetchWorkerProjectDevices = (token, projectId) =>
+  authed(`/field-worker/projects/${encodeURIComponent(projectId)}/devices`, token);
+
+export const addProjectDevice = (token, projectId, body) =>
+  authed(`/provider/projects/${encodeURIComponent(projectId)}/devices`, token, {
+    method: "POST",
+    headers: JSON_H,
+    body: asJson(body), // { code, name }
+  });
+
+export const removeProjectDevice = (token, projectId, code) =>
+  authed(`/provider/projects/${encodeURIComponent(projectId)}/devices/${encodeURIComponent(code)}`, token, { method: "DELETE" });
+
 /* ---------- Payments (PayPal sandbox, issue #48) ---------- */
 export const postStartPayment = (token, projectId, returnUrl, cancelUrl) =>
   authed(`/projects/${encodeURIComponent(projectId)}/payments`, token, {

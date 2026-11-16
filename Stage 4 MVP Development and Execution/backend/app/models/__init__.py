@@ -3,6 +3,7 @@ from app.models.activity import Activity
 from app.models.ai_result import AIResult
 from app.models.attendance import Attendance
 from app.models.assignment import Assignment
+from app.models.device import ProjectDevice
 from app.models.email_passcode import EmailPasscode
 from app.models.notification import Notification
 from app.models.payment import Payment
@@ -14,4 +15,4 @@ from app.models.service_request import ServiceRequest
 from app.models.site_photo import SitePhoto
 from app.models.user import User
 
-__all__ = ["AIResult", "Activity", "Attendance", "Assignment", "EmailPasscode", "Notification", "Payment", "Project", "Provider", "Quote", "Review", "ServiceRequest", "SitePhoto", "User"]
+__all__ = ["AIResult", "Activity", "Attendance", "Assignment", "EmailPasscode", "Notification", "Payment", "Project", "ProjectDevice", "Provider", "Quote", "Review", "ServiceRequest", "SitePhoto", "User"]

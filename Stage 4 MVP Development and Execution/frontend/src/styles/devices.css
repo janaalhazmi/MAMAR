@@ -1,0 +1,19 @@
+/* Device verification status (provider and contractor) */
+.dv-wrap { display: grid; gap: 14px; }
+.dv-counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.dv-counts div { display: grid; gap: 2px; padding: 12px 14px; border: 1px solid #eceef2; border-radius: 10px; background: #f9fafb; }
+.dv-counts strong { font-size: 22px; color: #111827; }
+.dv-counts span { color: #6b7280; font-size: 12.5px; }
+.dv-counts .ok { background: #eef8f1; border-color: #c7ebd4; }
+.dv-counts .wait { background: #fffaeb; border-color: #f7e2a1; }
+.dv-table { overflow-x: auto; }
+.dv-table table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.dv-table th { text-align: start; color: #6b7280; font-size: 12px; font-weight: 600; padding: 8px 10px; border-bottom: 1px solid #eceef2; white-space: nowrap; }
+.dv-table td { padding: 10px; border-bottom: 1px solid #f2f4f7; vertical-align: middle; }
+.dv-table td b { display: block; color: #111827; }
+.dv-table td small { color: #6b7280; font-size: 12px; }
+.dv-pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.dv-pill.ok { background: #e3f4e8; color: #1f7a40; }
+.dv-pill.wait { background: #fff8e1; color: #b8860b; }
+.dv-empty { margin: 0; padding: 14px; border-radius: 10px; background: #f9fafb; color: #6b7280; font-size: 13px; line-height: 1.6; }
+.dv-note { margin: 0; color: #98a2b3; font-size: 12px; }
