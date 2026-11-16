@@ -74,7 +74,7 @@ export default function ProviderProjectDetails() {
               <div>
                 <h1>{project?.project_name || "Execution Details"}</h1>
               </div>
-              {details && <span className="pex-status">{details.status}</span>}
+              {details && <span className="pex-status">{details?.status}</span>}
             </div>
 
             {!current && <p role="status">Loading project details…</p>}
@@ -141,21 +141,21 @@ export default function ProviderProjectDetails() {
 
                   <section className="pex-card">
                     <h2>Site Status</h2>
-                    <p className="pex-status">{details.site_status || "Not available"}</p>
-                    <p>{details.field_team_count ?? team.length} team members assigned</p>
+                    <p className="pex-status">{details?.site_status || "Not available"}</p>
+                    <p>{details?.field_team_count ?? team.length} team members assigned</p>
                     <p>
                       Last check-in{" "}
-                      {details.last_check_in
-                        ? new Date(details.last_check_in).toLocaleString()
+                      {details?.last_check_in
+                        ? new Date(details?.last_check_in).toLocaleString()
                         : "—"}
                     </p>
                   </section>
                 </div>
 
-                {(details.awaiting_review || details.completion_submitted) && (
+                {(details?.awaiting_review || details?.completion_submitted) && (
                   <section className="pex-card" aria-label="Completion review">
                     <h2>Completion Review</h2>
-                    {details.awaiting_review ? (
+                    {details?.awaiting_review ? (
                       <>
                         <p>
                           The field team marked this work as Completed. Check the
@@ -187,11 +187,11 @@ export default function ProviderProjectDetails() {
                     ) : (
                       <p>
                         Sent to the contractor
-                        {details.submitted_at
+                        {details?.submitted_at
                           ? ` on ${new Date(
-                              /[zZ]|[+-]\d\d:?\d\d$/.test(details.submitted_at)
-                                ? details.submitted_at
-                                : `${details.submitted_at}Z`
+                              /[zZ]|[+-]\d\d:?\d\d$/.test(details?.submitted_at)
+                                ? details?.submitted_at
+                                : `${details?.submitted_at}Z`
                             ).toLocaleString()}`
                           : ""}
                         . Waiting for their review.
@@ -217,7 +217,7 @@ export default function ProviderProjectDetails() {
                   <section className="pex-card">
                     <h2>Site Updates</h2>
 
-                    {details.change_note && <p>{details.change_note}</p>}
+                    {details?.change_note && <p>{details?.change_note}</p>}
 
                     {photos.length > 0 ? (
                       <details>
