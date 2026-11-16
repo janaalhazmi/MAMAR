@@ -94,3 +94,18 @@ def api():
         helper = Api(client)
         yield helper
         helper.cleanup()
+
+
+# Unit tests (tests/test_unit.py) check one function with no database. Every other test calls the
+# API through FastAPI's TestClient with the real PostgreSQL database, so it is an integration test.
+#   python -m pytest -m unit          -> unit tests only
+#   python -m pytest -m integration   -> integration tests only
+def pytest_configure(config):
+    config.addinivalue_line("markers", "unit: one function, no database or network")
+    config.addinivalue_line("markers", "integration: the API with the database (TestClient)")
+
+
+def pytest_collection_modifyitems(items):
+    for item in items:
+        if item.get_closest_marker("unit") is None:
+            item.add_marker(pytest.mark.integration)
