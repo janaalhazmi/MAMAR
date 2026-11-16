@@ -55,6 +55,7 @@ const MamarMap = forwardRef(function MamarMap(
     latitude = null,
     longitude = null,
     readOnly = false,
+    fitPolygon = false,
   },
   ref
 ) {
@@ -75,6 +76,7 @@ const MamarMap = forwardRef(function MamarMap(
     latitude,
     longitude,
     readOnly,
+    fitPolygon,
   });
 
   // Initialize map only once.
@@ -120,8 +122,20 @@ const MamarMap = forwardRef(function MamarMap(
           graphicsLayer.add(graphic);
 
           if (savedPolygon.extent) {
+            if (initial.fitPolygon) {
+              await new Promise((resolve) => {
+                requestAnimationFrame(() => {
+                  requestAnimationFrame(resolve);
+                });
+              });
+
+              if (cancelled) return;
+            }
+
             await view.goTo(
-              savedPolygon.extent.expand(1.5),
+              savedPolygon.extent.expand(
+                initial.fitPolygon ? 2 : 1.5
+              ),
               { animate: false }
             );
           }

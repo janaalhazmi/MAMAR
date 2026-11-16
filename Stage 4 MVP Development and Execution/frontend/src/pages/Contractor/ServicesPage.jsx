@@ -211,7 +211,7 @@ function ServicesPage() {
                   latitude={project.latitude ?? null}
                   longitude={project.longitude ?? null}
                   polygon={workZone}
-                  readOnly
+                  readOnly fitPolygon
                 />
               </div>
 
