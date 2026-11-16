@@ -230,8 +230,7 @@ function ProjectDeviceStatus({ project }) {
         <section className="pex-card">
           <h2>Device Details</h2>
           <p>
-            Device ID, type, planned location and verification
-            results will appear here once the backend provides them.
+            Device details are not available yet.
           </p>
         </section>
       </div>

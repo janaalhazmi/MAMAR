@@ -11335,3 +11335,78 @@ textarea {
   color: #667085;
   font-size: 13px;
 }
+
+
+/* Provider execution: section grouping and expandable tools. */
+.pex-organized .pex-environment > *,
+.pex-organized .pex-qr-grid > * {
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.pex-organized .pex-card > .tl-card {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.pex-organized .pex-assigned-heading {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #eaecf0;
+  font-size: 15px;
+}
+
+.pex-organized .pex-disclosure-card > summary {
+  padding: 4px 0;
+  color: #344054;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.6;
+  cursor: pointer;
+}
+
+.pex-organized .pex-disclosure-card > summary:focus-visible {
+  outline: 2px solid #987500;
+  outline-offset: 5px;
+}
+
+.pex-organized .pex-disclosure-content {
+  margin-top: 20px;
+}
+
+.pex-organized .pex-report .ai-card {
+  margin: 0;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.pex-organized .pex-qr-grid {
+  margin-bottom: 0;
+}
+
+.pex-organized .att-log {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.pex-organized .wx-days {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.pex-organized .wx-head,
+.pex-organized .tl-head,
+.pex-organized .qr-head,
+.pex-organized .ai-head {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.pex-organized > [aria-label="Completion review"] {
+  margin-bottom: 24px;
+}

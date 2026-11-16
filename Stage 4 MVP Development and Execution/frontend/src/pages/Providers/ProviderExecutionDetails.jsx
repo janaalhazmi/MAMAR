@@ -108,12 +108,7 @@ export default function ProviderProjectDetails() {
                   </div>
                 </dl>
 
-                <WeatherCard projectId={project.project_id} />
-                <AiDailySummary projectId={project.project_id} />
-                <TrafficCard projectId={project.project_id} />
-                <TeamOnSiteCard projectId={project.project_id} />
-                <SiteQrCard projectId={project.project_id} />
-                <DeviceQrCard projectId={project.project_id} projectName={project.project_name} />
+
 
                 <div className="pex-grid pex-grid-wide">
                   <section className="pex-card">
@@ -204,7 +199,8 @@ export default function ProviderProjectDetails() {
 
                 <div className="pex-grid">
                   <section className="pex-card">
-                    <h2>Field Team</h2>
+                    <TeamOnSiteCard projectId={project.project_id} />
+                    <h2 className="pex-assigned-heading">Assigned Field Team</h2>
                     {team.length ? (
                       <ul className="pex-list">
                         {team.map((member) => (
@@ -247,6 +243,29 @@ export default function ProviderProjectDetails() {
                     )}
                   </section>
                 </div>
+
+                <div className="pex-grid pex-environment">
+                  <WeatherCard projectId={project.project_id} />
+                  <TrafficCard projectId={project.project_id} />
+                </div>
+
+                <details className="pex-card pex-report pex-disclosure-card">
+                  <summary>Today's Summary — Open Report</summary>
+                  <div className="pex-disclosure-content">
+                    <AiDailySummary projectId={project.project_id} />
+                  </div>
+                </details>
+
+                <details className="pex-card pex-tools pex-disclosure-card">
+                  <summary>Site &amp; Device QR Codes — Open Tools</summary>
+                  <div className="pex-grid pex-qr-grid pex-disclosure-content">
+                    <SiteQrCard projectId={project.project_id} />
+                    <DeviceQrCard
+                      projectId={project.project_id}
+                      projectName={project.project_name}
+                    />
+                  </div>
+                </details>
               </>
             )}
           </div>
