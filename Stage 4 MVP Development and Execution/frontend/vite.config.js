@@ -11,7 +11,6 @@ export default defineConfig({
     clearMocks: true,
     restoreMocks: true,
     testTimeout: 20000,
-    // لا نتجاهل الرفض غير المعالج: أي خطأ async حقيقي يجب أن يظهر.
     coverage: {
       provider: 'v8',
       reporter: ['text-summary', 'html', 'lcov', 'json', 'json-summary'],
@@ -25,13 +24,10 @@ export default defineConfig({
         'src/**/*.svg',
         'src/**/*.png',
         'src/**/*.jpg',
-        // خرائط ArcGIS تحتاج WebGL حقيقي ومتصفح؛ ما تشتغل داخل jsdom.
         'src/components/MamarMap.jsx',
         'src/components/AdminMap.jsx',
-        // ملف فاضي (0 أسطر).
         'src/components/field-worker/FieldWorkerSidebar.jsx',
       ],
-      // لا نفرض 100% كـ threshold أثناء بناء الاختبارات؛ نعرض الفجوات بتقرير مستقل.
     },
   },
 })
