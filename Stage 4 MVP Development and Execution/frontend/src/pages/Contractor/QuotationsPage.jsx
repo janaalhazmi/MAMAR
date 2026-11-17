@@ -378,26 +378,28 @@ function QuotationsPage() {
                     <p className="pf-muted">{formatDate(quotation.startDate)}</p>
                   </div>
                 )}
-
-                <div className="pf-quote-actions">
-                  <button
+              
+                {!accepted && !rejected && (
+                  <div className="pf-quote-actions">
+                    <button
                     type="button"
                     className="pf-btn pf-btn-reject"
                     disabled={locked || rejectingId === quotation.id}
                     onClick={() => handleReject(quotation)}
-                  >
-                    {rejectingId === quotation.id ? "Rejecting…" : "✕ Reject"}
-                  </button>
-                  <button
-                    type="button"
-                    className="pf-btn pf-btn-accept"
-                    disabled={locked}
-                    onClick={() => handleAccept(quotation)}
-                  >
+                    >
+                {rejectingId === quotation.id ? "Rejecting…" : "✕ Reject"}
+                   </button>
+                    <button
+                      type="button"
+                      className="pf-btn pf-btn-accept"
+                      disabled={locked}
+                      onClick={() => handleAccept(quotation)}
+                    >
                     <Icon name="check" size={16} />
-                    {accepted ? "Accepted" : "Accept"}
-                  </button>
-                </div>
+                     Accept
+                    </button>
+                   </div>
+                    )}
               </article>
             );
           })}
