@@ -177,6 +177,11 @@ function PrepareQuotation() {
         durationDays,
         notes,
       });
+      localStorage.removeItem("providerQuotationDraft");
+
+      alert("Quotation submitted successfully.");
+
+      navigate("/provider-dashboard", { replace: true });
 
       localStorage.removeItem("providerQuotationDraft");
       alert("Quotation submitted successfully.");

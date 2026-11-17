@@ -3,7 +3,7 @@ import {
   FETCH_SCENARIOS, buildRich, seedStorage, installBrowserApis, installFetch, setSession, silenceConsole, settle, realSetTimeout,
 } from '../test/exhaustive/env'
 
-const modules = Object.entries(import.meta.glob('../../services/**/*.js')).filter(
+const modules = Object.entries(import.meta.glob('../services/**/*.js')).filter(
   ([p]) => !p.includes('__tests__'),
 )
 

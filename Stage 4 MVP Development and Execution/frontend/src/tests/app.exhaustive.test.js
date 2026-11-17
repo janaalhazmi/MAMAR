@@ -19,8 +19,26 @@ class Boundary extends React.Component {
 }
 
 // ----------------------------------------------------------------- App ------
-const appSource = Object.values(import.meta.glob('../../App.jsx', { query: '?raw', import: 'default', eager: true }))[0]
-const routePaths = [...new Set([...appSource.matchAll(/path=\s*"([^"]+)"/g)].map((m) => m[1].replace('*', 'missing')))]
+const appSource = Object.values(
+  import.meta.glob('../App.jsx', {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  })
+)[0];
+
+if (!appSource) {
+  throw new Error('Could not load src/App.jsx for route coverage.');
+}
+
+const routePaths = [
+  ...new Set(
+    [...appSource.matchAll(/path=\s*"([^"]+)"/g)].map((m) =>
+      m[1].replace('*', 'missing')
+    )
+  ),
+];
+
 
 describe('exhaustive routing coverage: App + ProtectedRoute', () => {
   beforeEach(() => {

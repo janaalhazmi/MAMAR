@@ -6,5 +6,5 @@ vi.mock('../components/MamarMap', async () => ({ default: (await import('../test
 vi.mock('../components/AdminMap', () => ({ default: () => null }))
 
 defineUiSuite('pages/Contractor', {
-  ...import.meta.glob('../../pages/Contractor/**/*.jsx'),
+  ...import.meta.glob('../pages/Contractor/**/*.jsx'),
 })
