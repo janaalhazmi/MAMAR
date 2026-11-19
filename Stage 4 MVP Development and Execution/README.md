@@ -127,11 +127,20 @@ The following metrics reflect the project status as of November 20, 2026.
 
 ## 6. Task 3 — Conduct Sprint Reviews and Retrospectives
 
-Sprint reviews compare completed work with the sprint goal and identify remaining work. Retrospectives examine collaboration, blockers, and improvements for the following iteration.
+### Sprint Reviews & Retrospectives Documentation
 
-The documented review material currently identified in this Stage 4 directory includes [Sprint 1 Review](docs/reviews/SPRINT_1_REVIEW.md). Sprint plans and other review/retrospective artifacts should be linked here as they are finalized; the existence of six planned sprints does not, by itself, establish that six retrospective documents have been published.
+Sprint reviews and retrospective summaries were documented to evaluate sprint deliverables, identify challenges, and record improvements for subsequent iterations.
 
-Key themes for review and improvement include cross-role integration, Git workflow coordination, clarity of API contracts, testing earlier in the development cycle, and tracking defects through retesting.
+| Sprint | Period | Documentation |
+|---|---|---|
+| Sprint 1 | Oct 11–17, 2026 | [Sprint 1 Review & Retrospective](docs/reviews/SPRINT_1_REVIEW.md) |
+| Sprint 2 | Oct 18–24, 2026 | [Sprint 2 Review & Retrospective](docs/reviews/SPRINT_2_REVIEW.md) |
+| Sprint 3 | Oct 25–31, 2026 | [Sprint 3 Review & Retrospective](docs/reviews/SPRINT_3_REVIEW.md) |
+| Sprint 4 | Nov 1–7, 2026 | [Sprint 4 Review & Retrospective](docs/reviews/SPRINT_4_REVIEW.md) |
+| Sprint 5 | Nov 8–14, 2026 | [Sprint 5 Review & Retrospective](docs/reviews/SPRINT_5_REVIEW.md) |
+| Sprint 6 | Nov 15–21, 2026 | [Sprint 6 Review & Retrospective](docs/reviews/SPRINT_6_REVIEW.md) |
+
+**Documentation Note:** Sprint 2–6 reviews were compiled retrospectively from project records and GitHub task tracking. They document sprint outcomes and lessons learned without implying that formal retrospective meetings were held on the original sprint dates.
 
 ## 7. Task 4 — Final Integration and QA Testing
 
