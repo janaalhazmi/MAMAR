@@ -122,7 +122,7 @@ describe('PrepareQuotation: pricing, work-zone, draft, submit and decline branch
     fireEvent.click(screen.getByText('Submit Quotation →'))
     await waitFor(() => expect(calls.submitProviderQuotation).toHaveBeenCalledWith(expect.objectContaining({ request: expect.objectContaining({ projectId: 12 }), durationDays: 3, price: expect.any(Number), notes: expect.stringContaining('Delivery: SAR 1200') })))
     expect(localStorage.getItem('providerQuotationDraft')).toBeNull()
-    expect(window.alert).toHaveBeenCalledWith('Quotation submitted successfully.')
+    expect(window.alert).not.toHaveBeenCalled()
   })
   it('handles missing request, invalid dates, unavailable request and API errors', async () => {
     calls.getOpenRequestById.mockResolvedValueOnce({ projectId: null })

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import PrepareQuotation from "../pages/Providers/PrepareQuotation";
 import {
   declineProviderRequest,
@@ -41,6 +41,18 @@ vi.mock("../services/providers/providerQuotes", () => ({
   submitProviderQuotation: vi.fn(),
 }));
 
+
+function DashboardDestination() {
+  const location = useLocation();
+
+  return (
+    <div>
+      <h1>Provider dashboard destination</h1>
+      <p>{location.state?.successMessage}</p>
+    </div>
+  );
+}
+
 function renderQuotation(url = "/provider/quotation?requestId=5") {
   return render(
     <MemoryRouter initialEntries={[url]}>
@@ -48,7 +60,7 @@ function renderQuotation(url = "/provider/quotation?requestId=5") {
         <Route path="/provider/quotation" element={<PrepareQuotation />} />
         <Route
           path="/provider-dashboard"
-          element={<h1>Provider dashboard destination</h1>}
+          element={<DashboardDestination />}
         />
       </Routes>
     </MemoryRouter>
@@ -145,11 +157,11 @@ describe("PrepareQuotation", () => {
       })
     ).toBeInTheDocument();
 
-    expect(window.alert).toHaveBeenCalledTimes(1);
-    expect(window.alert).toHaveBeenCalledWith(
-      "Quotation submitted successfully."
-    );
+    expect(
+      screen.getByText("Quotation submitted successfully.")
+    ).toBeInTheDocument();
 
+    expect(window.alert).not.toHaveBeenCalled();
     expect(localStorage.getItem("providerQuotationDraft")).toBeNull();
   });
 
