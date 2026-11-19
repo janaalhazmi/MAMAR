@@ -103,7 +103,6 @@ function PrepareQuotation() {
 
   const handleDeclineRequest = async () => {
     if (!requestId || submitting.current) return;
-    if (!window.confirm("Decline this request? It will be removed from your requests.")) return;
 
     submitting.current = true;
     try {
@@ -117,17 +116,6 @@ function PrepareQuotation() {
     } finally {
       submitting.current = false;
     }
-  };
-
-  const handleSaveDraft = () => {
-    const quotation = getQuotationData();
-
-    localStorage.setItem(
-      "providerQuotationDraft",
-      JSON.stringify(quotation)
-    );
-
-    alert("Quotation draft saved successfully.");
   };
 
   const handleSubmitQuotation = async () => {
@@ -428,9 +416,6 @@ function PrepareQuotation() {
                 Decline Request
               </Button>
 
-              <Button variant="secondary" className="quotation-action" onClick={handleSaveDraft}>
-                Save Draft
-              </Button>
             </div>
           </section>
         </div>

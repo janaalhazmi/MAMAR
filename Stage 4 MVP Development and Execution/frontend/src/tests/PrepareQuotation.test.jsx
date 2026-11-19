@@ -203,40 +203,22 @@ describe("PrepareQuotation", () => {
     expect(submitProviderQuotation).not.toHaveBeenCalled();
   });
 
-  it("saves the quotation draft and shows confirmation", async () => {
-    const user = userEvent.setup();
+  it("does not display the Save Draft button", () => {
     renderQuotation();
 
-    await user.click(screen.getByRole("button", { name: /save draft/i }));
-
-    const draft = JSON.parse(localStorage.getItem("providerQuotationDraft"));
-
-    expect(draft).toEqual(
-      expect.objectContaining({
-        requestId: "5",
-        subtotal: 4800,
-        delivery: 1200,
-        total: 6000,
-      })
-    );
-    expect(window.alert).toHaveBeenCalledWith(
-      "Quotation draft saved successfully."
-    );
-    expect(submitProviderQuotation).not.toHaveBeenCalled();
+    expect(
+      screen.queryByRole("button", { name: /save draft/i })
+    ).not.toBeInTheDocument();
   });
 
-  it("keeps the request when decline confirmation is cancelled", async () => {
+  it("declines the request without a confirmation dialog", async () => {
     const user = userEvent.setup();
-    window.confirm.mockReturnValue(false);
     renderQuotation();
 
     await user.click(screen.getByRole("button", { name: /decline request/i }));
 
-    expect(window.confirm).toHaveBeenCalledTimes(1);
-    expect(declineProviderRequest).not.toHaveBeenCalled();
-    expect(
-      screen.getByRole("heading", { name: "Prepare Quotation" })
-    ).toBeInTheDocument();
+    expect(window.confirm).not.toHaveBeenCalled();
+    expect(declineProviderRequest).toHaveBeenCalledWith("5");
   });
 
   it("declines the request and shows a success message on the dashboard", async () => {

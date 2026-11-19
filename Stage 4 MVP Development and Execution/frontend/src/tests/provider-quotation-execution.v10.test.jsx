@@ -88,22 +88,20 @@ describe('PrepareQuotation: pricing, work-zone, draft, submit and decline branch
     expect(screen.getByTestId('map')).toBeInTheDocument()
     // The component exposes the map selection callback only through its map widget; the UI path is verified above.
   })
-  it('updates quantities, unit prices and delivery, then saves a draft', () => {
+  it('updates quotation fields without displaying Save Draft', () => {
     renderQuotation()
     const numbers = screen.getAllByRole('spinbutton')
+
     fireEvent.change(numbers[0], { target: { value: '0' } })
     fireEvent.change(numbers[1], { target: { value: '25' } })
     fireEvent.change(numbers[6], { target: { value: '300' } })
     fireEvent.change(document.querySelector('.quotation-date'), { target: { value: '31 Dec 2026' } })
     fireEvent.change(document.querySelector('.quotation-notes textarea'), { target: { value: 'Includes night work' } })
-    fireEvent.click(screen.getByText('Save Draft'))
-    const draft = JSON.parse(localStorage.getItem('providerQuotationDraft'))
-    expect(draft.requestId).toBe('44')
-    expect(draft.services[0].quantity).toBe(0)
-    expect(draft.services[0].unitPrice).toBe(25)
-    expect(draft.delivery).toBe(300)
-    expect(draft.notes).toBe('Includes night work')
-    expect(window.alert).toHaveBeenCalledWith('Quotation draft saved successfully.')
+
+    expect(numbers[0]).toHaveValue(0)
+    expect(numbers[1]).toHaveValue(25)
+    expect(numbers[6]).toHaveValue(300)
+    expect(screen.queryByRole('button', { name: /save draft/i })).not.toBeInTheDocument()
   })
   it('rejects submission without request ID and rejects invalid service pricing', () => {
     const noId = renderQuotation('/prepare-quotation')
@@ -130,15 +128,14 @@ describe('PrepareQuotation: pricing, work-zone, draft, submit and decline branch
     fireEvent.click(screen.getByText('Submit Quotation →'))
     await waitFor(() => expect(window.alert).toHaveBeenCalledWith('This request is no longer available for quotation.'))
   })
-  it('declines only after confirmation and handles decline failures', async () => {
-    const confirmSpy = window.confirm
-    confirmSpy.mockReturnValue(false)
-    renderQuotation()
-    fireEvent.click(screen.getByText('Decline Request'))
-    expect(calls.declineProviderRequest).not.toHaveBeenCalled()
-    confirmSpy.mockReturnValue(true)
+  it('declines without confirmation and handles decline failures', async () => {
     calls.declineProviderRequest.mockRejectedValueOnce(new Error('Cannot decline'))
+    renderQuotation()
+
     fireEvent.click(screen.getByText('Decline Request'))
+
+    expect(window.confirm).not.toHaveBeenCalled()
+    expect(calls.declineProviderRequest).toHaveBeenCalledWith('44')
     await waitFor(() => expect(window.alert).toHaveBeenCalledWith('Cannot decline'))
   })
 })

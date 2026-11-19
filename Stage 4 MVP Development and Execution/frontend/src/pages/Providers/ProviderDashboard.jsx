@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import logo from "../../assets/mamar-logo.svg";
 import NotificationBell from "../../components/NotificationBell";
 import { useProviderDashboard, providerProfileService} from "../../services/providers/api";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import ProviderSidebar from "../../components/ProviderSidebar";
 import Button from "../../components/Button";
 import { getSession } from "../../services/auth";
@@ -29,19 +29,18 @@ function getProfilePictureUrl(user) {
 
 function ProviderDashboard() {
   const location = useLocation();
-  const navigate = useNavigate();
   const [successMessage] = useState(
     () => location.state?.successMessage || ""
   );
 
   useEffect(() => {
     if (location.state?.successMessage) {
-      navigate(location.pathname, {
-        replace: true,
-        state: null,
-      });
+      window.history.replaceState(
+        { ...window.history.state, usr: null },
+        ""
+      );
     }
-  }, [location.pathname, location.state, navigate]);
+  }, [location.state]);
 
   const { displayName, initials, data, loading, error } =
     useProviderDashboard(getSession, getProviderDashboard);
