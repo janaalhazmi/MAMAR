@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import logo from "../../assets/mamar-logo.svg";
 import NotificationBell from "../../components/NotificationBell";
 import { useProviderDashboard, providerProfileService} from "../../services/providers/api";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import ProviderSidebar from "../../components/ProviderSidebar";
 import Button from "../../components/Button";
 import { getSession } from "../../services/auth";
@@ -28,6 +28,21 @@ function getProfilePictureUrl(user) {
 }
 
 function ProviderDashboard() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [successMessage] = useState(
+    () => location.state?.successMessage || ""
+  );
+
+  useEffect(() => {
+    if (location.state?.successMessage) {
+      navigate(location.pathname, {
+        replace: true,
+        state: null,
+      });
+    }
+  }, [location.pathname, location.state, navigate]);
+
   const { displayName, initials, data, loading, error } =
     useProviderDashboard(getSession, getProviderDashboard);
 
@@ -155,6 +170,22 @@ function ProviderDashboard() {
         </header>
 
         <main className="provider-dashboard-content">
+          {successMessage && (
+            <div
+              role="status"
+              style={{
+                padding: "12px 16px",
+                marginBottom: "20px",
+                backgroundColor: "#e8f5e9",
+                color: "#1b5e20",
+                border: "1px solid #a5d6a7",
+                borderRadius: "8px",
+              }}
+            >
+              {successMessage}
+            </div>
+          )}
+
           <section className="provider-title">
             <h1>Provider Dashboard</h1>
             <p>
