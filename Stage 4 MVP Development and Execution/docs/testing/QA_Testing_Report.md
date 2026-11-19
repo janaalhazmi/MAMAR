@@ -80,9 +80,6 @@ python -m pytest tests/ --cov=app --cov-report=term-missing --cov-report=html --
 | --- | --- | --- |
 | **BUG-PHOTO-79** | Selected site photo did not appear in provider Site Updates, contractor monitoring, or Final Evidence. Upload/persistence/display root cause not yet confirmed. | **OPEN — assigned to Shouq** |
 | OBS-PROVIDER-79 | Completion review displayed **Service Provider: Not assigned** despite provider participation. | Investigate |
-| OBS-CHECKIN-79 | Completion was possible while check-in was shown as **Not yet / —**. | Confirm business rule |
-| OBS-GPS-79 | Device verification accepted 45 m despite ±143 m reported GPS accuracy. | Review risk |
-| KNOWN-77 | Earlier quotation-submission redirect issue. | Regression retest |
 
 ## 5. Evidence & Remaining Checks
 
