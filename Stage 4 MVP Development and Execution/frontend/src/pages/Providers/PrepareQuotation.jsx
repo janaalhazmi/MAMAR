@@ -10,6 +10,7 @@ import Button from "../../components/Button";
 import logo from "../../assets/mamar-logo.svg";
 import MamarMap from "../../components/MamarMap";
 import { useQuotationRequest } from "../../services/providers/api";
+import { getSession } from "../../services/auth";
 
 const initialServices = [
   {
@@ -33,6 +34,14 @@ const initialServices = [
 ];
 
 function PrepareQuotation() {
+  const providerName = getSession()?.user?.full_name?.trim() || "Provider";
+  const providerInitials = providerName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join("");
+
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const requestId = searchParams.get("requestId");
@@ -189,10 +198,10 @@ function PrepareQuotation() {
         </Link>
 
         <div className="quotation-account">
-          <div className="quotation-avatar">TC</div>
+          <div className="quotation-avatar">{providerInitials}</div>
 
           <div>
-            <strong>TCM</strong>
+            <strong>{providerName}</strong>
             <span>Service Provider</span>
           </div>
         </div>
