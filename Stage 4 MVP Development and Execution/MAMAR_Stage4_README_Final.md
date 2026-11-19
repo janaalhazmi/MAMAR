@@ -71,7 +71,7 @@ Key dependencies: authentication APIs precede role-specific workflows; projects 
 | Backend | FastAPI, SQLAlchemy, Pydantic | REST APIs, validation, and business logic. |
 | Database | PostgreSQL | Persistent project, request, quotation, assignment, and user data. |
 | GIS | ArcGIS mapping integration and browser geolocation | Interactive work-zone mapping and location-based verification. |
-| Deployment | Vercel (frontend), Render (backend) | Hosted application used for integration and UAT. |
+| Deployment | Vercel (Frontend), Render (Backend), Supabase (PostgreSQL Database) | Cloud hosting for the frontend, backend APIs, and PostgreSQL database. |
 | Collaboration | Git, GitHub, GitHub Projects | Source control, issue tracking, and sprint coordination. |
 
 ### Implementation Workstreams
