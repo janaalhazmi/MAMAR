@@ -162,7 +162,7 @@ The following table summarizes the required Stage 4 deliverables, their document
 | **Source Repository** | [MAMAR Repository — develop Branch](https://github.com/janaalhazmi/MAMAR/tree/develop) | Available. Contains frontend, backend, project documentation, and testing resources. |
 | **Bug Tracking** | [GitHub Issues](https://github.com/janaalhazmi/MAMAR/issues) · [GitHub Project Board](https://github.com/users/janaalhazmi/projects/6) | Active. Defects are documented and tracked through GitHub Issues, with outstanding findings requiring resolution or documented acceptance. |
 | **Testing Evidence and Results** | [QA & Testing Report](docs/testing/QA_Testing_Report.md) · [Sprint 1 QA Test Cases](docs/testing/QA_TEST_CASES_SPRINT1.md) | Automated testing results and manual UAT findings are documented. Final evidence links, defect verification, and regression results must be confirmed before QA sign-off. |
-| **Production Environment** | Frontend: Vercel · Backend: Render · Database: Supabase | MVP deployed for testing. The verified application URL must be added before final submission. Production-readiness approval remains pending final QA sign-off. |
+| **Production Environment** | [MAMAR Live Application](https://mammar-blush.vercel.app/) · [Backend API](https://mamar-api.onrender.com) · [Swagger API Documentation](https://mamar-api.onrender.com/docs) · Database: Supabase (PostgreSQL) | MVP deployed for testing. Final production-readiness approval remains pending QA sign-off. |
 
 ### Submission Checklist
 
