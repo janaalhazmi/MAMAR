@@ -98,7 +98,32 @@ The PM coordinated sprint tasks, dependencies, deadlines, and blockers through t
 
 Progress-monitoring practices included team check-ins, reviewing deliverables against sprint goals, tracking integration blockers, assigning fixes, and reprioritizing tasks as needed. Examples of technical follow-up included frontend/backend integration, schema and test adjustments, Git merge conflicts, and UAT findings.
 
-**Metrics:** Planned vs. completed tasks, issue status, and bug resolution can be derived from the GitHub Project and Issues. Numerical sprint velocity and bug-resolution percentages are intentionally **not stated** here because verified per-sprint figures have not been consolidated.
+### Sprint Performance Metrics
+
+Project progress was monitored through GitHub Projects using sprint assignments, task statuses, and completion rates.
+
+The following metrics reflect the project status as of November 20, 2026.
+
+| Sprint | Period | Total Tasks | Completed | In Progress | To Do | Completion Rate |
+|--------|--------|-------------|-----------|-------------|-------|-----------------|
+| Sprint 1 | Oct 11–17 | 9 | 9 | 0 | 0 | 100% |
+| Sprint 2 | Oct 18–24 | 7 | 7 | 0 | 0 | 100% |
+| Sprint 3 | Oct 25–31 | 2 | 2 | 0 | 0 | 100% |
+| Sprint 4 | Nov 1–7 | 4 | 4 | 0 | 0 | 100% |
+| Sprint 5 | Nov 8–14 | 4 | 4 | 0 | 0 | 100% |
+| Sprint 6 | Nov 15–21 | 7 | 2 | 2 | 3 | 28.6% |
+| **Total** | **Oct 11–Nov 21** | **33** | **28** | **2** | **3** | **84.8%** |
+
+**Performance Indicators:**
+
+- **Overall Task Completion:** 84.8% (28 of 33 tasks).
+- **Completed Sprints:** Sprints 1–5 achieved 100% completion of their currently recorded tasks.
+- **Sprint 6:** Final QA, documentation, and defect resolution are ongoing.
+- **Progress Tracking:** GitHub Projects was used to monitor task completion, priorities, and outstanding issues.
+
+**Measurement Method:** Completion rates are calculated from the current task statuses in GitHub Projects. These figures represent the completion of recorded sprint tasks, not a historical baseline of originally planned tasks.
+
+[View Sprint Metrics](https://github.com/users/janaalhazmi/projects/6/views/3)
 
 ## 6. Task 3 — Conduct Sprint Reviews and Retrospectives
 
