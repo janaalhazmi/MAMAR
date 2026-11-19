@@ -178,13 +178,10 @@ function PrepareQuotation() {
         notes,
       });
       localStorage.removeItem("providerQuotationDraft");
-
-      alert("Quotation submitted successfully.");
-
-      navigate("/provider-dashboard", { replace: true });
-
-      localStorage.removeItem("providerQuotationDraft");
-      alert("Quotation submitted successfully.");
+      navigate("/provider-dashboard", {
+        replace: true,
+        state: { successMessage: "Quotation submitted successfully." },
+      });
     } catch (error) {
       alert(error.message || "Could not submit the quotation. Please try again.");
     } finally {

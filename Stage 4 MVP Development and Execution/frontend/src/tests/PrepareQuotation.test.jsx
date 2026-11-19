@@ -145,6 +145,11 @@ describe("PrepareQuotation", () => {
       })
     ).toBeInTheDocument();
 
+    expect(window.alert).toHaveBeenCalledTimes(1);
+    expect(window.alert).toHaveBeenCalledWith(
+      "Quotation submitted successfully."
+    );
+
     expect(localStorage.getItem("providerQuotationDraft")).toBeNull();
   });
 
