@@ -184,23 +184,37 @@ Before the final Stage 4 submission, the team must:
 
 ## 9. Repository Structure
 
+The Stage 4 repository is organized into dedicated directories for frontend development, backend services, sprint documentation, and quality assurance.
+
 ```text
 Stage 4 MVP Development and Execution/
+│
 ├── backend/
+│
 ├── frontend/
+│
 ├── docs/
+│   │
 │   ├── planning/
 │   │   └── SPRINT_2_PLAN.md
+│   │
 │   ├── reviews/
-│   │   └── SPRINT_1_REVIEW.md
+│   │   ├── SPRINT_1_REVIEW.md
+│   │   ├── SPRINT_2_REVIEW.md
+│   │   ├── SPRINT_3_REVIEW.md
+│   │   ├── SPRINT_4_REVIEW.md
+│   │   ├── SPRINT_5_REVIEW.md
+│   │   └── SPRINT_6_REVIEW.md
+│   │
 │   └── testing/
 │       ├── QA_TEST_CASES_SPRINT1.md
 │       └── QA_Testing_Report.md
+│
 ├── README.md
 └── package-lock.json
 ```
 
-The structure above highlights the main Stage 4 folders and known documentation files rather than listing every source file. Testing screenshots should be added under `docs/testing/evidence/` when ready.
+The following structure reflects the Stage 4 directory on the develop branch, where the latest development work and documentation are maintained.
 
 ## 10. Stage 4 Status and Next Steps
 
