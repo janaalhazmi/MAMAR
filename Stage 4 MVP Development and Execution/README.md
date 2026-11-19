@@ -152,17 +152,35 @@ The MVP has been deployed for testing, but final QA sign-off depends on resolvin
 
 ## 8. Task 5 — Deliverables
 
-| Required deliverable | Link / current location | Status |
-| --- | --- | --- |
-| **Sprint planning** | [Sprint 2 Plan](docs/planning/SPRINT_2_PLAN.md); [GitHub Project board](https://github.com/users/janaalhazmi/projects/6) | Available; additional plans tracked in project records. |
-| **Sprint reviews** | [Sprint 1 Review](docs/reviews/SPRINT_1_REVIEW.md) | Available; link further reviews when published. |
-| **Retrospectives** | [GitHub Project board](https://github.com/users/janaalhazmi/projects/6) | Add direct retrospective artifact links when available. |
-| **Source repository** | [MAMAR repository — `develop`](https://github.com/janaalhazmi/MAMAR/tree/develop) | Available. |
-| **Bug tracking** | [GitHub Issues](https://github.com/janaalhazmi/MAMAR/issues) | Active. |
-| **Testing evidence and results** | [QA & Testing Report](docs/testing/QA_Testing_Report.md); [Sprint 1 QA cases](docs/testing/QA_TEST_CASES_SPRINT1.md) | Report available; evidence screenshots to be linked after repository upload. |
-| **Production environment** | Frontend deployed on Vercel; backend deployed on Render | **Add verified application URL here**. Deployed testing environment; final production approval pending. |
+The following table summarizes the required Stage 4 deliverables, their documentation, and their current status.
 
-> **Submission checklist:** Before final Stage 4 submission, verify every link, add the actual deployed application URL, attach UAT evidence, and link any additional sprint reviews and retrospectives that were produced.
+| Required Deliverable | Link / Current Location | Status |
+|---|---|---|
+| **Sprint Planning** | [Sprint 2 Plan](docs/planning/SPRINT_2_PLAN.md) · [GitHub Project Board](https://github.com/users/janaalhazmi/projects/6) | Available. Sprint tasks, assignments, priorities, and progress are tracked through GitHub Projects. |
+| **Sprint Reviews** | [Sprint 1](docs/reviews/SPRINT_1_REVIEW.md) · [Sprint 2](docs/reviews/SPRINT_2_REVIEW.md) · [Sprint 3](docs/reviews/SPRINT_3_REVIEW.md) · [Sprint 4](docs/reviews/SPRINT_4_REVIEW.md) · [Sprint 5](docs/reviews/SPRINT_5_REVIEW.md) · [Sprint 6](docs/reviews/SPRINT_6_REVIEW.md) | Documentation available for all six sprints. Sprint 6 reflects the recorded progress snapshot and requires a final update after sprint closure. |
+| **Sprint Retrospectives** | [Sprint 1](docs/reviews/SPRINT_1_REVIEW.md) · [Sprint 2](docs/reviews/SPRINT_2_REVIEW.md) · [Sprint 3](docs/reviews/SPRINT_3_REVIEW.md) · [Sprint 4](docs/reviews/SPRINT_4_REVIEW.md) · [Sprint 5](docs/reviews/SPRINT_5_REVIEW.md) · [Sprint 6](docs/reviews/SPRINT_6_REVIEW.md) | Retrospective summaries are included in the sprint review documents. Sprint 2–6 summaries were compiled retrospectively from project records and do not imply that formal retrospective meetings were held. |
+| **Source Repository** | [MAMAR Repository — develop Branch](https://github.com/janaalhazmi/MAMAR/tree/develop) | Available. Contains frontend, backend, project documentation, and testing resources. |
+| **Bug Tracking** | [GitHub Issues](https://github.com/janaalhazmi/MAMAR/issues) · [GitHub Project Board](https://github.com/users/janaalhazmi/projects/6) | Active. Defects are documented and tracked through GitHub Issues, with outstanding findings requiring resolution or documented acceptance. |
+| **Testing Evidence and Results** | [QA & Testing Report](docs/testing/QA_Testing_Report.md) · [Sprint 1 QA Test Cases](docs/testing/QA_TEST_CASES_SPRINT1.md) | Automated testing results and manual UAT findings are documented. Final evidence links, defect verification, and regression results must be confirmed before QA sign-off. |
+| **Production Environment** | Frontend: Vercel · Backend: Render · Database: Supabase | MVP deployed for testing. The verified application URL must be added before final submission. Production-readiness approval remains pending final QA sign-off. |
+
+### Submission Checklist
+
+Before the final Stage 4 submission, the team must:
+
+- [x] Organize development tasks and sprint tracking through GitHub Projects.
+- [x] Document sprint reviews and retrospective summaries for all six sprints.
+- [x] Provide access to the source code repository.
+- [x] Establish bug tracking through GitHub Issues.
+- [x] Document automated testing results and manual UAT findings.
+- [ ] Verify that all documentation links are accessible and up to date.
+- [ ] Update the Sprint 6 review with its final completion status.
+- [ ] Confirm that UAT screenshots and supporting evidence are uploaded and linked in the QA report.
+- [ ] Resolve or explicitly accept outstanding defects and document regression testing results.
+- [ ] Add the verified deployed application URL.
+- [ ] Complete the final QA review and sign-off.
+
+**Documentation Note:** Sprint review and retrospective summaries are maintained in `docs/reviews/`. Detailed test results, coverage metrics, UAT outcomes, and defect evidence are maintained separately in the QA & Testing Report to avoid duplication and ensure consistent reporting.
 
 ## 9. Repository Structure
 
