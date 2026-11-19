@@ -1,0 +1,157 @@
+# MAMAR — Stage 4: MVP Development and Execution
+
+**Project:** MAMAR | **Stage:** 4 — MVP Development and Execution  
+**Period:** October 11 – November 21, 2026 | **Methodology:** Agile | **Duration:** 6 one-week sprints  
+**Status (November 19, 2026):** MVP deployed for testing; final validation and documentation in progress.
+
+## 1. Project Overview
+
+MAMAR is a GIS-enabled B2B platform connecting contractors working on roads and construction sites with temporary traffic control service providers. Contractors define geographic work zones, request traffic control services, compare provider quotations, and monitor execution. Providers manage quotations and field assignments, while field workers access assigned projects and verify traffic control devices against their planned locations.
+
+Stage 4 translates the requirements and technical design from Stage 3 into a working Minimum Viable Product (MVP). Work is organized into six Agile sprints, with assigned responsibilities, Git-based collaboration, progress tracking, reviews, and quality assurance.
+
+### Stage Objectives
+
+- Implement the approved MVP scope through iterative development.
+- Break user stories into prioritized, assigned sprint tasks with dependencies and deadlines.
+- Coordinate frontend, backend, database, and GIS integration.
+- Maintain codebase integrity through source control and review practices.
+- Track progress, address blockers, and document sprint feedback.
+- Validate integrated workflows before final Stage 4 sign-off.
+
+## 2. Team Roles and Responsibilities
+
+| Team member | Stage 4 role | Main responsibilities |
+| --- | --- | --- |
+| **Razan Kashr** | Project Manager (PM) & GIS Lead Integration | Sprint planning and coordination, task tracking, priorities, dependencies, GIS work-zone integration, and end-to-end validation coordination. |
+| **Jana Alhazmi** | Frontend Developer, UI/UX Integration & Source Control Manager (SCM) | React interface development, UI integration, repository organization, branching and pull-request coordination. |
+| **Kayan Alnazari** | Frontend Developer & Quality Assurance (QA) | React pages and workflows, test coordination, bug documentation, and verification of completed functionality. |
+| **Shouq Alqarni** | Backend Developer | FastAPI endpoints, PostgreSQL data models, business logic, authentication, and backend testing. |
+
+All members contribute to testing, code review, integration, and resolving issues within their assigned areas. PM, SCM, and QA are distinct responsibilities even when a team member also develops features.
+
+## 3. Task 0 — Plan and Define Sprints
+
+### Agile Planning Approach
+
+The team planned **six one-week sprints** and organized work in GitHub Projects. Tasks are prioritized using the **MoSCoW** method (Must Have, Should Have, Could Have, Won't Have), with owners, deadlines, and dependencies tracked through project items and GitHub Issues.
+
+### Sprint Schedule — Official Meeting-Plan Order
+
+The goals below follow the Stage 4 meeting-plan sequence provided by Holberton. Dates reflect the team's six-week Stage 4 schedule. These are **sprint targets**, not claims that every item was completed on its target date.
+
+| Sprint | Dates | Planned goal |
+| --- | --- | --- |
+| **Sprint 1** | **Oct 11–17, 2026** | Project setup, timeline, and task planning. |
+| **Sprint 2** | **Oct 18–24, 2026** | End-to-end authentication and homepage completion. |
+| **Sprint 3** | **Oct 25–31, 2026** | Reach 50% of the main MVP features. |
+| **Sprint 4** | **Nov 1–7, 2026** | Reach 100% of the main MVP features. |
+| **Sprint 5** | **Nov 8–14, 2026** | Secondary features and third-party integrations. |
+| **Sprint 6** | **Nov 15–21, 2026** | QA testing and optional features. |
+
+### Priorities and Dependencies
+
+**Must Have:** authentication and role-aware workflows; contractor project management; GIS work-zone definition; service requests; provider quotations and contractor selection; field worker assignment; location-based device verification; integrated backend and database operations.
+
+**Should Have:** project monitoring, role-specific dashboards, execution evidence, and notifications.  
+**Could Have:** advanced analytics and optional enhancements.  
+**Out of scope for core MVP:** continuous real-time GPS tracking and automated engineering traffic-control-plan generation.
+
+**Scope note:** The original Stage 4 plan excluded online payments. A **PayPal Sandbox** payment flow was subsequently integrated and exercised during UAT; this is a scope addition for demonstration/testing, **not evidence of live payment processing**.
+
+Key dependencies: authentication APIs precede role-specific workflows; projects precede work-zone storage and service requests; service requests precede quotations; accepted quotations precede provider assignments; device/location data precede field verification; integration precedes final end-to-end validation.
+
+## 4. Task 1 — Execute Development Tasks
+
+### Technology Stack
+
+| Layer | Technology / service | Purpose |
+| --- | --- | --- |
+| Frontend | React, JavaScript | Role-specific interfaces and workflow screens. |
+| Backend | FastAPI, SQLAlchemy, Pydantic | REST APIs, validation, and business logic. |
+| Database | PostgreSQL | Persistent project, request, quotation, assignment, and user data. |
+| GIS | ArcGIS mapping integration and browser geolocation | Interactive work-zone mapping and location-based verification. |
+| Deployment | Vercel (frontend), Render (backend) | Hosted application used for integration and UAT. |
+| Collaboration | Git, GitHub, GitHub Projects | Source control, issue tracking, and sprint coordination. |
+
+### Implementation Workstreams
+
+**Foundation and authentication:** development environments, repository structure, backend/database setup, login and role-based application entry points.
+
+**Contractor workflows:** project creation and editing; mapped work-zone polygons; service request submission; quotation review and provider selection; project monitoring and completion approval.
+
+**Provider workflows:** visibility of relevant service requests, quotation submission, project/field-worker assignment, and completion review.
+
+**Field workflows:** assigned project visibility, mapped locations, device verification with a distance threshold, execution updates, and site-evidence interfaces.
+
+**Integration:** React-to-FastAPI communication, PostgreSQL persistence, GIS display and polygon retention, notifications, and a PayPal Sandbox payment demonstration.
+
+**Implementation note:** These workstreams describe features developed and exercised during Stage 4. They do not imply that every workflow is defect-free; open items are tracked separately.
+
+### Source Control and Collaboration
+
+Feature work was coordinated through GitHub branches, commits, pull requests, and the shared `develop` branch. SCM responsibilities include reviewing changes, managing merges, and maintaining repository structure. GitHub Issues and project-board statuses provide traceability from planned tasks to implementation and follow-up.
+
+## 5. Task 2 — Monitor Progress and Adjust
+
+The PM coordinated sprint tasks, dependencies, deadlines, and blockers through the [MAMAR GitHub Project](https://github.com/users/janaalhazmi/projects/6) and [repository Issues](https://github.com/janaalhazmi/MAMAR/issues). The team used task statuses to distinguish work not started, in progress, under review, and completed.
+
+Progress-monitoring practices included team check-ins, reviewing deliverables against sprint goals, tracking integration blockers, assigning fixes, and reprioritizing tasks as needed. Examples of technical follow-up included frontend/backend integration, schema and test adjustments, Git merge conflicts, and UAT findings.
+
+**Metrics:** Planned vs. completed tasks, issue status, and bug resolution can be derived from the GitHub Project and Issues. Numerical sprint velocity and bug-resolution percentages are intentionally **not stated** here because verified per-sprint figures have not been consolidated.
+
+## 6. Task 3 — Conduct Sprint Reviews and Retrospectives
+
+Sprint reviews compare completed work with the sprint goal and identify remaining work. Retrospectives examine collaboration, blockers, and improvements for the following iteration.
+
+The documented review material currently identified in this Stage 4 directory includes [Sprint 1 Review](docs/reviews/SPRINT_1_REVIEW.md). Sprint plans and other review/retrospective artifacts should be linked here as they are finalized; the existence of six planned sprints does not, by itself, establish that six retrospective documents have been published.
+
+Key themes for review and improvement include cross-role integration, Git workflow coordination, clarity of API contracts, testing earlier in the development cycle, and tracking defects through retesting.
+
+## 7. Task 4 — Final Integration and QA Testing
+
+Stage 4 includes automated frontend/backend tests and manual user acceptance testing across Contractor, Service Provider, and Field Worker roles. End-to-end scenarios exercised the core flow from project creation and GIS work-zone definition through quotations, field assignment, location verification, and project completion.
+
+**The authoritative record for test counts, coverage, scenario-level PASS/FAIL/PARTIAL outcomes, evidence, and open defects is the [QA & Testing Report](docs/testing/QA_Testing_Report.md).** This README deliberately avoids duplicating detailed testing results so that test documentation remains in one maintained location.
+
+The MVP has been deployed for testing, but final QA sign-off depends on resolving or explicitly accepting outstanding findings and completing regression checks. A successful automated test suite alone is not production-readiness approval.
+
+## 8. Task 5 — Deliverables
+
+| Required deliverable | Link / current location | Status |
+| --- | --- | --- |
+| **Sprint planning** | [Sprint 2 Plan](docs/planning/SPRINT_2_PLAN.md); [GitHub Project board](https://github.com/users/janaalhazmi/projects/6) | Available; additional plans tracked in project records. |
+| **Sprint reviews** | [Sprint 1 Review](docs/reviews/SPRINT_1_REVIEW.md) | Available; link further reviews when published. |
+| **Retrospectives** | [GitHub Project board](https://github.com/users/janaalhazmi/projects/6) | Add direct retrospective artifact links when available. |
+| **Source repository** | [MAMAR repository — `develop`](https://github.com/janaalhazmi/MAMAR/tree/develop) | Available. |
+| **Bug tracking** | [GitHub Issues](https://github.com/janaalhazmi/MAMAR/issues) | Active. |
+| **Testing evidence and results** | [QA & Testing Report](docs/testing/QA_Testing_Report.md); [Sprint 1 QA cases](docs/testing/QA_TEST_CASES_SPRINT1.md) | Report available; evidence screenshots to be linked after repository upload. |
+| **Production environment** | Frontend deployed on Vercel; backend deployed on Render | **Add verified application URL here**. Deployed testing environment; final production approval pending. |
+
+> **Submission checklist:** Before final Stage 4 submission, verify every link, add the actual deployed application URL, attach UAT evidence, and link any additional sprint reviews and retrospectives that were produced.
+
+## 9. Repository Structure
+
+```text
+Stage 4 MVP Development and Execution/
+├── backend/
+├── frontend/
+├── docs/
+│   ├── planning/
+│   │   └── SPRINT_2_PLAN.md
+│   ├── reviews/
+│   │   └── SPRINT_1_REVIEW.md
+│   └── testing/
+│       ├── QA_TEST_CASES_SPRINT1.md
+│       └── QA_Testing_Report.md
+├── README.md
+└── package-lock.json
+```
+
+The structure above highlights the main Stage 4 folders and known documentation files rather than listing every source file. Testing screenshots should be added under `docs/testing/evidence/` when ready.
+
+## 10. Stage 4 Status and Next Steps
+
+As of **November 19, 2026**, MAMAR has an integrated, deployed MVP that supports the main contractor–provider–field-worker workflow. The six-sprint development period runs through **November 21, 2026**. Remaining Stage 4 work includes final regression, review of outstanding UAT findings, completion of evidence links, and final documentation/sign-off.
+
+For the current verified QA status, see the [QA & Testing Report](docs/testing/QA_Testing_Report.md); for task and defect status, see the [GitHub Project](https://github.com/users/janaalhazmi/projects/6) and [Issues](https://github.com/janaalhazmi/MAMAR/issues).
