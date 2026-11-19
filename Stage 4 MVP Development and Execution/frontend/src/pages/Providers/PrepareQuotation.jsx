@@ -108,7 +108,10 @@ function PrepareQuotation() {
     submitting.current = true;
     try {
       await declineProviderRequest(requestId);
-      navigate("/provider-dashboard", { replace: true });
+      navigate("/provider-dashboard", {
+        replace: true,
+        state: { successMessage: "Request declined successfully." },
+      });
     } catch (error) {
       window.alert(error.message || "Could not save your decision.");
     } finally {

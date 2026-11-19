@@ -239,7 +239,7 @@ describe("PrepareQuotation", () => {
     ).toBeInTheDocument();
   });
 
-  it("declines the request and returns to the dashboard", async () => {
+  it("declines the request and shows a success message on the dashboard", async () => {
     const user = userEvent.setup();
     renderQuotation();
 
@@ -250,6 +250,9 @@ describe("PrepareQuotation", () => {
       await screen.findByRole("heading", {
         name: "Provider dashboard destination",
       })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Request declined successfully.")
     ).toBeInTheDocument();
   });
 
