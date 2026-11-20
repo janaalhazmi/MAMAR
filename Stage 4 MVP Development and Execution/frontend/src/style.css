@@ -11617,3 +11617,33 @@ textarea {
     grid-column: 1;
   }
 }
+
+/* Worker details: assigned project confirmation */
+.pft-page .pft-details[aria-label="Worker details"] > p[role="status"] {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 0;
+  padding: 14px 16px;
+  border: 1px solid #eee3b8;
+  border-radius: 10px;
+  background: #fffdf5;
+  color: #65521c;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.pft-page .pft-details[aria-label="Worker details"] > p[role="status"]::before {
+  content: "\2713";
+  display: grid;
+  place-items: center;
+  flex: 0 0 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fff0b3;
+  color: #806000;
+  font-size: 14px;
+  font-weight: 700;
+}
