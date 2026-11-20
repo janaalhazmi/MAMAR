@@ -390,4 +390,153 @@
   transition: background 0.2s ease;
 }
 
+/* =========================================================
+   PROVIDER RESPONSIVE DESIGN
+========================================================= */
+
+/* ---------- Tablets ---------- */
+
+@media (max-width: 1000px) {
+  .pf-main {
+    padding: 24px;
+  }
+
+  .pf-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .pf-summary-item + .pf-summary-item {
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .pf-summary-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 760px) {
+  .pf-main {
+    min-width: 0;
+    padding: 20px 14px 28px;
+    gap: 16px;
+    overflow-x: hidden;
+  }
+
+  .pf-heading h1 {
+    font-size: 24px;
+  }
+
+  .pf-heading p {
+    font-size: 13px;
+  }
+
+  .pf-title-row {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .pf-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .pf-summary-item {
+    min-width: 0;
+  }
+
+  .pf-summary-item strong {
+    font-size: 13px;
+  }
+
+  .pf-card {
+    min-width: 0;
+  }
+
+  .pf-pad {
+    padding: 16px;
+  }
+
+  .pf-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pf-btn {
+    min-height: 44px;
+  }
+
+  .pf-logo {
+    width: 56px;
+    height: 48px;
+  }
+}
+
+/* ---------- Small Phones ---------- */
+
+@media (max-width: 480px) {
+  .pf-main {
+    padding: 16px 12px 24px;
+  }
+
+  .pf-heading h1 {
+    font-size: 21px;
+  }
+
+  .pf-summary,
+  .pf-summary-4 {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .pf-summary-item {
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--pf-line);
+  }
+
+  .pf-summary-item:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  .pf-big {
+    font-size: 21px;
+  }
+
+  .pf-mid {
+    font-size: 16px;
+  }
+
+  .pf-actions {
+    width: 100%;
+  }
+
+  .pf-actions .pf-btn {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .pf-pad {
+    padding: 14px;
+  }
+}
+
+/* ---------- Touch Devices ---------- */
+
+@media (hover: none) and (pointer: coarse) {
+  .pf-btn {
+    min-height: 44px;
+  }
+
+  .pf-backlink {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
 

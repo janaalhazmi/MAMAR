@@ -16,6 +16,7 @@ import Header from "../../components/Header";
 import PhoneAlertsCard from "../../components/PhoneAlertsCard";
 import { getSession } from "../../services/auth";
 
+
 import {
   getNotifications,
   markNotificationAsRead,
