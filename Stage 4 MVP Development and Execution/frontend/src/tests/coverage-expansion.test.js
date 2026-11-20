@@ -240,12 +240,13 @@ describe('Contractor workflow service – formatters and project state', () => {
     });
     const empty = await contractor.getMonitoringData(1);
     expect(empty).toMatchObject({ status: 'mystery', latestUpdate: { title: 'No updates yet' }, provider: null });
-    expect(empty.milestones[0].state).toBe('pending');
+    expect(empty.milestones).toEqual([]);
     api.authed.mockImplementation((...args) => {
       const path = String(args[0] ?? '');
-      if (path.includes('/monitoring') && path.includes('/2/')) return Promise.resolve({ project_status: 'completed', progress: 100, field_team_count: 2, site_status: 'Completed', completion_submitted: true, photos: [{ photo_id: 2, url: '/x', caption: 'Done', created_at: '2025-01-01T00:00:00Z' }], provider: { provider_id: 1, company_name: 'TCM', service_type: 'Traffic' } });
+      if (path.includes('/monitoring') && path.includes('/2/')) return Promise.resolve({ project_status: 'completed', progress: 100, field_team_count: 2, site_status: 'Completed', completion_submitted: true, photos: [{ photo_id: 2, url: '/x', caption: 'Done', created_at: '2025-01-01T00:00:00Z' }], provider: { provider_id: 1, company_name: 'TCM', service_type: 'Traffic' }, milestones: [{ milestone_id: 1, name: 'Site Preparation', status: 'completed' }, { milestone_id: 2, name: 'Installation', status: 'in_progress' }, { milestone_id: 3, name: 'Final Check' }] });
+      if (path.includes('/monitoring') && path.includes('/4/')) return Promise.resolve({ progress: 80, completion_submitted: true, submitted_at: '2025-01-02T10:30:00Z', services: ['ttc-plan', 'custom'], photos: [{ photo_id: 1, url: '/p', caption: 'proof' }], quote: { notes: 'All done' }, provider: { provider_id: 7, company_name: 'Safety Arabia', service_type: 'Traffic' } });
       if (path.includes('/monitoring')) return Promise.resolve({ project_status: 'active', progress: 30, field_team_count: 1, site_status: 'Paused', last_check_in: '2025-01-01T00:00:00Z', photos: [], completion_submitted: false });
-      if (path.includes('/completion')) return Promise.resolve({ progress: 100, submitted_at: '2025-01-02T00:00:00Z', services: ['ttc-plan', 'custom'], photos: [{ photo_id: 1, url: '/p', caption: 'proof' }], quote: { notes: 'All done' } });
+      if (path.includes('/completion')) return Promise.resolve({ progress: 100, submitted_at: '2025-01-02T00:00:00Z', services: ['ttc-plan', 'custom'], photos: [{ photo_id: 1, url: '/p', caption: 'proof' }], quote: { notes: 'All done' }, provider: { provider_id: 7, company_name: 'Safety Arabia', service_type: 'Traffic' } });
       if (path.includes('/complete')) return Promise.resolve({ project_status: 'completed' });
       if (path.includes('/request-changes')) return Promise.resolve({ project_status: 'active' });
       return Promise.resolve({});
@@ -253,10 +254,12 @@ describe('Contractor workflow service – formatters and project state', () => {
     const full = await contractor.getMonitoringData(2);
     expect(full.latestUpdate.title).toBe('New site photo');
     expect(full.provider.providerName).toBe('TCM');
-    expect(full.milestones[1].state).toBe('done');
+    expect(full.milestones.map((m) => m.state)).toEqual(['done', 'active', 'pending']);
     expect((await contractor.getMonitoringData(3)).latestUpdate.title).toBe('Site check-in');
-    const completion = await contractor.getCompletionData(3);
-    expect(completion).toMatchObject({ finalProgress: 100, providerNote: 'Provider note: All done' });
+    const completion = await contractor.getCompletionData(4);
+    expect(completion).toMatchObject({ finalProgress: 100, providerNote: 'Provider note: All done', completionDate: '2025-01-02' });
+    // Issue #80: the provider comes from the server, not from the quote saved in this browser.
+    expect(completion.provider).toMatchObject({ providerName: 'Safety Arabia', providerDescription: 'Traffic' });
     expect(completion.checklist).toHaveLength(3);
     expect(completion.evidence[0]).toMatchObject({ src: 'https://api.example.test/p', stage: 'during' });
     expect(await contractor.approveCompletion(3)).toEqual({ projectId: 3, status: 'completed' });

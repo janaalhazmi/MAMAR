@@ -248,40 +248,34 @@ describe('FieldExecution - حالة الموقع والحضور', () => {
 })
 
 describe('FieldExecution - صور الموقع', () => {
-  it('زر Add more photos يفتح اختيار الملفات', async () => {
+  // Issue #79: a chosen photo is sent right away, so it is never left "selected" but not saved.
+  it('زر Add photos يفتح اختيار الملفات', async () => {
     await loaded()
     const spy = vi.spyOn(fileInput(), 'click').mockImplementation(() => {})
-    fireEvent.click(screen.getByText('+ Add more photos').closest('button'))
+    fireEvent.click(screen.getByText('+ Add photos').closest('button'))
     expect(spy).toHaveBeenCalled()
   })
 
-  it('اختيار صورة، تغيير مرحلتها، حذفها', async () => {
+  it('اختيار صورة يرسلها على طول (مع حالة Sending…)', async () => {
+    const d = deferred()
+    svc.uploadSitePhotos.mockReturnValue(d.promise)
     await loaded()
-    pickFile('site photo.png')
-    await screen.findByText('Send Photos (1)')
-    expect(screen.getByAltText('site photo')).toBeInTheDocument()
-
-    const stage = screen.getByLabelText('When was site photo taken')
-    fireEvent.change(stage, { target: { value: 'after' } })
-    expect(stage).toHaveValue('after')
-
-    fireEvent.click(screen.getByLabelText('Remove site photo'))
-    await waitFor(() => expect(screen.queryByAltText('site photo')).not.toBeInTheDocument())
-    expect(screen.getByText('Send Photos')).toBeDisabled()
+    pickFile()
+    expect(await screen.findByText('Sending…')).toBeInTheDocument()
+    await act(async () => { d.resolve([{ id: 20, src: 'data:new', caption: 'new photo' }]); await d.promise })
+    expect(await screen.findByText(/1 photo saved/)).toBeInTheDocument()
+    expect(screen.getByAltText('new photo')).toBeInTheDocument()
+    expect(svc.uploadSitePhotos).toHaveBeenCalledWith('5', [expect.objectContaining({ stage: 'during' })])
+    expect(screen.queryByRole('button', { name: /Try again/ })).not.toBeInTheDocument()
   })
 
-  it('تغيير مرحلة صورة لا يغيّر صورة ثانية', async () => {
+  it('مرحلة الصور المختارة تنرسل مع الصورة', async () => {
+    svc.uploadSitePhotos.mockResolvedValue([{ id: 21, src: 'data:a', caption: 'a' }, { id: 22, src: 'data:b', caption: 'b' }])
     await loaded()
-    pickFile('a.png')
-    await screen.findByText('Send Photos (1)')
-    pickFile('b.png')
-    await screen.findByText('Send Photos (2)')
-    fireEvent.change(screen.getByLabelText('When was a taken'), { target: { value: 'before' } })
-    expect(screen.getByLabelText('When was a taken')).toHaveValue('before')
-    expect(screen.getByLabelText('When was b taken')).toHaveValue('during')
-    fireEvent.click(screen.getByLabelText('Remove a'))
-    await waitFor(() => expect(screen.queryByAltText('a')).not.toBeInTheDocument())
-    expect(screen.getByAltText('b')).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText(/These photos are from/), { target: { value: 'after' } })
+    pickFile('after.png')
+    await screen.findByText(/photos saved/)
+    expect(svc.uploadSitePhotos).toHaveBeenCalledWith('5', [expect.objectContaining({ stage: 'after', caption: 'after' })])
   })
 
   it('اختيار بدون ملفات أو files = null لا يسوي شي', async () => {
@@ -289,8 +283,8 @@ describe('FieldExecution - صور الموقع', () => {
     fireEvent.change(fileInput(), { target: { files: [] } })
     Object.defineProperty(fileInput(), 'files', { value: null, configurable: true })
     fireEvent.change(fileInput())
-    expect(screen.getByText('Send Photos')).toBeDisabled()
     expect(svc.fileToDataUrl).not.toHaveBeenCalled()
+    expect(svc.uploadSitePhotos).not.toHaveBeenCalled()
   })
 
   it('فشل قراءة الصورة برسالة', async () => {
@@ -298,6 +292,7 @@ describe('FieldExecution - صور الموقع', () => {
     await loaded()
     pickFile()
     expect(await screen.findByRole('alert')).toHaveTextContent('Corrupt image')
+    expect(svc.uploadSitePhotos).not.toHaveBeenCalled()
   })
 
   it('فشل قراءة الصورة بدون رسالة', async () => {
@@ -307,33 +302,25 @@ describe('FieldExecution - صور الموقع', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Could not read the photo.')
   })
 
-  it('إرسال الصور بنجاح (مع حالة Sending…)', async () => {
-    const d = deferred()
-    svc.uploadSitePhotos.mockReturnValue(d.promise)
+  it('فشل الإرسال: الصورة تبقى Not saved وزر Try again يعيد الإرسال', async () => {
+    svc.uploadSitePhotos.mockRejectedValueOnce(new Error('Quota exceeded'))
     await loaded()
     pickFile()
-    fireEvent.click(await screen.findByText('Send Photos (1)'))
-    expect(await screen.findByText('Sending…')).toBeInTheDocument()
-    await act(async () => { d.resolve([{ id: 20, src: 'data:new', caption: 'new photo' }]); await d.promise })
-    expect(await screen.findByText(/Photos sent/)).toBeInTheDocument()
-    expect(screen.getByAltText('new photo')).toBeInTheDocument()
-    expect(svc.uploadSitePhotos).toHaveBeenCalledWith('5', expect.any(Array))
-    expect(screen.getByText('Send Photos')).toBeDisabled()
-  })
-
-  it('فشل إرسال الصور برسالة', async () => {
-    svc.uploadSitePhotos.mockRejectedValue(new Error('Quota exceeded'))
-    await loaded()
-    pickFile()
-    fireEvent.click(await screen.findByText('Send Photos (1)'))
     expect(await screen.findByRole('alert')).toHaveTextContent('Quota exceeded')
+    expect(screen.getByText('Not saved')).toBeInTheDocument()
+    fireEvent.click(screen.getByText('Try again (1)'))
+    expect(await screen.findByText(/1 photo saved/)).toBeInTheDocument()
+    expect(svc.uploadSitePhotos).toHaveBeenCalledTimes(2)
+    expect(screen.queryByText('Not saved')).not.toBeInTheDocument()
   })
 
-  it('فشل إرسال الصور بدون رسالة', async () => {
+  it('فشل الإرسال بدون رسالة يعرض الرسالة الافتراضية، والصورة تنحذف', async () => {
     svc.uploadSitePhotos.mockRejectedValue(new Error(''))
     await loaded()
-    pickFile()
-    fireEvent.click(await screen.findByText('Send Photos (1)'))
-    expect(await screen.findByRole('alert')).toHaveTextContent('Could not send the photos. Please try again.')
+    pickFile('site photo.png')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not send the photos.')
+    fireEvent.click(screen.getByLabelText('Remove site photo'))
+    await waitFor(() => expect(screen.queryByText('Not saved')).not.toBeInTheDocument())
+    expect(screen.queryByRole('button', { name: /Try again/ })).not.toBeInTheDocument()
   })
 })

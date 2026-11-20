@@ -4,6 +4,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
 
+from app.schemas.milestone import MilestoneResponse
 from app.schemas.project import ProjectResponse, ServiceId, unique_services
 from app.schemas.quote import QuoteResponse
 
@@ -135,17 +136,3 @@ class DeviceVerificationResponse(BaseModel):
     distance_m: float
     max_distance_m: float
     status: str
-
-class MilestoneResponse(BaseModel):
-    milestone_id: int
-    project_id: int
-    name: str
-    status: str
-    updated_at: datetime | None
-
-class MilestoneUpdate(BaseModel):
-    status: Literal[
-        "pending",
-        "in_progress",
-        "completed"
-    ]

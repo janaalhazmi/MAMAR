@@ -31,7 +31,9 @@ function FieldExecution() {
   const [busy, setBusy] = useState(false);
 
   const [editingStatus, setEditingStatus] = useState(false);
-  const [pending, setPending] = useState([]); // photos chosen but not sent yet
+  const [pending, setPending] = useState([]); // photos chosen but not saved yet (sending, or failed)
+  const [nextStage, setNextStage] = useState("during"); // before, during or after the work, for the next photos
+  const [photoMsg, setPhotoMsg] = useState(null); // { ok, text } shown in the Site Updates card
   const safety = useSafetyChecks(projectId, data?.photos?.length || 0); // AI safety check of the photos
 
   // The project comes from the real backend:
@@ -106,47 +108,63 @@ function FieldExecution() {
     }
   }
 
+  // Choosing photos sends them right away, so a photo is never left "selected" but not saved (issue #79).
   async function handleFilesChosen(event) {
     const files = Array.from(event.target.files || []);
     event.target.value = ""; // lets the worker pick the same photo again
     if (files.length === 0) return;
 
     setError("");
+    setPhotoMsg(null);
+    let prepared;
     try {
-      const prepared = await Promise.all(
+      prepared = await Promise.all(
         files.map(async (file, index) => ({
           id: `${Date.now()}-${index}`,
           caption: file.name.replace(/\.[^.]+$/, ""),
-          stage: "during", // before, during or after the work
+          stage: nextStage,
           file, // the real File: this is what is sent to the backend
           src: await fileToDataUrl(file), // small preview version
         }))
       );
-      setPending((current) => [...current, ...prepared]);
-      setNotice("");
     } catch (err) {
-      setError(err.message || "Could not read the photo.");
-    }
-  }
-
-  async function handleSendPhotos() {
-    if (pending.length === 0) {
-      setError("Add at least one photo first.");
+      setPhotoMsg({ ok: false, text: err.message || "Could not read the photo." });
       return;
     }
+    const waiting = [...pending, ...prepared];
+    setPending(waiting);
+    await sendPhotos(waiting);
+  }
+
+  async function sendPhotos(list = pending) {
+    if (list.length === 0) return;
     setBusy(true);
-    setError("");
+    setPhotoMsg(null);
     try {
-      const saved = await uploadSitePhotos(projectId, pending);
+      const saved = await uploadSitePhotos(projectId, list);
       setData((current) => ({ ...current, photos: [...saved, ...current.photos] }));
       setPending([]);
-      setNotice("Photos sent. Your contractor will see them in Project Monitoring.");
+      setPhotoMsg({
+        ok: true,
+        text: `${saved.length} ${saved.length === 1 ? "photo" : "photos"} saved. The provider and the contractor can see ${saved.length === 1 ? "it" : "them"} now.`,
+      });
     } catch (err) {
-      setError(err.message || "Could not send the photos. Please try again.");
+      setPhotoMsg({ ok: false, text: `${err.message || "Could not send the photos."} The photos are not saved yet: press Try again.` });
     } finally {
       setBusy(false);
     }
   }
+
+  // Warn before closing the page while photos are not saved.
+  useEffect(() => {
+    if (pending.length === 0) return undefined;
+    const warn = (event) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [pending.length]);
 
   if (!data) {
     return (
@@ -348,15 +366,18 @@ function FieldExecution() {
         <section className="pf-card pf-pad">
           <div className="fw-card-head">
             <h2>Site Updates</h2>
-            <button
-              type="button"
-              className="pf-btn pf-btn-primary pf-btn-sm"
-              onClick={handleSendPhotos}
-              disabled={busy || pending.length === 0}
-            >
-              {busy ? "Sending…" : `Send Photos${pending.length ? ` (${pending.length})` : ""}`}
-            </button>
+            {pending.length > 0 && !busy && (
+              <button type="button" className="pf-btn pf-btn-primary pf-btn-sm" onClick={() => sendPhotos()}>
+                Try again ({pending.length})
+              </button>
+            )}
           </div>
+
+          {photoMsg && (
+            <p className={`fw-photo-msg ${photoMsg.ok ? "ok" : "bad"}`} role={photoMsg.ok ? "status" : "alert"}>
+              {photoMsg.text}
+            </p>
+          )}
 
           {photos.length > 0 && (
             <div className="fw-thumbs">
@@ -373,38 +394,34 @@ function FieldExecution() {
           {pending.length > 0 && (
             <div className="fw-thumbs">
               {pending.map((photo) => (
-                <figure key={photo.id}>
+                <figure key={photo.id} className="fw-pending">
                   <img src={photo.src} alt={photo.caption} />
                   <figcaption>
-                    <select
-                      className="photo-stage"
-                      aria-label={`When was ${photo.caption} taken`}
-                      value={photo.stage}
-                      onChange={(event) =>
-                        setPending((current) =>
-                          current.map((p) => (p.id === photo.id ? { ...p, stage: event.target.value } : p))
-                        )
-                      }
-                    >
-                      <option value="before">Before</option>
-                      <option value="during">During</option>
-                      <option value="after">After</option>
-                    </select>
-                    <button
-                      type="button"
-                      className="fw-remove"
-                      onClick={() =>
-                        setPending((current) => current.filter((p) => p.id !== photo.id))
-                      }
-                      aria-label={`Remove ${photo.caption}`}
-                    >
-                      ✕
-                    </button>
+                    {busy ? "Sending…" : "Not saved"}
+                    {!busy && (
+                      <button
+                        type="button"
+                        className="fw-remove"
+                        onClick={() => setPending((current) => current.filter((p) => p.id !== photo.id))}
+                        aria-label={`Remove ${photo.caption}`}
+                      >
+                        ✕
+                      </button>
+                    )}
                   </figcaption>
                 </figure>
               ))}
             </div>
           )}
+
+          <label className="fw-stage-pick">
+            These photos are from
+            <select value={nextStage} onChange={(event) => setNextStage(event.target.value)} disabled={busy}>
+              <option value="before">Before the work</option>
+              <option value="during">During the work</option>
+              <option value="after">After the work (final evidence)</option>
+            </select>
+          </label>
 
           <button
             type="button"
@@ -413,8 +430,8 @@ function FieldExecution() {
             disabled={busy}
           >
             <span>
-              <strong>+ Add more photos</strong>
-              <small>Add photos or field documentation from the work zone.</small>
+              <strong>{busy ? "Sending photos…" : "+ Add photos"}</strong>
+              <small>Take or choose photos: they are saved as soon as you pick them.</small>
             </span>
             <span className="fw-upload-plus" aria-hidden="true">
               <Icon name="plus" size={22} />

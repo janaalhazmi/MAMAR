@@ -44,3 +44,12 @@
 }
 .qr-error { margin: 0; padding: 9px 12px; border-radius: 8px; background: #fdecec; color: #b42318; font-size: 13px; }
 .qr-none { margin: 0; color: #6b7280; font-size: 13px; }
+
+/* Site photos on the field worker page (issue #79) */
+.fw-photo-msg { margin: 0 0 12px; padding: 10px 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; }
+.fw-photo-msg.ok { background: #eef8f1; color: #1f6b38; }
+.fw-photo-msg.bad { background: #fdeceb; color: #a3271c; }
+.fw-pending img { opacity: .6; }
+.fw-pending figcaption { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 12px; color: #b8860b; font-weight: 600; }
+.fw-stage-pick { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 4px 0 10px; font-size: 13px; color: #344054; font-weight: 600; }
+.fw-stage-pick select { min-height: 38px; padding: 6px 10px; border: 1px solid #d0d5dd; border-radius: 8px; font: inherit; font-weight: 500; background: #fff; }

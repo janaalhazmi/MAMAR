@@ -56,7 +56,7 @@ export default function ProviderProjectDetails() {
     reviewBusy,
     reviewError,
     reviewNotice,
-    milestones,
+    milestones = [], // the hook may not have them yet
     milestonesLoading,
     milestonesError,
     milestoneBusy,
