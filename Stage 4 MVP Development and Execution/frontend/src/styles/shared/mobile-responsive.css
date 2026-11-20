@@ -1,0 +1,497 @@
+/* =========================================================
+   MOBILE / iPHONE
+   Loaded after page styles so responsive overrides take priority.
+========================================================= */
+
+/* ---------- iOS Safari basics ---------- */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  /* needs viewport-fit=cover in index.html; harmless (0) without it */
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  -webkit-tap-highlight-color: rgb(250 191 13 / 20%);
+}
+
+a,
+button,
+label,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+/* 100vh on iPhone includes the area behind Safari's toolbar */
+@supports (min-height: 100dvh) {
+  .cd-page,
+  .login-page,
+  .signup-page,
+  
+  .location-screen,
+  .services-page,
+  .review-page,
+  .quotation-page,
+  .provider-dashboard-page,
+  .project-location-page {
+    min-height: 100dvh;
+  }
+
+  .login-main {
+    min-height: calc(100dvh - 83px);
+  }
+
+  .signup-main {
+    min-height: calc(100dvh - 80px);
+  }
+}
+
+/* ---------- Touch devices (iPhone / iPad) ---------- */
+
+@media (hover: none) and (pointer: coarse) {
+  /* iOS zooms the whole page when a field under 16px gets focus */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  input:not([type]),
+  textarea {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* iOS date fields can push past their grid cell */
+  input[type="date"] {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+
+  
+
+  .cd-nav a,
+  .create-project-navigation a,
+  .location-sidebar-nav a,
+  .services-sidebar-nav a {
+    min-height: 44px;
+  }
+
+ 
+
+  .location-back-button,
+  .location-next-button
+  
+  {
+    min-height: 44px;
+  }
+
+  .location-search {
+    height: 44px;
+  }
+
+  .location-search button {
+    height: 44px;
+  }
+
+  .mamar-map-tool-button {
+    min-height: 40px;
+  }
+
+  
+}
+
+/* ---------- Phones & small tablets: up to 760px ---------- */
+
+@media (max-width: 760px) {
+  /* Sidebar "Help / Log out" links were hidden on phones: show them as a row */
+  .cd-sidebar-bottom,
+  .create-project-sidebar-bottom,
+  .location-sidebar-bottom,
+  .services-sidebar-bottom {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+    margin-top: 0;
+    padding: 8px 16px 10px;
+  }
+
+  .cd-sidebar-bottom a,
+  .create-project-sidebar-bottom a,
+  .location-sidebar-bottom a,
+  .services-sidebar-bottom a {
+    min-height: 36px;
+    font-size: 12px;
+  }
+
+  /* horizontal nav strips: smooth scrolling, no visible scrollbar */
+  .cd-nav,
+  .create-project-navigation,
+  .location-sidebar-nav,
+  .services-sidebar-nav {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .cd-nav::-webkit-scrollbar,
+  .create-project-navigation::-webkit-scrollbar,
+  .location-sidebar-nav::-webkit-scrollbar,
+  .services-sidebar-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ----- Contractor dashboard ----- */
+
+  .cd-nav a {
+    min-height: 44px;
+  }
+
+  .cd-user-info strong {
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ----- Project location (Figma) page had no mobile layout ----- */
+
+  .location-screen {
+    display: block;
+  }
+
+  .location-sidebar {
+    width: 100%;
+    min-width: 0;
+    border-right: none;
+    border-bottom: 1px solid #eaecf0;
+  }
+
+  .location-sidebar-logo {
+    height: 56px;
+  }
+
+  .location-sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 4px 8px;
+  }
+
+  .location-sidebar-nav a {
+    flex-shrink: 0;
+    padding: 0 14px;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+  }
+
+  .location-sidebar-nav a.location-nav-active {
+    border-bottom-color: #ffcc00;
+  }
+
+  .location-header {
+    height: 56px;
+    padding: 0 16px;
+  }
+
+  .location-content {
+    padding: 20px 14px;
+  }
+
+  .location-page-heading h1 {
+    font-size: 22px;
+  }
+
+  .location-progress {
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+
+  .location-progress-step {
+    flex-shrink: 0;
+  }
+
+  .location-progress-line {
+    flex: 0 0 18px;
+  }
+
+  .location-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .location-map-panel,
+  .location-details-panel {
+    padding: 14px;
+  }
+
+  .location-map-frame {
+    height: 320px;
+  }
+
+  /* text that was 9–11px is unreadable on a phone */
+  .location-progress-label,
+  .location-map-panel-heading p,
+  .location-details-description,
+  .location-detail-subtext,
+  .location-work-zone p,
+  .location-selected-message,
+  .location-error {
+    font-size: 12px;
+  }
+
+  .location-detail-label {
+    font-size: 11px;
+  }
+
+  .location-detail-section strong {
+    font-size: 13px;
+  }
+}
+
+/* ---------- Phones: up to 650px ---------- */
+
+@media (max-width: 650px) {
+  /* Shared header / footer */
+  .mamar-header {
+    height: 72px;
+    padding: 0 16px;
+  }
+
+  .mamar-header-actions {
+    gap: 8px;
+  }
+
+  .mamar-footer {
+    padding: 28px 16px 16px;
+  }
+
+  /* Landing page spacing */
+  .how-section {
+    padding: 32px 16px;
+  }
+
+  .steps-box {
+    margin-top: 32px;
+    padding: 24px 16px;
+    gap: 16px;
+  }
+
+  .providers-section {
+    padding: 40px 16px;
+  }
+
+  .why-section {
+    padding: 24px 16px 32px;
+  }
+
+  .why-grid {
+    gap: 28px;
+  }
+
+  .cta-section {
+    padding: 20px 16px;
+  }
+
+  /* Login: two fixed 200px columns overflowed a 390px screen */
+  .role-buttons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .role-buttons .role-btn,
+  .role-buttons .role-btn:first-child,
+  .role-buttons .role-btn:last-child {
+    width: 100%;
+  }
+
+  .role-buttons .role-btn:nth-child(3) {
+    justify-self: stretch;
+  }
+
+
+  /* Review page: shared sidebar becomes a scrolling strip */
+  .review-page .mamar-sidebar-logo {
+    height: 64px;
+  }
+
+  .review-page .mamar-sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    margin-top: 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .review-page .mamar-sidebar-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .review-page .mamar-sidebar-nav a {
+    flex-shrink: 0;
+    min-height: 48px;
+    padding: 0 16px;
+    border-left: none;
+    border-bottom: 4px solid transparent;
+  }
+
+  .review-page .mamar-sidebar-nav a.active {
+    border-bottom-color: #ffc400;
+  }
+
+  .review-page .mamar-sidebar-bottom {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    padding: 8px 16px 12px;
+  }  
+
+  .review-page .review-heading h1 {
+    font-size: 26px;
+  }
+
+  .review-page .review-card {
+    padding: 16px;
+  }
+
+  
+
+  .cd-stat-card {
+    min-height: 72px;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .cd-stat-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .cd-stat-info strong {
+    font-size: 20px;
+  }
+}
+
+/* ---------- Provider dashboard had no mobile layout ---------- */
+
+@media (max-width: 900px) {
+  .provider-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .provider-bottom-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .request-details {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .provider-dashboard-page {
+    display: block;
+  }
+
+  .provider-sidebar {
+    width: 100%;
+    min-width: 0;
+    min-height: auto;
+  }
+
+  .provider-sidebar-logo {
+    height: 64px;
+    padding-left: 16px;
+  }
+
+  .provider-sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    margin-top: 0;
+  }
+
+  .provider-sidebar-nav a {
+    flex-shrink: 0;
+    min-height: 48px;
+    padding: 0 16px;
+    border-left: none;
+    border-bottom: 4px solid transparent;
+  }
+
+  .provider-sidebar-nav a.active {
+    border-bottom-color: #ffc400;
+  }
+
+  .provider-sidebar-bottom {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    padding: 8px 16px 12px;
+  }
+
+  .provider-topbar {
+    height: 64px;
+    padding: 0 16px;
+  }
+
+  .provider-dashboard-content {
+    padding: 20px 16px 28px;
+  }
+
+  .provider-title h1 {
+    font-size: 24px;
+  }
+
+  .provider-summary-grid,
+  .request-details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .request-footer,
+  .assigned-project-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .request-tags {
+    flex-wrap: wrap;
+  }
+
+  .request-tags span {
+    min-width: 0;
+  }
+
+  .request-status,
+  .ready-status {
+    min-width: 0;
+  }
+
+  .prepare-quotation-btn,
+  .view-project-btn {
+    width: 100%;
+  }
+
+  .active-project-header {
+    display: none;
+  }
+
+  .active-project-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 8px;
+  }
+
+  .progress-bar {
+    width: 100%;
+    flex: 1;
+  }
+}
+

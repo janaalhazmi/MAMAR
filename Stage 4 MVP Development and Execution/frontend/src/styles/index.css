@@ -1,0 +1,16 @@
+/* Central CSS entry point.
+   Keep this order: shared base -> page styles -> shared responsive overrides.
+   Individual page styles are separated into their own files under styles/pages/.
+*/
+@import "./shared/base.css";
+@import "./pages/LandingPage.css";
+@import "./pages/LoginPage.css";
+@import "./pages/RegisterPage.css";
+@import "./pages/VerificationPages.css";
+@import "./pages/ProjectLocationFlow.css";
+@import "./pages/ReviewPage.css";
+@import "./pages/QuotationFlow.css";
+@import "./pages/HelpSupportPage.css";
+@import "./pages/ProviderPages.css";
+@import "./pages/FieldWorkerPages.css";
+@import "./shared/mobile-responsive.css";

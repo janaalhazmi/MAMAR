@@ -1,0 +1,328 @@
+/* components/_index.css */
+@import "../../components/button.css";
+
+/* =========================
+   RESET
+========================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #ffffff;
+  color: #111827;
+  font-family: Arial, sans-serif;
+}
+
+.brand {
+  width: 86px;
+  height: 45px;
+
+  display: flex;
+  align-items: center;
+}
+
+.brand img {
+  width: 86px;
+  height: 45px;
+  object-fit: contain;
+}
+
+.sign-in {
+  width: 92px;
+  background: #d6d1bf;
+}
+
+.get-started {
+ width: 98px;
+  background: #fabf0d ;
+}
+
+/* =========================
+   SHARED HEADER
+========================= */
+
+.mamar-header {
+  width: 100%;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  background: #ffffff;
+  border-bottom: 1px solid #eeeeee;
+  box-sizing: border-box;
+}
+
+.mamar-header-logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.mamar-header-logo img {
+  width: 92px;
+  height: auto;
+  display: block;
+}
+
+.mamar-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* =========================
+   SHARED BUTTONS
+========================= */
+
+.mamar-btn {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: 0.2s ease;
+  box-sizing: border-box;
+}
+
+.mamar-btn-primary {
+  background: #ffcc00;
+  border: 1px solid #ffcc00;
+  color: #111111;
+}
+
+.mamar-btn-primary:hover {
+  background: #f2bf00;
+}
+
+.mamar-btn-secondary {
+  background: #ffffff;
+  border: 1px solid #d0d5dd;
+  color: #344054;
+}
+
+.mamar-btn-secondary:hover {
+  background: #f9fafb;
+}
+
+/* =========================
+   SHARED FOOTER
+========================= */
+
+.mamar-footer {
+  background: #ffffff;
+  border-top: 1px solid #eeeeee;
+  padding: 40px 48px 20px;
+}
+
+.mamar-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.mamar-footer-brand img {
+  width: 78px;
+}
+
+.mamar-footer-brand p {
+  margin: 0;
+  color: #667085;
+  font-size: 14px;
+}
+
+.mamar-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.mamar-footer-links a {
+  color: #475467;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.mamar-footer-links a:hover {
+  color: #d4a900;
+}
+
+.mamar-footer-bottom {
+  padding-top: 20px;
+  border-top: 1px solid #eeeeee;
+  color: #98a2b3;
+  font-size: 12px;
+}
+
+/* =========================
+   SHARED SIDEBAR
+========================= */
+
+.mamar-sidebar {
+  width: 238px;
+  min-width: 238px;
+  min-height: 100vh;
+  background: #ffffff;
+  border-right: 1px solid #e7e7e7;
+  display: flex;
+  flex-direction: column;
+}
+
+.mamar-sidebar-logo {
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.mamar-sidebar-logo img {
+  width: 78px;
+  height: auto;
+  display: block;
+}
+
+.mamar-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  margin-top: 31px;
+}
+
+.mamar-sidebar-nav a {
+  min-height: 51px;
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  padding: 0 27px;
+  text-decoration: none;
+  color: #51534f;
+  font-size: 14px;
+  border-left: 4px solid transparent;
+  box-sizing: border-box;
+}
+
+.mamar-sidebar-nav a svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.mamar-sidebar-nav a:hover {
+  background: #fff7e8;
+  color: #f0ab00;
+}
+
+.mamar-sidebar-nav a.active {
+  background: #fff7e8;
+  color: #f0ab00;
+  border-left-color: #ffc400;
+}
+
+.mamar-sidebar-bottom {
+  margin-top: auto;
+  padding: 24px 27px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.mamar-sidebar-bottom a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #80827d;
+  font-size: 12px;
+}
+
+/* =========================
+   MAMAR MAP COMPONENT
+========================= */
+
+.mamar-map-container {
+  width: 100%;
+  height: 500px;
+  min-height: 300px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f5f7fa;
+}
+
+.mamar-map {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+}
+
+/* Map drawing tools */
+.mamar-map-tools {
+  position: absolute;
+  z-index: 10;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 24px);
+}
+
+.mamar-map-tool-button {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 7px;
+  background: #ffcc00;
+  color: #222;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+}
+
+.mamar-map-tool-button:hover {
+  background: #f2bf00;
+}
+
+.mamar-map-tool-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mamar-map-tool-button.secondary {
+  background: #fff;
+  border: 1px solid #ddd;
+}
+
+.mamar-map-drawing-hint {
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #fff;
+  color: #222;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+}
+
+/* =========================
+   HERO
+========================= */
+
