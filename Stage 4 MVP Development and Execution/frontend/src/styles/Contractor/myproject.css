@@ -1,0 +1,741 @@
+/*
+ * Role stylesheet: styles only the page/components assigned to this folder.
+ * Before each class selector there is an Arabic note describing its purpose
+ * and the visible layout properties controlled by that selector.
+ * Edit the matching class here when changing that part of the interface.
+ */
+
+/* .pf-main: العنصر `pf-main` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.pf-main {
+  --pf-yellow: #f5c518;
+  --pf-yellow-soft: #fff8e1;
+  --pf-yellow-text: #b8860b;
+  --pf-green: #22a05b;
+  --pf-green-soft: #e8f7ee;
+  --pf-red: #e5484d;
+  --pf-red-soft: #fdecec;
+  --pf-ink: #111827;
+  --pf-muted: #6b7280;
+  --pf-line: #eceef2;
+  --pf-card: #ffffff;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px 32px 40px;
+  color: var(--pf-ink);
+  overflow-y: auto;
+}
+
+/* .pf-main: العنصر `pf-main` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
+.pf-main h1,
+.pf-main h2,
+.pf-main h3,
+.pf-main p {
+  margin: 0;
+}
+
+/* ---------- headings ---------- */
+
+/* .pf-heading: عنوان الصفحة أو القسم والوصف التابع له؛ ينسق الخط والألوان. */
+.pf-heading h1 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* .pf-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.pf-heading p {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--pf-muted);
+}
+
+/* .pf-title-row: صف بيانات أو عنصر ضمن قائمة؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pf-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* .pf-backlink: العنصر `pf-backlink` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.pf-backlink {
+  align-self: flex-start;
+  font-size: 13px;
+  color: var(--pf-muted);
+  text-decoration: none;
+}
+
+/* .pf-backlink: العنصر `pf-backlink` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.pf-backlink:hover {
+  color: var(--pf-ink);
+}
+
+/* .pf-section: قسم مستقل من محتوى الصفحة؛ ينسق الخط والألوان. */
+.pf-section h2 {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+/* .pf-sub: العنصر `pf-sub` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.pf-sub {
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--pf-muted);
+}
+
+/* .pf-subhead: العنصر `pf-subhead` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.pf-subhead {
+  margin-top: 22px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* ---------- text helpers ---------- */
+
+/* .pf-label: العنصر `pf-label` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.pf-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--pf-muted);
+}
+
+/* .pf-big: العنصر `pf-big` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.pf-big {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* .pf-mid: العنصر `pf-mid` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.pf-mid {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* .pf-muted: العنصر `pf-muted` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.pf-muted {
+  font-size: 12.5px;
+  color: var(--pf-muted);
+}
+
+/* .pf-green: العنصر `pf-green` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.pf-green {
+  color: var(--pf-green);
+}
+
+/* ---------- cards ---------- */
+
+/* .pf-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل. */
+.pf-card {
+  background: var(--pf-card);
+  border: 1px solid var(--pf-line);
+  border-radius: 14px;
+}
+
+/* .pf-pad: العنصر `pf-pad` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.pf-pad {
+  padding: 22px;
+}
+
+/* .pf-pad: العنصر `pf-pad` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.pf-pad h2 {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+/* ---------- summary strip ---------- */
+
+/* .pf-summary: ملخص بيانات وأرقام أساسية؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.pf-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  padding: 18px 24px;
+  background: var(--pf-card);
+  border: 1px solid var(--pf-line);
+  border-radius: 14px;
+}
+
+/* .pf-summary-4: العنصر `pf-summary-4` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pf-summary-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* .pf-summary-item: عنصر منفرد ضمن مجموعة؛ ينسق الخط والألوان. */
+.pf-summary-item strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* .pf-summary-item: عنصر منفرد ضمن مجموعة؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.pf-summary-item small {
+  display: block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: var(--pf-muted);
+}
+
+/* .pf-summary-item: عنصر منفرد ضمن مجموعة؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.pf-summary-item + .pf-summary-item {
+  padding-left: 24px;
+  border-left: 1px solid var(--pf-line);
+}
+
+/* ---------- pills ---------- */
+
+/* .pf-pill: العنصر `pf-pill` ضمن واجهة هذا الدور؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pf-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* .pf-pill: العنصر `pf-pill` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+/* .pf-dot: العنصر `pf-dot` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+.pf-pill i,
+.pf-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* .pf-pill-green: العنصر `pf-pill-green` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.pf-pill-green {
+  background: var(--pf-green-soft);
+  color: var(--pf-green);
+}
+
+/* .pf-pill-yellow: العنصر `pf-pill-yellow` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.pf-pill-yellow {
+  background: var(--pf-yellow-soft);
+  color: var(--pf-yellow-text);
+}
+
+/* .pf-pill-red: العنصر `pf-pill-red` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.pf-pill-red {
+  background: var(--pf-red-soft);
+  color: var(--pf-red);
+}
+
+/* .pf-chip: العنصر `pf-chip` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pf-chip {
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--pf-yellow-soft);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---------- buttons ---------- */
+
+/* .pf-btn: زر لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s, background 0.15s;
+}
+
+/* .pf-btn: زر لتنفيذ إجراء؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pf-btn:focus-visible {
+  outline: 2px solid var(--pf-ink);
+  outline-offset: 2px;
+}
+
+/* .pf-btn: زر لتنفيذ إجراء؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pf-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* .pf-btn: زر لتنفيذ إجراء؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pf-btn:not(:disabled):hover {
+  filter: brightness(0.96);
+}
+
+/* .pf-btn-sm: العنصر `pf-btn-sm` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pf-btn-sm {
+  padding: 8px 16px;
+  font-size: 12.5px;
+}
+
+/* .pf-btn-primary: العنصر `pf-btn-primary` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.pf-btn-primary {
+  background: var(--pf-yellow);
+  color: var(--pf-ink);
+}
+
+/* .pf-btn-secondary: العنصر `pf-btn-secondary` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.pf-btn-secondary {
+  background: #fff;
+  border-color: var(--pf-line);
+  color: var(--pf-ink);
+}
+
+/* .pf-btn-accept: العنصر `pf-btn-accept` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.pf-btn-accept {
+  background: var(--pf-green);
+  color: #fff;
+}
+
+/* .pf-btn-reject: العنصر `pf-btn-reject` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.pf-btn-reject {
+  background: var(--pf-red);
+  color: #fff;
+}
+
+/* .pf-actions: مجموعة أزرار الإجراءات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pf-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* .pf-actions-split: العنصر `pf-actions-split` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pf-actions-split {
+  justify-content: space-between;
+}
+
+/* ---------- alerts / empty ---------- */
+
+/* .pf-alert: العنصر `pf-alert` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pf-alert {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--pf-red-soft);
+  color: var(--pf-red);
+  font-size: 13px;
+}
+
+/* .pf-empty: حالة عدم وجود بيانات؛ يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pf-empty {
+  padding: 40px 0;
+  text-align: center;
+  color: var(--pf-muted);
+}
+
+/* ---------- logos & ticks ---------- */
+
+/* .pf-logo: الشعار وحجمه ومحاذاته؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+.pf-logo {
+  width: 72px;
+  height: 56px;
+  object-fit: contain;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+/* .pf-tick: العنصر `pf-tick` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
+.pf-tick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--pf-yellow);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+/* .pf-tick-soft: العنصر `pf-tick-soft` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.pf-tick-soft {
+  background: var(--pf-yellow-soft);
+  color: var(--pf-yellow-text);
+}
+
+/* .pf-tick-green: العنصر `pf-tick-green` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
+.pf-tick-green {
+  width: 24px;
+  height: 24px;
+  background: var(--pf-green-soft);
+  color: var(--pf-green);
+}
+
+/* .cd-panel: لوحة تجمع عناصر ومعلومات مرتبطة؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
+.cd-panel {
+  min-width: 0;
+  padding: 20px 22px 22px;
+  background: #fff;
+  border: 1px solid var(--cd-border);
+  border-radius: 14px;
+}
+
+/* .mp-toolbar: شريط أدوات البحث والفلترة والإجراءات؛ يضبط المسافات الخارجية. */
+.mp-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* .mp-search: حقل البحث وأيقونة البحث؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.mp-search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--cd-border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--cd-muted);
+}
+
+/* .mp-select: العنصر `mp-select` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.mp-select {
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--cd-border);
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+  color: var(--cd-ink);
+  cursor: pointer;
+}
+
+/* .mp-empty-button: زر لتنفيذ إجراء؛ يضبط المسافات الخارجية. */
+.mp-empty-button {
+  margin-top: 14px;
+}
+
+/* .cd-table-wrapper: غلاف يضبط موضع مجموعة عناصر؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.cd-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* .cd-col-actions: مجموعة أزرار الإجراءات؛ يتحكم بالعرض. */
+.cd-col-actions {
+  width: auto;
+  min-width: 110px;
+  text-align: center;
+}
+
+/* .cd-project-name: العنصر `cd-project-name` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.cd-project-name {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* .cd-project-name: العنصر `cd-project-name` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.cd-project-name strong {
+  color: var(--cd-ink);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* .cd-thumb: العنصر `cd-thumb` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+.cd-thumb {
+  --cd-line: #e9a93a;
+
+  width: 44px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background:
+    linear-gradient(
+      to top right,
+      transparent calc(50% - 2px),
+      var(--cd-line) calc(50% - 2px),
+      var(--cd-line) calc(50% + 2px),
+      transparent calc(50% + 2px)
+    ),
+    #e6eaee;
+}
+
+/* .cd-location: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
+.cd-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--cd-muted);
+}
+
+/* .cd-status: شارة توضح حالة المشروع أو الطلب؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.cd-status {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #eef0f3;
+  color: var(--cd-text);
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* .mp-row-action: زر أو رابط لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.mp-row-action {
+  padding: 8px 16px;
+  border: 1px solid var(--cd-yellow);
+  border-radius: 8px;
+  background: var(--cd-yellow);
+  color: var(--cd-ink);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+/* =========================================================
+   PROVIDER RESPONSIVE DESIGN
+========================================================= */
+
+/* ---------- Tablets ---------- */
+
+@media (max-width: 1000px) {
+  
+
+/* .pf-main: العنصر `pf-main` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.pf-main {
+    padding: 24px;
+  }
+
+  
+
+/* .pf-summary: ملخص بيانات وأرقام أساسية؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pf-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  
+
+/* .pf-summary-item: عنصر منفرد ضمن مجموعة؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.pf-summary-item + .pf-summary-item {
+    padding-left: 0;
+    border-left: none;
+  }
+
+  
+
+/* .pf-summary-4: العنصر `pf-summary-4` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pf-summary-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 760px) {
+  
+
+/* .pf-main: العنصر `pf-main` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.pf-main {
+    min-width: 0;
+    padding: 20px 14px 28px;
+    gap: 16px;
+    overflow-x: hidden;
+  }
+
+  
+
+/* .pf-heading: عنوان الصفحة أو القسم والوصف التابع له؛ ينسق الخط والألوان. */
+.pf-heading h1 {
+    font-size: 24px;
+  }
+
+  
+
+/* .pf-heading: عنوان الصفحة أو القسم والوصف التابع له؛ ينسق الخط والألوان. */
+.pf-heading p {
+    font-size: 13px;
+  }
+
+  
+
+/* .pf-title-row: صف بيانات أو عنصر ضمن قائمة؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pf-title-row {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  
+
+/* .pf-summary: ملخص بيانات وأرقام أساسية؛ يضبط المساحة الداخلية. */
+.pf-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    padding: 16px;
+  }
+
+  
+
+/* .pf-summary-item: عنصر منفرد ضمن مجموعة؛ يتحكم بالعرض. */
+.pf-summary-item {
+    min-width: 0;
+  }
+
+  
+
+/* .pf-summary-item: عنصر منفرد ضمن مجموعة؛ ينسق الخط والألوان. */
+.pf-summary-item strong {
+    font-size: 13px;
+  }
+
+  
+
+/* .pf-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يتحكم بالعرض. */
+.pf-card {
+    min-width: 0;
+  }
+
+  
+
+/* .pf-pad: العنصر `pf-pad` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.pf-pad {
+    padding: 16px;
+  }
+
+  
+
+/* .pf-actions: مجموعة أزرار الإجراءات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pf-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  
+
+/* .pf-btn: زر لتنفيذ إجراء؛ يتحكم بالارتفاع. */
+.pf-btn {
+    min-height: 44px;
+  }
+
+  
+
+/* .pf-logo: الشعار وحجمه ومحاذاته؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+.pf-logo {
+    width: 56px;
+    height: 48px;
+  }
+}
+
+/* ---------- Small Phones ---------- */
+
+@media (max-width: 480px) {
+  
+
+/* .pf-main: العنصر `pf-main` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.pf-main {
+    padding: 16px 12px 24px;
+  }
+
+  
+
+/* .pf-heading: عنوان الصفحة أو القسم والوصف التابع له؛ ينسق الخط والألوان. */
+.pf-heading h1 {
+    font-size: 21px;
+  }
+
+  
+
+/* .pf-summary: ملخص بيانات وأرقام أساسية؛ يضبط المساحة الداخلية. */
+/* .pf-summary-4: العنصر `pf-summary-4` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.pf-summary,
+  .pf-summary-4 {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px;
+  }
+
+  
+
+/* .pf-summary-item: عنصر منفرد ضمن مجموعة؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.pf-summary-item {
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--pf-line);
+  }
+
+  
+
+/* .pf-summary-item: عنصر منفرد ضمن مجموعة؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.pf-summary-item:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  
+
+/* .pf-big: العنصر `pf-big` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.pf-big {
+    font-size: 21px;
+  }
+
+  
+
+/* .pf-mid: العنصر `pf-mid` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.pf-mid {
+    font-size: 16px;
+  }
+
+  
+
+/* .pf-actions: مجموعة أزرار الإجراءات؛ يتحكم بالعرض. */
+.pf-actions {
+    width: 100%;
+  }
+
+  
+
+/* .pf-actions: مجموعة أزرار الإجراءات؛ يتحكم بالعرض. */
+/* .pf-btn: زر لتنفيذ إجراء؛ يتحكم بالعرض. */
+.pf-actions .pf-btn {
+    flex: 1;
+    min-width: 0;
+  }
+
+  
+
+/* .pf-pad: العنصر `pf-pad` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.pf-pad {
+    padding: 14px;
+  }
+}
+
+/* ---------- Touch Devices ---------- */
+
+@media (hover: none) and (pointer: coarse) {
+  
+
+/* .pf-btn: زر لتنفيذ إجراء؛ يتحكم بالارتفاع. */
+.pf-btn {
+    min-height: 44px;
+  }
+
+  
+
+/* .pf-backlink: العنصر `pf-backlink` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+.pf-backlink {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+

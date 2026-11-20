@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ContractorShell from "../../components/ContractorShell";
+import RateProvider from "../../components/RateProvider";
 import MamarMap from "../../components/MamarMap";
 import Icon from "../../components/Icons";
+import SafetyBadge from "../../components/SafetyBadge";
+import { useSafetyChecks } from "../../services/ai";
 import {
   formatDate,
+  formatDateTime,
   getCompletionData,
-  getConfirmedProvider,
   getCurrentProject,
   handleConfirmCompletion,
   handleSendChanges,
@@ -18,36 +21,45 @@ function ReviewCompletionPage() {
   const project = getCurrentProject();
 
   const [data, setData] = useState(null);
-  const [provider, setProvider] = useState(null);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [approved, setApproved] = useState(false);
   const [showChanges, setShowChanges] = useState(false);
   const [note, setNote] = useState("");
+  const safety = useSafetyChecks(project?.id, data?.evidence?.length || 0);
 
   useEffect(() => {
     let active = true;
 
-    getCompletionData(project.id)
-      .then((result) => active && setData(result))
-      .catch(() => active && setError("Could not load the completion details."));
+    const load = () =>
+      getCompletionData(project.id)
+        .then((result) => {
+          if (active) {
+            setData(result);
+            setError("");
+          }
+        })
+        .catch(() => {
+          if (active && !data) {
+            setError("Could not load the completion details.");
+          }
+        });
 
-    getConfirmedProvider()
-      .then((q) => active && setProvider(q))
-      .catch(() => {});
+    load();
+    const timer = setInterval(load, 15000);
 
     return () => {
       active = false;
+      clearInterval(timer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [project.id]);
 
   if (!data) {
     return (
       <ContractorShell activeKey="projects">
         {error ? (
-          <p className="pf-alert" role="alert">
-            {error}
-          </p>
+          <p className="pf-alert" role="alert">{error}</p>
         ) : (
           <p className="pf-empty">Loading…</p>
         )}
@@ -56,6 +68,20 @@ function ReviewCompletionPage() {
   }
 
   const hasLocation = hasProjectLocation(project);
+
+  if (approved) {
+    return (
+      <ContractorShell activeKey="projects">
+        <div style={{ maxWidth: 560, margin: "24px auto" }}>
+          <RateProvider
+            projectId={project.id}
+            providerName={data.provider?.providerName}
+            onDone={() => navigate("/contractor-dashboard")}
+          />
+        </div>
+      </ContractorShell>
+    );
+  }
 
   return (
     <ContractorShell activeKey="projects">
@@ -81,11 +107,21 @@ function ReviewCompletionPage() {
         </div>
         <div className="pf-summary-item">
           <span className="pf-label">Service Provider</span>
-          <strong>{provider?.providerName || "Not assigned"}</strong>
+          <strong>{data.provider?.providerName || "Not assigned"}</strong>
         </div>
         <div className="pf-summary-item">
-          <span className="pf-label">Completion Date</span>
-          <strong>{formatDate(data.completionDate)}</strong>
+          <span className="pf-label">Completion Date & Time</span>
+        <strong>
+          {data.completionDateTime
+            ? new Date(data.completionDateTime).toLocaleString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "Not specified"}
+        </strong>
         </div>
         <div className="pf-summary-item">
           <span className="pf-label">Final Progress</span>
@@ -102,7 +138,6 @@ function ReviewCompletionPage() {
         <section className="pf-card pf-pad">
           <h2>Provider Completion Summary</h2>
           <p className="pf-sub">The provider has marked all required work as complete.</p>
-
           <ul className="pf-done-list">
             {data.checklist.map((item) => (
               <li key={item.id}>
@@ -117,7 +152,6 @@ function ReviewCompletionPage() {
               </li>
             ))}
           </ul>
-
           <p className="pf-quote-note">{data.providerNote}</p>
         </section>
 
@@ -145,21 +179,48 @@ function ReviewCompletionPage() {
         <section className="pf-card pf-pad">
           <h2>Final Evidence</h2>
           <p className="pf-sub">
-            Final site photos submitted by {provider?.providerName || "the provider"}.
+            Final site photos submitted by {data.provider?.providerName || "the provider"}.
           </p>
-          {/* TODO(API): evidence photos uploaded by the provider/field worker. */}
-          <div className="pf-evidence">
-            {data.evidence.map((photo) => (
-              <img key={photo.id} src={photo.src} alt="Final site evidence" />
-            ))}
-          </div>
-          <small className="pf-muted">Submitted {formatDate(data.submittedOn)}</small>
+          {data.evidence.some((photo) => photo.stage === "before") && (
+            <div className="ba-grid">
+              {[
+                ["before", "Before the work"],
+                ["after", "After the work"],
+              ].map(([stage, label]) => (
+                <div key={stage}>
+                  <h3>{label}</h3>
+                  <div className="pf-evidence">
+                    {data.evidence.filter((photo) => photo.stage === stage).map((photo) => (
+                      <figure key={photo.id} className="ai-figure">
+                        <img src={photo.src} alt={photo.caption || label} />
+                        <SafetyBadge photoId={photo.id} safety={safety} />
+                      </figure>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {data.evidence.some((photo) => photo.stage !== "before" && photo.stage !== "after") && (
+            <div className="pf-evidence">
+              {data.evidence
+                .filter((photo) => photo.stage !== "before" && photo.stage !== "after")
+                .map((photo) => (
+                  <figure key={photo.id} className="ai-figure">
+                    <img src={photo.src} alt={photo.caption || "Site evidence"} />
+                    <SafetyBadge photoId={photo.id} safety={safety} />
+                  </figure>
+                ))}
+            </div>
+          )}
+          <small className="pf-muted">
+            Submitted {data.submittedAt ? formatDateTime(data.submittedAt) : formatDate(data.submittedOn)}
+          </small>
         </section>
 
         <section className="pf-card pf-pad">
           <h2>Your Decision</h2>
           <p className="pf-sub">Review the final work before closing this project.</p>
-
           <div className="pf-note">
             <i className="pf-dot pf-dot-yellow" aria-hidden="true" />
             Confirm only after reviewing the final work.
@@ -178,11 +239,7 @@ function ReviewCompletionPage() {
             </div>
           )}
 
-          {error && (
-            <p className="pf-alert" role="alert">
-              {error}
-            </p>
-          )}
+          {error && <p className="pf-alert" role="alert">{error}</p>}
 
           <div className="pf-decision-buttons">
             {showChanges ? (
@@ -221,9 +278,9 @@ function ReviewCompletionPage() {
                 setSaving(true);
                 setError("");
                 handleConfirmCompletion(project.id)
-                  .then(() => navigate("/contractor-dashboard"))
-                  .catch(() => {
-                    setError("Could not confirm completion. Please try again.");
+                  .then(() => setApproved(true))
+                  .catch((err) => {
+                    setError(err.message || "Could not confirm completion. Please try again.");
                     setSaving(false);
                   });
               }}

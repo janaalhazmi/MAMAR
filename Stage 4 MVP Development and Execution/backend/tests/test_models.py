@@ -14,7 +14,7 @@ EXPECTED_COLUMNS = {
     ],
     "providers": [
         "provider_id", "company_name", "service_type", "city",
-        "phone", "website", "is_verified", "created_at",
+        "phone", "website", "is_verified", "created_at", "email_domain",
     ],
     "projects": [
         "project_id", "contractor_id", "project_name", "project_status",
@@ -36,13 +36,17 @@ EXPECTED_COLUMNS = {
     ],
     "site_photos": [
         "photo_id", "token", "project_id", "worker_id", "caption",
-        "content_type", "data", "created_at",
+        "content_type", "data", "created_at", "stage",
     ],
     "payments": [
         "payment_id", "project_id", "quote_id", "contractor_id", "amount", "currency",
         "charged_amount", "charged_currency", "paypal_order_id", "paypal_capture_id",
         "status", "created_at", "paid_at",
     ],
+    "reviews": [
+        "review_id", "project_id", "provider_id", "contractor_id", "rating", "comment", "created_at",
+    ],
+    "activity_log": ["activity_id", "user_id", "action", "detail", "project_id", "created_at"],
 }
 
 # The relationships table in Stage 3: (child table, column) -> parent table.
@@ -60,6 +64,11 @@ EXPECTED_FOREIGN_KEYS = {
     ("payments", "project_id"): "projects",
     ("payments", "quote_id"): "quotes",
     ("payments", "contractor_id"): "users",
+    ("reviews", "project_id"): "projects",
+    ("reviews", "provider_id"): "providers",
+    ("reviews", "contractor_id"): "users",
+    ("activity_log", "user_id"): "users",
+    ("activity_log", "project_id"): "projects",
 }
 
 
@@ -72,8 +81,9 @@ def start_app_and_inspect_database():
 
 def test_tables_and_columns_match_the_er_diagram():
     inspector = start_app_and_inspect_database()
+    # Compared without the order: a new database and one that got columns added later keep them in a different order.
     for table, columns in EXPECTED_COLUMNS.items():
-        assert [column["name"] for column in inspector.get_columns(table)] == columns
+        assert sorted(column["name"] for column in inspector.get_columns(table)) == sorted(columns)
 
 
 def test_foreign_keys_match_the_relationships():

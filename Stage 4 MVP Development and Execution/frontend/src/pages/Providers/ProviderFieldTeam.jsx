@@ -1,64 +1,46 @@
 import NotificationBell from "../../components/NotificationBell";
-import { useState } from "react";
+// Field team state and actions.
 import {
-  assignProviderWorker,
+  PROVIDER_WORKER_STATUSES as statuses,
+  getFieldTeamInitials as initials,
   useFieldWorkerRegistration,
-  useProviderFieldWorkers,
-  useWorkerAssignmentProjects,
+  useProviderFieldTeamPage,
+  useProviderWorkerAssignment,
 } from "../../services/providers/api";
 import ProviderSidebar from "../../components/ProviderSidebar";
-import { getSession } from "../../services/auth";
+import Turnstile from "../../components/Turnstile";
 
 
-const statuses = ["Active", "Available", "On Leave"];
-
-
-function initials(name) {
-  return name.trim().split(/\s+/).slice(0, 2)
-    .map((word) => word.charAt(0).toUpperCase()).join("") || "P";
-}
-
+// Provider field team directory view.
 export default function ProviderFieldTeam() {
-  const { workers, setWorkers, loadingWorkers, workersError } =
-    useProviderFieldWorkers();
-
-  const name = getSession()?.user?.full_name || "Provider";
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("");
-  const [project, setProject] = useState("");
-  const [selected, setSelected] = useState(null);
-  const [addingWorker, setAddingWorker] = useState(false);
-  const projects = [...new Set(workers.map((worker) => worker.project).filter(Boolean))];
-
-  function addRegisteredWorker(worker) {
-    setWorkers((current) => [
-      ...current.filter((item) => item.email !== worker.email),
-      worker,
-    ]);
-  }
-
-  const query = search.trim().toLowerCase();
-  const visible = workers.filter((worker) =>
-    (!status || worker.status === status) &&
-    (!project || worker.project === project) &&
-    [worker.name, worker.id, worker.email].some((value) =>
-      String(value).toLowerCase().includes(query)
-    )
-  );
-
-  const stats = [
-    ["Total Workers", workers.length, "Registered workers"],
-    ...statuses.map((item, index) => [
-      item === "On Leave" ? item : item + " Workers",
-      workers.filter((worker) => worker.status === item).length,
-      ["Assigned to projects", "Ready for assignment", "Temporarily unavailable"][index],
-    ]),
-  ];
+  const {
+    workers,
+    loadingWorkers,
+    workersError,
+    name,
+    search,
+    setSearch,
+    status,
+    setStatus,
+    project,
+    setProject,
+    selected,
+    setSelected,
+    addingWorker,
+    setAddingWorker,
+    projects,
+    addRegisteredWorker,
+    visible,
+    stats,
+    handleWorkerAssigned,
+  } = useProviderFieldTeamPage();
 
   return (
     <div className="provider-dashboard-page">
+      {/* Provider navigation */}
       <ProviderSidebar />
       <div className="provider-main-area">
+        {/* Provider account and notifications */}
         <header className="provider-topbar">
           
           <div />
@@ -70,13 +52,16 @@ export default function ProviderFieldTeam() {
 </header>
 
         <main className="provider-dashboard-content pft-page">
+          {/* Directory loading state */}
           {loadingWorkers && (
             <p role="status">Loading field workers…</p>
           )}
+          {/* Directory loading error */}
           {workersError && (
             <p role="alert">{workersError}</p>
           )}
 
+          {/* Worker directory, filters and statistics */}
           {!selected && !addingWorker && (
             <>
           <div className="pft-heading">
@@ -94,6 +79,7 @@ export default function ProviderFieldTeam() {
             </button>
           </div>
 
+          {/* Workforce statistics */}
           <section className="pft-stats" aria-label="Field team summary">
             {stats.map(([label, count, detail]) => (
               <article className="pft-card" key={label}>
@@ -104,6 +90,7 @@ export default function ProviderFieldTeam() {
             ))}
           </section>
 
+          {/* Searchable workforce directory */}
           <section className="pft-card pft-directory">
             <h2>Workforce Directory</h2>
             <p>All registered workers and their current project assignments.</p>
@@ -178,6 +165,7 @@ export default function ProviderFieldTeam() {
             </>
           )}
 
+          {/* Worker registration form */}
           {addingWorker && (
             <AddFieldWorkerForm
               onClose={() => setAddingWorker(false)}
@@ -185,6 +173,7 @@ export default function ProviderFieldTeam() {
             />
           )}
 
+          {/* Selected worker details and assignment */}
           {selected && (
             <section className="pft-card pft-details" aria-label="Worker details">
               <button className="pft-view" type="button" onClick={() => setSelected(null)}>
@@ -200,13 +189,7 @@ export default function ProviderFieldTeam() {
             <WorkerAssignmentForm
                 key={selected.id}
                 worker={selected}
-                onAssigned={(project) => {
-                  const updated = { ...selected, project: project.name, status: "Active" };
-                  setWorkers((current) => current.map((item) =>
-                    item.id === updated.id ? updated : item
-                  ));
-                  setSelected(updated);
-                }}
+                onAssigned={handleWorkerAssigned}
               />
             </section>
           )}
@@ -216,8 +199,9 @@ export default function ProviderFieldTeam() {
   );
 }
 
+// Registration view: account details and verification code.
 function AddFieldWorkerForm({ onClose, onCreated }) {
-  const { worker, busy, error, created, submit } =
+  const { worker, busy, error, created, submit, setCaptcha, captchaReset } =
     useFieldWorkerRegistration(onCreated);
 
   return (
@@ -234,6 +218,7 @@ function AddFieldWorkerForm({ onClose, onCreated }) {
                 Verification code
                 <input name="passcode" inputMode="numeric" autoComplete="one-time-code" maxLength={6} required />
               </label>
+              <Turnstile onToken={setCaptcha} resetKey={captchaReset} />
             </>
           ) : (
             <div className="pft-filters">
@@ -256,33 +241,17 @@ function AddFieldWorkerForm({ onClose, onCreated }) {
   );
 }
 
+// Assignment view: project selector and save action.
 function WorkerAssignmentForm({ worker, onAssigned }) {
-  const [projectId, setProjectId] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-
-  const workerId = Number(worker.id);
-  const canAssign = !worker.project && Number.isSafeInteger(workerId) && workerId > 0;
-
-  const projects = useWorkerAssignmentProjects(canAssign, setError);
-
-  async function assign(event) {
-    event.preventDefault();
-    const project = projects?.find((item) => String(item.id) === projectId);
-    if (!canAssign || !project || saving) return;
-
-    setSaving(true);
-    setError("");
-
-    try {
-      await assignProviderWorker(project.id, workerId);
-      onAssigned(project);
-    } catch (failure) {
-      setError(failure.message || "Could not assign the worker.");
-    } finally {
-      setSaving(false);
-    }
-  }
+  const {
+    projectId,
+    setProjectId,
+    saving,
+    error,
+    canAssign,
+    projects,
+    assign,
+  } = useProviderWorkerAssignment(worker, onAssigned);
 
   if (worker.project) return <p role="status">Assigned to {worker.project}.</p>;
   if (!canAssign) return <p>The worker's account ID is required to assign a project.</p>;

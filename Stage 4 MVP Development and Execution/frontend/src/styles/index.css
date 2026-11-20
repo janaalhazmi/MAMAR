@@ -1,0 +1,28 @@
+/*
+ * Central stylesheet entry point.
+ * Shared foundations load first, then public/authentication pages and role-specific screens.
+ * Role pages may also import their own dedicated file directly; Vite deduplicates CSS modules.
+ * Mobile overrides load last so responsive rules can refine the page styles.
+ */
+@import "./shared/base.css";
+
+/* Public website and account-access pages */
+@import "./pages/LandingPage.css";
+@import "./pages/LoginPage.css";
+@import "./pages/RegisterPage.css";
+@import "./pages/VerificationPages.css";
+@import "./pages/HelpSupportPage.css";
+
+/* Provider role */
+@import "./Providers/QuotationFlow.css";
+@import "./Providers/ProviderDashboard.css";
+
+/* Contractor role: review, provider selection and project journey */
+@import "./Contractor/review.css";
+@import "./Contractor/provider-selection.css";
+
+/* Field Worker role */
+@import "./FieldWorker/FieldWorkerPages.css";
+
+/* Global mobile and iOS adjustments must stay last */
+@import "./shared/mobile-responsive.css";

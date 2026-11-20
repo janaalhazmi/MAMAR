@@ -9,11 +9,14 @@ import {
   saveProjectLocation,
 } from "../../services/Contractor/Contractor";
 
+import "../../styles/Contractor/location.css"
+
 function ProjectLocationPage() {
   const navigate = useNavigate();
   const mapDrawingRef = useRef(null);
 
   const [drawing, setDrawing] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [location, setLocation] = useState(getSavedLocation);
   const [error, setError] = useState("");
 
@@ -22,6 +25,7 @@ function ProjectLocationPage() {
   const handleMapLocationSelect = (coordinates) => {
     setLocation((previous) => applyMapSelection(previous, coordinates));
     setDrawing(false);
+    setEditing(false);
     setError("");
   };
 
@@ -46,6 +50,23 @@ function ProjectLocationPage() {
     mapDrawingRef.current.cancelDrawing();
     setDrawing(false);
     setError("");
+  };
+
+  const handleStartEditing = () => {
+    const started = mapDrawingRef.current?.startEditing();
+
+    if (!started) {
+      setError("Please draw a work zone before editing.");
+      return;
+    }
+
+    setEditing(true);
+    setError("");
+  };
+
+  const handleFinishEditing = () => {
+    mapDrawingRef.current?.finishEditing();
+    setEditing(false);
   };
 
   const handleContinue = (event) => {
@@ -144,7 +165,7 @@ function ProjectLocationPage() {
               <button
                 type="button"
                 onClick={handleStartDrawing}
-                disabled={drawing}
+                disabled={drawing || editing}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -164,6 +185,25 @@ function ProjectLocationPage() {
               >
                 <span aria-hidden="true">✎</span>
                 Draw Work Zone
+              </button>
+
+              <button
+                type="button"
+                onClick={editing ? handleFinishEditing : handleStartEditing}
+                disabled={!workZonePolygon || drawing}
+                style={{
+                  padding: "11px 18px",
+                  borderRadius: "9px",
+                  border: "1px solid #ffbf00",
+                  backgroundColor: editing ? "#111827" : "#fff8e1",
+                  color: editing ? "#ffffff" : "#111827",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  cursor: !workZonePolygon || drawing ? "not-allowed" : "pointer",
+                  opacity: !workZonePolygon || drawing ? 0.45 : 1,
+                }}
+              >
+                {editing ? "✓ Finish Editing" : "✎ Edit Work Zone"}
               </button>
 
               <button
@@ -220,6 +260,8 @@ function ProjectLocationPage() {
                 Cancel
               </button>
             </div>
+
+
 
             {/* Map */}
             <div className="location-map-frame">

@@ -1,12 +1,13 @@
 import NotificationBell from "./NotificationBell";
-import { API_BASE_URL } from "../services/api";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/mamar-logo.svg";
 import { getSession } from "../services/auth";
 import { getNotifications } from "../services/notifications";
 import Sidebar from "./Sidebar";
-import Icon from "./Icons";
+import { getPictureUrl } from "../services/Contractor/profileUtils";
+import { fetchMyProfile } from "../services/Contractor/profileService";
+import "../styles/Contractor/servicepage.css";
 
 const NAV = [
   { key: "dashboard", path: "/contractor-dashboard", icon: "dashboard", label: "Dashboard" },
@@ -18,9 +19,7 @@ const NAV = [
 
 function playNotificationSound() {
   try {
-    const AudioContext =
-      window.AudioContext || window.webkitAudioContext;
-
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (!AudioContext) return;
 
     const audio = new AudioContext();
@@ -29,19 +28,12 @@ function playNotificationSound() {
 
     oscillator.connect(gain);
     gain.connect(audio.destination);
-
     oscillator.type = "sine";
     oscillator.frequency.setValueAtTime(880, audio.currentTime);
-
     gain.gain.setValueAtTime(0.15, audio.currentTime);
-    gain.gain.exponentialRampToValueAtTime(
-      0.001,
-      audio.currentTime + 0.35
-    );
-
+    gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.35);
     oscillator.start();
     oscillator.stop(audio.currentTime + 0.35);
-
     oscillator.onended = () => audio.close();
   } catch (error) {
     console.log("Notification sound unavailable.", error);
@@ -49,43 +41,56 @@ function playNotificationSound() {
 }
 
 function ContractorShell({ activeKey, children }) {
-  const [sessionUser, setSessionUser] = useState(
-    () => getSession()?.user || {}
-  );
-
+  const [sessionUser, setSessionUser] = useState(() => getSession()?.user || {});
   const rawName = sessionUser?.full_name || sessionUser?.name || "";
-
-  const displayName =
-    (typeof rawName === "string" ? rawName.trim() : "") || "there";
-
+  const displayName = (typeof rawName === "string" ? rawName.trim() : "") || "there";
   const userInitial = displayName.charAt(0).toUpperCase();
-
-  const picture = sessionUser?.profile_picture
-    ? sessionUser.profile_picture.startsWith("http")
-      ? sessionUser.profile_picture
-      : `${API_BASE_URL}${sessionUser.profile_picture}`
-    : "";
+  const picture = getPictureUrl(sessionUser);
 
   const [hasUnread, setHasUnread] = useState(false);
   const previousIds = useRef(null);
 
   useEffect(() => {
-    function handleUserUpdate(event) {
-      setSessionUser(event.detail);
-    }
+  let active = true;
+  function handleUserUpdate(event) {
+    setSessionUser((current) => ({
+      ...current,
+      ...(event.detail || {}),
+    }));
+  }
+  window.addEventListener(
+    "mamar:session-user-updated",
+    handleUserUpdate
+  );
+  async function loadUserProfile() {
+    try {
+      const profile = await fetchMyProfile();
 
-    window.addEventListener(
+      if (!active) return;
+
+      setSessionUser((current) => ({
+        ...current,
+        ...profile,
+      }));
+
+      window.dispatchEvent(
+        new CustomEvent("mamar:session-user-updated", {
+          detail: profile,
+        })
+      );
+    } catch (error) {
+      console.error("Unable to load contractor profile:", error);
+    }
+  }
+  loadUserProfile();
+  return () => {
+    active = false;
+    window.removeEventListener(
       "mamar:session-user-updated",
       handleUserUpdate
     );
-
-    return () => {
-      window.removeEventListener(
-        "mamar:session-user-updated",
-        handleUserUpdate
-      );
-    };
-  }, []);
+  };
+}, []);
 
   useEffect(() => {
     let active = true;
@@ -97,16 +102,10 @@ function ContractorShell({ activeKey, children }) {
 
       try {
         const notifications = await getNotifications();
-
         if (!active) return;
 
-        const unread = notifications.filter(
-          (notification) => !notification.read
-        );
-
-        const currentIds = unread.map(
-          (notification) => notification.id
-        );
+        const unread = notifications.filter((notification) => !notification.read);
+        const currentIds = unread.map((notification) => notification.id);
 
         if (
           previousIds.current !== null &&
@@ -125,7 +124,6 @@ function ContractorShell({ activeKey, children }) {
     };
 
     checkNotifications();
-
     const interval = setInterval(checkNotifications, 10000);
 
     return () => {
@@ -172,10 +170,7 @@ function ContractorShell({ activeKey, children }) {
 
       <div className="cd-body">
         <Sidebar items={NAV} activeKey={activeKey} />
-
-        <main className="cd-main pf-main">
-          {children}
-        </main>
+        <main className="cd-main pf-main">{children}</main>
       </div>
     </div>
   );

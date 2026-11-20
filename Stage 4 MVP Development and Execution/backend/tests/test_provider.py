@@ -10,9 +10,9 @@ PROVIDER_REQUEST_FIELDS = [
 ]
 PROVIDER_PROJECT_FIELDS = [
     "project", "status", "site_status", "progress", "field_team_count", "last_check_in",
-    "completion_submitted", "awaiting_review", "quote",
+    "completion_submitted", "awaiting_review", "quote" ,
 ]
-DETAIL_FIELDS = PROVIDER_PROJECT_FIELDS + ["submitted_at", "change_note", "team", "photos"]
+DETAIL_FIELDS = PROVIDER_PROJECT_FIELDS + ["submitted_at", "change_note", "team", "photos", "milestones" ]
 
 EMPTY_DASHBOARD = {
     "stats": {"assigned": 0, "active": 0, "upcoming": 0, "completed": 0},

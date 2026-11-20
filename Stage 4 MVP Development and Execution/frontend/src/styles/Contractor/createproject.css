@@ -1,0 +1,905 @@
+/*
+ * Role stylesheet: styles only the page/components assigned to this folder.
+ * Before each class selector there is an Arabic note describing its purpose
+ * and the visible layout properties controlled by that selector.
+ * Edit the matching class here when changing that part of the interface.
+ */
+
+/* =========================================================
+   CREATE PROJECT PAGE
+========================================================= */
+
+/* ---------- Page ---------- */
+
+/* .create-project-page: واجهة إنشاء المشروع؛ يحدد الخلفية، ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.create-project-page {
+  min-height: 100vh;
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  background: #f5f7fa;
+  color: #111827;
+  font-family: Arial, sans-serif;
+}
+
+/* .create-project-page: واجهة إنشاء المشروع؛ ينسق الخط والألوان. */
+.create-project-page a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ---------- Sidebar ---------- */
+
+/* .create-project-sidebar: واجهة إنشاء المشروع؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض، يتحكم بالارتفاع. */
+.create-project-sidebar {
+  width: 220px;
+  min-width: 220px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 0 32px;
+  background: #fff;
+  border-right: 1px solid #e8ebf0;
+}
+
+/* .create-project-brand: واجهة إنشاء المشروع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.create-project-brand {
+  display: none;
+}
+
+/* .create-project-navigation: واجهة إنشاء المشروع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.create-project-navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* .create-project-navigation: واجهة إنشاء المشروع؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.create-project-navigation a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 24px 0 28px;
+  border-left: 4px solid transparent;
+  color: #111827;
+  font-size: 13px;
+  transition: background 0.2s ease;
+}
+
+/* .create-project-navigation: واجهة إنشاء المشروع؛ يحدد الخلفية. */
+.create-project-navigation a:hover {
+  background: #fffaf0;
+}
+
+/* .create-project-navigation: واجهة إنشاء المشروع؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.create-project-navigation a.active {
+  background: #fff8e6;
+  border-left-color: #f8cd45;
+  color: #f2b01e;
+  font-weight: 600;
+}
+
+/* .create-project-sidebar-bottom: واجهة إنشاء المشروع؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.create-project-sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: auto;
+  padding: 32px 0 0 28px;
+}
+
+/* .create-project-sidebar-bottom: واجهة إنشاء المشروع؛ ينسق الخط والألوان. */
+.create-project-sidebar-bottom a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #475467;
+  font-size: 12px;
+}
+
+/* ---------- Main + Header ---------- */
+
+/* .create-project-main: واجهة إنشاء المشروع؛ يتحكم بالعرض. */
+.create-project-main {
+  min-width: 0;
+  flex: 1;
+}
+
+/* .create-project-header: واجهة إنشاء المشروع؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.create-project-header {
+  height: 64px;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0 0 40px;
+  background: #fff;
+  border-bottom: 1px solid #e8ebf0;
+}
+
+/* .create-project-header-logo: واجهة إنشاء المشروع؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+.create-project-header-logo img {
+  display: block;
+  width: 86px;
+  height: 45px;
+  object-fit: contain;
+}
+
+/* .create-project-user: واجهة إنشاء المشروع؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.create-project-user {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 28px;
+  border-left: 1px solid #e8ebf0;
+}
+
+/* .create-project-avatar: واجهة إنشاء المشروع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
+.create-project-avatar {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff1c7;
+  color: #111827;
+  font-weight: 700;
+}
+
+/* .create-project-user: واجهة إنشاء المشروع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.create-project-user strong,
+.create-project-user span {
+  display: block;
+}
+
+/* .create-project-user: واجهة إنشاء المشروع؛ ينسق الخط والألوان. */
+.create-project-user strong {
+  font-size: 12px;
+}
+
+/* .create-project-user: واجهة إنشاء المشروع؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.create-project-user div + div span {
+  margin-top: 4px;
+  color: #667085;
+  font-size: 10px;
+}
+
+/* .create-project-user: واجهة إنشاء المشروع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .user-chevron: معلومات المستخدم والحساب؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.create-project-user .user-chevron {
+  display: none;
+}
+
+/* ---------- Content ---------- */
+
+/* .create-project-content: واجهة إنشاء المشروع؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية، يتحكم بالعرض. */
+.create-project-content {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 32px 40px;
+}
+
+/* .create-project-heading: واجهة إنشاء المشروع؛ يضبط المسافات الخارجية. */
+.create-project-heading {
+  margin-bottom: 24px;
+}
+
+/* .create-project-heading: واجهة إنشاء المشروع؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.create-project-heading h1 {
+  margin: 0;
+  color: #111827;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+/* .create-project-heading: واجهة إنشاء المشروع؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.create-project-heading p {
+  margin-top: 10px;
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ---------- Progress Steps ---------- */
+
+/* .create-project-steps: واجهة إنشاء المشروع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.create-project-steps {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 32px;
+  padding: 12px 20px;
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+}
+
+/* .create-project-step: واجهة إنشاء المشروع؛ ينسق الخط والألوان، يتحكم بالعرض. */
+.create-project-step {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #667085;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* .create-project-step: واجهة إنشاء المشروع؛ ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.create-project-step.active {
+  color: #111827;
+  font-weight: 700;
+}
+
+/* .create-project-step: واجهة إنشاء المشروع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
+/* .step-circle: خطوة ضمن مسار تنفيذ؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
+.create-project-step .step-circle {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #f0f2f5;
+  color: #667085;
+  font-size: 12px;
+}
+
+/* .create-project-step: واجهة إنشاء المشروع؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .step-circle: خطوة ضمن مسار تنفيذ؛ يحدد الخلفية، ينسق الخط والألوان. */
+.create-project-step.active .step-circle {
+  background: #ffcc00;
+  color: #111827;
+}
+
+/* .step-connector: خطوة ضمن مسار تنفيذ؛ يحدد الخلفية، يتحكم بالعرض، يتحكم بالارتفاع. */
+.step-connector {
+  height: 1px;
+  flex: 1;
+  min-width: 12px;
+  background: #e5e7eb;
+}
+
+/* ---------- Form Section ---------- */
+
+/* .create-project-form-section: واجهة إنشاء المشروع؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.create-project-form-section h2 {
+  margin: 0 0 16px 12px;
+  color: #111827;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+/* .create-project-form: واجهة إنشاء المشروع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.create-project-form {
+  width: 100%;
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 24px 28px;
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+}
+
+/* .create-project-field: واجهة إنشاء المشروع؛ يضبط المسافات الخارجية، يتحكم بالعرض. */
+.create-project-field {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* .create-project-field: واجهة إنشاء المشروع؛ ينسق الخط والألوان. */
+.create-project-field label {
+  color: #344054;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* .create-project-field: واجهة إنشاء المشروع؛ ينسق الخط والألوان. */
+.create-project-field label span {
+  color: #e5484d;
+}
+
+/* .create-project-field: واجهة إنشاء المشروع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.create-project-field input,
+.create-project-field select,
+.create-project-field textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 12px;
+  border: 1px solid #d0d5dd;
+  border-radius: 7px;
+  background: #fff;
+  color: #344054;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+/* .create-project-field: واجهة إنشاء المشروع؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.create-project-field input:focus,
+.create-project-field select:focus,
+.create-project-field textarea:focus {
+  border-color: #fabf0d;
+}
+
+/* .create-project-field: واجهة إنشاء المشروع؛ ينسق الخط والألوان. */
+.create-project-field input::placeholder,
+.create-project-field textarea::placeholder {
+  color: #98a2b3;
+}
+
+/* .create-project-field: واجهة إنشاء المشروع؛ يتحكم بالارتفاع. */
+.create-project-field textarea {
+  min-height: 92px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* .create-project-date-fields: واجهة إنشاء المشروع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.create-project-date-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+/* ---------- Form Actions ---------- */
+
+/* .create-project-form-actions: واجهة إنشاء المشروع؛ يضبط المسافات الخارجية. */
+.create-project-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+/* .create-project-back-button: واجهة إنشاء المشروع؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالعرض. */
+/* .create-project-next-button: واجهة إنشاء المشروع؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالعرض. */
+.create-project-back-button,
+.create-project-next-button {
+  min-width: 110px;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border-radius: 7px;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+/* .create-project-back-button: واجهة إنشاء المشروع؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.create-project-back-button {
+  border: 1px solid #d0d5dd;
+  background: #fff;
+  color: #344054;
+}
+
+/* .create-project-next-button: واجهة إنشاء المشروع؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.create-project-next-button {
+  border: 1px solid #ffcc00;
+  background: #ffcc00;
+  color: #111827;
+}
+
+/* .create-project-back-button: واجهة إنشاء المشروع؛ يحدد الخلفية. */
+.create-project-back-button:hover {
+  background: #f5f7fa;
+}
+
+/* .create-project-next-button: واجهة إنشاء المشروع؛ يحدد الخلفية. */
+.create-project-next-button:hover {
+  background: #f2bf00;
+}
+
+/* .create-project-error: واجهة إنشاء المشروع؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.create-project-error {
+  margin-top: 8px;
+  color: #c62828;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+  
+
+/* .create-project-content: واجهة إنشاء المشروع؛ يضبط المساحة الداخلية. */
+.create-project-content {
+    padding: 24px;
+  }
+
+  
+
+/* .create-project-steps: واجهة إنشاء المشروع؛ يضبط المساحة الداخلية. */
+.create-project-steps {
+    gap: 8px;
+    padding: 12px;
+  }
+
+  
+
+/* .create-project-step: واجهة إنشاء المشروع؛ ينسق الخط والألوان. */
+.create-project-step {
+    gap: 6px;
+    font-size: 11px;
+  }
+}
+
+/* ---------- Tablets and Mobile ---------- */
+
+@media (max-width: 760px) {
+  
+
+/* .create-project-page: واجهة إنشاء المشروع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.create-project-page {
+    display: flex;
+    flex-direction: column;
+  }
+
+  
+
+/* .create-project-sidebar: واجهة إنشاء المشروع؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض، يتحكم بالارتفاع. */
+.create-project-sidebar {
+    width: 100%;
+    min-width: 0;
+    min-height: auto;
+    padding: 8px 0;
+    border-right: none;
+    border-bottom: 1px solid #e8ebf0;
+  }
+
+  
+
+/* .create-project-brand: واجهة إنشاء المشروع؛ يضبط المساحة الداخلية. */
+.create-project-brand {
+    display: flex;
+    justify-content: flex-start;
+    padding: 8px 16px;
+  }
+
+  
+
+/* .create-project-navigation: واجهة إنشاء المشروع؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.create-project-navigation {
+    flex-direction: row;
+    gap: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  
+
+/* .create-project-navigation: واجهة إنشاء المشروع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.create-project-navigation::-webkit-scrollbar {
+    display: none;
+  }
+
+  
+
+/* .create-project-navigation: واجهة إنشاء المشروع؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.create-project-navigation a {
+    flex-shrink: 0;
+    min-height: 44px;
+    padding: 0 16px;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+  }
+
+  
+
+/* .create-project-navigation: واجهة إنشاء المشروع؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.create-project-navigation a.active {
+    border-bottom-color: #f8cd45;
+  }
+
+  
+
+/* .create-project-sidebar-bottom: واجهة إنشاء المشروع؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.create-project-sidebar-bottom {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+    margin-top: 0;
+    padding: 8px 16px 10px;
+  }
+
+  
+
+/* .create-project-sidebar-bottom: واجهة إنشاء المشروع؛ يتحكم بالارتفاع. */
+.create-project-sidebar-bottom a {
+    min-height: 36px;
+  }
+
+  
+
+/* .create-project-header: واجهة إنشاء المشروع؛ يضبط المساحة الداخلية. */
+.create-project-header {
+    padding: 0 16px;
+  }
+
+  
+
+/* .create-project-user: واجهة إنشاء المشروع؛ يضبط المساحة الداخلية. */
+.create-project-user {
+    padding: 0 12px;
+  }
+
+  
+
+/* .create-project-content: واجهة إنشاء المشروع؛ يضبط المساحة الداخلية. */
+.create-project-content {
+    padding: 22px 14px 32px;
+  }
+
+  
+
+/* .create-project-heading: واجهة إنشاء المشروع؛ ينسق الخط والألوان. */
+.create-project-heading h1 {
+    font-size: 22px;
+  }
+
+  
+
+/* .create-project-steps: واجهة إنشاء المشروع؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.create-project-steps {
+    overflow-x: auto;
+    justify-content: flex-start;
+    scrollbar-width: none;
+  }
+
+  
+
+/* .create-project-steps: واجهة إنشاء المشروع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.create-project-steps::-webkit-scrollbar {
+    display: none;
+  }
+
+  
+
+/* .create-project-step: واجهة إنشاء المشروع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.create-project-step {
+    flex-shrink: 0;
+  }
+
+  
+
+/* .step-connector: خطوة ضمن مسار تنفيذ؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.step-connector {
+    flex: 0 0 20px;
+  }
+
+  
+
+/* .create-project-form: واجهة إنشاء المشروع؛ يضبط المساحة الداخلية. */
+.create-project-form {
+    padding: 20px 16px;
+  }
+
+  
+
+/* .create-project-form-actions: واجهة إنشاء المشروع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.create-project-form-actions {
+    justify-content: space-between;
+  }
+}
+
+/* ---------- Small Phones ---------- */
+
+@media (max-width: 480px) {
+  
+
+/* .create-project-content: واجهة إنشاء المشروع؛ يضبط المساحة الداخلية. */
+.create-project-content {
+    padding: 18px 12px 28px;
+  }
+
+  
+
+/* .create-project-heading: واجهة إنشاء المشروع؛ ينسق الخط والألوان. */
+.create-project-heading h1 {
+    font-size: 20px;
+  }
+
+  
+
+/* .create-project-heading: واجهة إنشاء المشروع؛ ينسق الخط والألوان. */
+.create-project-heading p {
+    font-size: 12px;
+  }
+
+  
+
+/* .create-project-form: واجهة إنشاء المشروع؛ يضبط المساحة الداخلية. */
+.create-project-form {
+    padding: 18px 14px;
+  }
+
+  
+
+/* .create-project-date-fields: واجهة إنشاء المشروع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.create-project-date-fields {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  
+
+/* .create-project-form-actions: واجهة إنشاء المشروع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.create-project-form-actions {
+    gap: 8px;
+  }
+
+  
+
+/* .create-project-back-button: واجهة إنشاء المشروع؛ يضبط المساحة الداخلية، يتحكم بالعرض. */
+/* .create-project-next-button: واجهة إنشاء المشروع؛ يضبط المساحة الداخلية، يتحكم بالعرض. */
+.create-project-back-button,
+  .create-project-next-button {
+    flex: 1;
+    min-width: 0;
+    padding: 10px;
+  }
+}
+
+/* =========================================================
+   GLOBAL MOBILE + iOS SAFARI FIXES
+   Shared rules: keep only one copy in the global stylesheet.
+========================================================= */
+
+/* ---------- Dynamic Viewport ---------- */
+
+@supports (min-height: 100dvh) {
+  
+
+/* .cd-page: العنصر `cd-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .login-page: العنصر `login-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .signup-page: العنصر `signup-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .create-project-page: واجهة إنشاء المشروع؛ يتحكم بالارتفاع. */
+/* .location-screen: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+/* .services-page: العنصر `services-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .review-page: العنصر `review-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .quotation-page: واجهة عرض السعر أو تفاصيل تسعيره؛ يتحكم بالارتفاع. */
+/* .provider-dashboard-page: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالارتفاع. */
+/* .project-location-page: واجهة تحديد موقع المشروع؛ يتحكم بالارتفاع. */
+.cd-page,
+  .login-page,
+  .signup-page,
+  .create-project-page,
+  .location-screen,
+  .services-page,
+  .review-page,
+  .quotation-page,
+  .provider-dashboard-page,
+  .project-location-page {
+    min-height: 100dvh;
+  }
+
+  
+
+/* .login-main: العنصر `login-main` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+.login-main {
+    min-height: calc(100dvh - 83px);
+  }
+
+  
+
+/* .signup-main: العنصر `signup-main` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+.signup-main {
+    min-height: calc(100dvh - 80px);
+  }
+}
+
+/* ---------- iOS Safari ---------- */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  -webkit-tap-highlight-color: rgb(250 191 13 / 20%);
+}
+
+a,
+button,
+label,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+/* ---------- Touch Devices ---------- */
+
+@media (hover: none) and (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  input:not([type]),
+  textarea {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input[type="date"] {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  
+
+/* .cd-row-menu: العنصر `cd-row-menu` ضمن واجهة هذا الدور؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+.cd-row-menu {
+    width: 44px;
+    height: 44px;
+  }
+
+  
+
+/* .cd-link: العنصر `cd-link` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.cd-link {
+    padding: 10px 0;
+  }
+
+  
+
+/* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .create-project-navigation: واجهة إنشاء المشروع؛ يتحكم بالارتفاع. */
+/* .location-sidebar-nav: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+/* .services-sidebar-nav: العنصر `services-sidebar-nav` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+.cd-nav a,
+  .create-project-navigation a,
+  .location-sidebar-nav a,
+  .services-sidebar-nav a {
+    min-height: 44px;
+  }
+
+  
+
+/* .location-back-button: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+/* .location-next-button: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+/* .create-project-back-button: واجهة إنشاء المشروع؛ يتحكم بالارتفاع. */
+/* .create-project-next-button: واجهة إنشاء المشروع؛ يتحكم بالارتفاع. */
+.location-back-button,
+  .location-next-button,
+  .create-project-back-button,
+  .create-project-next-button {
+    min-height: 44px;
+  }
+
+  
+
+/* .location-search: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+.location-search {
+    height: 44px;
+  }
+
+  
+
+/* .location-search: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+.location-search button {
+    height: 44px;
+  }
+
+  
+
+/* .mamar-map-tool-button: زر لتنفيذ إجراء؛ يتحكم بالارتفاع. */
+.mamar-map-tool-button {
+    min-height: 40px;
+  }
+}
+
+/* ---------- Shared Mobile Navigation ---------- */
+
+@media (max-width: 760px) {
+  
+
+/* .cd-sidebar-bottom: العنصر `cd-sidebar-bottom` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+/* .create-project-sidebar-bottom: واجهة إنشاء المشروع؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+/* .location-sidebar-bottom: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+/* .services-sidebar-bottom: العنصر `services-sidebar-bottom` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.cd-sidebar-bottom,
+  .create-project-sidebar-bottom,
+  .location-sidebar-bottom,
+  .services-sidebar-bottom {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+    margin-top: 0;
+    padding: 8px 16px 10px;
+  }
+
+  
+
+/* .cd-sidebar-bottom: العنصر `cd-sidebar-bottom` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
+/* .create-project-sidebar-bottom: واجهة إنشاء المشروع؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
+/* .location-sidebar-bottom: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
+/* .services-sidebar-bottom: العنصر `services-sidebar-bottom` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
+.cd-sidebar-bottom a,
+  .create-project-sidebar-bottom a,
+  .location-sidebar-bottom a,
+  .services-sidebar-bottom a {
+    min-height: 36px;
+    font-size: 12px;
+  }
+
+  
+
+/* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+/* .create-project-navigation: واجهة إنشاء المشروع؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+/* .location-sidebar-nav: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+/* .services-sidebar-nav: العنصر `services-sidebar-nav` ضمن واجهة هذا الدور؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.cd-nav,
+  .create-project-navigation,
+  .location-sidebar-nav,
+  .services-sidebar-nav {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  
+
+/* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .create-project-navigation: واجهة إنشاء المشروع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .location-sidebar-nav: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .services-sidebar-nav: العنصر `services-sidebar-nav` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.cd-nav::-webkit-scrollbar,
+  .create-project-navigation::-webkit-scrollbar,
+  .location-sidebar-nav::-webkit-scrollbar,
+  .services-sidebar-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  
+
+/* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+.cd-nav a {
+    min-height: 44px;
+  }
+
+  
+
+/* .cd-user-info: العنصر `cd-user-info` ضمن واجهة هذا الدور؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.cd-user-info strong {
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

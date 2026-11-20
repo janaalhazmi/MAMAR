@@ -8,7 +8,7 @@ from app.db.init_db import DEMO_PROVIDERS, add_demo_providers
 from app.main import app
 from app.models import Provider, User
 
-PROVIDER_FIELDS = ["provider_id", "company_name", "service_type", "city", "phone", "website"]
+PROVIDER_FIELDS = ["provider_id", "company_name", "service_type", "city", "phone", "website", "email_domain"]
 
 
 def start_app():

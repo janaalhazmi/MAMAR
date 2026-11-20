@@ -31,12 +31,15 @@ import ReviewCompletionPage from "./pages/Contractor/ReviewCompletionPage";
 import FieldWorkerDashboard from "./pages/FieldWorker/FieldWorkerDashboard";
 import FieldExecution from "./pages/FieldWorker/FieldExecution";
 import DeviceVerification from "./pages/FieldWorker/DeviceVerification";
+import AttendancePage from "./pages/FieldWorker/AttendancePage";
 import MyProjectsPage from "./pages/Contractor/MyProjectsPage";
 import NotificationsPage from "./pages/Contractor/NotificationsPage";
 import PaymentPage from "./pages/Contractor/PaymentPage";
 import DataDisclaimerPage from "./pages/Weblogin/DataDisclaimerPage";
 import ProfilePage from "./pages/Contractor/ProfilePage";
 import ProviderProfilePage from "./pages/Providers/ProviderProfilePage";
+import FieldWorkerProfile from "./pages/FieldWorker/FieldWorkerProfile";
+
 
 function App() {
   return (
@@ -59,8 +62,16 @@ function App() {
       <Route path="/field-worker-dashboard" element={<ProtectedRoute roles={["worker"]}><FieldWorkerDashboard /></ProtectedRoute>} />
       <Route path="/field-execution" element={<ProtectedRoute roles={["worker"]}><FieldExecution /></ProtectedRoute>} />
       <Route path="/device-verification" element={<ProtectedRoute roles={["worker"]}><DeviceVerification /></ProtectedRoute>} />
+      <Route path="/attendance" element={<ProtectedRoute roles={["worker"]}><AttendancePage /></ProtectedRoute>} />
       <Route path="/my-projects" element={<ProtectedRoute roles={["contractor"]}><MyProjectsPage /></ProtectedRoute>} />
-
+      <Route
+      path="/field-worker/profile"
+      element={
+        <ProtectedRoute roles={["worker"]}>
+        <FieldWorkerProfile />
+        </ProtectedRoute>
+      }
+      />
 
       <Route path="/profile" element={<ProfilePage />} />
       <Route

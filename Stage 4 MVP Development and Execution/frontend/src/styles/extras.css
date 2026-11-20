@@ -1,0 +1,114 @@
+/* .stars: العنصر `stars` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.stars { color: #c98a00; font-size: 13px; font-weight: 600; white-space: nowrap; }
+/* .stars-empty: حالة عدم وجود بيانات؛ ينسق الخط والألوان. */
+.stars-empty { color: #9a928a; font-weight: 500; }
+/* .rate-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.rate-card { background: #fff; border: 1px solid #f5d27a; border-radius: 14px; padding: 18px; display: grid; gap: 10px; }
+/* .rate-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المسافات الخارجية. */
+.rate-card h2 { margin: 0; }
+/* .rate-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.rate-card p { margin: 0; color: #6f6862; }
+/* .rate-stars: العنصر `rate-stars` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.rate-stars { display: flex; gap: 4px; }
+/* .rate-stars: العنصر `rate-stars` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.rate-stars button { background: none; border: none; font-size: 34px; line-height: 1; cursor: pointer; color: #e3dccd; padding: 0 2px; }
+/* .rate-stars: العنصر `rate-stars` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+/* .on: العنصر `on` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.rate-stars button.on { color: #f5b800; }
+/* .rate-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.rate-card textarea { border: 1px solid #e3d8c0; border-radius: 10px; padding: 10px; font: inherit; }
+/* .rate-error: رسالة خطأ؛ ينسق الخط والألوان. */
+.rate-error { color: #b3261e; }
+/* .rate-actions: مجموعة أزرار الإجراءات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.rate-actions { display: flex; justify-content: flex-end; gap: 8px; }
+/* .rate-skip: العنصر `rate-skip` ضمن واجهة هذا الدور؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+/* .rate-send: العنصر `rate-send` ضمن واجهة هذا الدور؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.rate-skip, .rate-send { border-radius: 10px; padding: 9px 16px; font-weight: 700; cursor: pointer; }
+/* .rate-skip: العنصر `rate-skip` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل. */
+.rate-skip { background: #fff; border: 1px solid #e3d8c0; }
+/* .rate-send: العنصر `rate-send` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل. */
+.rate-send { background: #f5b800; border: none; }
+/* .qr-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.qr-card { background: #fff; border: 1px solid #eceef2; border-radius: 14px; padding: 22px; margin: 16px 0; display: grid; gap: 16px; color: #111827; }
+/* .qr-head: العنصر `qr-head` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.qr-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+/* .qr-head: العنصر `qr-head` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.qr-head h2 { margin: 0; font-size: 17px; font-weight: 600; }
+/* .qr-head: العنصر `qr-head` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.qr-head p { margin: 4px 0 0; color: #6b7280; font-size: 12.5px; }
+/* .qr-print: العنصر `qr-print` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+/* .qr-add: العنصر `qr-add` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.qr-print, .qr-add button { background: #f5c518; border: 1px solid #f5c518; border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; color: #111827; cursor: pointer; }
+/* .qr-print: العنصر `qr-print` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+/* .qr-add: العنصر `qr-add` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+.qr-print:hover, .qr-add button:hover { background: #eab308; }
+/* .qr-add: العنصر `qr-add` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.qr-add { display: flex; gap: 8px; }
+/* .qr-add: العنصر `qr-add` ضمن واجهة هذا الدور؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالعرض. */
+.qr-add input { flex: 1; max-width: 280px; min-height: 40px; padding: 9px 12px; border: 1px solid #d0d5dd; border-radius: 8px; font: inherit; font-size: 13px; outline: none; }
+/* .qr-add: العنصر `qr-add` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.qr-add input:focus { border-color: #f5c518; }
+/* .qr-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.qr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+/* .qr-grid: شبكة توزيع العناصر؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.qr-grid figure { margin: 0; border: 1px solid #eceef2; border-radius: 12px; padding: 12px; text-align: center; background: #fff; }
+/* .qr-grid: شبكة توزيع العناصر؛ يتحكم بالعرض. */
+.qr-grid img { width: 100%; }
+/* .qr-grid: شبكة توزيع العناصر؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.qr-grid figcaption { font-weight: 600; font-size: 13px; margin-top: 6px; letter-spacing: .04em; }
+/* .qr-wait: العنصر `qr-wait` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل. */
+.qr-wait { display: block; aspect-ratio: 1; background: #f2f4f7; border-radius: 8px; }
+/* .admin-map: مساحة عرض الخريطة؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالارتفاع، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.admin-map { height: 460px; border-radius: 12px; overflow: hidden; border: 1px solid #eee3cc; }
+/* .admin-map: مساحة عرض الخريطة؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+/* .mamar-map: مساحة عرض الخريطة؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+.admin-map .mamar-map { width: 100%; height: 100%; }
+/* .adm-legend: العنصر `adm-legend` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.adm-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; margin: 10px 0; }
+/* .adm-legend: العنصر `adm-legend` ضمن واجهة هذا الدور؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المسافات الخارجية، يتحكم بالعرض، يتحكم بالارتفاع. */
+.adm-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-inline-end: 5px; }
+/* .adm-activity: العنصر `adm-activity` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.adm-activity { display: grid; gap: 0; }
+/* .adm-activity: العنصر `adm-activity` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.adm-activity li { list-style: none; display: grid; grid-template-columns: 150px 1fr; gap: 10px; padding: 9px 4px; border-bottom: 1px solid #f3ecdc; font-size: 14px; }
+/* .adm-activity: العنصر `adm-activity` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.adm-activity time { color: #77706a; font-size: 12.5px; }
+/* .adm-activity: العنصر `adm-activity` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.adm-activity b { font-weight: 600; }
+/* .ba-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+/* .ba-grid: شبكة توزيع العناصر؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.ba-grid h3 { margin: 0 0 6px; font-size: 14px; color: #6f6862; }
+/* .ba-grid: شبكة توزيع العناصر؛ يتحكم بالعرض. */
+/* .pf-evidence: العنصر `pf-evidence` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+.ba-grid .pf-evidence img { width: 100%; }
+/* .photo-stage: العنصر `photo-stage` ضمن واجهة هذا الدور؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.photo-stage { font-size: 12px; padding: 2px 4px; border-radius: 6px; border: 1px solid #e3d8c0; }
+@media (max-width: 640px) {
+  /* .ba-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.ba-grid { grid-template-columns: 1fr; }
+  /* .adm-activity: العنصر `adm-activity` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.adm-activity li { grid-template-columns: 1fr; gap: 2px; }
+}
+/* .qr-error: رسالة خطأ؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.qr-error { margin: 0; padding: 9px 12px; border-radius: 8px; background: #fdecec; color: #b42318; font-size: 13px; }
+/* .qr-none: العنصر `qr-none` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.qr-none { margin: 0; color: #6b7280; font-size: 13px; }
+
+/* Site photos on the field worker page (issue #79) */
+/* .fw-photo-msg: العنصر `fw-photo-msg` ضمن واجهة هذا الدور؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.fw-photo-msg { margin: 0 0 12px; padding: 10px 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; }
+/* .fw-photo-msg: العنصر `fw-photo-msg` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .ok: العنصر `ok` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.fw-photo-msg.ok { background: #eef8f1; color: #1f6b38; }
+/* .fw-photo-msg: العنصر `fw-photo-msg` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .bad: العنصر `bad` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.fw-photo-msg.bad { background: #fdeceb; color: #a3271c; }
+/* .fw-pending: العنصر `fw-pending` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.fw-pending img { opacity: .6; }
+/* .fw-pending: العنصر `fw-pending` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.fw-pending figcaption { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 12px; color: #b8860b; font-weight: 600; }
+/* .fw-stage-pick: العنصر `fw-stage-pick` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.fw-stage-pick { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 4px 0 10px; font-size: 13px; color: #344054; font-weight: 600; }
+/* .fw-stage-pick: العنصر `fw-stage-pick` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.fw-stage-pick select { min-height: 38px; padding: 6px 10px; border: 1px solid #d0d5dd; border-radius: 8px; font: inherit; font-weight: 500; background: #fff; }

@@ -574,29 +574,30 @@ export function getConfirmedQuotationId() {
 /* PROJECT MONITORING                                                  */
 /* ------------------------------------------------------------------ */
 function buildMilestones(r) {
-  const site = r.site_status;
-  const notStarted = site === "Not Started";
+  const milestones = r.milestones || [];
 
-  const prep = notStarted
-    ? { state: "pending", note: "Pending" }
-    : { state: "done", note: "Completed" };
+  return milestones.map((milestone) => {
+    const status = String(milestone.status || "pending").toLowerCase();
+    return {
+      id: milestone.milestone_id,
+      title: milestone.name,
+      state:
+        status === "completed"
 
-  const install =
-    site === "Completed"
-      ? { state: "done", note: "Completed" }
-      : notStarted
-        ? { state: "pending", note: "Pending" }
-        : { state: "active", note: `${site} • ${r.progress}%` };
+          ? "done"
+          : status === "in_progress"
+            ? "active"
+            : "pending",
+      note:
+        status === "completed"
+          ? "Completed"
+          : status === "in_progress"
 
-  const final = r.completion_submitted
-    ? { state: "done", note: "Submitted by the provider" }
-    : { state: "pending", note: "Pending" };
+            ? "In Progress"
 
-  return [
-    { id: 1, title: "Site Preparation", ...prep },
-    { id: 2, title: "Traffic Control Installation", ...install },
-    { id: 3, title: "Final Site Check", ...final },
-  ];
+            : "Pending",
+    };
+  });
 }
 
 function buildLatestUpdate(r) {
@@ -652,34 +653,100 @@ export async function getMonitoringData(projectId) {
 /* REVIEW COMPLETION                                                   */
 /* ------------------------------------------------------------------ */
 export async function getCompletionData(projectId) {
-  const r = await fetchCompletion(token(), requireProjectId(projectId));
-  const submitted = r.submitted_at ? r.submitted_at.slice(0, 10) : "";
+  const r = await fetchMonitoring(token(), requireProjectId(projectId));
 
-  const checklist = (r.services || []).map((id, index) => ({
-    id: index + 1,
-    title: SERVICE_LABELS[id] || id,
-    note: "Implementation completed by the provider.",
-  }));
-  checklist.push({
-    id: checklist.length + 1,
-    title: "Final Site Inspection",
-    note: "Final field inspection submitted by the provider.",
-  });
+  const submitted = r.submitted_at || null;
+  const milestones = Array.isArray(r.milestones) ? r.milestones : [];
 
+  // Check whether all project milestones are completed.
+  const allMilestonesCompleted =
+    milestones.length > 0 &&
+    milestones.every(
+      (milestone) =>
+        String(milestone.status || "").toLowerCase() === "completed"
+    );
+
+  // Find the actual completion time of the last updated milestone.
+  const completionMilestones = milestones
+    .filter(
+      (milestone) =>
+        String(milestone.status || "").toLowerCase() === "completed" &&
+        milestone.updated_at
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.updated_at).getTime() -
+        new Date(a.updated_at).getTime()
+    );
+
+  const completionDateTime = allMilestonesCompleted
+    ? completionMilestones[0]?.updated_at || null
+    : null;
+
+  const completionDate = completionDateTime
+    ? completionDateTime.slice(0, 10)
+    : "";
+
+  // Build checklist using actual milestone statuses.
+  const checklist = milestones.length
+    ? milestones.map((milestone) => ({
+        id: milestone.milestone_id,
+        title: milestone.name,
+        note:
+          milestone.status === "completed"
+            ? "Implementation completed by the provider."
+            : milestone.status === "in_progress"
+              ? "Work is currently in progress."
+              : "Pending",
+        status: milestone.status,
+      }))
+    : (r.services || []).map((id, index) => ({
+        id: index + 1,
+        title: SERVICE_LABELS[id] || id,
+        note: "Implementation completed by the provider.",
+      }));
+
+  if (!milestones.length) {
+    checklist.push({
+      id: checklist.length + 1,
+      title: "Final Site Inspection",
+      note: "Final field inspection submitted by the provider.",
+    });
+  }
   return {
-    completionDate: submitted,
-    finalProgress: r.progress,
+    completionDate,
+    completionDateTime,
+    submittedAt: submitted,
+    // 100% only when every milestone is completed.
+    finalProgress: allMilestonesCompleted
+      ? 100
+      : Number(r.progress) || 0,
+    allMilestonesCompleted,
+    milestones,
     checklist,
-    providerNote: r.quote?.notes
-      ? `Provider note: ${r.quote.notes}`
-      : "The provider has submitted the work for your review.",
+    provider: r.provider
+      ? {
+          providerName: r.provider.company_name || "Not assigned",
+          providerDescription: r.provider.service_type || "",
+          providerLogo:
+            PROVIDER_LOGOS[r.provider.provider_id] || null,
+        }
+      : null,
+    providerNote: r.change_note
+      ? `Provider note: ${r.change_note}`
+      : r.quote?.notes
+        ? `Provider note: ${r.quote.notes}`
+        : "The provider has submitted the work for your review.",
     evidence: (r.photos || []).map((photo) => ({
       id: photo.photo_id,
       src: absUrl(photo.url),
+      stage: photo.stage || "during",
+      caption: photo.caption,
     })),
-    submittedOn: submitted,
+    submittedOn: completionDate,
   };
 }
+
 
 export async function approveCompletion(projectId) {
   const project = await postCompleteProject(token(), requireProjectId(projectId));
@@ -841,6 +908,15 @@ export function filterProjects(projects, search, status) {
 }
 
 // يفتح المشروع في الـflow ويرجع المسار، أو null إذا ما فيه خطوة
+// Opens a project by its id (e.g. the project just paid for), so the next page shows that project.
+export async function openProjectById(projectId) {
+  const list = await fetchProjects();
+  const project = list.find((item) => String(item.id) === String(projectId));
+  if (!project) return null;
+  openProjectInFlow(project);
+  return nextStepFor(project)?.to || "/my-projects";
+}
+
 export function openProject(project) {
   const step = nextStepFor(project);
   if (!step) return null;

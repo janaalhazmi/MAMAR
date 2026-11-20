@@ -1,6 +1,7 @@
 import ProviderSidebar from "../../components/ProviderSidebar";
 import { useProviderProfile } from "../../services/providers/api";
 import "../../styles/Providers/providerProfile.css";
+import PhoneAlertsCard from "../../components/PhoneAlertsCard";
 
 export default function ProviderProfilePage() {
   const {
@@ -141,6 +142,8 @@ export default function ProviderProfilePage() {
                     )}
                   </form>
                 </section>
+
+                <PhoneAlertsCard />
 
                 <section className="profile-card">
                   <div className="profile-card-heading">

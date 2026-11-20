@@ -1,0 +1,918 @@
+/*
+ * Provider role: dashboard, assigned projects, field-team directory and shared provider shell.
+ * Each class has an Arabic comment immediately above its rule describing its purpose and appearance.
+ */
+
+/* Provider dashboard, provider project list and provider field-team pages. */
+
+/* .provider-card: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.provider-card {
+  min-height: 150px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding: 18px;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+}/* .provider-name: واجهة مقدم الخدمة أو بياناته؛ ينسق الخط والألوان، يتحكم بالعرض. */
+.provider-name {
+  max-width: 165px;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  color: #111827;
+}/* .provider-card: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+.provider-card img {
+  max-width: 75px;
+  max-height: 75px;
+
+  object-fit: contain;
+}/* .provider-dashboard-page: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، يتحكم بالارتفاع. */
+.provider-dashboard-page {
+  min-height: 100vh;
+  display: flex;
+  background: #f6f7f8;
+}/* .provider-sidebar: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+.provider-sidebar {
+  width: 238px;
+  min-height: 100vh;
+  background: white;
+  border-right: 1px solid #e7e7e7;
+}/* .provider-main-area: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-main-area {
+  flex: 1;
+}/* .provider-topbar: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، يحدد الحدود والفواصل، يتحكم بالارتفاع. */
+.provider-topbar {
+  height: 88px;
+  background: white;
+  border-bottom: 1px solid #eeeeee;
+}/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية. */
+.provider-dashboard-content {
+  padding: 30px 40px;
+}/* .provider-summary-grid: واجهة مقدم الخدمة أو بياناته؛ يضبط المسافات الخارجية. */
+.provider-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-top: 25px;
+}/* .provider-summary-card: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.provider-summary-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+}/* .provider-sidebar: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+.provider-sidebar {
+  width: 238px;
+  min-width: 238px;
+  min-height: 100vh;
+  background: #ffffff;
+  border-right: 1px solid #e7e7e7;
+  display: flex;
+  flex-direction: column;
+}/* .provider-sidebar-logo: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.provider-sidebar-logo {
+  height: 88px;
+  display: flex;
+  align-items: center;
+  padding-left: 70px;
+  border-bottom: 1px solid #eeeeee;
+}/* .provider-sidebar-logo: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالعرض. */
+.provider-sidebar-logo img {
+  width: 78px;
+}/* .provider-sidebar-nav: واجهة مقدم الخدمة أو بياناته؛ يضبط المسافات الخارجية. */
+.provider-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  margin-top: 31px;
+}/* .provider-sidebar-nav: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.provider-sidebar-nav a {
+  min-height: 51px;
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  padding: 0 27px;
+  text-decoration: none;
+  color: #51534f;
+  font-size: 14px;
+  border-left: 4px solid transparent;
+}/* .provider-sidebar-nav: واجهة مقدم الخدمة أو بياناته؛ ينسق الخط والألوان، يتحكم بالعرض. */
+.provider-sidebar-nav a span {
+  font-size: 22px;
+  width: 22px;
+  text-align: center;
+}/* .provider-sidebar-nav: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.provider-sidebar-nav a:hover,
+.provider-sidebar-nav a.active {
+  background: #fff7e8;
+  color: #f0ab00;
+}/* .provider-sidebar-nav: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.provider-sidebar-nav a.active {
+  border-left-color: #ffc400;
+}/* .provider-sidebar-bottom: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.provider-sidebar-bottom {
+  margin-top: auto;
+  padding: 24px 27px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}/* .provider-sidebar-bottom: واجهة مقدم الخدمة أو بياناته؛ ينسق الخط والألوان. */
+.provider-sidebar-bottom a {
+  text-decoration: none;
+  color: #80827d;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 17px;
+}/* .provider-main-area: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالعرض. */
+.provider-main-area {
+  flex: 1;
+  min-width: 0;
+}/* .provider-topbar: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.provider-topbar {
+  height: 88px;
+  background: #ffffff;
+  border-bottom: 1px solid #eeeeee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 90px 0 40px;
+}/* .provider-account: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-account {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}/* .provider-avatar: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
+.provider-avatar {
+  width: 43px;
+  height: 43px;
+  border-radius: 50%;
+  background: #fff3d5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #856b25;
+  font-weight: 600;
+  font-size: 13px;
+}/* .provider-account: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-account strong,
+.provider-account span {
+  display: block;
+}/* .provider-account: واجهة مقدم الخدمة أو بياناته؛ ينسق الخط والألوان. */
+.provider-account strong {
+  font-size: 15px;
+}/* .provider-account: واجهة مقدم الخدمة أو بياناته؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.provider-account span {
+  font-size: 11px;
+  color: #91918d;
+  margin-top: 4px;
+}/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية. */
+.provider-dashboard-content {
+  padding: 21px 40px 32px;
+}/* .provider-title: واجهة مقدم الخدمة أو بياناته؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.provider-title h1 {
+  margin: 0 0 9px;
+  font-size: 30px;
+}/* .provider-title: واجهة مقدم الخدمة أو بياناته؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.provider-title p {
+  margin: 0;
+  color: #747570;
+  font-size: 14px;
+}/* .provider-summary-grid: واجهة مقدم الخدمة أو بياناته؛ يضبط المسافات الخارجية. */
+.provider-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 19px;
+  margin-top: 22px;
+}/* .provider-summary-card: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.provider-summary-card {
+  height: 96px;
+  padding: 18px 23px;
+  border-radius: 13px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 17px;
+}/* .provider-summary-icon: واجهة مقدم الخدمة أو بياناته؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
+.provider-summary-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}/* .provider-summary-icon: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .yellow: العنصر `yellow` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.provider-summary-icon.yellow {
+  background: #fff4d6;
+  color: #dca500;
+}/* .provider-summary-icon: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .green: العنصر `green` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.provider-summary-icon.green {
+  background: #eaf5ef;
+  color: #78a986;
+}/* .provider-summary-icon: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .blue: العنصر `blue` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.provider-summary-icon.blue {
+  background: #eef2f9;
+  color: #8096bb;
+}/* .provider-summary-icon: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .gray: العنصر `gray` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.provider-summary-icon.gray {
+  background: #f1f1ed;
+  color: #979a8d;
+}/* .provider-summary-card: واجهة مقدم الخدمة أو بياناته؛ ينسق الخط والألوان. */
+.provider-summary-card span {
+  display: block;
+  color: #999a95;
+  font-size: 11px;
+}/* .provider-summary-card: واجهة مقدم الخدمة أو بياناته؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.provider-summary-card strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 26px;
+  letter-spacing: 1px;
+}/* .provider-section: واجهة مقدم الخدمة أو بياناته؛ يضبط المسافات الخارجية. */
+.provider-section {
+  margin-top: 17px;
+}/* .provider-section: واجهة مقدم الخدمة أو بياناته؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.provider-section > h2 {
+  font-size: 18px;
+  margin: 0 0 12px;
+}/* .provider-bottom-grid: واجهة مقدم الخدمة أو بياناته؛ يضبط المسافات الخارجية. */
+.provider-bottom-grid {
+  display: grid;
+  grid-template-columns: 1.9fr 1fr;
+  gap: 20px;
+  margin-top: 23px;
+}/* .provider-bottom-card: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.provider-bottom-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 17px 23px;
+}/* .provider-card-heading: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-card-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}/* .provider-card-heading: واجهة مقدم الخدمة أو بياناته؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+/* .execution-overview: العنصر `execution-overview` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.provider-card-heading h2,
+.execution-overview h2 {
+  font-size: 18px;
+  margin: 0;
+}/* .provider-card-heading: واجهة مقدم الخدمة أو بياناته؛ ينسق الخط والألوان. */
+.provider-card-heading a {
+  color: #c69c22;
+  text-decoration: none;
+  font-size: 10px;
+}@supports (min-height: 100dvh) {/* .cd-page: العنصر `cd-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .login-page: العنصر `login-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .signup-page: العنصر `signup-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .location-screen: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+/* .services-page: العنصر `services-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .review-page: العنصر `review-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .quotation-page: واجهة عرض السعر أو تفاصيل تسعيره؛ يتحكم بالارتفاع. */
+/* .provider-dashboard-page: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالارتفاع. */
+/* .project-location-page: واجهة تحديد موقع المشروع؛ يتحكم بالارتفاع. */
+.cd-page,
+  .login-page,
+  .signup-page,
+
+  .location-screen,
+  .services-page,
+  .review-page,
+  .quotation-page,
+  .provider-dashboard-page,
+  .project-location-page {
+    min-height: 100dvh;
+  }}@media (max-width: 900px) {/* .provider-summary-grid: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }/* .provider-bottom-grid: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-bottom-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }}@media (max-width: 650px) {/* .provider-dashboard-page: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-dashboard-page {
+    display: block;
+  }/* .provider-sidebar: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+.provider-sidebar {
+    width: 100%;
+    min-width: 0;
+    min-height: auto;
+  }/* .provider-sidebar-logo: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.provider-sidebar-logo {
+    height: 64px;
+    padding-left: 16px;
+  }/* .provider-sidebar-nav: واجهة مقدم الخدمة أو بياناته؛ يضبط المسافات الخارجية، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.provider-sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    margin-top: 0;
+  }/* .provider-sidebar-nav: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.provider-sidebar-nav a {
+    flex-shrink: 0;
+    min-height: 48px;
+    padding: 0 16px;
+    border-left: none;
+    border-bottom: 4px solid transparent;
+  }/* .provider-sidebar-nav: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.provider-sidebar-nav a.active {
+    border-bottom-color: #ffc400;
+  }/* .provider-sidebar-bottom: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية. */
+.provider-sidebar-bottom {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    padding: 8px 16px 12px;
+  }/* .provider-topbar: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.provider-topbar {
+    height: 64px;
+    padding: 0 16px;
+  }/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية. */
+.provider-dashboard-content {
+    padding: 20px 16px 28px;
+  }/* .provider-title: واجهة مقدم الخدمة أو بياناته؛ ينسق الخط والألوان. */
+.provider-title h1 {
+    font-size: 24px;
+  }/* .provider-summary-grid: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .request-details: تفاصيل إضافية للعنصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-summary-grid,
+  .request-details {
+    grid-template-columns: minmax(0, 1fr);
+  }}@supports (min-height: 100dvh) {/* .cd-page: العنصر `cd-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .login-page: العنصر `login-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .signup-page: العنصر `signup-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .location-screen: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+/* .services-page: العنصر `services-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .review-page: العنصر `review-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .quotation-page: واجهة عرض السعر أو تفاصيل تسعيره؛ يتحكم بالارتفاع. */
+/* .provider-dashboard-page: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالارتفاع. */
+/* .project-location-page: واجهة تحديد موقع المشروع؛ يتحكم بالارتفاع. */
+.cd-page,
+  .login-page,
+  .signup-page,
+  
+  .location-screen,
+  .services-page,
+  .review-page,
+  .quotation-page,
+  .provider-dashboard-page,
+  .project-location-page {
+    min-height: 100dvh;
+  }}@media (max-width: 900px) {/* .provider-summary-grid: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }/* .provider-bottom-grid: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-bottom-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }}@media (max-width: 650px) {/* .provider-dashboard-page: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-dashboard-page {
+    display: block;
+  }/* .provider-sidebar: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+.provider-sidebar {
+    width: 100%;
+    min-width: 0;
+    min-height: auto;
+  }/* .provider-sidebar-logo: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.provider-sidebar-logo {
+    height: 64px;
+    padding-left: 16px;
+  }/* .provider-sidebar-nav: واجهة مقدم الخدمة أو بياناته؛ يضبط المسافات الخارجية، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.provider-sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    margin-top: 0;
+  }/* .provider-sidebar-nav: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.provider-sidebar-nav a {
+    flex-shrink: 0;
+    min-height: 48px;
+    padding: 0 16px;
+    border-left: none;
+    border-bottom: 4px solid transparent;
+  }/* .provider-sidebar-nav: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.provider-sidebar-nav a.active {
+    border-bottom-color: #ffc400;
+  }/* .provider-sidebar-bottom: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية. */
+.provider-sidebar-bottom {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    padding: 8px 16px 12px;
+  }/* .provider-topbar: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.provider-topbar {
+    height: 64px;
+    padding: 0 16px;
+  }/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية. */
+.provider-dashboard-content {
+    padding: 20px 16px 28px;
+  }/* .provider-title: واجهة مقدم الخدمة أو بياناته؛ ينسق الخط والألوان. */
+.provider-title h1 {
+    font-size: 24px;
+  }/* .provider-summary-grid: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .request-details: تفاصيل إضافية للعنصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-summary-grid,
+  .request-details {
+    grid-template-columns: minmax(0, 1fr);
+  }}/* .pp-page: العنصر `pp-page` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالعرض. */
+.pp-page {
+  min-width: 0;
+  padding: 26px clamp(16px, 3vw, 42px) 40px;
+  background: #f5f6f8;
+  color: #30332d;
+}/* .pp-page: العنصر `pp-page` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.pp-page h1 { margin: 0; font-size: 30px; }/* .pp-description: العنصر `pp-description` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.pp-description { margin: 8px 0 26px; color: #6f756a; }/* .pp-muted: العنصر `pp-muted` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+/* .pp-table: جدول يعرض بيانات في صفوف وأعمدة؛ ينسق الخط والألوان. */
+/* .pp-footer: تذييل البطاقة أو الصفحة؛ ينسق الخط والألوان. */
+.pp-muted, .pp-table small, .pp-footer { color: #6f756a; font-size: 12px; }/* .pp-stats: بطاقات الإحصائيات؛ يضبط المسافات الخارجية. */
+.pp-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}/* .pp-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل. */
+/* .pp-panel: لوحة تجمع عناصر ومعلومات مرتبطة؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل. */
+.pp-card, .pp-panel { background: #fff; border-radius: 14px; }/* .pp-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المساحة الداخلية. */
+.pp-card { display: flex; align-items: flex-start; gap: 14px; padding: 20px 16px; }/* .pp-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.pp-card strong { display: block; margin-top: 4px; font-size: 27px; }/* .pp-icon: أيقونة توضيحية أو إجرائية؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالارتفاع. */
+.pp-icon { display: grid; place-items: center; flex: 0 0 34px; height: 34px; border-radius: 50%; }/* .pp-all: العنصر `pp-all` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .pp-upcoming: العنصر `pp-upcoming` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.pp-all, .pp-upcoming { background: #fff4d0; color: #785900; }/* .pp-active: العنصر `pp-active` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.pp-active { background: #eaf3eb; color: #426b4e; }/* .pp-completed: العنصر `pp-completed` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.pp-completed { background: #eef0e9; color: #5f6b57; }/* .pp-panel: لوحة تجمع عناصر ومعلومات مرتبطة؛ يضبط المساحة الداخلية. */
+.pp-panel { padding: 22px; }/* .pp-toolbar: شريط أدوات البحث والفلترة والإجراءات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .pp-filters: العنصر `pp-filters` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pp-toolbar, .pp-filters { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }/* .pp-toolbar: شريط أدوات البحث والفلترة والإجراءات؛ يضبط المسافات الخارجية. */
+.pp-toolbar { justify-content: space-between; gap: 14px; margin-bottom: 24px; }/* .pp-filters: العنصر `pp-filters` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pp-filters button {
+  border: 0;
+  border-radius: 7px;
+  padding: 9px 12px;
+  background: transparent;
+  color: #5f665b;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}/* .pp-filters: العنصر `pp-filters` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.pp-filters button[aria-pressed="true"] { background: #fff4d0; color: #785900; }/* .pp-search: حقل البحث وأيقونة البحث؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالعرض. */
+.pp-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(100%, 290px);
+  padding: 8px 12px;
+  border: 1px solid #dedfd5;
+  border-radius: 8px;
+  color: #6f756a;
+}/* .pp-search: حقل البحث وأيقونة البحث؛ يحدد الخلفية، يحدد الحدود والفواصل، يتحكم بالعرض. */
+.pp-search input { min-width: 0; width: 100%; border: 0; background: transparent; font: inherit; }/* .pp-table-wrap: العنصر `pp-table-wrap` ضمن واجهة هذا الدور؛ يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.pp-table-wrap { overflow-x: auto; }/* .pp-table: جدول يعرض بيانات في صفوف وأعمدة؛ يحدد الحدود والفواصل، يتحكم بالعرض. */
+.pp-table { width: 100%; min-width: 620px; border-collapse: collapse; text-align: left; }/* .pp-table: جدول يعرض بيانات في صفوف وأعمدة؛ يحدد الخلفية، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pp-table th { padding: 14px 18px; background: #f2f3ed; font-size: 11px; text-transform: uppercase; }/* .pp-table: جدول يعرض بيانات في صفوف وأعمدة؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pp-table td { padding: 22px 18px; border-bottom: 1px solid #ebede6; font-size: 13px; }/* .pp-table: جدول يعرض بيانات في صفوف وأعمدة؛ يضبط المسافات الخارجية. */
+.pp-table small { display: block; margin-top: 5px; }/* .pp-table: جدول يعرض بيانات في صفوف وأعمدة؛ يضبط المساحة الداخلية. */
+/* .pp-empty: حالة عدم وجود بيانات؛ يضبط المساحة الداخلية. */
+.pp-table .pp-empty { padding: 44px 16px; text-align: center; }/* .pp-empty: حالة عدم وجود بيانات؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.pp-empty span { display: block; margin-top: 8px; color: #6f756a; }/* .pp-table: جدول يعرض بيانات في صفوف وأعمدة؛ ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
+.pp-table progress { width: 112px; height: 8px; accent-color: #ffcc00; }/* .pp-table: جدول يعرض بيانات في صفوف وأعمدة؛ ينسق الخط والألوان. */
+/* .pp-progress-complete: العنصر `pp-progress-complete` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.pp-table .pp-progress-complete { accent-color: #29a864; }/* .pp-badge: شارة صغيرة لتصنيف أو حالة؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .pp-link: العنصر `pp-link` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pp-badge, .pp-link { display: inline-block; white-space: nowrap; }/* .pp-badge: شارة صغيرة لتصنيف أو حالة؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pp-badge { padding: 6px 12px; border-radius: 20px; font-size: 11px; }/* .pp-link: العنصر `pp-link` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pp-link { padding: 10px 16px; border-radius: 7px; background: #ffcc00; color: #30332d; text-decoration: none; }/* .pp-link: العنصر `pp-link` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+/* .pp-summary: ملخص بيانات وأرقام أساسية؛ يحدد الخلفية. */
+.pp-link.pp-summary { background: #f2f3ed; }/* .pp-footer: تذييل البطاقة أو الصفحة؛ يضبط المسافات الخارجية. */
+.pp-footer { margin: 16px 0 0; }@media (max-width: 1000px) {/* .pp-stats: بطاقات الإحصائيات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pp-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }}@media (max-width: 520px) {/* .pp-stats: بطاقات الإحصائيات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pp-stats { grid-template-columns: 1fr; }/* .pp-panel: لوحة تجمع عناصر ومعلومات مرتبطة؛ يضبط المساحة الداخلية. */
+.pp-panel { padding: 14px; }}@media (min-width: 768px) {/* .provider-projects-page: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-projects-page {
+    display: flex;
+    align-items: flex-start;
+  }/* .provider-projects-page: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالعرض. */
+/* .provider-projects-main: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالعرض. */
+.provider-projects-page > .provider-projects-main {
+    flex: 1;
+    min-width: 0;
+  }}/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يضبط المسافات الخارجية. */
+.provider-dashboard-content section[aria-label="Assigned projects"] {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+}/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+/* .assigned-project-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.provider-dashboard-content section[aria-label="Assigned projects"] > .assigned-project-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 0;
+  padding: 18px 22px;
+  background: #fff;
+  border: 1px solid #e2e6ec;
+  border-radius: 12px;
+}/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.provider-dashboard-content section[aria-label="Assigned projects"] h3 {
+  margin: 0 0 6px;
+  color: #172033;
+  font-size: 16px;
+}/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+/* .assigned-project-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.provider-dashboard-content section[aria-label="Assigned projects"] .assigned-project-card > a {
+  display: inline-flex;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #ffcc00;
+  color: #172033;
+  font-weight: 600;
+  text-decoration: none;
+}/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية. */
+/* .assigned-project-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية. */
+.provider-dashboard-content section[aria-label="Assigned projects"] .assigned-project-card > a:hover {
+  background: #edbd00;
+}@media (max-width: 600px) {/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .assigned-project-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-dashboard-content section[aria-label="Assigned projects"] > .assigned-project-card {
+    align-items: stretch;
+    flex-direction: column;
+  }}/* .pft-page: العنصر `pft-page` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالعرض. */
+.pft-page { min-width: 0; color: #292f36; }/* .pft-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية. */
+.pft-heading { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }/* .pft-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية. */
+/* .provider-title: واجهة مقدم الخدمة أو بياناته؛ يضبط المسافات الخارجية. */
+.pft-heading .provider-title { margin: 0; }/* .pft-stats: بطاقات الإحصائيات؛ يضبط المسافات الخارجية. */
+.pft-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }/* .pft-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
+.pft-card { min-width: 0; padding: 16px; background: #fff; border: 1px solid #e5e8ec; border-radius: 10px; }/* .pft-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ ينسق الخط والألوان. */
+/* .pft-directory: العنصر `pft-directory` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.pft-card small, .pft-directory p { color: #65716d; font-size: 12px; }/* .pft-count: العنصر `pft-count` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.pft-count { display: block; margin: 5px 0; font-size: 26px; }/* .pft-directory: العنصر `pft-directory` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+/* .pft-details: تفاصيل إضافية للعنصر؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.pft-directory h2, .pft-details h2 { margin: 0; font-size: 18px; }/* .pft-filters: العنصر `pft-filters` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
+.pft-filters { display: grid; grid-template-columns: minmax(0, 1fr) minmax(110px, 150px) minmax(110px, 170px); gap: 10px; margin: 16px 0 8px; }/* .pft-filters: العنصر `pft-filters` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pft-filters input, .pft-filters select { width: 100%; min-width: 0; box-sizing: border-box; padding: 10px 12px; border: 1px solid #dfe3e8; border-radius: 7px; background: #fff; color: inherit; font: inherit; font-size: 13px; }/* .pft-tabs: شريط تبويبات للتنقل بين الأقسام؛ يحدد الحدود والفواصل، يضبط المسافات الخارجية. */
+.pft-tabs { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; border-bottom: 1px solid #e5e8ec; }/* .pft-tabs: شريط تبويبات للتنقل بين الأقسام؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pft-tabs button { padding: 10px 6px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: #56625c; font: inherit; font-size: 13px; cursor: pointer; }/* .pft-tabs: شريط تبويبات للتنقل بين الأقسام؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.pft-tabs button[aria-pressed="true"] { border-bottom-color: #ffcc00; color: #785900; font-weight: 700; }/* .pft-table-wrap: العنصر `pft-table-wrap` ضمن واجهة هذا الدور؛ يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.pft-table-wrap { overflow-x: auto; }/* .pft-table: جدول يعرض بيانات في صفوف وأعمدة؛ يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
+.pft-table { width: 100%; min-width: 690px; border-collapse: collapse; text-align: left; font-size: 13px; }/* .pft-table: جدول يعرض بيانات في صفوف وأعمدة؛ يحدد الخلفية، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pft-table th { padding: 12px; background: #f5f6f8; color: #56625c; font-size: 11px; text-transform: uppercase; }/* .pft-table: جدول يعرض بيانات في صفوف وأعمدة؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.pft-table td { padding: 12px; border-bottom: 1px solid #edf0f2; }/* .pft-person: العنصر `pft-person` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pft-person { display: flex; align-items: center; gap: 10px; }/* .pft-person: العنصر `pft-person` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
+.pft-person small { display: block; margin-top: 3px; }/* .pft-avatar: الصورة الرمزية للمستخدم؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.pft-avatar { display: grid; place-items: center; flex: 0 0 34px; height: 34px; border-radius: 50%; background: #fff3d2; color: #785900; font-weight: 700; }/* .pft-status: شارة توضح حالة المشروع أو الطلب؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pft-status { display: inline-block; padding: 4px 10px; border-radius: 999px; white-space: nowrap; font-size: 12px; }/* .pft-status: شارة توضح حالة المشروع أو الطلب؛ يحدد الخلفية، ينسق الخط والألوان. */
+.pft-status[data-status="Active"] { background: #e5f6ec; color: #216844; }/* .pft-status: شارة توضح حالة المشروع أو الطلب؛ يحدد الخلفية، ينسق الخط والألوان. */
+.pft-status[data-status="Available"] { background: #ecf1ff; color: #375d9d; }/* .pft-status: شارة توضح حالة المشروع أو الطلب؛ يحدد الخلفية، ينسق الخط والألوان. */
+.pft-status[data-status="On Leave"] { background: #fff0e5; color: #8a4c20; }/* .pft-primary: العنصر `pft-primary` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+/* .pft-view: العنصر `pft-view` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pft-primary, .pft-view { padding: 8px 14px; border: 0; border-radius: 7px; background: #fff3d2; color: #664c00; font-weight: 700; cursor: pointer; }/* .pft-primary: العنصر `pft-primary` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.pft-primary { background: #ffcc00; color: #272b30; }/* .pft-primary: العنصر `pft-primary` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pft-primary:disabled { cursor: default; }/* .pft-details: تفاصيل إضافية للعنصر؛ يضبط المسافات الخارجية. */
+.pft-details { margin-top: 16px; }@media (max-width: 900px) {/* .pft-stats: بطاقات الإحصائيات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pft-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }}@media (max-width: 600px) {/* .pft-filters: العنصر `pft-filters` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pft-filters { grid-template-columns: minmax(0, 1fr); }}/* .pft-page: العنصر `pft-page` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية، يتحكم بالعرض. */
+/* .pft-details: تفاصيل إضافية للعنصر؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية، يتحكم بالعرض. */
+.pft-page .pft-details[aria-label="Add field worker"] {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 760px;
+  margin: 0;
+  padding: clamp(18px, 3vw, 28px);
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يضبط المسافات الخارجية. */
+.pft-details[aria-label="Add field worker"] form {
+  margin-top: 20px;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يضبط المسافات الخارجية. */
+/* .pft-filters: العنصر `pft-filters` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
+.pft-details[aria-label="Add field worker"] .pft-filters {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0 0 20px;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ ينسق الخط والألوان. */
+.pft-details[aria-label="Add field worker"] label {
+  display: grid;
+  gap: 8px;
+  color: #172033;
+  font-size: 14px;
+  font-weight: 600;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pft-details[aria-label="Add field worker"] input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #dfe3e8;
+  border-radius: 8px;
+  background: #fff;
+  color: #172033;
+  font: inherit;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.pft-details[aria-label="Add field worker"] input:focus-visible {
+  border-color: #9c7600;
+  outline: 2px solid #ffcc00;
+  outline-offset: 2px;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ ينسق الخط والألوان، يتحكم بالعرض. */
+.pft-details[aria-label="Add field worker"] input[name="passcode"] {
+  max-width: 250px;
+  text-align: center;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.32em;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يضبط المسافات الخارجية، يتحكم بالارتفاع. */
+/* .pft-primary: العنصر `pft-primary` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، يتحكم بالارتفاع. */
+/* .pft-view: العنصر `pft-view` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، يتحكم بالارتفاع. */
+.pft-details[aria-label="Add field worker"] .pft-primary,
+.pft-details[aria-label="Add field worker"] > .pft-view {
+  min-height: 42px;
+  margin-top: 14px;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .pft-primary: العنصر `pft-primary` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pft-details[aria-label="Add field worker"] .pft-primary:disabled {
+  opacity: 0.6;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ ينسق الخط والألوان. */
+.pft-details[aria-label="Add field worker"] [role="alert"] {
+  color: #a12626;
+}@media (max-width: 640px) {/* .pft-details: تفاصيل إضافية للعنصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .pft-filters: العنصر `pft-filters` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pft-details[aria-label="Add field worker"] .pft-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }}/* .pft-page: العنصر `pft-page` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+/* .pft-details: تفاصيل إضافية للعنصر؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.pft-page .pft-details[aria-label="Worker details"] {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 960px;
+  margin: 0;
+  padding: clamp(20px, 3vw, 32px);
+  border: 1px solid #e5e8ec;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(23, 32, 51, 0.04);
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+/* .pft-view: العنصر `pft-view` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pft-details[aria-label="Worker details"] > .pft-view {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #fff8df;
+  color: #725600;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يحدد الخلفية. */
+/* .pft-view: العنصر `pft-view` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+.pft-details[aria-label="Worker details"] > .pft-view:hover {
+  background: #fff0b8;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .pft-view: العنصر `pft-view` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pft-details[aria-label="Worker details"] > .pft-view:focus-visible {
+  outline: 3px solid rgba(255, 204, 0, 0.45);
+  outline-offset: 3px;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.pft-details[aria-label="Worker details"] > h2 {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #edf0f3;
+  color: #172033;
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 650;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يضبط المسافات الخارجية. */
+/* .pft-stats: بطاقات الإحصائيات؛ يضبط المسافات الخارجية. */
+.pft-details[aria-label="Worker details"] > dl.pft-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
+/* .pft-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
+.pft-details[aria-label="Worker details"] dl > .pft-card {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #e8ecf0;
+  border-radius: 12px;
+  background: #fafbfc;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.pft-details[aria-label="Worker details"] dt {
+  margin-bottom: 10px;
+  color: #738091;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.pft-details[aria-label="Worker details"] dd {
+  margin: 0;
+  color: #202c3d;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.pft-details[aria-label="Worker details"] > p[role="status"] {
+  margin: 0;
+  padding: 16px 18px;
+  border: 1px solid #f1df9f;
+  border-left: 4px solid #ffcc00;
+  border-radius: 10px;
+  background: #fffbeb;
+  color: #705600;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.6;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.pft-details[aria-label="Worker details"] > form {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #edf0f3;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يضبط المسافات الخارجية، يتحكم بالعرض. */
+/* .pft-filters: العنصر `pft-filters` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، يتحكم بالعرض. */
+.pft-details[aria-label="Worker details"] > form .pft-filters {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 520px;
+  margin: 0 0 16px;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ ينسق الخط والألوان. */
+.pft-details[aria-label="Worker details"] label {
+  display: grid;
+  gap: 10px;
+  color: #344155;
+  font-size: 14px;
+  font-weight: 600;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pft-details[aria-label="Worker details"] select {
+  min-height: 46px;
+  padding: 12px 14px;
+  border: 1px solid #dce2e9;
+  border-radius: 9px;
+  background-color: #fff;
+  color: #263246;
+  font: inherit;
+  font-size: 14px;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.pft-details[aria-label="Worker details"] select:focus-visible {
+  outline: 3px solid rgba(255, 204, 0, 0.3);
+  outline-offset: 2px;
+  border-color: #c49c00;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+/* .pft-primary: العنصر `pft-primary` ضمن واجهة هذا الدور؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.pft-details[aria-label="Worker details"] .pft-primary {
+  min-height: 44px;
+  padding: 11px 22px;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .pft-primary: العنصر `pft-primary` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pft-details[aria-label="Worker details"] .pft-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.pft-details[aria-label="Worker details"] form p {
+  margin: 12px 0;
+  color: #657386;
+  font-size: 13px;
+  line-height: 1.6;
+}/* .pft-details: تفاصيل إضافية للعنصر؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.pft-details[aria-label="Worker details"] form [role="alert"] {
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #fff1f0;
+  color: #a32d2d;
+}@media (max-width: 600px) {/* .pft-details: تفاصيل إضافية للعنصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .pft-stats: بطاقات الإحصائيات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.pft-details[aria-label="Worker details"] > dl.pft-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }/* .pft-details: تفاصيل إضافية للعنصر؛ يضبط المساحة الداخلية. */
+/* .pft-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المساحة الداخلية. */
+.pft-details[aria-label="Worker details"] dl > .pft-card {
+    padding: 16px;
+  }/* .pft-details: تفاصيل إضافية للعنصر؛ يتحكم بالعرض. */
+/* .pft-primary: العنصر `pft-primary` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+.pft-details[aria-label="Worker details"] > form .pft-primary {
+    width: 100%;
+  }}@media (max-width: 650px) {/* .provider-dashboard-page: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالعرض. */
+.provider-dashboard-page {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+  }/* .mamar-sidebar: الشريط الجانبي للتنقل؛ يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+/* .provider-sidebar: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+.mamar-sidebar.provider-sidebar {
+    position: static;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: auto;
+    min-height: 0;
+    flex: none;
+    box-sizing: border-box;
+    border-right: 0;
+    border-bottom: 1px solid #e7e7e7;
+  }/* .provider-sidebar: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالارتفاع. */
+/* .mamar-sidebar-logo: الشعار وحجمه ومحاذاته؛ يتحكم بالارتفاع. */
+.provider-sidebar .mamar-sidebar-logo {
+    height: 64px;
+    min-height: 0;
+    flex: none;
+  }/* .provider-sidebar: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+/* .mamar-sidebar-nav: العنصر `mamar-sidebar-nav` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.provider-sidebar .mamar-sidebar-nav {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+  }/* .provider-sidebar: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+/* .mamar-sidebar-nav: العنصر `mamar-sidebar-nav` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.provider-sidebar .mamar-sidebar-nav a {
+    flex: 0 0 auto;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 14px;
+    white-space: nowrap;
+    border-left: 0;
+    border-bottom: 3px solid transparent;
+  }/* .provider-sidebar: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .mamar-sidebar-nav: العنصر `mamar-sidebar-nav` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.provider-sidebar .mamar-sidebar-nav a.active {
+    border-bottom-color: #ffcc00;
+  }/* .provider-sidebar: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+/* .mamar-sidebar-bottom: العنصر `mamar-sidebar-bottom` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.provider-sidebar .mamar-sidebar-bottom {
+    position: static;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    margin: 0;
+    padding: 12px 16px;
+  }/* .provider-dashboard-page: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، يضبط المسافات الخارجية، يتحكم بالعرض. */
+/* .provider-main-area: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، يضبط المسافات الخارجية، يتحكم بالعرض. */
+.provider-dashboard-page > .provider-main-area {
+    width: 100%;
+    min-width: 0;
+    margin-left: 0;
+    margin-right: 0;
+    box-sizing: border-box;
+  }/* .provider-dashboard-page: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية. */
+/* .provider-topbar: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية. */
+.provider-dashboard-page .provider-topbar {
+    padding: 0 16px;
+  }/* .provider-dashboard-page: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
+/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
+.provider-dashboard-page .provider-dashboard-content {
+    padding: 20px 16px 28px;
+    min-width: 0;
+    box-sizing: border-box;
+  }}/* .pft-page: العنصر `pft-page` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+/* .pft-details: تفاصيل إضافية للعنصر؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.pft-page .pft-details[aria-label="Worker details"] > p[role="status"] {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 0;
+  padding: 14px 16px;
+  border: 1px solid #eee3b8;
+  border-radius: 10px;
+  background: #fffdf5;
+  color: #65521c;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}/* .pft-page: العنصر `pft-page` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالارتفاع. */
+/* .pft-details: تفاصيل إضافية للعنصر؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.pft-page .pft-details[aria-label="Worker details"] > p[role="status"]::before {
+  content: "✓";
+  display: grid;
+  place-items: center;
+  flex: 0 0 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fff0b3;
+  color: #806000;
+  font-size: 14px;
+  font-weight: 700;
+}

@@ -1,0 +1,361 @@
+/* Traffic Plan Assistant on Create Project: same look as the project form (createproject.css). */
+/* .tp-section: قسم مستقل من محتوى الصفحة؛ يضبط المسافات الخارجية. */
+.tp-section {
+  margin-top: 28px;
+  font-family: Arial, sans-serif;
+}
+
+/* .tp-section: قسم مستقل من محتوى الصفحة؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.tp-section h2 {
+  margin: 0 0 16px 12px;
+  color: #111827;
+  font-size: 17px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* .tp-optional: العنصر `tp-optional` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.tp-optional {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #f2f4f7;
+  color: #667085;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* .tp-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.tp-card {
+  width: 100%;
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 20px 28px;
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+}
+
+/* .tp-intro: العنصر `tp-intro` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.tp-intro {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* .tp-icon: أيقونة توضيحية أو إجرائية؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
+.tp-icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #fff8e6;
+  font-size: 20px;
+}
+
+/* .tp-intro: العنصر `tp-intro` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.tp-intro strong {
+  color: #111827;
+  font-size: 13px;
+}
+
+/* .tp-section: قسم مستقل من محتوى الصفحة؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+/* .tp-intro: العنصر `tp-intro` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.tp-section .tp-intro p {
+  margin: 4px 0 0;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* .tp-toggle: العنصر `tp-toggle` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.tp-toggle {
+  margin-left: auto;
+  min-width: 90px;
+  min-height: 38px;
+  padding: 8px 16px;
+  border: 1px solid #d0d5dd;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #344054;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* .tp-toggle: العنصر `tp-toggle` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+.tp-toggle:hover {
+  background: #f5f7fa;
+}
+
+/* .tp-form: نموذج إدخال البيانات؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.tp-form {
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* .tp-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.tp-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 24px;
+}
+
+/* .tp-check: العنصر `tp-check` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.tp-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  color: #344054;
+  font-size: 12px;
+  font-weight: 600;
+  align-self: end;
+  min-height: 44px;
+}
+
+/* .tp-check: العنصر `tp-check` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
+.tp-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: #ffcc00;
+}
+
+/* .tp-actions: مجموعة أزرار الإجراءات؛ يضبط المسافات الخارجية. */
+.tp-actions {
+  margin-top: 4px;
+}
+
+/* .tp-actions: مجموعة أزرار الإجراءات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.tp-actions button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Result */
+
+/* .tp-result: العنصر `tp-result` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.tp-result {
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid #f0f0f0;
+  color: #344054;
+  font-size: 12px;
+}
+
+/* .tp-result-head: العنصر `tp-result-head` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.tp-result-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: #667085;
+}
+
+/* .tp-result-head: العنصر `tp-result-head` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.tp-result-head strong {
+  color: #111827;
+}
+
+/* .tp-strip: العنصر `tp-strip` ضمن واجهة هذا الدور؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالارتفاع، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.tp-strip {
+  height: 10px;
+  display: flex;
+  gap: 2px;
+  overflow: hidden;
+  border-radius: 999px;
+}
+
+/* .tp-strip: العنصر `tp-strip` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+.tp-strip span {
+  min-width: 6px;
+}
+
+/* .tp-direction: العنصر `tp-direction` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.tp-direction {
+  margin: 6px 0 14px;
+  color: #98a2b3;
+  font-size: 11px;
+  text-align: right;
+}
+
+/* .tp-zones: العنصر `tp-zones` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+/* .tp-devices: العنصر `tp-devices` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.tp-zones,
+.tp-devices {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* .tp-zones: العنصر `tp-zones` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.tp-zones li {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  column-gap: 10px;
+  row-gap: 2px;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid #f2f4f7;
+}
+
+/* .tp-zones: العنصر `tp-zones` ضمن واجهة هذا الدور؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+.tp-zones i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+/* .tp-zone-name: العنصر `tp-zone-name` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.tp-zone-name {
+  color: #111827;
+  font-weight: 600;
+}
+
+/* .tp-zone-length: العنصر `tp-zone-length` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.tp-zone-length {
+  color: #111827;
+  font-weight: 700;
+}
+
+/* .tp-zones: العنصر `tp-zones` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.tp-zones small {
+  grid-column: 2 / 4;
+  color: #667085;
+  font-size: 11px;
+}
+
+/* .tp-section: قسم مستقل من محتوى الصفحة؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+/* .tp-result: العنصر `tp-result` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.tp-section .tp-result h3 {
+  margin: 20px 0 10px;
+  color: #111827;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* .tp-devices: العنصر `tp-devices` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.tp-devices {
+  display: grid;
+  gap: 8px;
+}
+
+/* .tp-devices: العنصر `tp-devices` ضمن واجهة هذا الدور؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.tp-devices li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #f0f0f0;
+  border-radius: 7px;
+}
+
+/* .tp-qty: العنصر `tp-qty` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
+.tp-qty {
+  min-width: 36px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: #fff8e6;
+  color: #111827;
+  font-weight: 700;
+}
+
+/* .tp-devices: العنصر `tp-devices` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.tp-devices div {
+  display: grid;
+  gap: 3px;
+}
+
+/* .tp-devices: العنصر `tp-devices` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.tp-devices b {
+  color: #111827;
+  font-weight: 600;
+}
+
+/* .tp-devices: العنصر `tp-devices` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.tp-devices small {
+  color: #667085;
+  font-size: 11px;
+}
+
+/* .tp-explain: العنصر `tp-explain` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.tp-explain {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 8px;
+  background: #f9fafb;
+  border: 1px solid #f0f0f0;
+  line-height: 1.7;
+}
+
+/* .tp-section: قسم مستقل من محتوى الصفحة؛ يضبط المسافات الخارجية. */
+/* .tp-explain: العنصر `tp-explain` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
+.tp-section .tp-explain h3 {
+  margin-top: 0;
+}
+
+/* .tp-section: قسم مستقل من محتوى الصفحة؛ يضبط المسافات الخارجية. */
+/* .tp-explain: العنصر `tp-explain` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
+.tp-section .tp-explain p {
+  margin: 0;
+}
+
+/* .tp-explain: العنصر `tp-explain` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.tp-explain h4 {
+  margin: 12px 0 6px;
+  color: #344054;
+  font-size: 12px;
+}
+
+/* .tp-explain: العنصر `tp-explain` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+/* .tp-notes: العنصر `tp-notes` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.tp-explain ol,
+.tp-explain ul,
+.tp-notes {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+
+/* .tp-notes: العنصر `tp-notes` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.tp-notes {
+  margin-top: 14px;
+  color: #475467;
+}
+
+/* .tp-foot: العنصر `tp-foot` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.tp-foot {
+  margin: 14px 0 0;
+  color: #98a2b3;
+  font-size: 11px;
+}
+
+@media (max-width: 768px) {
+  /* .tp-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المساحة الداخلية. */
+.tp-card {
+    padding: 18px 16px;
+  }
+
+  /* .tp-intro: العنصر `tp-intro` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.tp-intro {
+    flex-wrap: wrap;
+  }
+
+  /* .tp-toggle: العنصر `tp-toggle` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، يتحكم بالعرض. */
+.tp-toggle {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  /* .tp-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.tp-grid {
+    grid-template-columns: 1fr;
+  }
+}

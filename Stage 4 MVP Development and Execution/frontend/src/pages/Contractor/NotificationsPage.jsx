@@ -13,7 +13,9 @@ import {
 import ContractorShell from "../../components/ContractorShell";
 import FieldWorkerShell from "../../components/FieldWorkerShell";
 import Header from "../../components/Header";
+import PhoneAlertsCard from "../../components/PhoneAlertsCard";
 import { getSession } from "../../services/auth";
+import "../../styles/Contractor/notification.css"
 
 import {
   getNotifications,
@@ -151,6 +153,8 @@ function NotificationsPage() {
         </div>
 
         {error && <p role="alert">{error}</p>}
+
+        <PhoneAlertsCard />
 
         {/* Toolbar */}
         <div className="notifications-toolbar">

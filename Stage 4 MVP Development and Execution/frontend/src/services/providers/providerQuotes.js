@@ -1,14 +1,8 @@
-// src/services/providers/providerQuotes.js
-// ---------------------------------------------------------------------------
-// Provider side of the quotation flow, connected to the REAL backend:
-//   Provider Dashboard (new request) -> Prepare Quotation -> contractor decides
-//
-//   GET  /provider/requests    open requests this company was invited to,
-//                              with the project and a "quoted" flag
-//   GET  /provider/dashboard   the numbers and lists of the dashboard
-//   POST /quotations           the provider's price
-//   POST /provider/requests/{id}/decline   Decline Request
-// ---------------------------------------------------------------------------
+// Provider service requests, quotations and dashboard data.
+
+// ============================================================================
+// Imports
+// ============================================================================
 
 import { getSession } from "../auth";
 import {
@@ -20,26 +14,26 @@ import {
 import { getProjectMeta } from "../projects";
 import { SERVICE_LABELS } from "../projectFlow";
 
+// Read the authenticated provider access token.
 function token() {
   const accessToken = getSession()?.access_token;
   if (!accessToken) throw new Error("Please sign in to continue.");
   return accessToken;
 }
 
-/* ------------------------------------------------------------------ */
-/* Helpers                                                             */
-/* ------------------------------------------------------------------ */
+// Service labels displayed on request cards.
 const SHORT_SERVICE_LABELS = {
   "ttc-plan": "Temporary Traffic Control",
   "cones-barriers": "Traffic Cones & Barriers",
   "road-signs": "Road Signs",
 };
 
+// Map service labels back to service identifiers.
 const LABEL_TO_ID = Object.fromEntries(
-  Object.entries(SERVICE_LABELS).map(([id, label]) => [label, id])
+  Object.entries(SERVICE_LABELS).map(([id, label]) => [label, id]),
 );
 
-// requestQuotes() writes "Services: ttc-plan, road-signs" in the details.
+// Read requested services from the request details.
 function parseServices(details) {
   const match = /Services:\s*(.+)/i.exec(details || "");
   if (!match) return [];
@@ -50,6 +44,7 @@ function parseServices(details) {
     .filter(Boolean);
 }
 
+// Calculate the inclusive project duration.
 function durationDays(start, end) {
   if (!start || !end) return 1;
   const ms = new Date(`${end}T00:00:00`) - new Date(`${start}T00:00:00`);
@@ -57,6 +52,7 @@ function durationDays(start, end) {
   return Number.isFinite(days) && days > 0 ? days : 1;
 }
 
+// Map a backend request to interface fields.
 function toUiRequest(request, project) {
   const startDate = project?.start_date || request.required_by;
   const endDate = project?.end_date || null;
@@ -70,7 +66,9 @@ function toUiRequest(request, project) {
     title: project?.project_name || request.title,
     type: project?.closure_type || "",
     location:
-      project?.location || getProjectMeta(request.project_id).location || "Not specified",
+      project?.location ||
+      getProjectMeta(request.project_id).location ||
+      "Not specified",
     startDate,
     endDate,
     durationDays: durationDays(startDate, endDate),
@@ -81,32 +79,36 @@ function toUiRequest(request, project) {
   };
 }
 
-/* ------------------------------------------------------------------ */
-/* OPEN REQUESTS                                                       */
-/* ------------------------------------------------------------------ */
+// Save the provider decision in the backend.
 export async function declineProviderRequest(requestId) {
   // POST /provider/requests/{id}/decline: the backend keeps it, so the request
   // leaves this company's lists everywhere, not only in this browser.
   return postDeclineRequest(token(), requestId);
 }
 
+// Load requests that have not been quoted.
 export async function getOpenRequests() {
   // Only the requests this company has not quoted yet, newest first.
   const rows = await fetchProviderRequests(token(), false);
   return rows.map((row) => toUiRequest(row, row.project));
 }
 
+// Find the selected quotation request.
 export async function getOpenRequestById(requestId) {
   const list = await getOpenRequests();
-  return list.find((request) => String(request.requestId) === String(requestId)) || null;
+  return (
+    list.find((request) => String(request.requestId) === String(requestId)) ||
+    null
+  );
 }
 
-/* ------------------------------------------------------------------ */
-/* SUBMIT QUOTATION                                                    */
-/* ------------------------------------------------------------------ */
-// POST /quotations { project_id, price, duration_days, start_date, services, notes }
-// The backend stores ONE total price: the line details go inside the notes.
-export async function submitProviderQuotation({ request, price, durationDays: days, notes }) {
+// Submit quotation pricing and service details.
+export async function submitProviderQuotation({
+  request,
+  price,
+  durationDays: days,
+  notes,
+}) {
   try {
     const saved = await postQuotation(token(), {
       project_id: request.projectId,
@@ -125,14 +127,14 @@ export async function submitProviderQuotation({ request, price, durationDays: da
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* DASHBOARD                                                           */
-/* ------------------------------------------------------------------ */
+// Map dashboard statistics, requests and projects.
 export async function getProviderDashboard() {
   // GET /provider/dashboard: every number is counted by the server, and a new
   // company gets zeros and empty lists.
   const data = await fetchProviderDashboard(token());
-  const requests = data.new_requests.map((row) => toUiRequest(row, row.project));
+  const requests = data.new_requests.map((row) =>
+    toUiRequest(row, row.project),
+  );
   const toUiProject = (row) => ({
     id: row.project.project_id,
     name: row.project.project_name,

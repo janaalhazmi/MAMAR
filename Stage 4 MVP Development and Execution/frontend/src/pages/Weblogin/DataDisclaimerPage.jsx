@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import ContractorShell from "../../components/ContractorShell";
-import "../../styles/Contractor/data-disclaimer.css";
+import "../../styles/Weblogin/data-disclaimer.css";
 
 const disclaimerSections = [
   {

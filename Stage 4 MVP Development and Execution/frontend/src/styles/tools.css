@@ -1,0 +1,210 @@
+/* Traffic, attendance, phone alerts, system status and reviews (same look as the weather card). */
+/* .tl-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.tl-card { background: #fff; border: 1px solid #eceef2; border-radius: 14px; padding: 22px; margin: 16px 0; display: grid; gap: 16px; color: #111827; }
+/* .pf-main: العنصر `pf-main` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
+/* .fw-main: العنصر `fw-main` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
+/* .pv-main: العنصر `pv-main` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
+/* .tl-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المسافات الخارجية. */
+/* .wx-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المسافات الخارجية. */
+/* .ai-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المسافات الخارجية. */
+/* .qr-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المسافات الخارجية. */
+:is(.pf-main, .fw-main, .pv-main) > :is(.tl-card, .wx-card, .ai-card, .qr-card),
+:is(.pf-main, .fw-main, .pv-main) > div > :is(.tl-card, .ai-card) { margin: 0; }
+/* .tl-head: العنصر `tl-head` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.tl-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+/* .tl-head: العنصر `tl-head` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.tl-head h2 { margin: 0; font-size: 17px; font-weight: 600; }
+/* .tl-head: العنصر `tl-head` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
+.tl-head p { margin: 4px 0 0; color: #6b7280; font-size: 12.5px; line-height: 1.5; max-width: 620px; }
+/* .tl-empty: حالة عدم وجود بيانات؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.tl-empty { margin: 0; padding: 14px; border-radius: 10px; background: #f9fafb; color: #6b7280; font-size: 13px; }
+/* .tl-label: العنصر `tl-label` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.tl-label { display: block; color: #77706a; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+/* .tl-badge: شارة صغيرة لتصنيف أو حالة؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.tl-badge { border-radius: 999px; padding: 5px 12px; font-size: 12px; font-weight: 600; background: #f2f4f7; color: #475467; white-space: nowrap; }
+/* .tl-badge: شارة صغيرة لتصنيف أو حالة؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .ok: العنصر `ok` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.tl-badge.ok { background: #e3f4e8; color: #1f7a40; }
+/* .tl-badge: شارة صغيرة لتصنيف أو حالة؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .mid: العنصر `mid` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.tl-badge.mid { background: #fff8e1; color: #b8860b; }
+/* .tl-badge: شارة صغيرة لتصنيف أو حالة؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .bad: العنصر `bad` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.tl-badge.bad { background: #fde5e2; color: #a3271c; }
+/* .tl-btn: زر لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.tl-btn { background: #f5c518; border: 1px solid #f5c518; border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; color: #111827; }
+/* .tl-btn: زر لتنفيذ إجراء؛ يحدد الخلفية. */
+.tl-btn:hover { background: #eab308; }
+/* .tl-btn: زر لتنفيذ إجراء؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .dark: العنصر `dark` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.tl-btn.dark { background: #111827; border-color: #111827; color: #fff; }
+/* .tl-btn: زر لتنفيذ إجراء؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.tl-btn:disabled { opacity: .6; cursor: default; }
+
+/* .tl-meter: العنصر `tl-meter` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالارتفاع، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.tl-meter { height: 8px; border-radius: 999px; background: #f2f4f7; overflow: hidden; }
+/* .tl-meter: العنصر `tl-meter` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+.tl-meter span { display: block; height: 100%; border-radius: 999px; background: #9a928a; transition: width .4s; }
+/* .tl-meter: العنصر `tl-meter` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+/* .ok: العنصر `ok` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+.tl-meter span.ok { background: #2e9c55; }
+/* .tl-meter: العنصر `tl-meter` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+/* .mid: العنصر `mid` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+.tl-meter span.mid { background: #f5c518; }
+/* .tl-meter: العنصر `tl-meter` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+/* .bad: العنصر `bad` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+.tl-meter span.bad { background: #d0442f; }
+/* .tl-stats: بطاقات الإحصائيات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.tl-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+/* .tl-stats: بطاقات الإحصائيات؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.tl-stats div { background: #f9fafb; border: 1px solid #eceef2; border-radius: 10px; padding: 12px 14px; display: grid; gap: 4px; }
+/* .tl-stats: بطاقات الإحصائيات؛ ينسق الخط والألوان. */
+.tl-stats strong { font-size: 20px; }
+/* .tl-stats: بطاقات الإحصائيات؛ ينسق الخط والألوان. */
+.tl-stats small { color: #6b7280; font-size: 12px; }
+/* .tl-advice: العنصر `tl-advice` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.tl-advice { margin: 0; padding: 12px 14px; border-radius: 10px; background: #f9fafb; font-size: 13px; line-height: 1.5; }
+/* .tl-advice: العنصر `tl-advice` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+/* .ok: العنصر `ok` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+.tl-advice.ok { background: #eef8f1; }
+/* .tl-advice: العنصر `tl-advice` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+/* .mid: العنصر `mid` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+.tl-advice.mid { background: #fff8e1; }
+/* .tl-advice: العنصر `tl-advice` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+/* .bad: العنصر `bad` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+.tl-advice.bad { background: #fdeceb; }
+/* .tl-source: العنصر `tl-source` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.tl-source { margin: 0; color: #9a928a; font-size: 12px; display: flex; gap: 10px; align-items: center; }
+/* .tl-source: العنصر `tl-source` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.tl-source button { background: none; border: none; color: #b8860b; font-weight: 600; cursor: pointer; padding: 0; }
+
+/* Site QR (provider) */
+/* .att-qr: العنصر `att-qr` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.att-qr { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+/* .att-qr: العنصر `att-qr` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
+.att-qr img { width: 170px; border: 1px solid #eceef2; border-radius: 12px; padding: 10px; background: #fff; }
+/* .att-qr: العنصر `att-qr` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+.att-qr div { display: grid; gap: 6px; max-width: 380px; }
+/* .att-qr: العنصر `att-qr` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
+.att-qr small { color: #6b7280; font-size: 12.5px; line-height: 1.5; }
+/* .att-code: العنصر `att-code` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.att-code { font-size: 26px; letter-spacing: 3px; font-family: ui-monospace, monospace; }
+
+/* Team on site (contractor and provider) */
+/* .att-team: العنصر `att-team` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.att-team { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+/* .att-team: العنصر `att-team` ضمن واجهة هذا الدور؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.att-team li { display: grid; grid-template-columns: 14px 1fr auto; grid-template-areas: "dot name when" "dot hours hours"; gap: 4px 10px; align-items: center; padding: 12px 14px; border: 1px solid #eceef2; border-radius: 10px; }
+/* .att-team: العنصر `att-team` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+.att-team i { grid-area: dot; width: 10px; height: 10px; border-radius: 50%; background: #c9c1b4; }
+/* .att-team: العنصر `att-team` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+/* .on: العنصر `on` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+.att-team i.on { background: #2e9c55; box-shadow: 0 0 0 4px #e3f4e8; }
+/* .att-team: العنصر `att-team` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.att-team strong { grid-area: name; }
+/* .att-team: العنصر `att-team` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.att-team span { grid-area: when; font-size: 12.5px; color: #475467; }
+/* .att-team: العنصر `att-team` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.att-team small { grid-area: hours; color: #6b7280; font-size: 12px; }
+/* .att-log: العنصر `att-log` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.att-log summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+/* .att-log: العنصر `att-log` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالعرض. */
+.att-log table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13.5px; }
+/* .att-log: العنصر `att-log` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.att-log th, .att-log td { text-align: start; padding: 8px 10px; border-bottom: 1px solid #eceef2; }
+/* .att-log: العنصر `att-log` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.att-log th { color: #6b7280; font-weight: 600; font-size: 12px; }
+
+/* My attendance (field worker) */
+/* .att-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الحدود والفواصل. */
+.att-card { border-left: 3px solid #f5c518; }
+/* .att-form: نموذج إدخال البيانات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.att-form { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+/* .att-form: نموذج إدخال البيانات؛ ينسق الخط والألوان. */
+.att-form label { display: grid; gap: 6px; font-size: 12px; color: #344054; font-weight: 600; }
+/* .att-form: نموذج إدخال البيانات؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض، يتحكم بالارتفاع. */
+.att-form input { min-height: 42px; padding: 10px 12px; border: 1px solid #d0d5dd; border-radius: 8px; font: inherit; letter-spacing: 2px; text-transform: uppercase; min-width: 200px; outline: none; }
+/* .att-form: نموذج إدخال البيانات؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.att-form input:focus { border-color: #f5c518; }
+/* .att-now: العنصر `att-now` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
+.att-now { margin: 0; flex: 1; }
+/* .att-msg: العنصر `att-msg` ضمن واجهة هذا الدور؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.att-msg { margin: 0; padding: 9px 12px; border-radius: 10px; font-size: 14px; }
+/* .att-msg: العنصر `att-msg` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .ok: العنصر `ok` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.att-msg.ok { background: #eef8f1; color: #1f6b38; }
+/* .att-msg: العنصر `att-msg` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .bad: العنصر `bad` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.att-msg.bad { background: #fdeceb; color: #a3271c; }
+/* .att-total: العنصر `att-total` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.att-total { margin: 0; color: #475467; font-size: 12.5px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+/* .att-total: العنصر `att-total` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.att-total span { background: #f9fafb; border: 1px solid #eceef2; border-radius: 6px; padding: 2px 8px; }
+/* .att-pick: العنصر `att-pick` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالعرض. */
+.att-pick { display: grid; gap: 6px; max-width: 420px; margin: 8px 0; font-weight: 600; }
+/* .att-pick: العنصر `att-pick` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.att-pick select { min-height: 42px; padding: 10px 12px; border: 1px solid #d0d5dd; border-radius: 8px; font: inherit; background: #fff; }
+/* .att-where: العنصر `att-where` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.att-where { margin: 4px 0 0; color: #5f5850; }
+
+/* Notifications on the phone */
+/* .phone-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المسافات الخارجية. */
+.phone-card { margin: 0 0 20px; }
+/* .phone-channels: العنصر `phone-channels` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.phone-channels { list-style: none; margin: 0; padding: 0; display: flex; gap: 10px; flex-wrap: wrap; }
+/* .phone-channels: العنصر `phone-channels` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
+.phone-channels li { display: grid; gap: 4px; padding: 12px 16px; border-radius: 10px; border: 1px solid #eceef2; background: #f9fafb; min-width: 200px; }
+/* .phone-channels: العنصر `phone-channels` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .on: العنصر `on` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.phone-channels li.on { border-color: #c7ebd4; background: #e8f7ee; }
+/* .phone-channels: العنصر `phone-channels` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.phone-channels li b::before { content: "○ "; color: #9a928a; }
+/* .phone-channels: العنصر `phone-channels` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+/* .on: العنصر `on` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.phone-channels li.on b::before { content: "● "; color: #2e9c55; }
+/* .phone-channels: العنصر `phone-channels` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.phone-channels span { color: #475467; font-size: 12.5px; }
+
+/* System status (admin) */
+/* .svc-line: العنصر `svc-line` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.svc-line { margin: 0; color: #5f5850; font-size: 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+/* .svc-grid: شبكة توزيع العناصر؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.svc-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+/* .svc-grid: شبكة توزيع العناصر؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.svc-grid li { display: flex; gap: 10px; padding: 12px 14px; border: 1px solid #eceef2; border-radius: 10px; background: #fff; }
+/* .svc-grid: شبكة توزيع العناصر؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المسافات الخارجية، يتحكم بالعرض. */
+.svc-grid li i { flex: none; width: 10px; height: 10px; margin-top: 5px; border-radius: 50%; background: #c9c1b4; }
+/* .svc-grid: شبكة توزيع العناصر؛ يحدد الخلفية. */
+/* .on: العنصر `on` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+.svc-grid li.on i { background: #2e9c55; }
+/* .svc-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.svc-grid div { display: grid; gap: 2px; }
+/* .svc-grid: شبكة توزيع العناصر؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
+.svc-grid span { color: #475467; font-size: 12.5px; line-height: 1.4; }
+/* .svc-grid: شبكة توزيع العناصر؛ ينسق الخط والألوان. */
+.svc-grid small { color: #9a6a00; font-size: 12px; }
+
+/* Provider reviews */
+/* .rv-box: العنصر `rv-box` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
+.rv-box { margin: 4px 0; }
+/* .rv-toggle: العنصر `rv-toggle` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.rv-toggle { background: none; border: none; padding: 0; color: #b8860b; font-weight: 600; font-size: 12.5px; cursor: pointer; }
+/* .rv-list: قائمة من العناصر؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية، يتحكم بالارتفاع، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.rv-list { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 6px; max-height: 220px; overflow: auto; }
+/* .rv-list: قائمة من العناصر؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.rv-list li { background: #f9fafb; border: 1px solid #eceef2; border-radius: 8px; padding: 10px 12px; font-size: 12.5px; }
+/* .rv-list: قائمة من العناصر؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.rv-list small { color: #9a928a; margin-inline-start: 8px; }
+/* .rv-list: قائمة من العناصر؛ يضبط المسافات الخارجية. */
+.rv-list p { margin: 4px 0 0; }
+
+@media (max-width: 640px) {
+  /* .tl-stats: بطاقات الإحصائيات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.tl-stats { grid-template-columns: repeat(2, 1fr); }
+  /* .att-team: العنصر `att-team` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.att-team li { grid-template-columns: 14px 1fr; grid-template-areas: "dot name" "dot when" "dot hours"; }
+  /* .att-form: نموذج إدخال البيانات؛ يتحكم بالعرض. */
+.att-form input { min-width: 0; width: 100%; }
+  /* .att-form: نموذج إدخال البيانات؛ يتحكم بالعرض. */
+.att-form, .att-form label { width: 100%; }
+}

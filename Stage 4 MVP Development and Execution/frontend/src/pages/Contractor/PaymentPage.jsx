@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ContractorShell from "../../components/ContractorShell";
+import { getSession } from "../../services/auth";
+import { downloadReceipt } from "../../services/api";
 import {
   formatPrice,
   getCurrentProject,
   handleConfirmProvider,
   getConfirmedQuotationId,
+  openProjectById,
 } from "../../services/Contractor/Contractor";
+import "../../styles/Contractor/payment.css"
 import {
   clearPendingPayment,
   finishPayment,
@@ -45,6 +49,8 @@ function PaymentPage() {
   const [checking, setChecking] = useState(true);
   const [paidPayment, setPaidPayment] = useState(null);
   const [existingPayment, setExistingPayment] = useState(null);
+  const [receiptError, setReceiptError] = useState("");
+  const [opening, setOpening] = useState(false);
   const paymentLock = useRef(false);
   const started = useRef(false);
 
@@ -63,6 +69,7 @@ function PaymentPage() {
           } else {
             setPaidPayment(payment);
             clearPendingPayment();
+            window.history.replaceState(window.history.state, "", "/payment");
           }
         })
         .catch((err) => setError(err?.message || "Could not finish the payment."))
@@ -142,12 +149,37 @@ function PaymentPage() {
               <div><span>Amount</span><strong>{formatPrice(payment.amount)}</strong></div>
               <div><span>Charged on PayPal</span><strong>{formatUsd(payment.charged_amount)}</strong></div>
             </div>
+            {receiptError && <p className="payment-error" role="alert">{receiptError}</p>}
+            <button
+              className="payment-back-button"
+              type="button"
+              onClick={() => {
+                setReceiptError("");
+                downloadReceipt(getSession()?.access_token, payment.payment_id).catch((err) =>
+                  setReceiptError(err.message)
+                );
+              }}
+            >
+              ⬇ Download PDF Receipt
+            </button>
             <button
               className="payment-primary-button"
               type="button"
-              onClick={() => navigate("/project-monitoring")}
+              disabled={opening}
+              onClick={async () => {
+                // Open the project that was paid (not the last project opened), then monitor it.
+                setOpening(true);
+                try {
+                  navigate((await openProjectById(payment.project_id)) || "/my-projects");
+                } catch {
+                  navigate("/my-projects");
+                }
+              }}
             >
-              Go to Project Monitoring
+              {opening ? "Opening…" : "Go to Project Monitoring"}
+            </button>
+            <button className="payment-back-button" type="button" onClick={() => navigate("/my-projects")}>
+              Back to My Projects
             </button>
           </section>
         </div>

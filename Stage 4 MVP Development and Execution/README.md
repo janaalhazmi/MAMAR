@@ -1,332 +1,223 @@
-# MAMAR – MVP Development and Execution
+# MAMAR — Stage 4: MVP Development and Execution
 
-## Task 0: Plan and Define Sprints
+**Project:** MAMAR | **Stage:** 4 — MVP Development and Execution  
+**Period:** October 11 – November 21, 2026 | **Methodology:** Agile | **Duration:** 6 one-week sprints  
+**Status (November 19, 2026):** MVP deployed for testing; final validation and documentation in progress.
 
-### 1. Project Overview
+## 1. Project Overview
 
-MAMAR is a GIS-based B2B platform designed to support temporary traffic control operations for construction and roadwork projects.
+MAMAR is a GIS-enabled B2B platform connecting contractors working on roads and construction sites with temporary traffic control service providers. Contractors define geographic work zones, request traffic control services, compare provider quotations, and monitor execution. Providers manage quotations and field assignments, while field workers access assigned projects and verify traffic control devices against their planned locations.
 
-The platform connects contractors with traffic control service providers, enabling them to define work zones, submit service requests, receive quotations, coordinate field execution, and document traffic device installations using GIS and GPS-based verification.
+Stage 4 translates the requirements and technical design from Stage 3 into a working Minimum Viable Product (MVP). Work is organized into six Agile sprints, with assigned responsibilities, Git-based collaboration, progress tracking, reviews, and quality assurance.
 
-Stage 4 focuses on transforming the technical documentation developed in Stage 3 into a functional Minimum Viable Product (MVP).
+### Stage Objectives
 
-### 2. Sprint Planning Objectives
+- Implement the approved MVP scope through iterative development.
+- Break user stories into prioritized, assigned sprint tasks with dependencies and deadlines.
+- Coordinate frontend, backend, database, and GIS integration.
+- Maintain codebase integrity through source control and review practices.
+- Track progress, address blockers, and document sprint feedback.
+- Validate integrated workflows before final Stage 4 sign-off.
 
-The objectives of sprint planning are to:
+## 2. Team Roles and Responsibilities
 
-- Divide MVP development into manageable tasks and iterations.
-- Prioritize essential features using the MoSCoW method.
-- Assign clear responsibilities to team members.
-- Identify dependencies between frontend, backend, and GIS components.
-- Establish deadlines and measurable deliverables.
-- Monitor development progress and address blockers.
-- Ensure that the final MVP follows the approved system architecture.
+| Team member | Stage 4 role | Main responsibilities |
+| --- | --- | --- |
+| **Razan Kashr** | Project Manager (PM) & GIS Lead Integration | Sprint planning and coordination, task tracking, priorities, dependencies, GIS work-zone integration, and end-to-end validation coordination. |
+| **Jana Alhazmi** | Frontend Developer, UI/UX Integration & Source Control Manager (SCM) | React interface development, UI integration, repository organization, branching and pull-request coordination. |
+| **Kayan Alnazari** | Frontend Developer & Quality Assurance (QA) | React pages and workflows, test coordination, bug documentation, and verification of completed functionality. |
+| **Shouq Alqarni** | Backend Developer | FastAPI endpoints, PostgreSQL data models, business logic, authentication, and backend testing. |
 
-### 3. Project Timeline
+All members contribute to testing, code review, integration, and resolving issues within their assigned areas. PM, SCM, and QA are distinct responsibilities even when a team member also develops features.
 
-| Item | Details |
-|---|---|
-| Project | MAMAR |
-| Stage | Stage 4 – MVP Development and Execution |
-| Start Date | October 11, 2026 |
-| End Date | November 21, 2026 |
-| Total Duration | 6 weeks |
-| Development Approach | Agile |
-| Sprint Duration | 1 week |
-| Total Sprints | 6 |
+## 3. Task 0 — Plan and Define Sprints
 
-### 4. Team Roles and Responsibilities
+### Agile Planning Approach
 
-| Team Member | Role | Responsibilities |
+The team planned **six one-week sprints** and organized work in GitHub Projects. Tasks are prioritized using the **MoSCoW** method (Must Have, Should Have, Could Have, Won't Have), with owners, deadlines, and dependencies tracked through project items and GitHub Issues.
+
+### Sprint Schedule — Official Meeting-Plan Order
+
+The goals below follow the Stage 4 meeting-plan sequence provided by Holberton. Dates reflect the team's six-week Stage 4 schedule. These are **sprint targets**, not claims that every item was completed on its target date.
+
+| Sprint | Dates | Planned goal |
+| --- | --- | --- |
+| **Sprint 1** | **Oct 11–17, 2026** | Project setup, timeline, and task planning. |
+| **Sprint 2** | **Oct 18–24, 2026** | End-to-end authentication and homepage completion. |
+| **Sprint 3** | **Oct 25–31, 2026** | Reach 50% of the main MVP features. |
+| **Sprint 4** | **Nov 1–7, 2026** | Reach 100% of the main MVP features. |
+| **Sprint 5** | **Nov 8–14, 2026** | Secondary features and third-party integrations. |
+| **Sprint 6** | **Nov 15–21, 2026** | QA testing and optional features. |
+
+### Priorities and Dependencies
+
+**Must Have:** authentication and role-aware workflows; contractor project management; GIS work-zone definition; service requests; provider quotations and contractor selection; field worker assignment; location-based device verification; integrated backend and database operations.
+
+**Should Have:** project monitoring, role-specific dashboards, execution evidence, and notifications.  
+**Could Have:** advanced analytics and optional enhancements.  
+**Out of scope for core MVP:** continuous real-time GPS tracking and automated engineering traffic-control-plan generation.
+
+**Scope note:** The original Stage 4 plan excluded online payments. A **PayPal Sandbox** payment flow was subsequently integrated and exercised during UAT; this is a scope addition for demonstration/testing, **not evidence of live payment processing**.
+
+Key dependencies: authentication APIs precede role-specific workflows; projects precede work-zone storage and service requests; service requests precede quotations; accepted quotations precede provider assignments; device/location data precede field verification; integration precedes final end-to-end validation.
+
+## 4. Task 1 — Execute Development Tasks
+
+### Technology Stack
+
+| Layer | Technology / service | Purpose |
+| --- | --- | --- |
+| Frontend | React, JavaScript | Role-specific interfaces and workflow screens. |
+| Backend | FastAPI, SQLAlchemy, Pydantic | REST APIs, validation, and business logic. |
+| Database | PostgreSQL | Persistent project, request, quotation, assignment, and user data. |
+| GIS | ArcGIS mapping integration and browser geolocation | Interactive work-zone mapping and location-based verification. |
+| Deployment | Vercel (Frontend), Render (Backend), Supabase (PostgreSQL Database) | Cloud hosting for the frontend, backend APIs, and PostgreSQL database. |
+| Collaboration | Git, GitHub, GitHub Projects | Source control, issue tracking, and sprint coordination. |
+
+### Implementation Workstreams
+
+**Foundation and authentication:** development environments, repository structure, backend/database setup, login and role-based application entry points.
+
+**Contractor workflows:** project creation and editing; mapped work-zone polygons; service request submission; quotation review and provider selection; project monitoring and completion approval.
+
+**Provider workflows:** visibility of relevant service requests, quotation submission, project/field-worker assignment, and completion review.
+
+**Field workflows:** assigned project visibility, mapped locations, device verification with a distance threshold, execution updates, and site-evidence interfaces.
+
+**Integration:** React-to-FastAPI communication, PostgreSQL persistence, GIS display and polygon retention, notifications, and a PayPal Sandbox payment demonstration.
+
+**Implementation note:** These workstreams describe features developed and exercised during Stage 4. They do not imply that every workflow is defect-free; open items are tracked separately.
+
+### Source Control and Collaboration
+
+Feature work was coordinated through GitHub branches, commits, pull requests, and the shared `develop` branch. SCM responsibilities include reviewing changes, managing merges, and maintaining repository structure. GitHub Issues and project-board statuses provide traceability from planned tasks to implementation and follow-up.
+
+## 5. Task 2 — Monitor Progress and Adjust
+
+The PM coordinated sprint tasks, dependencies, deadlines, and blockers through the [MAMAR GitHub Project](https://github.com/users/janaalhazmi/projects/6) and [repository Issues](https://github.com/janaalhazmi/MAMAR/issues). The team used task statuses to distinguish work not started, in progress, under review, and completed.
+
+Progress-monitoring practices included team check-ins, reviewing deliverables against sprint goals, tracking integration blockers, assigning fixes, and reprioritizing tasks as needed. Examples of technical follow-up included frontend/backend integration, schema and test adjustments, Git merge conflicts, and UAT findings.
+
+### Sprint Performance Metrics
+
+Project progress was monitored through GitHub Projects using sprint assignments, task statuses, and completion rates.
+
+The following metrics reflect the project status as of November 20, 2026.
+
+| Sprint | Period | Total Tasks | Completed | In Progress | To Do | Completion Rate |
+|--------|--------|-------------|-----------|-------------|-------|-----------------|
+| Sprint 1 | Oct 11–17 | 9 | 9 | 0 | 0 | 100% |
+| Sprint 2 | Oct 18–24 | 7 | 7 | 0 | 0 | 100% |
+| Sprint 3 | Oct 25–31 | 2 | 2 | 0 | 0 | 100% |
+| Sprint 4 | Nov 1–7 | 4 | 4 | 0 | 0 | 100% |
+| Sprint 5 | Nov 8–14 | 4 | 4 | 0 | 0 | 100% |
+| Sprint 6 | Nov 15–21 | 7 | 2 | 2 | 3 | 28.6% |
+| **Total** | **Oct 11–Nov 21** | **33** | **28** | **2** | **3** | **84.8%** |
+
+**Performance Indicators:**
+
+- **Overall Task Completion:** 84.8% (28 of 33 tasks).
+- **Completed Sprints:** Sprints 1–5 achieved 100% completion of their currently recorded tasks.
+- **Sprint 6:** Final QA, documentation, and defect resolution are ongoing.
+- **Progress Tracking:** GitHub Projects was used to monitor task completion, priorities, and outstanding issues.
+
+**Measurement Method:** Completion rates are calculated from the current task statuses in GitHub Projects. These figures represent the completion of recorded sprint tasks, not a historical baseline of originally planned tasks.
+
+[View Sprint Metrics](https://github.com/users/janaalhazmi/projects/6/views/3)
+
+## 6. Task 3 — Conduct Sprint Reviews and Retrospectives
+
+### Sprint Reviews & Retrospectives Documentation
+
+Sprint reviews and retrospective summaries were documented to evaluate sprint deliverables, identify challenges, and record improvements for subsequent iterations.
+
+| Sprint | Period | Documentation |
 |---|---|---|
-| Razan Kashr | Project Manager (PM) & GIS Lead Integration | Manage sprint planning, task assignments, deadlines, progress tracking, team coordination, GIS integration, spatial data configuration, and GIS functionality testing. |
-| Jana Alhazmi | Frontend Developer, UI/UX Integration & Source Control Manager (SCM) | Develop React frontend components, integrate UI/UX designs, coordinate Git branching strategies, review pull requests, and ensure proper version control practices. |
-| Kayan Alnazari | Frontend Developer & Quality Assurance (QA) | Develop React frontend components, authentication pages, dashboards, and forms; coordinate test cases, document bugs, track fixes, and verify completed features. |
-| Shouq Alqarni | Backend Developer | Develop FastAPI endpoints, implement PostgreSQL database models, authentication, business logic, and backend testing. |
+| Sprint 1 | Oct 11–17, 2026 | [Sprint 1 Review & Retrospective](docs/reviews/SPRINT_1_REVIEW.md) |
+| Sprint 2 | Oct 18–24, 2026 | [Sprint 2 Review & Retrospective](docs/reviews/SPRINT_2_REVIEW.md) |
+| Sprint 3 | Oct 25–31, 2026 | [Sprint 3 Review & Retrospective](docs/reviews/SPRINT_3_REVIEW.md) |
+| Sprint 4 | Nov 1–7, 2026 | [Sprint 4 Review & Retrospective](docs/reviews/SPRINT_4_REVIEW.md) |
+| Sprint 5 | Nov 8–14, 2026 | [Sprint 5 Review & Retrospective](docs/reviews/SPRINT_5_REVIEW.md) |
+| Sprint 6 | Nov 15–21, 2026 | [Sprint 6 Review & Retrospective](docs/reviews/SPRINT_6_REVIEW.md) |
 
-### 4.1 Management and Quality Responsibilities
+**Documentation Note:** Sprint 2–6 reviews were compiled retrospectively from project records and GitHub task tracking. They document sprint outcomes and lessons learned without implying that formal retrospective meetings were held on the original sprint dates.
 
-To ensure effective project organization, version control, and quality assurance, the following responsibilities have been assigned:
+## 7. Task 4 — Final Integration and QA Testing
 
-**Project Manager (PM) – Razan Kashr**
-- Coordinate sprint planning and task assignments.
-- Monitor deadlines, progress, and task dependencies.
-- Identify blockers and coordinate solutions.
-- Review sprint deliverables against the MVP scope.
+Stage 4 includes automated frontend/backend tests and manual user acceptance testing across Contractor, Service Provider, and Field Worker roles. End-to-end scenarios exercised the core flow from project creation and GIS work-zone definition through quotations, field assignment, location verification, and project completion.
 
-**Source Control Manager (SCM) – Jana Alhazmi**
-- Coordinate Git branching and version control practices.
-- Ensure development changes are submitted through pull requests.
-- Review code changes before merging.
-- Maintain repository organization and branch integrity.
+**The authoritative record for test counts, coverage, scenario-level PASS/FAIL/PARTIAL outcomes, evidence, and open defects is the [QA & Testing Report](docs/testing/QA_Testing_Report.md).** This README deliberately avoids duplicating detailed testing results so that test documentation remains in one maintained location.
 
-**Quality Assurance (QA) – Kayan Alnazari**
-- Prepare and coordinate test cases for completed features.
-- Test functionality against project requirements.
-- Document bugs and track their resolution.
-- Verify fixes and confirm that features meet acceptance criteria.
+The MVP has been deployed for testing, but final QA sign-off depends on resolving or explicitly accepting outstanding findings and completing regression checks. A successful automated test suite alone is not production-readiness approval.
 
-All team members remain responsible for testing their own implementations and participating in code reviews when required.
+## 8. Task 5 — Deliverables
 
-### 5. MoSCoW Prioritization
+The following table summarizes the required Stage 4 deliverables, their documentation, and their current status.
 
-The MoSCoW method is used to prioritize features according to their importance to the MVP.
-
-| Priority | Feature | Description |
+| Required Deliverable | Link / Current Location | Status |
 |---|---|---|
-| Must Have | User Registration and Login | Allow users to register and authenticate based on their roles |
-| Must Have | Project Creation | Allow contractors to create and manage projects |
-| Must Have | GIS Work Zone Definition | Allow contractors to define project areas on an interactive map |
-| Must Have | Service Requests | Allow contractors to submit temporary traffic control service requests |
-| Must Have | Provider Quotations | Allow providers to submit quotations and estimated durations |
-| Must Have | Quote Selection | Allow contractors to review quotations and select a provider |
-| Must Have | Assignment Management | Allow providers to assign field workers to projects |
-| Must Have | Traffic Device Mapping | Display planned traffic control devices geographically |
-| Must Have | GPS-Based Verification | Capture a field worker's location during device installation verification |
-| Must Have | GIS Data Integration | Connect the frontend to ArcGIS Online hosted feature layers |
-| Should Have | Role-Based Dashboards | Provide appropriate interfaces for contractors, providers, and field workers |
-| Should Have | Project Status Tracking | Display project and execution progress |
-| Should Have | Verification Documentation | Store verification details and reference supporting field photos |
-| Could Have | Advanced Dashboard Analytics | Provide additional project and operational insights |
-| Could Have | Automated Notifications | Notify users about requests, quotations, and assignments |
-| Won't Have | Online Payments | Payment processing is excluded from the MVP |
-| Won't Have | Continuous GPS Tracking | Real-time continuous worker tracking is excluded from the MVP |
-| Won't Have | Automated Traffic Control Plan Generation | Engineering plan generation is outside the MVP scope |
+| **Sprint Planning** | [Sprint 2 Plan](docs/planning/SPRINT_2_PLAN.md) · [GitHub Project Board](https://github.com/users/janaalhazmi/projects/6) | Available. Sprint tasks, assignments, priorities, and progress are tracked through GitHub Projects. |
+| **Sprint Reviews** | [Sprint 1](docs/reviews/SPRINT_1_REVIEW.md) · [Sprint 2](docs/reviews/SPRINT_2_REVIEW.md) · [Sprint 3](docs/reviews/SPRINT_3_REVIEW.md) · [Sprint 4](docs/reviews/SPRINT_4_REVIEW.md) · [Sprint 5](docs/reviews/SPRINT_5_REVIEW.md) · [Sprint 6](docs/reviews/SPRINT_6_REVIEW.md) | Documentation available for all six sprints. Sprint 6 reflects the recorded progress snapshot and requires a final update after sprint closure. |
+| **Sprint Retrospectives** | [Sprint 1](docs/reviews/SPRINT_1_REVIEW.md) · [Sprint 2](docs/reviews/SPRINT_2_REVIEW.md) · [Sprint 3](docs/reviews/SPRINT_3_REVIEW.md) · [Sprint 4](docs/reviews/SPRINT_4_REVIEW.md) · [Sprint 5](docs/reviews/SPRINT_5_REVIEW.md) · [Sprint 6](docs/reviews/SPRINT_6_REVIEW.md) | Retrospective summaries are included in the sprint review documents. Sprint 2–6 summaries were compiled retrospectively from project records and do not imply that formal retrospective meetings were held. |
+| **Source Repository** | [MAMAR Repository — develop Branch](https://github.com/janaalhazmi/MAMAR/tree/develop) | Available. Contains frontend, backend, project documentation, and testing resources. |
+| **Bug Tracking** | [GitHub Issues](https://github.com/janaalhazmi/MAMAR/issues) · [GitHub Project Board](https://github.com/users/janaalhazmi/projects/6) | Active. Defects are documented and tracked through GitHub Issues, with outstanding findings requiring resolution or documented acceptance. |
+| **Testing Evidence and Results** | [QA & Testing Report](docs/testing/QA_Testing_Report.md) · [Sprint 1 QA Test Cases](docs/testing/QA_TEST_CASES_SPRINT1.md) | Automated testing results and manual UAT findings are documented. Final evidence links, defect verification, and regression results must be confirmed before QA sign-off. |
+| **Production Environment** | [MAMAR Live Application](https://mammar-blush.vercel.app/) · [Backend API](https://mamar-api.onrender.com) · [Swagger API Documentation](https://mamar-api.onrender.com/docs) · Database: Supabase (PostgreSQL) | MVP deployed for testing. Final production-readiness approval remains pending QA sign-off. |
 
-### 6. Sprint Breakdown
+### Submission Checklist
 
-### Sprint 1: Project Setup and Initial Development
+Before the final Stage 4 submission, the team must:
 
-**Duration:** October 11–17, 2026
+- [x] Organize development tasks and sprint tracking through GitHub Projects.
+- [x] Document sprint reviews and retrospective summaries for all six sprints.
+- [x] Provide access to the source code repository.
+- [x] Establish bug tracking through GitHub Issues.
+- [x] Document automated testing results and manual UAT findings.
+- [ ] Verify that all documentation links are accessible and up to date.
+- [ ] Update the Sprint 6 review with its final completion status.
+- [ ] Confirm that UAT screenshots and supporting evidence are uploaded and linked in the QA report.
+- [ ] Resolve or explicitly accept outstanding defects and document regression testing results.
+- [ ] Add the verified deployed application URL.
+- [ ] Complete the final QA review and sign-off.
 
-**Sprint Goal:**
-Establish the development environment, configure project
-management and version control, deploy the initial system,
-and begin MVP implementation.
+**Documentation Note:** Sprint review and retrospective summaries are maintained in `docs/reviews/`. Detailed test results, coverage metrics, UAT outcomes, and defect evidence are maintained separately in the QA & Testing Report to avoid duplication and ensure consistent reporting.
 
-| Task | Priority | Assigned To | Deadline |
-|---|---|---|---|
-| Set up React frontend and initial UI pages | Must Have | Jana & Kayan | Oct 13 |
-| Set up FastAPI backend and PostgreSQL database | Must Have | Shouq | Oct 13 |
-| Configure GitHub repository and branching workflow | Must Have | Jana | Oct 12 |
-| Set up GitHub Projects and assign development tasks | Must Have | Razan | Oct 13 |
-| Deploy frontend to Vercel and backend to Render | Must Have | Development Team | Oct 14 |
-| Verify local execution for all team members | Must Have | All Members | Oct 14 |
-| Prepare ArcGIS Online layers for frontend integration | Must Have | Razan | Oct 14 |
-| Begin frontend and backend API integration | Should Have | Kayan & Shouq | Oct 16 |
-| Review progress and document initial QA results | Must Have | Razan & Kayan | Oct 17 |
+## 9. Repository Structure
 
-**Dependencies:**
-- Frontend and backend setup must be completed before integration.
-- Backend and database configuration must be completed before deployment testing.
-- GIS layer verification must be completed before map integration.
+The Stage 4 repository is organized into dedicated directories for frontend development, backend services, sprint documentation, and quality assurance.
 
-**Expected Deliverables:**
-- Working frontend, backend, and database environments.
-- Initial frontend and backend deployments.
-- GitHub Projects board with assigned tasks and deadlines.
-- Local execution verified by all team members.
-- Initial development progress documented.
+```text
+Stage 4 MVP Development and Execution/
+│
+├── backend/
+│
+├── frontend/
+│
+├── docs/
+│   │
+│   ├── planning/
+│   │   └── SPRINT_2_PLAN.md
+│   │
+│   ├── reviews/
+│   │   ├── SPRINT_1_REVIEW.md
+│   │   ├── SPRINT_2_REVIEW.md
+│   │   ├── SPRINT_3_REVIEW.md
+│   │   ├── SPRINT_4_REVIEW.md
+│   │   ├── SPRINT_5_REVIEW.md
+│   │   └── SPRINT_6_REVIEW.md
+│   │
+│   └── testing/
+│       ├── QA_TEST_CASES_SPRINT1.md
+│       └── QA_Testing_Report.md
+│
+├── README.md
+└── package-lock.json
+```
 
-#### Sprint 2: Authentication and Project Management
+The following structure reflects the Stage 4 directory on the develop branch, where the latest development work and documentation are maintained.
 
-**Duration:** October 18–24, 2026
+## 10. Stage 4 Status and Next Steps
 
-**Goal:** Implement user authentication and project creation.
+As of **November 19, 2026**, MAMAR has an integrated, deployed MVP that supports the main contractor–provider–field-worker workflow. The six-sprint development period runs through **November 21, 2026**. Remaining Stage 4 work includes final regression, review of outstanding UAT findings, completion of evidence links, and final documentation/sign-off.
 
-| Task | Priority | Assigned To | Deadline |
-|---|---|---|---|
-| Implement registration and login APIs | Must Have | Shouq | Oct 21 |
-| Configure PostgreSQL database models | Must Have | Shouq | Oct 22 |
-| Connect frontend authentication forms to FastAPI | Must Have | Kayan | Oct 23 |
-| Implement project creation interface | Must Have | Jana | Oct 23 |
-| Integrate interactive ArcGIS map | Must Have | Razan & Jana | Oct 24 |
-| Test authentication and project creation workflows | Must Have | All Team Members | Oct 24 |
-
-**Expected Deliverables:**
-- Working authentication flow.
-- PostgreSQL database models.
-- Project creation interface.
-- Interactive GIS map.
-- Initial frontend-backend integration.
-
-#### Sprint 3: GIS Work Zones and Service Requests
-
-**Duration:** October 25–31, 2026
-
-**Goal:** Enable contractors to define work zones and request traffic control services.
-
-| Task | Priority | Assigned To | Deadline |
-|---|---|---|---|
-| Implement project management APIs | Must Have | Shouq | Oct 27 |
-| Implement service request APIs | Must Have | Shouq | Oct 29 |
-| Implement work zone polygon drawing | Must Have | Razan & Jana | Oct 29 |
-| Connect project polygons to ArcGIS Online | Must Have | Razan | Oct 30 |
-| Develop service request interface | Must Have | Kayan | Oct 30 |
-| Test project and service request workflows | Must Have | All Team Members | Oct 31 |
-
-**Expected Deliverables:**
-- Functional project management.
-- GIS work zone creation.
-- ArcGIS Online spatial data integration.
-- Service request submission.
-- Tested contractor workflow.
-
-#### Sprint 4: Quotations and Provider Selection
-
-**Duration:** November 1–7, 2026
-
-**Goal:** Enable providers to submit quotations and contractors to select a provider.
-
-| Task | Priority | Assigned To | Deadline |
-|---|---|---|---|
-| Implement quotation APIs | Must Have | Shouq | Nov 3 |
-| Implement provider quotation interface | Must Have | Jana | Nov 5 |
-| Implement quotation review and selection interface | Must Have | Kayan | Nov 5 |
-| Implement quote award workflow | Must Have | Shouq | Nov 6 |
-| Validate provider and project identifiers | Must Have | Razan & Shouq | Nov 6 |
-| Test quotation and provider selection workflow | Must Have | All Team Members | Nov 7 |
-
-**Expected Deliverables:**
-- Provider quotation submission.
-- Quotation review interface.
-- Provider selection workflow.
-- Integrated quotation APIs.
-- Tested quotation process.
-
-#### Sprint 5: Field Execution and GIS Verification
-
-**Duration:** November 8–14, 2026
-
-**Goal:** Implement field assignments, device mapping, and location-based verification.
-
-| Task | Priority | Assigned To | Deadline |
-|---|---|---|---|
-| Implement assignment management APIs | Must Have | Shouq | Nov 10 |
-| Develop field worker interface | Must Have | Kayan | Nov 11 |
-| Implement traffic device mapping | Must Have | Razan & Jana | Nov 12 |
-| Integrate Browser Geolocation API | Must Have | Razan & Jana | Nov 12 |
-| Implement verification workflow | Must Have | Razan & Jana | Nov 13 |
-| Test GIS and GPS verification functionality | Must Have | All Team Members | Nov 14 |
-
-**Expected Deliverables:**
-- Field assignment management.
-- Traffic device mapping.
-- Browser-based GPS location capture.
-- Device installation verification workflow.
-- Tested GIS verification functionality.
-
-#### Sprint 6: Integration, Testing, and MVP Finalization
-
-**Duration:** November 15–21, 2026
-
-**Goal:** Complete MVP integration, resolve defects, and prepare the final demonstration.
-
-| Task | Priority | Assigned To | Deadline |
-|---|---|---|---|
-| Complete frontend-backend integration | Must Have | Jana, Kayan & Shouq | Nov 17 |
-| Complete GIS integration and spatial validation | Must Have | Razan | Nov 18 |
-| Conduct end-to-end workflow testing | Must Have | All Team Members | Nov 19 |
-| Fix identified bugs and integration issues | Must Have | All Team Members | Nov 20 |
-| Review MVP against Stage 3 documentation | Must Have | Razan | Nov 20 |
-| Prepare final MVP demonstration | Must Have | All Team Members | Nov 21 |
-| Finalize Stage 4 documentation | Must Have | Razan | Nov 21 |
-
-**Expected Deliverables:**
-- Integrated functional MVP.
-- Completed GIS workflows.
-- Tested core features.
-- Resolved critical defects.
-- Final MVP demonstration.
-- Updated technical documentation.
-
-### 7. Task Dependencies
-
-The following dependencies must be considered during development:
-
-| Task | Dependency |
-|---|---|
-| Frontend authentication integration | Authentication APIs must be available |
-| Project creation workflow | Project APIs and database models must be implemented |
-| GIS work zone storage | A project ID must be generated before storing its polygon |
-| Service request submission | The associated project must exist |
-| Provider quotation submission | The associated service request must exist |
-| Provider selection | At least one valid quotation must be available |
-| Field worker assignment | The project and provider must be identified |
-| Device verification | The traffic device and assigned worker must be identified |
-| Final end-to-end testing | Core frontend, backend, and GIS workflows must be integrated |
-
-### 8. Progress Tracking
-
-Development progress will be monitored through GitHub and team communication channels.
-
-The Project Manager will:
-
-- Review task progress throughout each sprint.
-- Track completed, ongoing, and blocked tasks.
-- Identify dependencies and implementation risks.
-- Coordinate between frontend, backend, and GIS development.
-- Review sprint deliverables against the planned scope.
-- Update priorities when necessary.
-- Document important decisions and changes.
-
-Task statuses will be tracked using:
-
-- To Do
-- In Progress
-- In Review
-
-- Done
-- Blocked
-
-### 9. Sprint Reviews and Retrospectives
-
-At the end of each sprint, the team will conduct a sprint review to evaluate completed work.
-
-The review will focus on:
-
-- Features completed during the sprint.
-- Features that remain incomplete.
-- Technical issues and blockers.
-- Integration progress.
-- Required improvements for the next sprint.
-
-The team will also conduct a retrospective to identify what worked well, what needs improvement, and how collaboration can be strengthened.
-
-### 10. Definition of Done
-
-A development task will be considered complete when:
-
-1. The required functionality has been implemented.
-2. The implementation follows the approved MVP scope.
-3. Relevant code has been reviewed.
-4. Required testing has been completed.
-5. Critical issues have been resolved.
-6. The feature works with its required dependencies.
-7. Changes have been committed to GitHub.
-8. Relevant documentation has been updated.
-
-### 11. Expected Stage 4 Outcome
-
-By November 21, 2026, the MAMAR team aims to deliver a functional MVP demonstrating the core temporary traffic control workflow:
-
-1. User registration and authentication.
-2. Contractor project creation.
-3. GIS-based work zone definition.
-4. Temporary traffic control service request submission.
-5. Provider quotation submission.
-6. Contractor quotation review and provider selection.
-7. Field worker assignment.
-8. Traffic device mapping.
-9. GPS-based installation verification.
-10. Geographic documentation of field activities.
-
-The MVP will demonstrate the integration of React, FastAPI, PostgreSQL, and ArcGIS Online while maintaining the scope established during Stage 3.
-
----
-
-**Project:** MAMAR  
-**Stage:** Stage 4 – MVP Development and Execution  
-**Task:** 0 – Plan and Define Sprints  
-**Project Manager:** Razan Kashr  
-**Development Period:** October 11 – November 21, 2026
+For the current verified QA status, see the [QA & Testing Report](docs/testing/QA_Testing_Report.md); for task and defect status, see the [GitHub Project](https://github.com/users/janaalhazmi/projects/6) and [Issues](https://github.com/janaalhazmi/MAMAR/issues).

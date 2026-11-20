@@ -12,6 +12,9 @@ import {
   handleRejectQuotation,
 } from "../../services/Contractor/Contractor";
 import "../../styles/Contractor/quotations.css";
+import Stars from "../../components/Stars";
+import { useProviderRatings } from "../../services/ratings";
+import AiQuoteAdvisor from "../../components/AiQuoteAdvisor";
 
 function normalizeStatus(status) {
   if (status === "rejected") return "rejected";
@@ -22,6 +25,7 @@ function normalizeStatus(status) {
 function QuotationsPage() {
   const navigate = useNavigate();
 
+  const ratings = useProviderRatings();
   const [quotations, setQuotations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -29,6 +33,7 @@ function QuotationsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [showCompare, setShowCompare] = useState(false);
   const [rejectingId, setRejectingId] = useState(null);
+  const [aiPicks, setAiPicks] = useState({}); // projectId -> quote id the AI suggested
 
   useEffect(() => {
     let active = true;
@@ -121,6 +126,17 @@ function QuotationsPage() {
     (quotation) => quotation.status === "received"
   );
 
+  // Projects with two or more quotations still waiting for a decision: the AI can compare them.
+  const toCompare = Object.values(
+    quotations
+      .filter((q) => q.status === "received")
+      .reduce((all, q) => {
+        const item = all[q.projectId] || { id: q.projectId, name: q.projectName, count: 0 };
+        item.count += 1;
+        return { ...all, [q.projectId]: item };
+      }, {})
+  ).filter((item) => item.count >= 2);
+
   const counts = {
     all: quotations.length,
     received: quotations.filter((q) => q.status === "received").length,
@@ -184,6 +200,13 @@ function QuotationsPage() {
           <strong>{counts.rejected}</strong>
         </div>
       </div>
+
+      <AiQuoteAdvisor
+        projects={toCompare}
+        onResult={(projectId, result) =>
+          setAiPicks((current) => ({ ...current, [projectId]: result.recommended_quote_id }))
+        }
+      />
 
       <div className="pf-quotation-toolbar">
         <input
@@ -250,6 +273,10 @@ function QuotationsPage() {
                   rejected ? "pf-quote-rejected" : ""
                 }`}
               >
+                {aiPicks[quotation.projectId] != null &&
+                  String(aiPicks[quotation.projectId]) === String(quotation.id) && (
+                    <span className="ai-pick">✨ AI pick</span>
+                  )}
                 <div className="pf-quote-project">
                   <span className="pf-label">Project</span>
                   <strong>{quotation.projectName}</strong>
@@ -281,6 +308,7 @@ function QuotationsPage() {
 
                   <div>
                     <h3>{quotation.providerName}</h3>
+                    <Stars rating={ratings.byName[(quotation.providerName || "").toLowerCase()]} />
                     <p>{quotation.providerDescription}</p>
                     <span
                       className={`pf-pill ${
@@ -350,26 +378,28 @@ function QuotationsPage() {
                     <p className="pf-muted">{formatDate(quotation.startDate)}</p>
                   </div>
                 )}
-
-                <div className="pf-quote-actions">
-                  <button
+              
+                {!accepted && !rejected && (
+                  <div className="pf-quote-actions">
+                    <button
                     type="button"
                     className="pf-btn pf-btn-reject"
                     disabled={locked || rejectingId === quotation.id}
                     onClick={() => handleReject(quotation)}
-                  >
-                    {rejectingId === quotation.id ? "Rejecting…" : "✕ Reject"}
-                  </button>
-                  <button
-                    type="button"
-                    className="pf-btn pf-btn-accept"
-                    disabled={locked}
-                    onClick={() => handleAccept(quotation)}
-                  >
+                    >
+                {rejectingId === quotation.id ? "Rejecting…" : "✕ Reject"}
+                   </button>
+                    <button
+                      type="button"
+                      className="pf-btn pf-btn-accept"
+                      disabled={locked}
+                      onClick={() => handleAccept(quotation)}
+                    >
                     <Icon name="check" size={16} />
-                    {accepted ? "Accepted" : "Accept"}
-                  </button>
-                </div>
+                     Accept
+                    </button>
+                   </div>
+                    )}
               </article>
             );
           })}

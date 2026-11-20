@@ -11,6 +11,7 @@ from app.models import Payment, Project, User
 from app.routers.field_work import utc_now
 from app.schemas.error import ErrorResponse
 from app.schemas.payment import PaymentResponse, PaymentStart, PaymentStarted
+from app.services.activity import log_activity
 
 # Issue #48: the contractor pays for the accepted quotation through PayPal in sandbox mode.
 #   1. POST /projects/{id}/payments          -> approve_url (the PayPal page)
@@ -143,6 +144,7 @@ def capture_payment(order_id: str, user: User = Depends(contractor_only), db: Se
         payment.status = "completed"
         payment.paypal_capture_id = capture_id
         payment.paid_at = utc_now()
+        log_activity(db, user, "payment_completed", f"Paid {payment.amount} SAR with PayPal", payment.project_id)
         db.commit()
         db.refresh(payment)
         return payment.to_dict()

@@ -2,12 +2,22 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from app.services.notifications import notify_user, notify_provider
 
+from app.services.notifications import notify_user, notify_provider
+from app.models.project_milestone import MILESTONES
 from app.core.access import accepted_quote, get_project, own_project, open_project_or_400
 from app.core.security import allow_roles
 from app.db.database import get_db
-from app.models import Assignment, Project, Provider, Quote, ServiceRequest, SitePhoto, User
+from app.models import (
+    Assignment,
+    Project,
+    ProjectMilestone,
+    Provider,
+    Quote,
+    ServiceRequest,
+    SitePhoto,
+    User,
+)
 from app.models.project import SITE_PROGRESS
 from app.schemas.error import ErrorResponse
 from app.schemas.quote import QuoteResponse
@@ -20,6 +30,7 @@ from app.schemas.workflow import (
     SiteProgress,
 )
 from app.schemas.project import ProjectResponse
+from app.services.activity import log_activity
 
 router = APIRouter(tags=["workflow"])
 
@@ -46,7 +57,9 @@ def provider_summary(provider: Provider | None) -> dict | None:
 
 def project_photos(db: Session, project_id: int) -> list[dict]:
     photos = db.scalars(
-        select(SitePhoto).where(SitePhoto.project_id == project_id).order_by(SitePhoto.photo_id.desc())
+        select(SitePhoto)
+        .where(SitePhoto.project_id == project_id)
+        .order_by(SitePhoto.photo_id.desc())
     ).all()
     return [photo.to_dict() for photo in photos]
 
@@ -55,8 +68,16 @@ def site_progress(db: Session, project: Project) -> dict:
     # The execution of a project, for Project Monitoring and Review Completion.
     quote = accepted_quote(db, project.project_id)
     team = db.scalar(
-        select(func.count()).select_from(Assignment).where(Assignment.project_id == project.project_id)
+        select(func.count())
+        .select_from(Assignment)
+        .where(Assignment.project_id == project.project_id)
     )
+    milestones = db.scalars(
+        select(ProjectMilestone)
+        .where(ProjectMilestone.project_id == project.project_id)
+        .order_by(ProjectMilestone.milestone_id)
+    ).all()
+
     return {
         "project_id": project.project_id,
         "project_status": project.project_status,
@@ -71,6 +92,7 @@ def site_progress(db: Session, project: Project) -> dict:
         "provider": provider_summary(db.get(Provider, quote.provider_id)) if quote else None,
         "quote": quote.to_dict() if quote else None,
         "photos": project_photos(db, project.project_id),
+        "milestones": [milestone.to_dict() for milestone in milestones],
     }
 
 
@@ -127,6 +149,7 @@ def submit_quotation(data: QuotationCreate, user: User = Depends(provider_only),
             message=f'A new quotation has been submitted for project "{project.project_name}".',
             link="/quotations",
         )
+    log_activity(db, user, "quote_sent", f"Sent a quote of {data.price} SAR", data.project_id)
     try:
         db.commit()
     except IntegrityError as error:
@@ -206,14 +229,32 @@ def confirm_provider(
     project = open_project_or_400(own_project(db, project_id, user))
     quote = db.get(Quote, data.quote_id)
     request = db.get(ServiceRequest, quote.request_id) if quote else None
-    if quote is None or request.project_id != project_id:
+    if quote is None or request is None or request.project_id != project_id:
         raise HTTPException(status_code=404, detail="Quote not found for this project")
     if request.status != "open" or accepted_quote(db, project_id) is not None:
         raise HTTPException(status_code=400, detail="A provider is already confirmed for this project")
     if quote.status != "pending":
         raise HTTPException(status_code=400, detail=f"The quote is {quote.status}")
+
     request.award(quote.quote_id)
     project.update_status("active")
+
+    # Create project milestones when a provider is confirmed.
+    existing_milestone = db.scalar(
+        select(ProjectMilestone.milestone_id)
+        .where(ProjectMilestone.project_id == project_id)
+        .limit(1)
+    )
+    if existing_milestone is None:
+        for name in MILESTONES:
+            db.add(
+                ProjectMilestone(
+                    project_id=project_id,
+                    name=name,
+                    status="pending",
+                )
+            )
+
     notify_provider(
         db=db,
         provider_id=quote.provider_id,
@@ -222,6 +263,7 @@ def confirm_provider(
         message=f'Your quotation for project "{project.project_name}" has been accepted.',
         link="/provider-dashboard",
     )
+    log_activity(db, user, "provider_confirmed", f'Confirmed quote #{quote.quote_id} for "{project.project_name}"', project_id)
     db.commit()
     db.refresh(project)
     return {"project": project.to_dict(), "quote": quote.to_dict()}
@@ -277,6 +319,7 @@ def approve_completion(project_id: int, user: User = Depends(contractor_only), d
             link="/provider-dashboard",
         )
 
+    log_activity(db, user, "project_completed", f'Approved the work of "{project.project_name}"', project_id)
     db.commit()
     db.refresh(project)
     return project.to_dict()
@@ -307,6 +350,7 @@ def request_changes(
             link="/provider-dashboard",
         )
 
+    log_activity(db, user, "changes_requested", f'Asked for changes on "{project.project_name}"', project_id)
     db.commit()
     db.refresh(project)
     return project.to_dict()

@@ -1,0 +1,24 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.18, pytest-9.1.1, pluggy-1.7.0 -- .venv/bin/python
+rootdir: .../backend
+plugins: anyio-4.16.0, platformdirs-4.14.5, cov-7.1.0
+collecting ... collected 255 items / 240 deselected / 15 selected
+
+tests/test_unit.py::test_distance_between_two_points PASSED              [  6%]
+tests/test_unit.py::test_traffic_level[72-80-False-Light] PASSED         [ 13%]
+tests/test_unit.py::test_traffic_level[50-80-False-Moderate] PASSED      [ 20%]
+tests/test_unit.py::test_traffic_level[20-80-False-Heavy] PASSED         [ 26%]
+tests/test_unit.py::test_traffic_level[0-80-True-Closed] PASSED          [ 33%]
+tests/test_unit.py::test_traffic_level[None-80-False-Unknown] PASSED     [ 40%]
+tests/test_unit.py::test_taper_length_uses_the_right_formula PASSED      [ 46%]
+tests/test_unit.py::test_weather_code_to_text[0-Clear] PASSED            [ 53%]
+tests/test_unit.py::test_weather_code_to_text[63-Rain] PASSED            [ 60%]
+tests/test_unit.py::test_weather_code_to_text[95-Thunderstorm] PASSED    [ 66%]
+tests/test_unit.py::test_weather_code_to_text[None-Unknown] PASSED       [ 73%]
+tests/test_unit.py::test_weather_alerts PASSED                           [ 80%]
+tests/test_unit.py::test_site_code_is_stable_and_different_per_project PASSED [ 86%]
+tests/test_unit.py::test_point_inside_the_work_zone PASSED               [ 93%]
+tests/test_unit.py::test_device_code_is_cleaned PASSED                   [100%]
+
+- generated xml file: docs/testing/evidence/pytest-unit.xml -
+====================== 15 passed, 240 deselected in 0.06s ======================

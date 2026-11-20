@@ -55,6 +55,7 @@ const MamarMap = forwardRef(function MamarMap(
     latitude = null,
     longitude = null,
     readOnly = false,
+    fitPolygon = false,
   },
   ref
 ) {
@@ -62,6 +63,7 @@ const MamarMap = forwardRef(function MamarMap(
   const sketchRef = useRef(null);
   const graphicsLayerRef = useRef(null);
   const callbackRef = useRef(onLocationSelect);
+  const fitViewRef = useRef(null);
 
   // Keep latest callback without rebuilding the map.
   useEffect(() => {
@@ -75,6 +77,7 @@ const MamarMap = forwardRef(function MamarMap(
     latitude,
     longitude,
     readOnly,
+    fitPolygon,
   });
 
   // Initialize map only once.
@@ -87,6 +90,8 @@ const MamarMap = forwardRef(function MamarMap(
     let sketch = null;
     let sketchHandle = null;
     let graphicsLayer = null;
+    let resizeObserver = null;
+    let resizeTimer = null;
 
     async function initializeMap() {
       try {
@@ -120,10 +125,39 @@ const MamarMap = forwardRef(function MamarMap(
           graphicsLayer.add(graphic);
 
           if (savedPolygon.extent) {
-            await view.goTo(
-              savedPolygon.extent.expand(1.5),
-              { animate: false }
+            if (initial.fitPolygon) {
+              await new Promise((resolve) => {
+                requestAnimationFrame(() => {
+                  requestAnimationFrame(resolve);
+                });
+              });
+
+              if (cancelled) return;
+            }
+
+            const targetExtent = savedPolygon.extent.expand(
+              initial.fitPolygon ? 1.8 : 1.5
             );
+
+            await view.goTo(targetExtent, { animate: false });
+
+            if (initial.fitPolygon) {
+              fitViewRef.current = () => {
+                if (!cancelled && view.width > 0 && view.height > 0) {
+                  view.goTo(targetExtent, { animate: false }).catch(() => {});
+                }
+              };
+
+              resizeObserver = new ResizeObserver(() => {
+                if (resizeTimer) clearTimeout(resizeTimer);
+
+                resizeTimer = setTimeout(() => {
+                  fitViewRef.current?.();
+                }, 250);
+              });
+
+              resizeObserver.observe(mapElement);
+            }
           }
         } else if (
           initial.latitude != null &&
@@ -160,6 +194,15 @@ const MamarMap = forwardRef(function MamarMap(
         });
 
         sketchRef.current = sketch;
+
+        const updateHandle = sketch.on("update", (event) => {
+          if (event.state === "complete") {
+            const geometry = event.graphics?.[0]?.geometry;
+            publishPolygon(geometry);
+          }
+        });
+
+        sketchRef.current.updateHandle = updateHandle;
 
         sketchHandle = sketch.on("create", (event) => {
           if (event.state !== "complete") return;
@@ -209,7 +252,12 @@ const MamarMap = forwardRef(function MamarMap(
     return () => {
       cancelled = true;
 
+      resizeObserver?.disconnect();
+      if (resizeTimer) clearTimeout(resizeTimer);
+      fitViewRef.current = null;
+
       sketchHandle?.remove();
+      sketch?.updateHandle?.remove();
 
       if (sketch) {
         sketch.destroy();
@@ -223,6 +271,26 @@ const MamarMap = forwardRef(function MamarMap(
       graphicsLayerRef.current = null;
     };
   }, []);
+
+  // Update coordinates and area after vertex editing.
+  const publishPolygon = (geometry) => {
+    if (!geometry) return;
+
+    const center = geometry.centroid;
+    if (!center) return;
+
+    const area = geometryEngine.geodesicArea(
+      geometry,
+      "square-meters"
+    );
+
+    callbackRef.current?.({
+      latitude: Number(center.latitude.toFixed(6)),
+      longitude: Number(center.longitude.toFixed(6)),
+      area: Number(Math.abs(area).toFixed(2)),
+      polygon: geometry.toJSON(),
+    });
+  };
 
   // Start drawing a new polygon.
   const startDrawing = () => {
@@ -241,6 +309,40 @@ const MamarMap = forwardRef(function MamarMap(
     callbackRef.current?.(null);
 
     sketch.create("polygon");
+  };
+
+  // Edit the existing polygon using its vertices.
+  const startEditing = () => {
+    const sketch = sketchRef.current;
+    const layer = graphicsLayerRef.current;
+
+    if (!sketch || !layer || readOnly) return false;
+
+    const graphic = layer.graphics.find(
+      (item) => item.geometry?.type === "polygon"
+    );
+
+    if (!graphic) return false;
+
+    sketch.cancel();
+
+    sketch.update(graphic, {
+      tool: "reshape",
+      enableRotation: false,
+      enableScaling: false,
+    });
+
+    return true;
+  };
+
+  // Finish editing and keep the updated geometry.
+  const finishEditing = () => {
+    const sketch = sketchRef.current;
+    if (!sketch || readOnly) return;
+
+    if (sketch.state === "active") {
+      sketch.complete();
+    }
   };
 
   // Finish the current polygon.
@@ -271,6 +373,8 @@ const MamarMap = forwardRef(function MamarMap(
     startDrawing,
     finishDrawing,
     cancelDrawing,
+    startEditing,
+    finishEditing,
   }));
 
   return (

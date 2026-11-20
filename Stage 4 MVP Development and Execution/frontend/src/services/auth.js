@@ -8,11 +8,10 @@ const CHANNEL_NAME = "mamar_auth_channel";
 
 let checkedToken = null;
 
-const channel = 
-    typeof BroadcastChannel !== "undefined"
+const channel =
+  typeof BroadcastChannel !== "undefined"
     ? new BroadcastChannel(CHANNEL_NAME)
     : null;
-  
 
 // Validate and read the session from this tab.
 export function getSession() {
@@ -241,6 +240,15 @@ if (channel) {
         Object.keys(sessionStorage)
           .filter((key) => !KEEP_KEYS.includes(key))
           .forEach((key) => sessionStorage.removeItem(key));
+        // Another account signed in, in another tab: reload so this tab shows that account's
+        // pages and data, not the old account's page with the new token.
+        try {
+          storeSession(newSession, false);
+        } catch {
+          return;
+        }
+        window.location.reload();
+        return;
       }
 
       try {
@@ -266,3 +274,6 @@ if (channel) {
 
 // Request a session when this tab opens.
 // Repeated requests allow an already-open tab time to respond.
+if (channel) {
+  requestSession();
+}

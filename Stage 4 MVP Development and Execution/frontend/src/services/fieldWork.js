@@ -318,6 +318,7 @@ export async function uploadSitePhotos(projectId, photos) {
   const form = new FormData();
   files.forEach((file) => form.append("photos", file));
   photos.forEach((photo) => form.append("captions", photo.caption || "Site photo"));
+  photos.forEach((photo) => form.append("stages", photo.stage || "during"));
 
   const saved = await postPhotos(token(), projectId, form);
   return saved.map(toUiPhoto);

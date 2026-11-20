@@ -17,7 +17,7 @@ import {
 } from "./api";
 import { getProjectMeta } from "./projects";
 import { SERVICE_LABELS } from "./projectFlow";
-import { getProviderProjects } from "./providerFlow";
+import { getProviderProjects } from "./providers/providerFlow";
 
 function token() {
   const accessToken = getSession()?.access_token;

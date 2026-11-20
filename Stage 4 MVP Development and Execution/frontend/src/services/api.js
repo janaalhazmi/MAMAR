@@ -85,7 +85,7 @@ export function sendPasscode(email) {
   });
 }
 
-export function registerUser(user, passcode) {
+export function registerUser(user, passcode, turnstileToken) {
   const payload = {
     full_name: user.full_name.trim(),
     email: user.email.trim().toLowerCase(),
@@ -94,6 +94,7 @@ export function registerUser(user, passcode) {
     role: user.role,
     provider_id: user.role === "contractor" ? null : Number(user.provider_id),
     passcode: String(passcode).trim(),
+    ...(turnstileToken ? { turnstile_token: turnstileToken } : {}),
   };
 
   return post("/auth/register", payload);
@@ -108,10 +109,12 @@ export function getCurrentUser(accessToken) {
   });
 }
 
-export function loginUser(email, password) {
+export function loginUser(email, password, turnstileToken) {
   return post("/auth/login", {
     email: email.trim().toLowerCase(),
     password,
+    // Cloudflare Turnstile token (only when the check is on).
+    ...(turnstileToken ? { turnstile_token: turnstileToken } : {}),
   });
 }
 
@@ -323,6 +326,23 @@ export const postDeviceVerify = (token, device, body) =>
     body: asJson(body), // { project_id, latitude, longitude, accuracy }
   });
 
+/* ---------- Devices of a project (saved verification) ---------- */
+export const fetchProjectDevices = (token, projectId) =>
+  authed(`/provider/projects/${encodeURIComponent(projectId)}/devices`, token);
+
+export const fetchWorkerProjectDevices = (token, projectId) =>
+  authed(`/field-worker/projects/${encodeURIComponent(projectId)}/devices`, token);
+
+export const addProjectDevice = (token, projectId, body) =>
+  authed(`/provider/projects/${encodeURIComponent(projectId)}/devices`, token, {
+    method: "POST",
+    headers: JSON_H,
+    body: asJson(body), // { code, name }
+  });
+
+export const removeProjectDevice = (token, projectId, code) =>
+  authed(`/provider/projects/${encodeURIComponent(projectId)}/devices/${encodeURIComponent(code)}`, token, { method: "DELETE" });
+
 /* ---------- Payments (PayPal sandbox, issue #48) ---------- */
 export const postStartPayment = (token, projectId, returnUrl, cancelUrl) =>
   authed(`/projects/${encodeURIComponent(projectId)}/payments`, token, {
@@ -362,3 +382,100 @@ export const patchAdminUser = (token, userId, changes) =>
     headers: JSON_H,
     body: asJson(changes),
   });
+
+/* ---------- Weather and receipts ---------- */
+export const fetchProjectWeather = (token, projectId) =>
+  authed(`/projects/${encodeURIComponent(projectId)}/weather`, token);
+
+// The PDF receipt of a completed payment, saved as a file.
+export async function downloadReceipt(token, paymentId) {
+  let response;
+  try {
+    response = await fetch(`${API_BASE_URL}/payments/${encodeURIComponent(paymentId)}/receipt`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  } catch {
+    throw new Error("Unable to connect to the server. Please try again.");
+  }
+  if (!response.ok) {
+    const data = await response.json().catch(() => null);
+    throw new Error(data?.detail || `Request failed (${response.status}).`);
+  }
+  const url = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `mamar-receipt-${paymentId}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* ---------- Ratings, admin activity and map ---------- */
+export const fetchProviderRatings = (token) => authed("/providers/ratings", token);
+
+export const fetchProjectReview = (token, projectId) =>
+  authed(`/projects/${encodeURIComponent(projectId)}/review`, token);
+
+export const postProjectReview = (token, projectId, rating, comment) =>
+  authed(`/projects/${encodeURIComponent(projectId)}/review`, token, {
+    method: "POST",
+    headers: JSON_H,
+    body: asJson({ rating, comment: comment || null }),
+  });
+
+export const fetchAdminActivity = (token, limit = 100) => authed(`/admin/activity?limit=${limit}`, token);
+
+export const fetchAdminProjects = (token) => authed("/admin/projects", token);
+
+/* ---------- Attendance (site QR + GPS), traffic, phone messages, services ---------- */
+const pid = (projectId) => encodeURIComponent(projectId);
+
+export const fetchProjectTraffic = (token, projectId) => authed(`/projects/${pid(projectId)}/traffic`, token);
+
+export const fetchSiteCode = (token, projectId) => authed(`/projects/${pid(projectId)}/site-code`, token);
+
+export const fetchProjectAttendance = (token, projectId) => authed(`/projects/${pid(projectId)}/attendance`, token);
+
+export const fetchMyAttendance = (token, projectId) =>
+  authed(`/field-worker/projects/${pid(projectId)}/attendance`, token);
+
+export const postAttendanceCheckIn = (token, projectId, body) =>
+  authed(`/field-worker/projects/${pid(projectId)}/attendance/check-in`, token, {
+    method: "POST",
+    headers: JSON_H,
+    body: asJson(body),
+  });
+
+export const postAttendanceCheckOut = (token, projectId, body = {}) =>
+  authed(`/field-worker/projects/${pid(projectId)}/attendance/check-out`, token, {
+    method: "POST",
+    headers: JSON_H,
+    body: asJson(body),
+  });
+
+export const fetchNotificationChannels = (token) => authed("/notifications/channels", token);
+
+export const postTestMessage = (token) => authed("/notifications/test-message", token, { method: "POST" });
+
+export const fetchAdminServices = (token) => authed("/admin/services", token);
+
+export const fetchProviderReviews = (token, providerId) =>
+  authed(`/providers/${encodeURIComponent(providerId)}/reviews`, token);
+
+/* ---------- AI (Claude): photo safety, traffic plan, quote comparison, daily summary ---------- */
+export const fetchAiStatus = (token) => authed("/ai/status", token);
+
+export const fetchSafetyChecks = (token, projectId) => authed(`/projects/${pid(projectId)}/safety-checks`, token);
+
+export const postSafetyCheck = (token, photoId, refresh = false) =>
+  authed(`/photos/${encodeURIComponent(photoId)}/safety-check${refresh ? "?refresh=true" : ""}`, token, { method: "POST" });
+
+export const postTrafficPlan = (token, body) =>
+  authed("/ai/traffic-plan", token, { method: "POST", headers: JSON_H, body: asJson(body) });
+
+export const fetchQuoteComparison = (token, projectId, refresh = false) =>
+  authed(`/projects/${pid(projectId)}/quotes/ai-compare${refresh ? "?refresh=true" : ""}`, token);
+
+export const fetchDailySummary = (token, projectId, refresh = false) =>
+  authed(`/projects/${pid(projectId)}/ai-summary${refresh ? "?refresh=true" : ""}`, token);

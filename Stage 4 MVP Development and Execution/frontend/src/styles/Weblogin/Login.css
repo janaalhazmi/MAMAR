@@ -1,0 +1,46 @@
+/* Fix login card overflow after adding Turnstile */
+/* .login-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.login-card {
+  height: auto !important;
+  min-height: 0 !important;
+  box-sizing: border-box;
+  padding-bottom: 70px !important;
+  overflow: visible;
+}
+
+/* .login-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.login-card > * {
+  flex-shrink: 0;
+}
+
+/* .login-main: العنصر `login-main` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.login-main {
+  height: auto;
+  min-height: calc(100vh - 83px);
+  padding-bottom: 50px;
+  box-sizing: border-box;
+}
+
+/* .login-form: نموذج إدخال البيانات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.login-form {
+  gap: 20px;
+}
+
+/* .login-or: العنصر `login-or` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
+.login-or {
+  margin: 22px 0 18px;
+}
+
+/* .create-account: العنصر `create-account` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
+.create-account {
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+@media (max-height: 850px) {
+  /* .login-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المساحة الداخلية. */
+.login-card {
+    padding-top: 32px;
+    padding-bottom: 70px !important;
+  }
+}

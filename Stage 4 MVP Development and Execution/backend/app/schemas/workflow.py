@@ -4,6 +4,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
 
+from app.schemas.milestone import MilestoneResponse
 from app.schemas.project import ProjectResponse, ServiceId, unique_services
 from app.schemas.quote import QuoteResponse
 
@@ -71,6 +72,7 @@ class PhotoResponse(BaseModel):
     photo_id: int
     url: str
     caption: str
+    stage: str = "during"
     created_at: datetime
 
 
@@ -89,6 +91,8 @@ class SiteProgress(BaseModel):
     provider: ProviderSummary | None
     quote: QuoteResponse | None
     photos: list[PhotoResponse]
+    milestones: list[MilestoneResponse] = []
+    milestones: list[MilestoneResponse] = Field(default_factory=list)
 
 
 class ChangeRequest(BaseModel):

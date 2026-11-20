@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
+from app.schemas.milestone import MilestoneResponse
 from app.schemas.project import ProjectResponse
 from app.schemas.quote import QuoteResponse
 from app.schemas.service_request import ServiceRequestResponse
@@ -40,6 +41,7 @@ class ProviderProjectDetail(ProviderProject):
     change_note: str | None
     team: list[TeamMember]
     photos: list[PhotoResponse]
+    milestones: list[MilestoneResponse] = Field(default_factory=list)
 
 
 class ProviderStats(BaseModel):
