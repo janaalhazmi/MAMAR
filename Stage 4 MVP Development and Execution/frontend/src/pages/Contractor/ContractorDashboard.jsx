@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import MamarMap from "../../components/MamarMap";
 import Icon from "../../components/Icons";
 import ContractorShell from "../../components/ContractorShell";
+import "../../styles/Contractor/contractor-dashboard.css"
+
 
 import {
   buildDashboard,
