@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ContractorShell from "../../components/ContractorShell";
 import Icon from "../../components/Icons";
+import "../../styles/Contractor/myproject.css"
 import {
   STATUS_FILTERS,
   fetchProjects,
