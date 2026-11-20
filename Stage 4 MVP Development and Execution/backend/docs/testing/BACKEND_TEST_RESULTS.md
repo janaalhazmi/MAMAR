@@ -2,7 +2,7 @@
 
 **Related task:** #72 (Backend Unit & Integration Testing Using Pytest)
 **Date:** 20 November 2026
-**Application commit:** develop `57762e1` + fixes for #79 and #80
+**Application commit:** develop `6976f8f` + fixes for #79 and #80
 **Tools:** Python 3.13, pytest 9.1.1, pytest-cov 7.1.0, FastAPI TestClient, PostgreSQL 16
 
 ## Summary
@@ -10,10 +10,10 @@
 | Type | What it tests | Tests | Passed | Failed | Skipped | Time |
 |---|---|---:|---:|---:|---:|---:|
 | Unit | One function at a time, no database, no network | 15 | 15 | 0 | 0 | 0.09 s |
-| Integration | Full API requests through FastAPI TestClient, role checks and a real PostgreSQL test database | 232 | 232 | 0 | 0 | 121 s |
-| **Total** | | **247** | **247** | **0** | **0** | |
+| Integration | Full API requests through FastAPI TestClient, role checks and a real PostgreSQL test database | 240 | 240 | 0 | 0 | 120 s |
+| **Total** | | **255** | **255** | **0** | **0** | |
 
-Statement coverage of `app/` from the integration run: **93%** (3,315 statements, 242 missed).
+Statement coverage of `app/` from the integration run: **93%** (3,399 statements, 249 missed).
 
 The tests never touch the deployed database: locally they use a separate test database, and on GitHub
 Actions a temporary PostgreSQL service that is deleted after each run.
@@ -44,6 +44,7 @@ GitHub Actions (`.github/workflows/backend-tests.yml`) runs both on every pull r
 | test_quotes.py | 12 | Quotation submission, acceptance, rejection |
 | test_ai.py | 10 | Photo safety check, traffic plan, quote comparison, daily summary (AI mocked) |
 | test_extras.py | 9 | Weather location, traffic, receipts, reviews |
+| test_milestones.py | 8 | Project milestones: created once, updated by the provider, invalid status and other users rejected |
 | test_security.py | 7 | Access by the wrong user or role |
 | test_health.py | 7 | `/health` (GET and HEAD), database check |
 | test_attendance.py | 7 | Site code, QR/GPS check-in and check-out |
@@ -69,6 +70,9 @@ formula, weather code to text, weather alerts, site code, point inside the work 
 | #80 Service provider shows "Not assigned" in Completion Review | UAT (#78) | Fixed: the provider name comes from the completion API, not from the browser |
 
 No backend test failed or was skipped.
+
+Found while merging: `app/schemas/workflow.py` used `MilestoneResponse` before defining it, so the backend could not start
+(every test stopped at import, and the Render deploy would fail). Fixed by importing the one definition from `app/schemas/milestone.py`.
 
 ## Evidence (this folder: `evidence/`)
 

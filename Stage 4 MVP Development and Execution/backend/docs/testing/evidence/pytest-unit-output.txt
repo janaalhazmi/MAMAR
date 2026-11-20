@@ -2,7 +2,7 @@
 platform linux -- Python 3.13.18, pytest-9.1.1, pluggy-1.7.0 -- .venv/bin/python
 rootdir: .../backend
 plugins: anyio-4.16.0, platformdirs-4.14.5, cov-7.1.0
-collecting ... collected 247 items / 232 deselected / 15 selected
+collecting ... collected 255 items / 240 deselected / 15 selected
 
 tests/test_unit.py::test_distance_between_two_points PASSED              [  6%]
 tests/test_unit.py::test_traffic_level[72-80-False-Light] PASSED         [ 13%]
@@ -21,4 +21,4 @@ tests/test_unit.py::test_point_inside_the_work_zone PASSED               [ 93%]
 tests/test_unit.py::test_device_code_is_cleaned PASSED                   [100%]
 
 - generated xml file: docs/testing/evidence/pytest-unit.xml -
-====================== 15 passed, 232 deselected in 0.09s ======================
+====================== 15 passed, 240 deselected in 0.06s ======================
