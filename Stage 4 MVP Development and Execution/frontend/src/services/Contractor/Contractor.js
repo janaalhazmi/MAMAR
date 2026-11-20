@@ -574,41 +574,30 @@ export function getConfirmedQuotationId() {
 /* PROJECT MONITORING                                                  */
 /* ------------------------------------------------------------------ */
 function buildMilestones(r) {
-  const milestones = r.milestones ?? r.site_progress?.milestones ?? [];
-  const defaults = [
-    { id: 1, title: "Site Preparation" },
-    { id: 2, title: "Traffic Control Installation" },
-    { id: 3, title: "Final Site Check" },
+  const site = r.site_status;
+  const notStarted = site === "Not Started";
+
+  const prep = notStarted
+    ? { state: "pending", note: "Pending" }
+    : { state: "done", note: "Completed" };
+
+  const install =
+    site === "Completed"
+      ? { state: "done", note: "Completed" }
+      : notStarted
+        ? { state: "pending", note: "Pending" }
+        : { state: "active", note: `${site} • ${r.progress}%` };
+
+  const final = r.completion_submitted
+    ? { state: "done", note: "Submitted by the provider" }
+    : { state: "pending", note: "Pending" };
+
+  return [
+    { id: 1, title: "Site Preparation", ...prep },
+    { id: 2, title: "Traffic Control Installation", ...install },
+    { id: 3, title: "Final Site Check", ...final },
   ];
-
-  const source = milestones.length ? milestones : defaults;
-
-  return source.map((milestone, index) => {
-    const status = String(milestone.status || "pending").toLowerCase();
-    let state = "pending";
-    let note = "Pending";
-
-    if (status === "completed" || status === "done") {
-      state = "done";
-      note = "Completed";
-    } else if (status === "in_progress" || status === "active") {
-      state = "active";
-      note = "In Progress";
-    }
-
-    return {
-      id: milestone.milestone_id ?? milestone.id ?? index + 1,
-      title: milestone.name ?? milestone.title ?? defaults[index]?.title ?? "Project milestone",
-      state,
-      note,
-    };
-  });
 }
-
-// Inside getMonitoringData(), make sure the returned object uses:
-completionSubmitted:
-  r.completion_submitted === true || r.awaiting_review === true,
-
 
 function buildLatestUpdate(r) {
   const newest = [...(r.photos || [])].sort((a, b) =>
