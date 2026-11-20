@@ -1,5 +1,13 @@
-@import "../Contractor/profile.css";
+/*
+ * Role stylesheet: styles only the page/components assigned to this folder.
+ * Before each class selector there is an Arabic note describing its purpose
+ * and the visible layout properties controlled by that selector.
+ * Edit the matching class here when changing that part of the interface.
+ */
 
+@import "../shared/profile-base.css";
+
+/* .provider-profile-page: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .provider-profile-page {
   --profile-yellow: #ffcc00;
   --profile-yellow-hover: #e6b800;
@@ -7,36 +15,51 @@
   --profile-yellow-text: #5f4900;
 }
 
+/* .provider-profile-page: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .profile-button-primary: واجهة الملف الشخصي وبيانات الحساب؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .provider-profile-page .profile-button-primary {
   color: #202b2a;
   background: var(--profile-yellow);
   border-color: var(--profile-yellow);
 }
 
+/* .provider-profile-page: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .profile-button-primary: واجهة الملف الشخصي وبيانات الحساب؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .provider-profile-page .profile-button-primary:hover:not(:disabled) {
   background: var(--profile-yellow-hover);
   border-color: var(--profile-yellow-hover);
 }
 
+/* .provider-profile-page: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .profile-button-outline: واجهة الملف الشخصي وبيانات الحساب؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .provider-profile-page .profile-button-outline {
   color: var(--profile-yellow-text);
   border-color: var(--profile-yellow-hover);
 }
 
+/* .provider-profile-page: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .profile-button-outline: واجهة الملف الشخصي وبيانات الحساب؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .profile-avatar-placeholder: واجهة الملف الشخصي وبيانات الحساب؛ يحدد الخلفية، ينسق الخط والألوان. */
 .provider-profile-page .profile-button-outline:hover:not(:disabled),
 .provider-profile-page .profile-avatar-placeholder {
   color: var(--profile-yellow-text);
   background: var(--profile-yellow-soft);
 }
 
+/* .provider-profile-page: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .profile-avatar-image: واجهة الملف الشخصي وبيانات الحساب؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .provider-profile-page .profile-avatar-image {
   border-color: var(--profile-yellow-soft);
 }
 
+/* .provider-profile-page: واجهة مقدم الخدمة أو بياناته؛ ينسق الخط والألوان. */
+/* .profile-eyebrow: واجهة الملف الشخصي وبيانات الحساب؛ ينسق الخط والألوان. */
 .provider-profile-page .profile-eyebrow {
   color: var(--profile-yellow-text);
 }
 
+/* .provider-profile-page: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .profile-field: واجهة الملف الشخصي وبيانات الحساب؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .provider-profile-page .profile-field input:focus {
   border-color: #997a00;
   box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.25);

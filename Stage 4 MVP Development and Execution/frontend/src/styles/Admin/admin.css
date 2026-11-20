@@ -1,41 +1,83 @@
+/* .adm-page: العنصر `adm-page` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .adm-page { min-height: 100vh; background: #faf7f0; color: #2b2b2b; font-family: inherit; }
+/* .adm-header: رأس الصفحة أو القسم؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
 .adm-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 32px; background: #fff; border-bottom: 1px solid #eee3cc; }
+/* .adm-logo: الشعار وحجمه ومحاذاته؛ يتحكم بالارتفاع. */
 .adm-logo { height: 40px; }
+/* .adm-user: معلومات المستخدم والحساب؛ ينسق الخط والألوان. */
 .adm-user { display: flex; align-items: center; gap: 12px; font-weight: 600; }
+/* .adm-main: العنصر `adm-main` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية، يتحكم بالعرض. */
 .adm-main { max-width: 1200px; margin: 0 auto; padding: 28px 24px 48px; }
+/* .adm-title: العنصر `adm-title` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
 .adm-title { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+/* .adm-title: العنصر `adm-title` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .adm-title h1 { margin: 0; font-size: 28px; }
+/* .adm-title: العنصر `adm-title` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .adm-title p { margin: 4px 0 0; color: #77706a; }
+/* .adm-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
 .adm-card { background: #fff; border: 1px solid #eee3cc; border-radius: 14px; padding: 18px; }
+/* .adm-stats: بطاقات الإحصائيات؛ يضبط المسافات الخارجية. */
 .adm-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 20px; }
+/* .adm-stat: العنصر `adm-stat` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .adm-stat span { display: block; color: #77706a; font-size: 13px; }
+/* .adm-stat: العنصر `adm-stat` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .adm-stat strong { font-size: 28px; }
+/* .adm-toolbar: شريط أدوات البحث والفلترة والإجراءات؛ يضبط المسافات الخارجية. */
 .adm-toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+/* .adm-tabs: شريط تبويبات للتنقل بين الأقسام؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .adm-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+/* .adm-tabs: شريط تبويبات للتنقل بين الأقسام؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .adm-tabs button { border: 1px solid #eee3cc; background: #fff; border-radius: 999px; padding: 8px 16px; cursor: pointer; font-weight: 600; }
+/* .adm-tabs: شريط تبويبات للتنقل بين الأقسام؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .adm-tabs button.active { background: #f5b800; border-color: #f5b800; color: #2b2b2b; }
+/* .adm-search: حقل البحث وأيقونة البحث؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
 .adm-search { min-width: 240px; padding: 9px 12px; border: 1px solid #e3d8c0; border-radius: 10px; }
+/* .adm-table-wrap: العنصر `adm-table-wrap` ضمن واجهة هذا الدور؛ يتحكم بالتمرير وإخفاء المحتوى الزائد. */
 .adm-table-wrap { overflow-x: auto; }
+/* .adm-table: جدول يعرض بيانات في صفوف وأعمدة؛ يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .adm-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+/* .adm-table: جدول يعرض بيانات في صفوف وأعمدة؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .adm-table th { text-align: left; color: #77706a; font-weight: 600; padding: 10px; border-bottom: 1px solid #eee3cc; white-space: nowrap; }
+/* .adm-table: جدول يعرض بيانات في صفوف وأعمدة؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
 .adm-table td { padding: 10px; border-bottom: 1px solid #f3ecdc; }
+/* .adm-empty: حالة عدم وجود بيانات؛ يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .adm-empty { text-align: center; color: #77706a; padding: 18px; }
+/* .adm-badge: شارة صغيرة لتصنيف أو حالة؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .adm-badge { padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+/* .adm-badge: شارة صغيرة لتصنيف أو حالة؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .on: العنصر `on` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .adm-badge.on { background: #e5f6e8; color: #23733a; }
+/* .adm-badge: شارة صغيرة لتصنيف أو حالة؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .off: العنصر `off` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .adm-badge.off { background: #fde8e6; color: #b3261e; }
+/* .adm-primary: العنصر `adm-primary` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .adm-primary { background: #f5b800; border: none; border-radius: 10px; padding: 10px 18px; font-weight: 700; cursor: pointer; }
+/* .adm-primary: العنصر `adm-primary` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .adm-primary:disabled { opacity: 0.6; cursor: default; }
+/* .adm-ghost: العنصر `adm-ghost` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .adm-ghost { white-space: nowrap; background: #fff; border: 1px solid #e3d8c0; border-radius: 10px; padding: 7px 12px; cursor: pointer; font-weight: 600; }
+/* .adm-error: رسالة خطأ؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .adm-error { color: #b3261e; background: #fde8e6; padding: 8px 12px; border-radius: 8px; }
+/* .adm-modal: نافذة منبثقة فوق محتوى الصفحة؛ يحدد الخلفية، يضبط المساحة الداخلية. */
 .adm-modal { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.35); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+/* .adm-form: نموذج إدخال البيانات؛ يتحكم بالعرض. */
 .adm-form { width: 100%; max-width: 440px; display: grid; gap: 12px; }
+/* .adm-form: نموذج إدخال البيانات؛ يضبط المسافات الخارجية. */
 .adm-form h2 { margin: 0 0 4px; }
+/* .adm-form: نموذج إدخال البيانات؛ ينسق الخط والألوان. */
 .adm-form label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; color: #4a4540; }
+/* .adm-form: نموذج إدخال البيانات؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .adm-form input, .adm-form select { padding: 9px 11px; border: 1px solid #e3d8c0; border-radius: 9px; font-size: 14px; }
+/* .adm-actions: مجموعة أزرار الإجراءات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .adm-actions { display: flex; justify-content: flex-end; gap: 8px; }
 @media (max-width: 640px) {
-  .adm-header { padding: 12px 16px; }
-  .adm-main { padding: 20px 16px 40px; }
-  .adm-title { flex-direction: column; align-items: stretch; }
-  .adm-search { min-width: 0; width: 100%; }
+  /* .adm-header: رأس الصفحة أو القسم؛ يضبط المساحة الداخلية. */
+.adm-header { padding: 12px 16px; }
+  /* .adm-main: العنصر `adm-main` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.adm-main { padding: 20px 16px 40px; }
+  /* .adm-title: العنصر `adm-title` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.adm-title { flex-direction: column; align-items: stretch; }
+  /* .adm-search: حقل البحث وأيقونة البحث؛ يتحكم بالعرض. */
+.adm-search { min-width: 0; width: 100%; }
 }

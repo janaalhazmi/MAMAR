@@ -1,3 +1,4 @@
+/* .data-disclaimer-page: العنصر `data-disclaimer-page` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالعرض. */
 .data-disclaimer-page {
   width: 100%;
   min-height: 100%;
@@ -7,11 +8,13 @@
   color: #17191c;
 }
 
+/* .dd-content: منطقة المحتوى الداخلي؛ يضبط المسافات الخارجية، يتحكم بالعرض. */
 .dd-content {
   width: min(100%, 980px);
   margin: 0 auto;
 }
 
+/* .dd-back-link: العنصر `dd-back-link` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .dd-back-link {
   display: inline-flex;
   align-items: center;
@@ -24,15 +27,18 @@
   transition: color 160ms ease;
 }
 
+/* .dd-back-link: العنصر `dd-back-link` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .dd-back-link:hover {
   color: #b98500 !important;
 }
 
+/* .dd-back-link: العنصر `dd-back-link` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
 .dd-back-link span {
   font-size: 19px;
   line-height: 1;
 }
 
+/* .dd-hero: العنصر `dd-hero` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
 .dd-hero {
   padding: 35px 38px 32px;
   border: 1px solid #f0dfae;
@@ -40,6 +46,7 @@
   background: linear-gradient(115deg, #fffdf7 0%, #fff8e5 100%);
 }
 
+/* .dd-eyebrow: العنصر `dd-eyebrow` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .dd-eyebrow {
   margin-bottom: 12px;
   color: #a87800;
@@ -48,6 +55,7 @@
   letter-spacing: 1.35px;
 }
 
+/* .dd-hero: العنصر `dd-hero` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .dd-hero h1 {
   margin: 0;
   color: #17191c;
@@ -57,6 +65,7 @@
   line-height: 1.15;
 }
 
+/* .dd-hero: العنصر `dd-hero` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
 .dd-hero > p {
   max-width: 650px;
   margin: 13px 0 0;
@@ -65,6 +74,7 @@
   line-height: 1.75;
 }
 
+/* .dd-status: شارة توضح حالة المشروع أو الطلب؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .dd-status {
   display: inline-flex;
   align-items: center;
@@ -79,6 +89,7 @@
   font-weight: 600;
 }
 
+/* .dd-status-dot: العنصر `dd-status-dot` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
 .dd-status-dot {
   width: 7px;
   height: 7px;
@@ -86,6 +97,7 @@
   background: #eab308;
 }
 
+/* .dd-intro-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .dd-intro-card {
   display: flex;
   align-items: flex-start;
@@ -98,6 +110,7 @@
   box-shadow: 0 3px 12px rgb(16 24 40 / 3%);
 }
 
+/* .dd-info-icon: أيقونة توضيحية أو إجرائية؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .dd-info-icon {
   display: grid;
   width: 31px;
@@ -113,6 +126,8 @@
   font-style: italic;
 }
 
+/* .dd-intro-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+/* .dd-section-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .dd-intro-card h2,
 .dd-section-card h2 {
   margin: 0;
@@ -121,6 +136,8 @@
   font-weight: 700;
 }
 
+/* .dd-intro-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+/* .dd-section-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .dd-intro-card p,
 .dd-section-card p {
   margin: 8px 0 0;
@@ -129,12 +146,14 @@
   line-height: 1.8;
 }
 
+/* .dd-sections: العنصر `dd-sections` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
 .dd-sections {
   display: grid;
   gap: 13px;
   margin-top: 22px;
 }
 
+/* .dd-section-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
 .dd-section-card {
   display: grid;
   grid-template-columns: 42px minmax(0, 1fr);
@@ -146,6 +165,7 @@
   box-shadow: 0 3px 12px rgb(16 24 40 / 2%);
 }
 
+/* .dd-section-number: العنصر `dd-section-number` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .dd-section-number {
   display: grid;
   width: 36px;
@@ -158,6 +178,7 @@
   font-weight: 800;
 }
 
+/* .dd-footer-note: العنصر `dd-footer-note` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .dd-footer-note {
   margin-top: 22px;
   padding: 22px 24px;
@@ -166,11 +187,13 @@
   background: #fff;
 }
 
+/* .dd-footer-note: العنصر `dd-footer-note` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .dd-footer-note strong {
   color: #333942;
   font-size: 13px;
 }
 
+/* .dd-footer-note: العنصر `dd-footer-note` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .dd-footer-note p {
   margin: 7px 0 0;
   color: #727b87;
@@ -179,29 +202,36 @@
 }
 
 @media (max-width: 700px) {
-  .data-disclaimer-page {
+  /* .data-disclaimer-page: العنصر `data-disclaimer-page` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.data-disclaimer-page {
     padding: 22px 14px 36px;
   }
 
-  .dd-hero {
+  /* .dd-hero: العنصر `dd-hero` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.dd-hero {
     padding: 27px 22px;
   }
 
-  .dd-hero > p {
+  /* .dd-hero: العنصر `dd-hero` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.dd-hero > p {
     font-size: 13px;
   }
 
-  .dd-intro-card,
+  /* .dd-intro-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المساحة الداخلية. */
+/* .dd-section-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المساحة الداخلية. */
+.dd-intro-card,
   .dd-section-card {
     padding: 18px;
   }
 
-  .dd-section-card {
+  /* .dd-section-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.dd-section-card {
     grid-template-columns: 34px minmax(0, 1fr);
     gap: 12px;
   }
 
-  .dd-section-number {
+  /* .dd-section-number: العنصر `dd-section-number` ضمن واجهة هذا الدور؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+.dd-section-number {
     width: 32px;
     height: 32px;
   }

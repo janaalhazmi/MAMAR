@@ -1,3 +1,4 @@
+/* .login-page: العنصر `login-page` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .login-page {
   margin: 0;
   min-height: 100vh;
@@ -8,6 +9,7 @@
 
 /* Header */
 
+/* .login-header: رأس الصفحة أو القسم؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض، يتحكم بالارتفاع. */
 .login-header {
   width: 100%;
   height: 83px;
@@ -19,17 +21,20 @@
   border-bottom: 1.5px solid #eef0f3;
 }
 
+/* .login-header-logo: الشعار وحجمه ومحاذاته؛ يتحكم بالعرض، يتحكم بالارتفاع. */
 .login-header-logo {
   width: 86px;
   height: 45px;
   object-fit: contain;
 }
 
+/* .login-header-buttons: العنصر `login-header-buttons` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .login-header-buttons {
   display: flex;
   gap: 8px;
 }
 
+/* .login-nav-btn: زر لتنفيذ إجراء؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .login-nav-btn {
   height: 40px;
   border-radius: 6px;
@@ -43,12 +48,14 @@
   justify-content: center;
 }
 
+/* .signin-btn: زر لتنفيذ إجراء؛ يحدد الخلفية، يتحكم بالعرض. */
 .signin-btn {
   width: 92px;
   background: #d6d1bf;
   gap: 6px;
 }
 
+/* .start-btn: زر لتنفيذ إجراء؛ يحدد الخلفية، يتحكم بالعرض. */
 .start-btn {
   width: 98px;
   background: #fabf0d;
@@ -56,6 +63,7 @@
 
 /* Main */
 
+/* .login-main: العنصر `login-main` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يتحكم بالارتفاع. */
 .login-main {
   min-height: calc(100vh - 83px);
   display: flex;
@@ -66,6 +74,7 @@
 
 /* Login Card */
 
+/* .login-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
 .login-card {
   width: 540px;
   height: 738px;
@@ -80,6 +89,7 @@
   align-items: center;
 }
 
+/* .login-logo: الشعار وحجمه ومحاذاته؛ يضبط المسافات الخارجية، يتحكم بالعرض، يتحكم بالارتفاع. */
 .login-logo {
   width: 86px;
   height: 45px;
@@ -87,6 +97,7 @@
   margin-bottom: 10px;
 }
 
+/* .login-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .login-card h1 {
   margin: 0 0 16px;
   font-size: 28px;
@@ -97,6 +108,7 @@
 
 /* Contractor / Provider */
 
+/* .role-buttons: العنصر `role-buttons` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، يتحكم بالعرض. */
 .role-buttons {
   width: 424px;
 
@@ -109,6 +121,7 @@
   margin-bottom: 32px;
 }
 
+/* .role-btn: زر لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .role-btn {
   width: 200px;
   height: 48px;
@@ -128,17 +141,21 @@
   transition: 0.2s;
 }
 
+/* .role-btn: زر لتنفيذ إجراء؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .role-btn:nth-child(3) {
   grid-column: 1 / 3;
   justify-self: center;
 }
 
+/* .role-btn: زر لتنفيذ إجراء؛ يحدد الخلفية. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
 .role-btn.active {
   background: #ffcc00;
 }
 
 /* Form */
 
+/* .login-form: نموذج إدخال البيانات؛ يتحكم بالعرض. */
 .login-form {
   width: 396px;
   display: flex;
@@ -146,6 +163,7 @@
   gap: 24px;
 }
 
+/* .login-field: حقل من حقول النموذج؛ يتحكم بالعرض. */
 .login-field {
   width: 396px;
   display: flex;
@@ -153,6 +171,7 @@
   gap: 12px;
 }
 
+/* .login-field: حقل من حقول النموذج؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
 .login-field label {
   font-size: 16px;
   line-height: 16px;
@@ -160,18 +179,21 @@
   color: #344054;
 }
 
+/* .password-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .password-heading {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+/* .password-heading: عنوان الصفحة أو القسم والوصف التابع له؛ ينسق الخط والألوان. */
 .password-heading a {
   font-size: 16px;
   color: #000000;
   text-decoration: none;
 }
 
+/* .login-field: حقل من حقول النموذج؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالعرض. */
 .login-field input {
   width: 396px;
   height: 48px;
@@ -187,25 +209,30 @@
   outline: none;
 }
 
+/* .login-field: حقل من حقول النموذج؛ يحدد الحدود والفواصل. */
 .login-field input:focus {
   border: 3px solid #d1e9ff;
 }
 
+/* .login-field: حقل من حقول النموذج؛ ينسق الخط والألوان. */
 .login-field input::placeholder {
   color: #98a2b3;
 }
 
 /* Password */
 
+/* .password-input: حقل إدخال نص أو قيمة؛ يتحكم بالعرض. */
 .password-input {
   width: 396px;
   position: relative;
 }
 
+/* .password-input: حقل إدخال نص أو قيمة؛ يضبط المساحة الداخلية. */
 .password-input input {
   padding-right: 50px;
 }
 
+/* .eye-btn: زر لتنفيذ إجراء؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .eye-btn {
   position: absolute;
   right: 14px;
@@ -222,6 +249,7 @@
 
 /* Login Button */
 
+/* .login-submit: العنصر `login-submit` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .login-submit {
   width: 396px;
   height: 48px;
@@ -239,12 +267,14 @@
   cursor: pointer;
 }
 
+/* .login-submit: العنصر `login-submit` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
 .login-submit:hover {
   background: #f2bf00;
 }
 
 /* OR */
 
+/* .login-or: العنصر `login-or` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالعرض. */
 .login-or {
   width: 396px;
   margin: 28px 0 22px;
@@ -258,6 +288,7 @@
 
 /* Create Account */
 
+/* .create-account: العنصر `create-account` ضمن واجهة هذا الدور؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
 .create-account {
   width: 396px;
   height: 54px;
@@ -281,17 +312,26 @@
 
 @media (max-width: 650px) {
 
-  .login-header {
+  /* .login-header: رأس الصفحة أو القسم؛ يضبط المساحة الداخلية. */
+.login-header {
     padding: 20px;
   }
 
-  .login-card {
+  /* .login-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المساحة الداخلية، يتحكم بالعرض، يتحكم بالارتفاع. */
+.login-card {
     width: calc(100% - 32px);
     height: auto;
     padding: 40px 24px;
   }
 
-  .role-buttons,
+  /* .role-buttons: العنصر `role-buttons` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+/* .login-form: نموذج إدخال البيانات؛ يتحكم بالعرض. */
+/* .login-field: حقل من حقول النموذج؛ يتحكم بالعرض. */
+/* .password-input: حقل إدخال نص أو قيمة؛ يتحكم بالعرض. */
+/* .login-submit: العنصر `login-submit` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+/* .login-or: العنصر `login-or` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+/* .create-account: العنصر `create-account` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+.role-buttons,
   .login-form,
   .login-field,
   .login-field input,
@@ -302,11 +342,13 @@
     width: 100%;
   }
 
-  .role-buttons {
+  /* .role-buttons: العنصر `role-buttons` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.role-buttons {
     gap: 8px;
   }
 
-  .role-btn:first-child,
+  /* .role-btn: زر لتنفيذ إجراء؛ يتحكم بالعرض. */
+.role-btn:first-child,
   .role-btn:last-child {
     width: 50%;
   }

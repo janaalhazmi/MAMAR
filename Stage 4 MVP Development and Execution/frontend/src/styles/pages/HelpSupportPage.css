@@ -3,6 +3,7 @@
    Every selector is prefixed .hs- so it cannot affect other pages.
 ========================================================= */
 
+/* .hs-page: العنصر `hs-page` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .hs-page {
   --hs-amber: #ffbf00;
   --hs-amber-grad: linear-gradient(135deg, #ffca05 0%, #ffb900 100%);
@@ -18,15 +19,18 @@
   font-family: Inter, Arial, sans-serif;
 }
 
+/* .hs-page: العنصر `hs-page` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .hs-page a {
   color: inherit;
   text-decoration: none;
 }
 
+/* .hs-page: العنصر `hs-page` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .hs-page button {
   font-family: inherit;
 }
 
+/* .hs-container: حاوية تجمع عناصر الواجهة؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية، يتحكم بالعرض. */
 .hs-container {
   width: 100%;
   max-width: 1440px;
@@ -36,6 +40,7 @@
 
 /* ---------- Buttons ---------- */
 
+/* .hs-btn: زر لتنفيذ إجراء؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .hs-btn {
   min-height: 44px;
   display: inline-flex;
@@ -50,15 +55,18 @@
   transition: opacity 0.2s ease;
 }
 
+/* .hs-btn: زر لتنفيذ إجراء؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .hs-btn:hover {
   opacity: 0.9;
 }
 
+/* .hs-btn-primary: العنصر `hs-btn-primary` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .hs-btn-primary {
   background: var(--hs-amber-grad);
   color: var(--hs-ink);
 }
 
+/* .hs-btn-light: العنصر `hs-btn-light` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .hs-btn-light {
   background: #d6d1bf;
   color: #242424;
@@ -67,6 +75,7 @@
 
 /* ---------- Header ---------- */
 
+/* .hs-header: رأس الصفحة أو القسم؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
 .hs-header {
   position: relative;
   z-index: 20;
@@ -80,18 +89,21 @@
   border-bottom: 1px solid #eeeeee;
 }
 
+/* .hs-logo: الشعار وحجمه ومحاذاته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .hs-logo {
   flex-shrink: 0;
   display: flex;
   align-items: center;
 }
 
+/* .hs-logo: الشعار وحجمه ومحاذاته؛ يتحكم بالعرض، يتحكم بالارتفاع. */
 .hs-logo img {
   width: 86px;
   height: 45px;
   object-fit: contain;
 }
 
+/* .hs-nav: العنصر `hs-nav` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
 .hs-nav {
   flex: 1;
   display: flex;
@@ -100,6 +112,7 @@
   padding-left: clamp(0px, 6vw, 110px);
 }
 
+/* .hs-nav: العنصر `hs-nav` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .hs-nav a {
   position: relative;
   padding: 8px 0;
@@ -108,14 +121,19 @@
   white-space: nowrap;
 }
 
+/* .hs-nav: العنصر `hs-nav` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .hs-nav a:hover {
   color: #b88900;
 }
 
+/* .hs-nav: العنصر `hs-nav` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+/* .hs-nav-current: العنصر `hs-nav-current` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .hs-nav a.hs-nav-current {
   font-weight: 700;
 }
 
+/* .hs-nav: العنصر `hs-nav` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالارتفاع. */
+/* .hs-nav-current: العنصر `hs-nav-current` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالارتفاع. */
 .hs-nav a.hs-nav-current::after {
   content: "";
   position: absolute;
@@ -127,10 +145,12 @@
   background: #ffbf00;
 }
 
+/* .hs-nav-signin: العنصر `hs-nav-signin` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .hs-nav-signin {
   display: none;
 }
 
+/* .hs-header-actions: مجموعة أزرار الإجراءات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .hs-header-actions {
   flex-shrink: 0;
   display: flex;
@@ -138,12 +158,15 @@
   gap: 10px;
 }
 
+/* .hs-header-actions: مجموعة أزرار الإجراءات؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+/* .hs-btn: زر لتنفيذ إجراء؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
 .hs-header-actions .hs-btn {
   min-height: 40px;
   padding: 0 20px;
   border-radius: 6px;
 }
 
+/* .hs-user: معلومات المستخدم والحساب؛ يتحكم بالعرض. */
 .hs-user {
   display: flex;
   align-items: center;
@@ -151,6 +174,7 @@
   min-width: 0;
 }
 
+/* .hs-user-avatar: الصورة الرمزية للمستخدم؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .hs-user-avatar {
   width: 40px;
   height: 40px;
@@ -164,6 +188,7 @@
   font-weight: 700;
 }
 
+/* .hs-user-info: العنصر `hs-user-info` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
 .hs-user-info {
   display: flex;
   flex-direction: column;
@@ -171,6 +196,7 @@
   min-width: 0;
 }
 
+/* .hs-user-info: العنصر `hs-user-info` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
 .hs-user-info strong {
   max-width: 180px;
   overflow: hidden;
@@ -180,11 +206,13 @@
   font-weight: 600;
 }
 
+/* .hs-user-info: العنصر `hs-user-info` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .hs-user-info span {
   color: var(--hs-text);
   font-size: 12px;
 }
 
+/* .hs-menu-button: زر لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .hs-menu-button {
   display: none;
   width: 44px;
@@ -200,6 +228,7 @@
 
 /* ---------- Hero + search ---------- */
 
+/* .hs-hero: العنصر `hs-hero` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط المساحة الداخلية، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
 .hs-hero {
   position: relative;
   overflow: hidden;
@@ -207,6 +236,7 @@
   background: linear-gradient(135deg, #252b2c 0%, #5b5147 55%, #a87952 100%);
 }
 
+/* .hs-hero: العنصر `hs-hero` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
 .hs-hero::after {
   content: "";
   position: absolute;
@@ -215,6 +245,7 @@
   pointer-events: none;
 }
 
+/* .hs-hero-deco: العنصر `hs-hero-deco` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
 .hs-hero-deco {
   position: absolute;
   top: 0;
@@ -229,11 +260,13 @@
   z-index: 1;
 }
 
+/* .hs-hero-inner: العنصر `hs-hero-inner` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .hs-hero-inner {
   position: relative;
   z-index: 2;
 }
 
+/* .hs-eyebrow: العنصر `hs-eyebrow` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .hs-eyebrow {
   color: #ffca05;
   font-size: 17px;
@@ -241,6 +274,7 @@
   letter-spacing: 1px;
 }
 
+/* .hs-hero: العنصر `hs-hero` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .hs-hero h1 {
   margin-top: 14px;
   color: #ffffff;
@@ -249,11 +283,13 @@
   line-height: 1.2;
 }
 
+/* .hs-hero: العنصر `hs-hero` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .hs-hero h1 span {
   display: block;
   color: #ffbf00;
 }
 
+/* .hs-hero-text: العنصر `hs-hero-text` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
 .hs-hero-text {
   max-width: 440px;
   margin-top: 18px;
@@ -262,6 +298,7 @@
   line-height: 1.5;
 }
 
+/* .hs-search: حقل البحث وأيقونة البحث؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .hs-search {
   position: relative;
   z-index: 3;
@@ -277,12 +314,14 @@
   box-shadow: 0 10px 30px rgb(0 0 0 / 18%);
 }
 
+/* .hs-search-icon: أيقونة توضيحية أو إجرائية؛ ينسق الخط والألوان. */
 .hs-search-icon {
   display: flex;
   flex-shrink: 0;
   color: #444444;
 }
 
+/* .hs-search: حقل البحث وأيقونة البحث؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
 .hs-search input {
   flex: 1;
   min-width: 0;
@@ -295,10 +334,12 @@
   font-size: 17px;
 }
 
+/* .hs-search: حقل البحث وأيقونة البحث؛ ينسق الخط والألوان. */
 .hs-search input::placeholder {
   color: var(--hs-text);
 }
 
+/* .hs-search: حقل البحث وأيقونة البحث؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .hs-search button {
   flex-shrink: 0;
   min-height: 48px;
@@ -312,6 +353,7 @@
   cursor: pointer;
 }
 
+/* .hs-search-status: شارة توضح حالة المشروع أو الطلب؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .hs-search-status {
   display: flex;
   flex-wrap: wrap;
@@ -327,6 +369,8 @@
   font-size: 14px;
 }
 
+/* .hs-search-status: شارة توضح حالة المشروع أو الطلب؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+/* .hs-link-button: زر لتنفيذ إجراء؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .hs-search-status button,
 .hs-link-button {
   padding: 8px 0;
@@ -337,11 +381,13 @@
   cursor: pointer;
 }
 
+/* .hs-search-status: شارة توضح حالة المشروع أو الطلب؛ ينسق الخط والألوان. */
 .hs-search-status button {
   font-size: 14px;
   font-weight: 600;
 }
 
+/* .hs-no-results: العنصر `hs-no-results` ضمن واجهة هذا الدور؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .hs-no-results {
   margin: 32px 0;
   padding: 40px 24px;
@@ -350,11 +396,13 @@
   text-align: center;
 }
 
+/* .hs-no-results: العنصر `hs-no-results` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .hs-no-results h2 {
   font-size: 22px;
   font-weight: 700;
 }
 
+/* .hs-no-results: العنصر `hs-no-results` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .hs-no-results p {
   margin: 10px 0 20px;
   color: var(--hs-text);
@@ -363,6 +411,7 @@
 
 /* ---------- Section titles ---------- */
 
+/* .hs-section-title: العنصر `hs-section-title` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
 .hs-section-title {
   color: var(--hs-ink);
   font-size: clamp(24px, 2.4vw, 29px);
@@ -370,6 +419,7 @@
   line-height: 1.2;
 }
 
+/* .hs-section-text: العنصر `hs-section-text` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .hs-section-text {
   margin-top: 8px;
   color: var(--hs-text);
@@ -379,6 +429,7 @@
 
 /* ---------- Quick Help ---------- */
 
+/* .hs-quick: العنصر `hs-quick` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .hs-quick {
   margin: 40px clamp(0px, 4.86vw, 70px);
   padding: 36px 0 40px;
@@ -386,6 +437,7 @@
   background: var(--hs-cream);
 }
 
+/* .hs-quick-grid: شبكة توزيع العناصر؛ يضبط المسافات الخارجية. */
 .hs-quick-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -393,6 +445,7 @@
   margin-top: 28px;
 }
 
+/* .hs-quick-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .hs-quick-card {
   min-width: 0;
   min-height: 130px;
@@ -409,11 +462,13 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* .hs-quick-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .hs-quick-card:hover {
   border-color: #f1c94b;
   box-shadow: 0 6px 18px rgb(0 0 0 / 6%);
 }
 
+/* .hs-quick-icon: أيقونة توضيحية أو إجرائية؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .hs-quick-icon {
   width: 52px;
   height: 52px;
@@ -425,6 +480,7 @@
   color: var(--hs-ink);
 }
 
+/* .hs-quick-info: العنصر `hs-quick-info` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
 .hs-quick-info {
   flex: 1;
   min-width: 0;
@@ -433,17 +489,20 @@
   gap: 8px;
 }
 
+/* .hs-quick-info: العنصر `hs-quick-info` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .hs-quick-info strong {
   font-size: 14px;
   font-weight: 700;
 }
 
+/* .hs-quick-info: العنصر `hs-quick-info` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
 .hs-quick-info span {
   color: var(--hs-text);
   font-size: 14px;
   line-height: 1.45;
 }
 
+/* .hs-quick-arrow: العنصر `hs-quick-arrow` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .hs-quick-arrow {
   align-self: center;
   display: flex;
@@ -452,11 +511,13 @@
 
 /* ---------- FAQ ---------- */
 
+/* .hs-faq: العنصر `hs-faq` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .hs-faq {
   padding: 56px 0 24px;
   scroll-margin-top: 16px;
 }
 
+/* .hs-faq-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية. */
 .hs-faq-heading {
   display: flex;
   align-items: flex-end;
@@ -465,27 +526,33 @@
   margin-bottom: 26px;
 }
 
+/* .hs-faq-list: قائمة من العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .hs-faq-list {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
+/* .hs-faq-item: عنصر منفرد ضمن مجموعة؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل. */
 .hs-faq-item {
   border: 1.4px solid var(--hs-border);
   border-radius: 10px;
   background: #ffffff;
 }
 
+/* .hs-faq-item: عنصر منفرد ضمن مجموعة؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .open: العنصر `open` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .hs-faq-item.open {
   border-color: #f1c94b;
 }
 
+/* .hs-faq-item: عنصر منفرد ضمن مجموعة؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .hs-faq-item h3 {
   margin: 0;
   font-size: 17px;
 }
 
+/* .hs-faq-item: عنصر منفرد ضمن مجموعة؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالعرض. */
 .hs-faq-item h3 button {
   width: 100%;
   min-height: 64px;
@@ -503,20 +570,26 @@
   cursor: pointer;
 }
 
+/* .hs-faq-chevron: العنصر `hs-faq-chevron` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .hs-faq-chevron {
   display: flex;
   flex-shrink: 0;
   transition: transform 0.2s ease;
 }
 
+/* .hs-faq-item: عنصر منفرد ضمن مجموعة؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .open: العنصر `open` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .hs-faq-chevron: العنصر `hs-faq-chevron` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .hs-faq-item.open .hs-faq-chevron {
   transform: rotate(180deg);
 }
 
+/* .hs-faq-answer: العنصر `hs-faq-answer` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
 .hs-faq-answer {
   padding: 0 22px 20px;
 }
 
+/* .hs-faq-answer: العنصر `hs-faq-answer` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
 .hs-faq-answer p {
   max-width: 900px;
   color: var(--hs-text);
@@ -526,6 +599,7 @@
 
 /* ---------- Contact ---------- */
 
+/* .hs-contact: العنصر `hs-contact` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .hs-contact {
   margin-top: 48px;
   padding: 64px 0;
@@ -533,6 +607,7 @@
   scroll-margin-top: 16px;
 }
 
+/* .hs-contact-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .hs-contact-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
@@ -540,6 +615,7 @@
   align-items: start;
 }
 
+/* .hs-contact-eyebrow: العنصر `hs-contact-eyebrow` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .hs-contact-eyebrow {
   display: flex;
   align-items: center;
@@ -549,6 +625,7 @@
   letter-spacing: 0.5px;
 }
 
+/* .hs-contact-eyebrow: العنصر `hs-contact-eyebrow` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
 .hs-contact-eyebrow::before {
   content: "";
   width: 40px;
@@ -557,6 +634,7 @@
   background: #ffbf00;
 }
 
+/* .hs-contact-info: العنصر `hs-contact-info` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .hs-contact-info h2 {
   margin-top: 14px;
   color: var(--hs-ink);
@@ -565,6 +643,7 @@
   line-height: 1.2;
 }
 
+/* .hs-contact-list: قائمة من العناصر؛ يضبط المسافات الخارجية. */
 .hs-contact-list {
   display: flex;
   flex-direction: column;
@@ -573,12 +652,14 @@
   list-style: none;
 }
 
+/* .hs-contact-list: قائمة من العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .hs-contact-list li {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
+/* .hs-contact-icon: أيقونة توضيحية أو إجرائية؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .hs-contact-icon {
   width: 56px;
   height: 56px;
@@ -590,6 +671,7 @@
   color: #e5a900;
 }
 
+/* .hs-contact-list: قائمة من العناصر؛ يتحكم بالعرض. */
 .hs-contact-list li div {
   display: flex;
   flex-direction: column;
@@ -597,11 +679,13 @@
   min-width: 0;
 }
 
+/* .hs-contact-list: قائمة من العناصر؛ ينسق الخط والألوان. */
 .hs-contact-list strong {
   font-size: 17px;
   font-weight: 700;
 }
 
+/* .hs-contact-list: قائمة من العناصر؛ ينسق الخط والألوان، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
 .hs-contact-list a,
 .hs-contact-list div > span {
   color: var(--hs-text);
@@ -609,10 +693,12 @@
   overflow-wrap: anywhere;
 }
 
+/* .hs-contact-list: قائمة من العناصر؛ ينسق الخط والألوان. */
 .hs-contact-list a:hover {
   color: #b88900;
 }
 
+/* .hs-form: نموذج إدخال البيانات؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
 .hs-form {
   min-width: 0;
   padding: clamp(20px, 3vw, 36px);
@@ -621,11 +707,13 @@
   background: #ffffff;
 }
 
+/* .hs-form: نموذج إدخال البيانات؛ ينسق الخط والألوان. */
 .hs-form h2 {
   font-size: 23px;
   font-weight: 700;
 }
 
+/* .hs-form-text: العنصر `hs-form-text` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .hs-form-text {
   margin: 8px 0 22px;
   color: var(--hs-text);
@@ -633,12 +721,14 @@
   line-height: 1.5;
 }
 
+/* .hs-form-row: صف بيانات أو عنصر ضمن قائمة؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .hs-form-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
 }
 
+/* .hs-field: حقل من حقول النموذج؛ يضبط المسافات الخارجية، يتحكم بالعرض. */
 .hs-field {
   min-width: 0;
   display: flex;
@@ -647,11 +737,13 @@
   margin-bottom: 18px;
 }
 
+/* .hs-field: حقل من حقول النموذج؛ ينسق الخط والألوان. */
 .hs-field label {
   font-size: 14px;
   font-weight: 700;
 }
 
+/* .hs-field: حقل من حقول النموذج؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .hs-field input,
 .hs-field select,
 .hs-field textarea {
@@ -667,17 +759,20 @@
   font-size: 14px;
 }
 
+/* .hs-field: حقل من حقول النموذج؛ يتحكم بالارتفاع. */
 .hs-field textarea {
   min-height: 130px;
   resize: vertical;
   line-height: 1.5;
 }
 
+/* .hs-field: حقل من حقول النموذج؛ ينسق الخط والألوان. */
 .hs-field input::placeholder,
 .hs-field textarea::placeholder {
   color: #a2a2a2;
 }
 
+/* .hs-field: حقل من حقول النموذج؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .hs-field input:focus,
 .hs-field select:focus,
 .hs-field textarea:focus {
@@ -685,6 +780,8 @@
   box-shadow: 0 0 0 3px rgb(255 191 0 / 18%);
 }
 
+/* .hs-form-error: رسالة خطأ؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية، ينسق الخط والألوان. */
+/* .hs-form-success: رسالة نجاح؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .hs-form-error,
 .hs-form-success {
   margin-bottom: 14px;
@@ -694,18 +791,21 @@
   line-height: 1.5;
 }
 
+/* .hs-form-error: رسالة خطأ؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .hs-form-error {
   border: 1px solid #fecdca;
   background: #fef3f2;
   color: #b42318;
 }
 
+/* .hs-form-success: رسالة نجاح؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .hs-form-success {
   border: 1px solid #abefc6;
   background: #ecfdf3;
   color: #067647;
 }
 
+/* .hs-submit: العنصر `hs-submit` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
 .hs-submit {
   width: 100%;
   min-height: 50px;
@@ -714,12 +814,14 @@
 
 /* ---------- Footer ---------- */
 
+/* .hs-footer: تذييل البطاقة أو الصفحة؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
 .hs-footer {
   padding: 40px 0 28px;
   background: #ffffff;
   border-top: 1px solid #eeeeee;
 }
 
+/* .hs-footer-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .hs-footer-grid {
   display: grid;
   grid-template-columns: 1.4fr 1fr 1fr 1fr;
@@ -727,6 +829,7 @@
   align-items: start;
 }
 
+/* .hs-footer-brand: العنصر `hs-footer-brand` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، يتحكم بالعرض، يتحكم بالارتفاع. */
 .hs-footer-brand img {
   display: block;
   width: 86px;
@@ -735,28 +838,33 @@
   object-fit: contain;
 }
 
+/* .hs-footer-brand: العنصر `hs-footer-brand` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .hs-footer-brand p {
   color: var(--hs-text);
   font-size: 12px;
 }
 
+/* .hs-footer-column: العنصر `hs-footer-column` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .hs-footer-column {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
+/* .hs-footer-column: العنصر `hs-footer-column` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .hs-footer-column strong {
   font-size: 14px;
   font-weight: 700;
 }
 
+/* .hs-footer-column: العنصر `hs-footer-column` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .hs-footer-column a,
 .hs-footer-column span {
   color: var(--hs-text);
   font-size: 14px;
 }
 
+/* .hs-footer-column: العنصر `hs-footer-column` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .hs-footer-column a:hover {
   color: #b88900;
 }
@@ -765,15 +873,18 @@
 
 /* MacBook / small laptop */
 @media (max-width: 1280px) {
-  .hs-quick-grid {
+  /* .hs-quick-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.hs-quick-grid {
     gap: 16px;
   }
 
-  .hs-quick-card {
+  /* .hs-quick-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المساحة الداخلية. */
+.hs-quick-card {
     padding: 16px 12px 16px 14px;
   }
 
-  .hs-quick-icon {
+  /* .hs-quick-icon: أيقونة توضيحية أو إجرائية؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+.hs-quick-icon {
     width: 46px;
     height: 46px;
   }
@@ -781,30 +892,36 @@
 
 /* Tablet */
 @media (max-width: 1100px) {
-  .hs-quick-grid {
+  /* .hs-quick-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.hs-quick-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .hs-hero-deco {
+  /* .hs-hero-deco: العنصر `hs-hero-deco` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.hs-hero-deco {
     display: none;
   }
 
-  .hs-contact-grid {
+  /* .hs-contact-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.hs-contact-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
 /* Phones & small tablets: collapsible menu */
 @media (max-width: 900px) {
-  .hs-header {
+  /* .hs-header: رأس الصفحة أو القسم؛ يتحكم بالارتفاع. */
+.hs-header {
     height: 72px;
   }
 
-  .hs-menu-button {
+  /* .hs-menu-button: زر لتنفيذ إجراء؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.hs-menu-button {
     display: inline-flex;
   }
 
-  .hs-nav {
+  /* .hs-nav: العنصر `hs-nav` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.hs-nav {
     position: absolute;
     top: 100%;
     left: 0;
@@ -819,11 +936,14 @@
     box-shadow: 0 12px 24px rgb(0 0 0 / 8%);
   }
 
-  .hs-nav.open {
+  /* .hs-nav: العنصر `hs-nav` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .open: العنصر `open` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.hs-nav.open {
     display: flex;
   }
 
-  .hs-nav a {
+  /* .hs-nav: العنصر `hs-nav` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.hs-nav a {
     min-height: 48px;
     display: flex;
     align-items: center;
@@ -831,111 +951,134 @@
     border-bottom: 1px solid #f2f2f2;
   }
 
-  .hs-nav a.hs-nav-current::after {
+  /* .hs-nav: العنصر `hs-nav` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+/* .hs-nav-current: العنصر `hs-nav-current` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+.hs-nav a.hs-nav-current::after {
     left: 4px;
     right: auto;
     bottom: 8px;
     width: 28px;
   }
 
-  .hs-nav-signin {
+  /* .hs-nav-signin: العنصر `hs-nav-signin` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.hs-nav-signin {
     display: flex;
   }
 
-  .hs-user-info strong {
+  /* .hs-user-info: العنصر `hs-user-info` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+.hs-user-info strong {
     max-width: 110px;
   }
 }
 
 @media (max-width: 640px) {
-  .hs-signin {
+  /* .hs-signin: العنصر `hs-signin` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.hs-signin {
     display: none;
   }
 
-  .hs-hero {
+  /* .hs-hero: العنصر `hs-hero` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.hs-hero {
     padding: 36px 0 32px;
   }
 
-  .hs-eyebrow {
+  /* .hs-eyebrow: العنصر `hs-eyebrow` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.hs-eyebrow {
     font-size: 14px;
   }
 
-  .hs-hero-text {
+  /* .hs-hero-text: العنصر `hs-hero-text` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.hs-hero-text {
     font-size: 16px;
   }
 
-  .hs-search {
+  /* .hs-search: حقل البحث وأيقونة البحث؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.hs-search {
     flex-wrap: wrap;
     margin-top: 28px;
     padding: 12px;
   }
 
-  .hs-search input {
+  /* .hs-search: حقل البحث وأيقونة البحث؛ ينسق الخط والألوان. */
+.hs-search input {
     flex: 1 1 calc(100% - 40px);
     font-size: 16px;
   }
 
-  .hs-search button {
+  /* .hs-search: حقل البحث وأيقونة البحث؛ يتحكم بالعرض. */
+.hs-search button {
     width: 100%;
   }
 
-  .hs-quick {
+  /* .hs-quick: العنصر `hs-quick` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.hs-quick {
     margin: 28px 12px;
     padding: 24px 0 28px;
   }
 
-  .hs-quick-grid {
+  /* .hs-quick-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.hs-quick-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .hs-faq {
+  /* .hs-faq: العنصر `hs-faq` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.hs-faq {
     padding-top: 36px;
   }
 
-  .hs-faq-heading {
+  /* .hs-faq-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.hs-faq-heading {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .hs-faq-item h3 button {
+  /* .hs-faq-item: عنصر منفرد ضمن مجموعة؛ يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.hs-faq-item h3 button {
     min-height: 60px;
     padding: 12px 16px;
     font-size: 16px;
   }
 
-  .hs-faq-answer {
+  /* .hs-faq-answer: العنصر `hs-faq-answer` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.hs-faq-answer {
     padding: 0 16px 16px;
   }
 
-  .hs-faq-answer p {
+  /* .hs-faq-answer: العنصر `hs-faq-answer` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.hs-faq-answer p {
     font-size: 15px;
   }
 
-  .hs-contact {
+  /* .hs-contact: العنصر `hs-contact` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.hs-contact {
     padding: 40px 0;
   }
 
-  .hs-form-row {
+  /* .hs-form-row: صف بيانات أو عنصر ضمن قائمة؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.hs-form-row {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
   }
 
-  .hs-footer-grid {
+  /* .hs-footer-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.hs-footer-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .hs-footer-brand {
+  /* .hs-footer-brand: العنصر `hs-footer-brand` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.hs-footer-brand {
     grid-column: 1 / -1;
   }
 }
 
-
+/* .contractor-guide-page: العنصر `contractor-guide-page` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .contractor-guide-page {
   min-height: 100vh;
   background: #f7f8f8;
   color: #292c28;
 }
 
+/* .contractor-guide-header: رأس الصفحة أو القسم؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
 .contractor-guide-header {
   height: 60px;
   background: #ffffff;
@@ -945,20 +1088,24 @@
   padding: 0 24px;
 }
 
+/* .contractor-guide-logo: الشعار وحجمه ومحاذاته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .contractor-guide-logo {
   display: inline-flex;
   align-items: center;
 }
 
+/* .contractor-guide-logo: الشعار وحجمه ومحاذاته؛ يتحكم بالعرض. */
 .contractor-guide-logo img {
   width: 74px;
   display: block;
 }
 
+/* .contractor-guide-content: منطقة المحتوى الداخلي؛ يضبط المساحة الداخلية. */
 .contractor-guide-content {
   padding: 58px 46px 30px;
 }
 
+/* .contractor-guide-hero: العنصر `contractor-guide-hero` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
 .contractor-guide-hero {
   min-height: 205px;
   background: #ffffff;
@@ -970,6 +1117,7 @@
   gap: 55px;
 }
 
+/* .contractor-guide-badge: شارة صغيرة لتصنيف أو حالة؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .contractor-guide-badge {
   display: inline-flex;
   align-items: center;
@@ -982,6 +1130,7 @@
   font-weight: 700;
 }
 
+/* .contractor-guide-hero: العنصر `contractor-guide-hero` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .contractor-guide-hero h1 {
   margin: 15px 0 10px;
   font-size: 39px;
@@ -989,10 +1138,12 @@
   color: #272a26;
 }
 
+/* .contractor-guide-hero: العنصر `contractor-guide-hero` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .contractor-guide-hero h1 span {
   color: #f0ab00;
 }
 
+/* .contractor-guide-hero-copy: العنصر `contractor-guide-hero-copy` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
 .contractor-guide-hero-copy > p {
   margin: 0;
   max-width: 640px;
@@ -1001,18 +1152,21 @@
   line-height: 1.7;
 }
 
+/* .contractor-guide-highlights: العنصر `contractor-guide-highlights` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .contractor-guide-highlights {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 28px 32px;
 }
 
+/* .contractor-guide-highlights: العنصر `contractor-guide-highlights` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .contractor-guide-highlights > div {
   display: flex;
   align-items: center;
   gap: 14px;
 }
 
+/* .guide-highlight-icon: أيقونة توضيحية أو إجرائية؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
 .guide-highlight-icon {
   width: 44px;
   height: 44px;
@@ -1023,42 +1177,54 @@
   border-radius: 50%;
 }
 
+/* .guide-highlight-icon: أيقونة توضيحية أو إجرائية؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .yellow: العنصر `yellow` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .guide-highlight-icon.yellow {
   color: #d49b00;
   background: #fff3cf;
 }
 
+/* .guide-highlight-icon: أيقونة توضيحية أو إجرائية؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .green: العنصر `green` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .guide-highlight-icon.green {
   color: #70aa80;
   background: #eaf5ef;
 }
 
+/* .guide-highlight-icon: أيقونة توضيحية أو إجرائية؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .blue: العنصر `blue` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .guide-highlight-icon.blue {
   color: #8096bb;
   background: #eef2f9;
 }
 
+/* .guide-highlight-icon: أيقونة توضيحية أو إجرائية؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .gray: العنصر `gray` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .guide-highlight-icon.gray {
   color: #8c9087;
   background: #f1f1ed;
 }
 
+/* .contractor-guide-highlights: العنصر `contractor-guide-highlights` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .contractor-guide-highlights strong {
   display: block;
   font-size: 13px;
   margin-bottom: 5px;
 }
 
+/* .contractor-guide-highlights: العنصر `contractor-guide-highlights` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .contractor-guide-highlights p {
   margin: 0;
   color: #969892;
   font-size: 11px;
 }
 
+/* .contractor-guide-how: العنصر `contractor-guide-how` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
 .contractor-guide-how {
   margin-top: 46px;
 }
 
+/* .contractor-guide-section-label: العنصر `contractor-guide-section-label` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .contractor-guide-section-label {
   display: block;
   color: #a0a19b;
@@ -1067,17 +1233,21 @@
   letter-spacing: 0.5px;
 }
 
+/* .contractor-guide-how: العنصر `contractor-guide-how` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+/* .contractor-guide-benefits: العنصر `contractor-guide-benefits` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .contractor-guide-how h2,
 .contractor-guide-benefits h2 {
   margin: 9px 0 25px;
   font-size: 27px;
 }
 
+/* .contractor-guide-steps: العنصر `contractor-guide-steps` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .contractor-guide-steps {
   display: flex;
   align-items: stretch;
 }
 
+/* .contractor-guide-step-wrap: العنصر `contractor-guide-step-wrap` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
 .contractor-guide-step-wrap {
   flex: 1;
   min-width: 0;
@@ -1085,6 +1255,7 @@
   align-items: center;
 }
 
+/* .contractor-guide-step: خطوة ضمن مسار تنفيذ؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
 .contractor-guide-step {
   position: relative;
   width: 100%;
@@ -1098,6 +1269,7 @@
   align-items: center;
 }
 
+/* .contractor-guide-step-number: العنصر `contractor-guide-step-number` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .contractor-guide-step-number {
   position: absolute;
   top: 15px;
@@ -1113,21 +1285,26 @@
   font-weight: 700;
 }
 
+/* .contractor-guide-step-icon: أيقونة توضيحية أو إجرائية؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .contractor-guide-step-icon {
   color: #252823;
   margin-top: 26px;
   margin-bottom: 15px;
 }
 
+/* .contractor-guide-step: خطوة ضمن مسار تنفيذ؛ يتحكم بالعرض. */
+/* .contractor-guide-step-icon: أيقونة توضيحية أو إجرائية؛ يتحكم بالعرض. */
 .contractor-guide-step:nth-child(1) .contractor-guide-step-icon {
   stroke-width: 1.7;
 }
 
+/* .contractor-guide-step: خطوة ضمن مسار تنفيذ؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .contractor-guide-step h3 {
   margin: 0 0 10px;
   font-size: 15px;
 }
 
+/* .contractor-guide-step: خطوة ضمن مسار تنفيذ؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
 .contractor-guide-step p {
   margin: 0;
   color: #83857f;
@@ -1136,12 +1313,14 @@
   max-width: 190px;
 }
 
+/* .contractor-guide-arrow: العنصر `contractor-guide-arrow` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .contractor-guide-arrow {
   color: #c5c7c2;
   flex-shrink: 0;
   margin: 0 8px;
 }
 
+/* .contractor-guide-benefits: العنصر `contractor-guide-benefits` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .contractor-guide-benefits {
   margin-top: 38px;
   padding: 26px 28px 31px;
@@ -1149,27 +1328,33 @@
   border-radius: 20px;
 }
 
+/* .contractor-guide-benefits: العنصر `contractor-guide-benefits` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+/* .benefit-label: العنصر `benefit-label` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .contractor-guide-benefits .benefit-label {
   color: #a08b43;
 }
 
+/* .contractor-guide-benefits: العنصر `contractor-guide-benefits` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .contractor-guide-benefits h2 {
   margin-bottom: 26px;
   font-size: 25px;
 }
 
+/* .contractor-guide-benefit-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .contractor-guide-benefit-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 35px;
 }
 
+/* .contractor-guide-benefit: العنصر `contractor-guide-benefit` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .contractor-guide-benefit {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
+/* .contractor-guide-benefit: العنصر `contractor-guide-benefit` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
 .contractor-guide-benefit > span {
   width: 50px;
   height: 50px;
@@ -1181,17 +1366,20 @@
   justify-content: center;
 }
 
+/* .contractor-guide-benefit: العنصر `contractor-guide-benefit` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .contractor-guide-benefit h3 {
   margin: 0 0 6px;
   font-size: 14px;
 }
 
+/* .contractor-guide-benefit: العنصر `contractor-guide-benefit` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .contractor-guide-benefit p {
   margin: 0;
   color: #83857f;
   font-size: 11px;
 }
 
+/* .contractor-guide-cta: العنصر `contractor-guide-cta` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .contractor-guide-cta {
   margin-top: 27px;
   min-height: 74px;
@@ -1203,16 +1391,19 @@
   justify-content: space-between;
 }
 
+/* .contractor-guide-cta: العنصر `contractor-guide-cta` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .contractor-guide-cta h2 {
   margin: 0 0 6px;
   font-size: 19px;
 }
 
+/* .contractor-guide-cta: العنصر `contractor-guide-cta` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .contractor-guide-cta p {
   margin: 0;
   font-size: 12px;
 }
 
+/* .contractor-guide-cta-button: زر لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .contractor-guide-cta-button {
   min-width: 164px;
   height: 43px;
@@ -1230,25 +1421,30 @@
 }
 
 @media (max-width: 1100px) {
-  .contractor-guide-hero {
+  /* .contractor-guide-hero: العنصر `contractor-guide-hero` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.contractor-guide-hero {
     grid-template-columns: 1fr;
   }
 
-  .contractor-guide-steps {
+  /* .contractor-guide-steps: العنصر `contractor-guide-steps` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.contractor-guide-steps {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
 
-  .contractor-guide-step-wrap {
+  /* .contractor-guide-step-wrap: العنصر `contractor-guide-step-wrap` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.contractor-guide-step-wrap {
     display: block;
   }
 
-  .contractor-guide-arrow {
+  /* .contractor-guide-arrow: العنصر `contractor-guide-arrow` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.contractor-guide-arrow {
     display: none;
   }
 
-  .contractor-guide-benefit-grid {
+  /* .contractor-guide-benefit-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.contractor-guide-benefit-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }

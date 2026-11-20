@@ -1,7 +1,15 @@
+/*
+ * Role stylesheet: styles only the page/components assigned to this folder.
+ * Before each class selector there is an Arabic note describing its purpose
+ * and the visible layout properties controlled by that selector.
+ * Edit the matching class here when changing that part of the interface.
+ */
+
 /* =========================
    FIGMA PROJECT LOCATION
 ========================= */
 
+/* .location-screen: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .location-screen {
   display: flex;
   min-height: 100vh;
@@ -10,6 +18,7 @@
   font-family: Arial, sans-serif;
 }
 
+/* .location-screen: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
 .location-screen a {
   color: inherit;
   text-decoration: none;
@@ -17,6 +26,7 @@
 
 /* Sidebar */
 
+/* .location-sidebar: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يحدد الحدود والفواصل، يتحكم بالعرض. */
 .location-sidebar {
   width: 210px;
   min-width: 210px;
@@ -26,6 +36,7 @@
   border-right: 1px solid #eaecf0;
 }
 
+/* .location-sidebar-logo: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الحدود والفواصل، يتحكم بالارتفاع. */
 .location-sidebar-logo {
   height: 66px;
   display: flex;
@@ -34,18 +45,21 @@
   border-bottom: 1px solid #f2f4f7;
 }
 
+/* .location-sidebar-logo: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالعرض، يتحكم بالارتفاع. */
 .location-sidebar-logo img {
   width: 76px;
   height: 44px;
   object-fit: contain;
 }
 
+/* .location-sidebar-nav: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المساحة الداخلية. */
 .location-sidebar-nav {
   display: flex;
   flex-direction: column;
   padding-top: 14px;
 }
 
+/* .location-sidebar-nav: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .location-sidebar-nav a {
   min-height: 42px;
   display: flex;
@@ -57,10 +71,13 @@
   font-size: 12px;
 }
 
+/* .location-sidebar-nav: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية. */
 .location-sidebar-nav a:hover {
   background: #fffaf0;
 }
 
+/* .location-sidebar-nav: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .location-nav-active: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .location-sidebar-nav a.location-nav-active {
   border-left-color: #ffcc00;
   background: #fff7df;
@@ -68,12 +85,14 @@
   font-weight: 600;
 }
 
+/* .location-nav-icon: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان، يتحكم بالعرض. */
 .location-nav-icon {
   width: 17px;
   text-align: center;
   font-size: 16px;
 }
 
+/* .location-sidebar-bottom: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .location-sidebar-bottom {
   display: flex;
   flex-direction: column;
@@ -82,6 +101,7 @@
   padding: 20px 16px;
 }
 
+/* .location-sidebar-bottom: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
 .location-sidebar-bottom a {
   display: flex;
   align-items: center;
@@ -92,11 +112,13 @@
 
 /* Main and Header */
 
+/* .location-main: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالعرض. */
 .location-main {
   min-width: 0;
   flex: 1;
 }
 
+/* .location-header: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
 .location-header {
   height: 66px;
   display: flex;
@@ -107,12 +129,14 @@
   border-bottom: 1px solid #eaecf0;
 }
 
+/* .location-user: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .location-user {
   display: flex;
   align-items: center;
   gap: 9px;
 }
 
+/* .location-avatar: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .location-avatar {
   width: 34px;
   height: 34px;
@@ -125,21 +149,25 @@
   font-weight: 700;
 }
 
+/* .location-user-info: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .location-user-info strong,
 .location-user-info span {
   display: block;
 }
 
+/* .location-user-info: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
 .location-user-info strong {
   font-size: 11px;
 }
 
+/* .location-user-info: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .location-user-info span {
   margin-top: 4px;
   color: #667085;
   font-size: 9px;
 }
 
+/* .location-user-chevron: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .location-user-chevron {
   margin-left: 8px;
   color: #667085;
@@ -148,6 +176,7 @@
 
 /* Content */
 
+/* .location-content: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية، يتحكم بالعرض. */
 .location-content {
   width: 100%;
   max-width: 1250px;
@@ -155,10 +184,12 @@
   padding: 28px 24px 24px;
 }
 
+/* .location-page-heading: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المسافات الخارجية. */
 .location-page-heading {
   margin-bottom: 22px;
 }
 
+/* .location-page-heading: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .location-page-heading h1 {
   margin: 0;
   color: #172033;
@@ -166,6 +197,7 @@
   font-weight: 700;
 }
 
+/* .location-page-heading: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .location-page-heading p {
   margin-top: 8px;
   color: #667085;
@@ -174,6 +206,7 @@
 
 /* Progress */
 
+/* .location-progress: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .location-progress {
   min-height: 62px;
   display: flex;
@@ -186,6 +219,7 @@
   background: #ffffff;
 }
 
+/* .location-progress-step: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .location-progress-step {
   display: flex;
   align-items: center;
@@ -193,6 +227,7 @@
   white-space: nowrap;
 }
 
+/* .location-progress-number: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .location-progress-number {
   width: 28px;
   height: 28px;
@@ -206,26 +241,37 @@
   font-weight: 600;
 }
 
+/* .location-progress-step: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .completed: العنصر `completed` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .location-progress-number: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، ينسق الخط والألوان. */
 .location-progress-step.completed .location-progress-number {
   background: #32a852;
   color: #ffffff;
 }
 
+/* .location-progress-step: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .location-progress-number: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، ينسق الخط والألوان. */
 .location-progress-step.active .location-progress-number {
   background: #ffcc00;
   color: #172033;
 }
 
+/* .location-progress-label: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
 .location-progress-label {
   color: #667085;
   font-size: 10px;
 }
 
+/* .location-progress-step: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+/* .location-progress-label: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
 .location-progress-step.active .location-progress-label {
   color: #172033;
   font-weight: 700;
 }
 
+/* .location-progress-line: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يتحكم بالعرض، يتحكم بالارتفاع. */
 .location-progress-line {
   height: 1px;
   min-width: 12px;
@@ -233,12 +279,15 @@
   background: #eaecf0;
 }
 
+/* .location-progress-line: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية. */
+/* .completed-line: العنصر `completed-line` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
 .location-progress-line.completed-line {
   background: #32a852;
 }
 
 /* Workspace */
 
+/* .location-workspace: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .location-workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 235px;
@@ -246,6 +295,8 @@
   gap: 12px;
 }
 
+/* .location-map-panel: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
+/* .location-details-panel: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
 .location-map-panel,
 .location-details-panel {
   min-width: 0;
@@ -255,10 +306,13 @@
   background: #ffffff;
 }
 
+/* .location-map-panel-heading: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المسافات الخارجية. */
 .location-map-panel-heading {
   margin-bottom: 16px;
 }
 
+/* .location-map-panel-heading: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+/* .location-details-panel: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .location-map-panel-heading h2,
 .location-details-panel h2 {
   margin: 0;
@@ -267,6 +321,8 @@
   font-weight: 700;
 }
 
+/* .location-map-panel-heading: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+/* .location-details-description: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .location-map-panel-heading p,
 .location-details-description {
   margin-top: 7px;
@@ -277,6 +333,7 @@
 
 /* Search */
 
+/* .location-search: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .location-search {
   height: 38px;
   display: flex;
@@ -289,11 +346,13 @@
   background: #ffffff;
 }
 
+/* .location-search-icon: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
 .location-search-icon {
   color: #667085;
   font-size: 20px;
 }
 
+/* .location-search: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .location-search input {
   width: 100%;
   min-width: 0;
@@ -305,12 +364,14 @@
   font-size: 10px;
 }
 
+/* .location-search: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
 .location-search input::placeholder {
   color: #98a2b3;
 }
 
 /* Map */
 
+/* .location-map-frame: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
 .location-map-frame {
   width: 100%;
   height: 330px;
@@ -319,6 +380,8 @@
   background: #f1f3f5;
 }
 
+/* .location-map-frame: تحديد الموقع أو عرض بيانات العنوان؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+/* .mamar-map-container: حاوية تجمع عناصر الواجهة؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
 .location-map-frame .mamar-map-container {
   width: 100%;
   height: 100% !important;
@@ -327,12 +390,15 @@
   border-radius: 0;
 }
 
+/* .location-map-frame: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+/* .mamar-map: مساحة عرض الخريطة؛ يتحكم بالعرض، يتحكم بالارتفاع. */
 .location-map-frame .mamar-map {
   width: 100%;
   height: 100% !important;
   min-height: 0 !important;
 }
 
+/* .location-selected-message: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .location-selected-message {
   display: flex;
   align-items: center;
@@ -342,6 +408,7 @@
   font-size: 11px;
 }
 
+/* .location-selected-message: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
 .location-selected-message span {
   width: 19px;
   height: 19px;
@@ -351,6 +418,7 @@
   background: #e6f4ea;
 }
 
+/* .location-error: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .location-error {
   margin-top: 10px;
   color: #c62828;
@@ -360,10 +428,12 @@
 
 /* Details Panel */
 
+/* .location-details-description: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المسافات الخارجية. */
 .location-details-description {
   margin-bottom: 24px;
 }
 
+/* .location-detail-section: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المسافات الخارجية. */
 .location-detail-section {
   display: flex;
   flex-direction: column;
@@ -371,6 +441,7 @@
   margin-bottom: 22px;
 }
 
+/* .location-detail-label: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
 .location-detail-label {
   color: #667085;
   font-size: 9px;
@@ -378,12 +449,14 @@
   letter-spacing: 0.3px;
 }
 
+/* .location-detail-section: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
 .location-detail-section strong {
   color: #172033;
   font-size: 11px;
   line-height: 1.5;
 }
 
+/* .location-detail-subtext: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان، يتحكم بالارتفاع، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
 .location-detail-subtext {
   color: #667085;
   font-size: 10px;
@@ -391,12 +464,14 @@
   overflow-wrap: anywhere;
 }
 
+/* .location-details-divider: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يضبط المسافات الخارجية، يتحكم بالارتفاع. */
 .location-details-divider {
   height: 1px;
   margin: 26px 0 20px;
   background: #eaecf0;
 }
 
+/* .location-work-zone: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .location-work-zone p {
   display: flex;
   align-items: center;
@@ -406,6 +481,7 @@
   font-size: 10px;
 }
 
+/* .location-zone-dot: تحديد الموقع أو عرض بيانات العنوان؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
 .location-zone-dot {
   width: 7px;
   height: 7px;
@@ -415,6 +491,7 @@
 
 /* Bottom Buttons */
 
+/* .location-page-actions: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المسافات الخارجية. */
 .location-page-actions {
   display: flex;
   align-items: center;
@@ -423,6 +500,8 @@
   margin-top: 14px;
 }
 
+/* .location-back-button: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+/* .location-next-button: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .location-back-button,
 .location-next-button {
   min-height: 42px;
@@ -441,17 +520,21 @@
 }
 
 /* Neighborhood search */
+
+/* .location-search: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .location-search {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
+/* .location-search: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالعرض. */
 .location-search input {
   flex: 1;
   min-width: 0;
 }
 
+/* .location-search: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .location-search button {
   flex-shrink: 0;
   height: 38px;
@@ -465,6 +548,7 @@
   cursor: pointer;
 }
 
+/* .location-search: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .location-search button:disabled {
   cursor: wait;
   opacity: 0.6;
@@ -475,6 +559,7 @@
    
 ========================= */
 
+/* .location-search-results: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .location-search-results {
   max-height: 220px;
   margin: 10px 0 0;
@@ -486,6 +571,7 @@
   border-radius: 8px;
 }
 
+/* .location-search-results: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .location-search-results button {
   width: 100%;
   display: flex;
@@ -503,15 +589,20 @@
   cursor: pointer;
 }
 
+/* .location-search-results: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الخلفية. */
+/* .selected: العنصر `selected` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
 .location-search-results button:hover,
 .location-search-results button.selected {
   background: #fff8e6;
 }
 
+/* .location-search-results: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
+/* .selected: العنصر `selected` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .location-search-results button.selected {
   font-weight: 600;
 }
 
+/* .location-result-name: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
 .location-result-name {
   min-width: 0;
   overflow: hidden;
@@ -519,6 +610,7 @@
   white-space: nowrap;
 }
 
+/* .location-result-type: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
 .location-result-type {
   flex-shrink: 0;
   color: #8a94a6;
@@ -532,164 +624,268 @@
 
   /* Notifications */
 
-  .notifications-page {
+  
+
+/* .notifications-page: العنصر `notifications-page` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.notifications-page {
     padding: 20px 14px 28px;
   }
 
-  .notifications-heading {
+  
+
+/* .notifications-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.notifications-heading {
     flex-wrap: wrap;
   }
 
-  .notifications-toolbar {
+  
+
+/* .notifications-toolbar: شريط أدوات البحث والفلترة والإجراءات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.notifications-toolbar {
     align-items: stretch;
   }
 
-  .notifications-tabs {
+  
+
+/* .notifications-tabs: شريط تبويبات للتنقل بين الأقسام؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.notifications-tabs {
     max-width: 100%;
     overflow-x: auto;
     scrollbar-width: none;
   }
 
-  .notifications-tabs::-webkit-scrollbar {
+  
+
+/* .notifications-tabs: شريط تبويبات للتنقل بين الأقسام؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.notifications-tabs::-webkit-scrollbar {
     display: none;
   }
 
-  .notifications-tabs button {
+  
+
+/* .notifications-tabs: شريط تبويبات للتنقل بين الأقسام؛ يتحكم بالارتفاع. */
+.notifications-tabs button {
     flex-shrink: 0;
     min-height: 44px;
   }
 
-  .notifications-mark-all {
+  
+
+/* .notifications-mark-all: العنصر `notifications-mark-all` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+.notifications-mark-all {
     min-height: 44px;
   }
 
   /* Payment */
 
-  .payment-page {
+  
+
+/* .payment-page: واجهة الدفع وملخص عملية الدفع؛ يضبط المساحة الداخلية. */
+.payment-page {
     padding: 20px 14px 30px;
   }
 
-  .payment-layout {
+  
+
+/* .payment-layout: واجهة الدفع وملخص عملية الدفع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.payment-layout {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .payment-summary {
+  
+
+/* .payment-summary: واجهة الدفع وملخص عملية الدفع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.payment-summary {
     position: static;
   }
 
-  .payment-panel {
+  
+
+/* .payment-panel: واجهة الدفع وملخص عملية الدفع؛ يضبط المساحة الداخلية. */
+.payment-panel {
     padding: 18px;
   }
 
   /* Project Location */
 
-  .location-screen {
+  
+
+/* .location-screen: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالعرض. */
+.location-screen {
     flex-direction: column;
     min-width: 0;
   }
 
-  .location-sidebar {
+  
+
+/* .location-sidebar: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الحدود والفواصل، يتحكم بالعرض. */
+.location-sidebar {
     width: 100%;
     min-width: 0;
     border-right: none;
     border-bottom: 1px solid #eaecf0;
   }
 
-  .location-sidebar-nav {
+  
+
+/* .location-sidebar-nav: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المساحة الداخلية، يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.location-sidebar-nav {
     flex-direction: row;
     overflow-x: auto;
     padding: 0;
     scrollbar-width: none;
   }
 
-  .location-sidebar-nav::-webkit-scrollbar {
+  
+
+/* .location-sidebar-nav: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.location-sidebar-nav::-webkit-scrollbar {
     display: none;
   }
 
-  .location-sidebar-nav a {
+  
+
+/* .location-sidebar-nav: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الحدود والفواصل، يتحكم بالارتفاع. */
+.location-sidebar-nav a {
     flex-shrink: 0;
     min-height: 44px;
     border-left: none;
     border-bottom: 3px solid transparent;
   }
 
-  .location-sidebar-nav a.location-nav-active {
+  
+
+/* .location-sidebar-nav: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .location-nav-active: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.location-sidebar-nav a.location-nav-active {
     border-bottom-color: #ffcc00;
   }
 
-  .location-sidebar-bottom {
+  
+
+/* .location-sidebar-bottom: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المساحة الداخلية. */
+.location-sidebar-bottom {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 12px;
     padding: 10px 16px;
   }
 
-  .location-header {
+  
+
+/* .location-header: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المساحة الداخلية. */
+.location-header {
     padding: 0 16px;
   }
 
-  .location-content {
+  
+
+/* .location-content: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المساحة الداخلية. */
+.location-content {
     padding: 20px 14px;
   }
 
-  .location-workspace {
+  
+
+/* .location-workspace: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.location-workspace {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .location-map-frame {
+  
+
+/* .location-map-frame: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+.location-map-frame {
     height: 280px;
   }
 
-  .location-details-panel {
+  
+
+/* .location-details-panel: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالعرض. */
+.location-details-panel {
     width: 100%;
   }
 
-  .location-progress {
+  
+
+/* .location-progress: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.location-progress {
     overflow-x: auto;
     justify-content: flex-start;
     scrollbar-width: none;
   }
 
-  .location-progress::-webkit-scrollbar {
+  
+
+/* .location-progress: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.location-progress::-webkit-scrollbar {
     display: none;
   }
 
-  .location-progress-step {
+  
+
+/* .location-progress-step: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.location-progress-step {
     flex-shrink: 0;
   }
 
-  .location-progress-line {
+  
+
+/* .location-progress-line: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.location-progress-line {
     flex: 0 0 20px;
   }
 }
 
 @media (max-width: 480px) {
 
-  .notifications-page {
+  
+
+/* .notifications-page: العنصر `notifications-page` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.notifications-page {
     padding: 16px 12px 24px;
   }
 
-  .notification-card {
+  
+
+/* .notification-card: واجهة الإشعارات والتنبيهات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.notification-card {
     flex-wrap: wrap;
   }
 
-  .notification-read-button {
+  
+
+/* .notification-read-button: واجهة الإشعارات والتنبيهات؛ يتحكم بالارتفاع. */
+.notification-read-button {
     min-height: 44px;
   }
 
-  .payment-form-row {
+  
+
+/* .payment-form-row: واجهة الدفع وملخص عملية الدفع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.payment-form-row {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .location-map-frame {
+  
+
+/* .location-map-frame: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+.location-map-frame {
     height: 240px;
   }
 
-  .location-page-actions {
+  
+
+/* .location-page-actions: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.location-page-actions {
     gap: 8px;
   }
 
-  .location-back-button,
+  
+
+/* .location-back-button: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المساحة الداخلية، يتحكم بالعرض، يتحكم بالارتفاع. */
+/* .location-next-button: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المساحة الداخلية، يتحكم بالعرض، يتحكم بالارتفاع. */
+.location-back-button,
   .location-next-button {
     flex: 1;
     min-width: 0;

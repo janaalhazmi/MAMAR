@@ -1,3 +1,10 @@
+/*
+ * Role stylesheet: styles only the page/components assigned to this folder.
+ * Before each class selector there is an Arabic note describing its purpose
+ * and the visible layout properties controlled by that selector.
+ * Edit the matching class here when changing that part of the interface.
+ */
+
 /* =========================================================
    CONTRACTOR DASHBOARD
    Used by: ContractorDashboard.jsx, ContractorShell.jsx, Sidebar.jsx
@@ -6,6 +13,7 @@
 
 /* ---------- Page + Design Tokens ---------- */
 
+/* .cd-page: العنصر `cd-page` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
 .cd-page {
   --cd-yellow: #f8cd45;
   --cd-yellow-soft: #fdf3d6;
@@ -29,22 +37,28 @@
 }
 
 @supports (min-height: 100dvh) {
-  .cd-page {
+  
+
+/* .cd-page: العنصر `cd-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+.cd-page {
     min-height: 100dvh;
   }
 }
 
+/* .cd-page: العنصر `cd-page` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .cd-page a {
   color: inherit;
   text-decoration: none;
 }
 
+/* .cd-page: العنصر `cd-page` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .cd-page button {
   font-family: inherit;
 }
 
 /* ---------- Header ---------- */
 
+/* .cd-header: رأس الصفحة أو القسم؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
 .cd-header {
   height: var(--cd-header-height);
   min-height: var(--cd-header-height);
@@ -56,17 +70,20 @@
   border-bottom: 1px solid var(--cd-border);
 }
 
+/* .cd-header-logo: الشعار وحجمه ومحاذاته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .cd-header-logo {
   display: flex;
   align-items: center;
 }
 
+/* .cd-header-logo: الشعار وحجمه ومحاذاته؛ يتحكم بالعرض، يتحكم بالارتفاع. */
 .cd-header-logo img {
   width: 86px;
   height: 45px;
   object-fit: contain;
 }
 
+/* .cd-header-actions: مجموعة أزرار الإجراءات؛ يضبط المسافات الخارجية، يتحكم بالارتفاع. */
 .cd-header-actions {
   height: 100%;
   display: flex;
@@ -78,6 +95,7 @@
 
 /* ---------- Notifications ---------- */
 
+/* .cd-notification-button: زر لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .cd-notification-button {
   position: relative !important;
   overflow: visible !important;
@@ -95,11 +113,13 @@
   transition: background 0.2s ease, transform 0.2s ease;
 }
 
+/* .cd-notification-button: زر لتنفيذ إجراء؛ يحدد الخلفية. */
 .cd-notification-button:hover {
   background: #f8e7b5;
   transform: scale(1.05);
 }
 
+/* .cd-notification-dot: العنصر `cd-notification-dot` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
 .cd-notification-dot {
   position: absolute !important;
   top: -3px !important;
@@ -115,6 +135,7 @@
 
 /* ---------- User Profile ---------- */
 
+/* .cd-user: معلومات المستخدم والحساب؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
 .cd-user {
   height: 100%;
   display: flex;
@@ -124,6 +145,7 @@
   border-left: 1px solid var(--cd-border);
 }
 
+/* .cd-user-avatar: الصورة الرمزية للمستخدم؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .cd-user-avatar {
   width: 40px;
   height: 40px;
@@ -137,6 +159,7 @@
   font-weight: 600;
 }
 
+/* .cd-user-info: العنصر `cd-user-info` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
 .cd-user-info {
   display: flex;
   flex-direction: column;
@@ -144,12 +167,14 @@
   min-width: 0;
 }
 
+/* .cd-user-info: العنصر `cd-user-info` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
 .cd-user-info strong {
   font-size: 13px;
   font-weight: 600;
   line-height: 1.2;
 }
 
+/* .cd-user-info: العنصر `cd-user-info` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
 .cd-user-info span {
   color: var(--cd-muted);
   font-size: 11px;
@@ -158,6 +183,7 @@
 
 /* ---------- Body + Sidebar ---------- */
 
+/* .cd-body: العنصر `cd-body` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
 .cd-body {
   flex: 1;
   min-height: 0;
@@ -165,6 +191,7 @@
   align-items: stretch;
 }
 
+/* .cd-sidebar: الشريط الجانبي للتنقل؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
 .cd-sidebar {
   width: var(--cd-sidebar-width);
   min-width: var(--cd-sidebar-width);
@@ -175,12 +202,15 @@
   border-right: 1px solid var(--cd-border);
 }
 
+/* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .cd-nav {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
+/* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+/* .cd-sidebar-bottom: العنصر `cd-sidebar-bottom` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .cd-nav a,
 .cd-sidebar-bottom a {
   display: flex;
@@ -190,6 +220,7 @@
   font-size: 13px;
 }
 
+/* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
 .cd-nav a {
   min-height: 44px;
   padding: 0 24px 0 28px;
@@ -197,10 +228,13 @@
   transition: background 0.2s ease;
 }
 
+/* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
 .cd-nav a:hover {
   background: #fffaf0;
 }
 
+/* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .cd-nav-active: العنصر `cd-nav-active` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .cd-nav a.cd-nav-active {
   background: #fff8e6;
   border-left-color: var(--cd-yellow);
@@ -208,6 +242,7 @@
   font-weight: 600;
 }
 
+/* .cd-sidebar-bottom: العنصر `cd-sidebar-bottom` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .cd-sidebar-bottom {
   display: flex;
   flex-direction: column;
@@ -216,6 +251,7 @@
   padding: 32px 0 0 28px;
 }
 
+/* .cd-sidebar-bottom: العنصر `cd-sidebar-bottom` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .cd-sidebar-bottom a {
   color: var(--cd-text);
   font-size: 12px;
@@ -223,12 +259,14 @@
 
 /* ---------- Main Content ---------- */
 
+/* .cd-main: العنصر `cd-main` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يتحكم بالعرض. */
 .cd-main {
   flex: 1 1 0;
   min-width: 0;
   padding: 24px 28px 20px;
 }
 
+/* .cd-welcome: العنصر `cd-welcome` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
 .cd-welcome {
   display: flex;
   align-items: flex-start;
@@ -237,6 +275,7 @@
   margin-bottom: 18px;
 }
 
+/* .cd-welcome: العنصر `cd-welcome` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
 .cd-welcome h1 {
   font-size: 32px;
   font-weight: 700;
@@ -244,6 +283,7 @@
   color: var(--cd-ink);
 }
 
+/* .cd-welcome: العنصر `cd-welcome` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
 .cd-welcome p {
   max-width: 280px;
   margin-top: 8px;
@@ -252,6 +292,7 @@
   line-height: 1.4;
 }
 
+/* .cd-create-button: زر لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .cd-create-button {
   min-height: 44px;
   display: inline-flex;
@@ -270,12 +311,14 @@
   transition: opacity 0.2s ease;
 }
 
+/* .cd-create-button: زر لتنفيذ إجراء؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .cd-create-button:hover {
   opacity: 0.88;
 }
 
 /* ---------- Statistics ---------- */
 
+/* .cd-stats: بطاقات الإحصائيات؛ يضبط المسافات الخارجية. */
 .cd-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -283,6 +326,7 @@
   margin-bottom: 20px;
 }
 
+/* .cd-stat-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
 .cd-stat-card {
   min-width: 0;
   min-height: 84px;
@@ -295,6 +339,7 @@
   border-radius: 12px;
 }
 
+/* .cd-stat-icon: أيقونة توضيحية أو إجرائية؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .cd-stat-icon {
   width: 52px;
   height: 52px;
@@ -306,6 +351,7 @@
   color: var(--cd-yellow-text);
 }
 
+/* .cd-stat-info: العنصر `cd-stat-info` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
 .cd-stat-info {
   display: flex;
   flex-direction: column;
@@ -313,12 +359,14 @@
   min-width: 0;
 }
 
+/* .cd-stat-info: العنصر `cd-stat-info` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
 .cd-stat-info strong {
   font-size: 22px;
   font-weight: 700;
   line-height: 1.1;
 }
 
+/* .cd-stat-info: العنصر `cd-stat-info` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .cd-stat-info span {
   color: var(--cd-muted);
   font-size: 12px;
@@ -326,6 +374,7 @@
 
 /* ---------- Dashboard Grid ---------- */
 
+/* .cd-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .cd-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(260px, 300px);
@@ -333,6 +382,7 @@
   align-items: start;
 }
 
+/* .cd-column: العنصر `cd-column` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
 .cd-column {
   min-width: 0;
   display: flex;
@@ -340,6 +390,7 @@
   gap: 20px;
 }
 
+/* .cd-panel: لوحة تجمع عناصر ومعلومات مرتبطة؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
 .cd-panel {
   min-width: 0;
   padding: 20px 22px 22px;
@@ -348,6 +399,7 @@
   border-radius: 14px;
 }
 
+/* .cd-panel-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية. */
 .cd-panel-heading {
   display: flex;
   align-items: center;
@@ -356,6 +408,7 @@
   margin-bottom: 14px;
 }
 
+/* .cd-panel-heading: عنوان الصفحة أو القسم والوصف التابع له؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
 .cd-panel-heading h2 {
   font-size: 18px;
   font-weight: 600;
@@ -363,6 +416,7 @@
   color: var(--cd-ink);
 }
 
+/* .cd-link: العنصر `cd-link` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .cd-link {
   padding: 0;
   border: none;
@@ -373,6 +427,7 @@
   cursor: pointer;
 }
 
+/* .cd-empty: حالة عدم وجود بيانات؛ يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .cd-empty {
   padding: 28px 0;
   text-align: center;
@@ -382,6 +437,7 @@
 
 /* ---------- Map ---------- */
 
+/* .cd-map-frame: العنصر `cd-map-frame` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
 .cd-map-frame {
   position: relative;
   width: 100%;
@@ -392,6 +448,8 @@
   background: #eef0f3;
 }
 
+/* .cd-map-frame: العنصر `cd-map-frame` ضمن واجهة هذا الدور؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+/* .mamar-map-container: حاوية تجمع عناصر الواجهة؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
 .cd-map-frame .mamar-map-container {
   width: 100%;
   height: 100%;
@@ -400,6 +458,8 @@
   border-radius: 0;
 }
 
+/* .cd-map-frame: العنصر `cd-map-frame` ضمن واجهة هذا الدور؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+/* .mamar-map: مساحة عرض الخريطة؛ يتحكم بالعرض، يتحكم بالارتفاع. */
 .cd-map-frame arcgis-map,
 .cd-map-frame .mamar-map {
   display: block;
@@ -408,6 +468,7 @@
   min-height: 0;
 }
 
+/* .cd-map-button: زر لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .cd-map-button {
   position: absolute;
   right: 14px;
@@ -424,17 +485,20 @@
   cursor: pointer;
 }
 
+/* .cd-map-button: زر لتنفيذ إجراء؛ يحدد الخلفية. */
 .cd-map-button:hover {
   background: #fff8e6;
 }
 
 /* ---------- Projects Table ---------- */
 
+/* .cd-table-wrapper: غلاف يضبط موضع مجموعة عناصر؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
 .cd-table-wrapper {
   width: 100%;
   overflow-x: auto;
 }
 
+/* .cd-table: جدول يعرض بيانات في صفوف وأعمدة؛ يحدد الحدود والفواصل، يتحكم بالعرض. */
 .cd-table {
   width: 100%;
   min-width: 640px;
@@ -442,6 +506,7 @@
   text-align: left;
 }
 
+/* .cd-table: جدول يعرض بيانات في صفوف وأعمدة؛ يحدد الخلفية، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .cd-table th {
   padding: 12px 10px;
   background: #f7f8fa;
@@ -451,15 +516,18 @@
   white-space: nowrap;
 }
 
+/* .cd-table: جدول يعرض بيانات في صفوف وأعمدة؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
 .cd-table th:first-child {
   padding-left: 16px;
   border-radius: 8px 0 0 8px;
 }
 
+/* .cd-table: جدول يعرض بيانات في صفوف وأعمدة؛ يضبط استدارة الحواف، يحدد الحدود والفواصل. */
 .cd-table th:last-child {
   border-radius: 0 8px 8px 0;
 }
 
+/* .cd-table: جدول يعرض بيانات في صفوف وأعمدة؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .cd-table td {
   padding: 10px;
   border-bottom: 1px solid var(--cd-border);
@@ -468,32 +536,38 @@
   vertical-align: middle;
 }
 
+/* .cd-table: جدول يعرض بيانات في صفوف وأعمدة؛ يحدد الحدود والفواصل. */
 .cd-table tbody tr:last-child td {
   border-bottom: none;
 }
 
+/* .cd-table: جدول يعرض بيانات في صفوف وأعمدة؛ يضبط المساحة الداخلية. */
 .cd-table td:first-child {
   padding-left: 16px;
 }
 
+/* .cd-col-actions: مجموعة أزرار الإجراءات؛ يتحكم بالعرض. */
 .cd-col-actions {
   width: auto;
   min-width: 110px;
   text-align: center;
 }
 
+/* .cd-project-name: العنصر `cd-project-name` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .cd-project-name {
   display: flex;
   align-items: center;
   gap: 14px;
 }
 
+/* .cd-project-name: العنصر `cd-project-name` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .cd-project-name strong {
   color: var(--cd-ink);
   font-size: 12px;
   font-weight: 600;
 }
 
+/* .cd-thumb: العنصر `cd-thumb` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
 .cd-thumb {
   --cd-line: #e9a93a;
 
@@ -512,18 +586,22 @@
     #e6eaee;
 }
 
+/* .cd-thumb-orange: العنصر `cd-thumb-orange` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .cd-thumb-orange {
   --cd-line: #e9a93a;
 }
 
+/* .cd-thumb-green: العنصر `cd-thumb-green` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .cd-thumb-green {
   --cd-line: #4fb783;
 }
 
+/* .cd-thumb-grey: العنصر `cd-thumb-grey` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .cd-thumb-grey {
   --cd-line: #7b8394;
 }
 
+/* .cd-location: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
 .cd-location {
   display: inline-flex;
   align-items: center;
@@ -531,6 +609,7 @@
   color: var(--cd-muted);
 }
 
+/* .cd-status: شارة توضح حالة المشروع أو الطلب؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .cd-status {
   display: inline-block;
   padding: 6px 14px;
@@ -542,22 +621,27 @@
   white-space: nowrap;
 }
 
+/* .cd-status-in-progress: مؤشر تقدم المراحل؛ يحدد الخلفية، ينسق الخط والألوان. */
 .cd-status-in-progress {
   background: #fdf0c8;
   color: #b7791f;
 }
 
+/* .cd-status-pending: العنصر `cd-status-pending` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .cd-status-planned: العنصر `cd-status-planned` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .cd-status-pending,
 .cd-status-planned {
   background: #eceff3;
   color: #5b6475;
 }
 
+/* .cd-status-completed: العنصر `cd-status-completed` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .cd-status-completed {
   background: #e3f4e9;
   color: #2f8f57;
 }
 
+/* .cd-row-menu: العنصر `cd-row-menu` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
 .cd-row-menu {
   width: 28px;
   height: 28px;
@@ -571,6 +655,7 @@
 
 /* ---------- My Projects ---------- */
 
+/* .mp-row-action: زر أو رابط لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .mp-row-action {
   padding: 8px 16px;
   border: 1px solid var(--cd-yellow);
@@ -585,15 +670,18 @@
   transition: background 0.2s ease;
 }
 
+/* .mp-row-action: زر أو رابط لتنفيذ إجراء؛ يحدد الخلفية. */
 .mp-row-action:hover {
   background: #fdf0c8;
 }
 
+/* .mp-row-action: زر أو رابط لتنفيذ إجراء؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .mp-row-action:focus-visible {
   outline: 2px solid var(--cd-yellow);
   outline-offset: 2px;
 }
 
+/* .mp-toolbar: شريط أدوات البحث والفلترة والإجراءات؛ يضبط المسافات الخارجية. */
 .mp-toolbar {
   display: flex;
   align-items: center;
@@ -601,6 +689,7 @@
   margin-bottom: 16px;
 }
 
+/* .mp-search: حقل البحث وأيقونة البحث؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .mp-search {
   flex: 1;
   display: flex;
@@ -614,6 +703,7 @@
   color: var(--cd-muted);
 }
 
+/* .mp-search: حقل البحث وأيقونة البحث؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .mp-search input {
   flex: 1;
   min-width: 0;
@@ -625,10 +715,12 @@
   color: var(--cd-ink);
 }
 
+/* .mp-search: حقل البحث وأيقونة البحث؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .mp-search:focus-within {
   border-color: var(--cd-yellow);
 }
 
+/* .mp-select: العنصر `mp-select` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .mp-select {
   height: 44px;
   padding: 0 12px;
@@ -641,18 +733,21 @@
   cursor: pointer;
 }
 
+/* .mp-empty-button: زر لتنفيذ إجراء؛ يضبط المسافات الخارجية. */
 .mp-empty-button {
   margin-top: 14px;
 }
 
 /* ---------- Quick Actions ---------- */
 
+/* .cd-quick-list: قائمة من العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .cd-quick-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
+/* .cd-quick-action: زر أو رابط لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .cd-quick-action {
   width: 100%;
   min-height: 60px;
@@ -669,11 +764,13 @@
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
+/* .cd-quick-action: زر أو رابط لتنفيذ إجراء؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .cd-quick-action:hover {
   background: #fffaf0;
   border-color: #f1dca0;
 }
 
+/* .cd-quick-icon: أيقونة توضيحية أو إجرائية؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .cd-quick-icon {
   width: 40px;
   height: 40px;
@@ -685,6 +782,7 @@
   color: var(--cd-yellow-text);
 }
 
+/* .cd-quick-info: العنصر `cd-quick-info` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
 .cd-quick-info {
   flex: 1;
   min-width: 0;
@@ -693,18 +791,21 @@
   gap: 3px;
 }
 
+/* .cd-quick-info: العنصر `cd-quick-info` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .cd-quick-info strong {
   font-size: 12px;
   font-weight: 600;
   color: var(--cd-ink);
 }
 
+/* .cd-quick-info: العنصر `cd-quick-info` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
 .cd-quick-info small {
   color: var(--cd-muted);
   font-size: 10px;
   line-height: 1.3;
 }
 
+/* .cd-quick-arrow: العنصر `cd-quick-arrow` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .cd-quick-arrow {
   display: grid;
   place-items: center;
@@ -713,11 +814,13 @@
 
 /* ---------- Recent Activity ---------- */
 
+/* .cd-activity-list: قائمة من العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .cd-activity-list {
   display: flex;
   flex-direction: column;
 }
 
+/* .cd-activity-item: عنصر منفرد ضمن مجموعة؛ يضبط المساحة الداخلية. */
 .cd-activity-item {
   position: relative;
   display: flex;
@@ -726,10 +829,12 @@
   padding-bottom: 20px;
 }
 
+/* .cd-activity-item: عنصر منفرد ضمن مجموعة؛ يضبط المساحة الداخلية. */
 .cd-activity-item:last-child {
   padding-bottom: 0;
 }
 
+/* .cd-activity-item: عنصر منفرد ضمن مجموعة؛ يحدد الخلفية، يتحكم بالعرض. */
 .cd-activity-item:not(:last-child)::before {
   content: "";
   position: absolute;
@@ -740,6 +845,7 @@
   background: var(--cd-border);
 }
 
+/* .cd-activity-icon: أيقونة توضيحية أو إجرائية؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
 .cd-activity-icon {
   width: 36px;
   height: 36px;
@@ -749,21 +855,25 @@
   border-radius: 50%;
 }
 
+/* .cd-activity-yellow: العنصر `cd-activity-yellow` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .cd-activity-yellow {
   background: var(--cd-yellow-soft);
   color: var(--cd-yellow-text);
 }
 
+/* .cd-activity-green: العنصر `cd-activity-green` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .cd-activity-green {
   background: #e3f4e9;
   color: #2f8f57;
 }
 
+/* .cd-activity-grey: العنصر `cd-activity-grey` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .cd-activity-grey {
   background: #eceff3;
   color: var(--cd-muted);
 }
 
+/* .cd-activity-info: العنصر `cd-activity-info` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
 .cd-activity-info {
   flex: 1;
   min-width: 0;
@@ -772,18 +882,21 @@
   gap: 4px;
 }
 
+/* .cd-activity-info: العنصر `cd-activity-info` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .cd-activity-info strong {
   font-size: 11px;
   font-weight: 600;
   color: var(--cd-ink);
 }
 
+/* .cd-activity-info: العنصر `cd-activity-info` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
 .cd-activity-info p {
   color: var(--cd-muted);
   font-size: 10px;
   line-height: 1.3;
 }
 
+/* .cd-activity-time: العنصر `cd-activity-time` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .cd-activity-time {
   flex-shrink: 0;
   color: #a3abb8;
@@ -793,6 +906,7 @@
 
 /* ---------- Footer ---------- */
 
+/* .cd-footer: تذييل البطاقة أو الصفحة؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .cd-footer {
   display: flex;
   align-items: center;
@@ -804,11 +918,13 @@
   font-size: 12px;
 }
 
+/* .cd-footer-links: العنصر `cd-footer-links` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .cd-footer-links {
   display: flex;
   gap: 20px;
 }
 
+/* .cd-footer-links: العنصر `cd-footer-links` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .cd-footer-links a:hover {
   color: var(--cd-ink);
 }
@@ -818,36 +934,57 @@
 ========================================================= */
 
 @media (max-width: 1100px) {
-  .cd-grid {
+  
+
+/* .cd-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.cd-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .cd-stats {
+  
+
+/* .cd-stats: بطاقات الإحصائيات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.cd-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 760px) {
-  .cd-header {
+  
+
+/* .cd-header: رأس الصفحة أو القسم؛ يضبط المساحة الداخلية. */
+.cd-header {
     padding-left: 16px;
   }
 
-  .cd-user {
+  
+
+/* .cd-user: معلومات المستخدم والحساب؛ يضبط المساحة الداخلية. */
+.cd-user {
     padding: 0 16px;
   }
 
-  .cd-user-info strong {
+  
+
+/* .cd-user-info: العنصر `cd-user-info` ضمن واجهة هذا الدور؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.cd-user-info strong {
     max-width: 130px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .cd-body {
+  
+
+/* .cd-body: العنصر `cd-body` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.cd-body {
     flex-direction: column;
   }
 
-  .cd-sidebar {
+  
+
+/* .cd-sidebar: الشريط الجانبي للتنقل؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
+.cd-sidebar {
     width: 100%;
     min-width: 0;
     padding: 8px 0;
@@ -855,7 +992,10 @@
     border-bottom: 1px solid var(--cd-border);
   }
 
-  .cd-nav {
+  
+
+/* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.cd-nav {
     flex-direction: row;
     gap: 0;
     overflow-x: auto;
@@ -863,11 +1003,17 @@
     scrollbar-width: none;
   }
 
-  .cd-nav::-webkit-scrollbar {
+  
+
+/* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.cd-nav::-webkit-scrollbar {
     display: none;
   }
 
-  .cd-nav a {
+  
+
+/* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.cd-nav a {
     flex-shrink: 0;
     min-height: 44px;
     padding: 0 16px;
@@ -875,11 +1021,18 @@
     border-bottom: 3px solid transparent;
   }
 
-  .cd-nav a.cd-nav-active {
+  
+
+/* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .cd-nav-active: العنصر `cd-nav-active` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.cd-nav a.cd-nav-active {
     border-bottom-color: var(--cd-yellow);
   }
 
-  .cd-sidebar-bottom {
+  
+
+/* .cd-sidebar-bottom: العنصر `cd-sidebar-bottom` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.cd-sidebar-bottom {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -888,57 +1041,90 @@
     padding: 8px 16px 10px;
   }
 
-  .cd-sidebar-bottom a {
+  
+
+/* .cd-sidebar-bottom: العنصر `cd-sidebar-bottom` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
+.cd-sidebar-bottom a {
     min-height: 36px;
     font-size: 12px;
   }
 
-  .cd-main {
+  
+
+/* .cd-main: العنصر `cd-main` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.cd-main {
     padding: 18px 14px 16px;
   }
 
-  .cd-welcome {
+  
+
+/* .cd-welcome: العنصر `cd-welcome` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.cd-welcome {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .cd-welcome h1 {
+  
+
+/* .cd-welcome: العنصر `cd-welcome` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.cd-welcome h1 {
     font-size: 26px;
   }
 
-  .cd-create-button {
+  
+
+/* .cd-create-button: زر لتنفيذ إجراء؛ يتحكم بالعرض. */
+.cd-create-button {
     width: 100%;
   }
 
-  .cd-map-frame {
+  
+
+/* .cd-map-frame: العنصر `cd-map-frame` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+.cd-map-frame {
     height: 240px;
   }
 }
 
 @media (max-width: 650px) {
-  .cd-stats {
+  
+
+/* .cd-stats: بطاقات الإحصائيات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.cd-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
   }
 
-  .cd-stat-card {
+  
+
+/* .cd-stat-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.cd-stat-card {
     min-height: 72px;
     gap: 10px;
     padding: 10px 12px;
   }
 
-  .cd-stat-icon {
+  
+
+/* .cd-stat-icon: أيقونة توضيحية أو إجرائية؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+.cd-stat-icon {
     width: 38px;
     height: 38px;
   }
 
-  .cd-stat-info strong {
+  
+
+/* .cd-stat-info: العنصر `cd-stat-info` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.cd-stat-info strong {
     font-size: 20px;
   }
 }
 
 @media (max-width: 480px) {
-  .cd-panel {
+  
+
+/* .cd-panel: لوحة تجمع عناصر ومعلومات مرتبطة؛ يضبط المساحة الداخلية. */
+.cd-panel {
     padding: 16px;
   }
 }
@@ -946,16 +1132,25 @@
 /* ---------- Touch Devices ---------- */
 
 @media (hover: none) and (pointer: coarse) {
-  .cd-row-menu {
+  
+
+/* .cd-row-menu: العنصر `cd-row-menu` ضمن واجهة هذا الدور؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+.cd-row-menu {
     width: 44px;
     height: 44px;
   }
 
-  .cd-link {
+  
+
+/* .cd-link: العنصر `cd-link` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.cd-link {
     padding: 10px 0;
   }
 
-  .cd-nav a {
+  
+
+/* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+.cd-nav a {
     min-height: 44px;
   }
 }

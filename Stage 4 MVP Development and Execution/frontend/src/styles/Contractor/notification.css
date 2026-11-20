@@ -1,0 +1,528 @@
+/*
+ * Role stylesheet: styles only the page/components assigned to this folder.
+ * Before each class selector there is an Arabic note describing its purpose
+ * and the visible layout properties controlled by that selector.
+ * Edit the matching class here when changing that part of the interface.
+ */
+
+/* =========================================
+   CONTRACTOR - NOTIFICATIONS PAGE
+========================================= */
+
+/* .notifications-page: العنصر `notifications-page` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالعرض. */
+.notifications-page {
+  width: 100%;
+  min-width: 0;
+  padding: 28px 32px 40px;
+  color: #30332d;
+}
+
+/* Heading */
+
+/* .notifications-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية. */
+.notifications-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+/* .notifications-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.notifications-heading h1 {
+  margin: 0;
+  color: #30332d;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+/* .notifications-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.notifications-heading p {
+  margin: 8px 0 0;
+  color: #74776c;
+  font-size: 14px;
+}
+
+/* .notifications-total: العنصر `notifications-total` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.notifications-total {
+  padding: 8px 15px;
+  border-radius: 999px;
+  background: #fff4d6;
+  color: #99720b;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Toolbar */
+
+/* .notifications-toolbar: شريط أدوات البحث والفلترة والإجراءات؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.notifications-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e9e9e4;
+}
+
+/* .notifications-tabs: شريط تبويبات للتنقل بين الأقسام؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.notifications-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* .notifications-tabs: شريط تبويبات للتنقل بين الأقسام؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.notifications-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #74776c;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+/* .notifications-tabs: شريط تبويبات للتنقل بين الأقسام؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.notifications-tabs button span {
+  display: grid;
+  place-items: center;
+  min-width: 21px;
+  height: 21px;
+  padding: 0 5px;
+  border-radius: 50px;
+  background: #f0f0eb;
+  color: #74776c;
+  font-size: 11px;
+}
+
+/* .notifications-tabs: شريط تبويبات للتنقل بين الأقسام؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.notifications-tabs button.active {
+  background: #fff6dc;
+  color: #80600b;
+  border-color: #f5df9e;
+  font-weight: 700;
+}
+
+/* .notifications-tabs: شريط تبويبات للتنقل بين الأقسام؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.notifications-tabs button.active span {
+  background: #f9d978;
+  color: #624800;
+}
+
+/* .notifications-mark-all: العنصر `notifications-mark-all` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.notifications-mark-all {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid #e4e4dc;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #55584f;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+/* .notifications-mark-all: العنصر `notifications-mark-all` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.notifications-mark-all:hover:not(:disabled) {
+  background: #fff9ec;
+  border-color: #eacb70;
+}
+
+/* .notifications-mark-all: العنصر `notifications-mark-all` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.notifications-mark-all:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Notification List */
+
+/* .notifications-list: قائمة من العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Notification Card */
+
+/* .notification-card: واجهة الإشعارات والتنبيهات؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.notification-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid #e9e9e4;
+  border-radius: 12px;
+  background: #ffffff;
+  transition: 0.2s ease;
+  cursor: pointer;
+}
+
+/* .notification-card: واجهة الإشعارات والتنبيهات؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.notification-card:hover {
+  border-color: #e8ce83;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* Unread / Read */
+
+/* .notification-card: واجهة الإشعارات والتنبيهات؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .unread: العنصر `unread` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.notification-card.unread {
+  background: #fffdf7;
+  border-color: #f0d98e;
+}
+
+/* .notification-card: واجهة الإشعارات والتنبيهات؛ يحدد الخلفية. */
+/* .read: العنصر `read` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+.notification-card.read {
+  background: #ffffff;
+}
+
+/* Notification Icon */
+
+/* .notification-icon: واجهة الإشعارات والتنبيهات؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
+.notification-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: #fff4d6;
+  color: #b58a16;
+}
+
+/* .notification-icon: واجهة الإشعارات والتنبيهات؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .quotation: واجهة عرض السعر أو تفاصيل تسعيره؛ يحدد الخلفية، ينسق الخط والألوان. */
+.notification-icon.quotation {
+  background: #eef4ff;
+  color: #4774bd;
+}
+
+/* .notification-icon: واجهة الإشعارات والتنبيهات؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .project: بيانات المشروع أو أحد مكوناته؛ يحدد الخلفية، ينسق الخط والألوان. */
+.notification-icon.project {
+  background: #fff4d6;
+  color: #b58a16;
+}
+
+/* .notification-icon: واجهة الإشعارات والتنبيهات؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .provider: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، ينسق الخط والألوان. */
+.notification-icon.provider {
+  background: #eaf7ee;
+  color: #43865a;
+}
+
+/* .notification-icon: واجهة الإشعارات والتنبيهات؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .update: العنصر `update` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.notification-icon.update {
+  background: #f0edff;
+  color: #7765bd;
+}
+
+/* Notification Content */
+
+/* .notification-content: واجهة الإشعارات والتنبيهات؛ يتحكم بالعرض. */
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* .notification-title-row: واجهة الإشعارات والتنبيهات؛ يضبط المسافات الخارجية. */
+.notification-title-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 7px;
+}
+
+/* .notification-title-row: واجهة الإشعارات والتنبيهات؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.notification-title-row h3 {
+  margin: 0;
+  color: #30332d;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* .notification-unread-dot: واجهة الإشعارات والتنبيهات؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+.notification-unread-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #eab308;
+}
+
+/* .notification-content: واجهة الإشعارات والتنبيهات؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.notification-content > p {
+  margin: 0;
+  color: #74776c;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* .notification-meta: واجهة الإشعارات والتنبيهات؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.notification-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 11px;
+  color: #a0a198;
+  font-size: 11px;
+}
+
+/* Mark as Read Button */
+
+/* .notification-read-button: واجهة الإشعارات والتنبيهات؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.notification-read-button {
+  flex-shrink: 0;
+  align-self: center;
+  padding: 8px 12px;
+  border: 1px solid #eadba9;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #98740d;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+/* .notification-read-button: واجهة الإشعارات والتنبيهات؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.notification-read-button:hover {
+  background: #fff4d6;
+  border-color: #e4c45d;
+}
+
+/* Empty State */
+
+/* .notifications-empty: حالة عدم وجود بيانات؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.notifications-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  padding: 35px 20px;
+  border: 1px dashed #deded5;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #a0a198;
+  text-align: center;
+}
+
+/* .notifications-empty: حالة عدم وجود بيانات؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.notifications-empty > svg {
+  margin-bottom: 14px;
+  color: #d5b54f;
+}
+
+/* .notifications-empty: حالة عدم وجود بيانات؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.notifications-empty h3 {
+  margin: 0;
+  color: #44473f;
+  font-size: 16px;
+}
+
+/* .notifications-empty: حالة عدم وجود بيانات؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.notifications-empty p {
+  margin-top: 8px;
+  color: #929489;
+  font-size: 13px;
+}
+
+/* Responsive */
+
+@media (max-width: 650px) {
+  
+
+/* .notifications-page: العنصر `notifications-page` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.notifications-page {
+    padding: 20px 14px 30px;
+  }
+
+  
+
+/* .notifications-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.notifications-heading {
+    align-items: flex-start;
+  }
+
+  
+
+/* .notifications-heading: عنوان الصفحة أو القسم والوصف التابع له؛ ينسق الخط والألوان. */
+.notifications-heading h1 {
+    font-size: 23px;
+  }
+
+  
+
+/* .notifications-heading: عنوان الصفحة أو القسم والوصف التابع له؛ ينسق الخط والألوان. */
+.notifications-heading p {
+    font-size: 12px;
+  }
+
+  
+
+/* .notifications-toolbar: شريط أدوات البحث والفلترة والإجراءات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.notifications-toolbar {
+    align-items: flex-start;
+  }
+
+  
+
+/* .notifications-mark-all: العنصر `notifications-mark-all` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.notifications-mark-all {
+    font-size: 11px;
+    padding: 9px 10px;
+  }
+
+  
+
+/* .notification-card: واجهة الإشعارات والتنبيهات؛ يضبط المساحة الداخلية. */
+.notification-card {
+    gap: 11px;
+    padding: 14px;
+  }
+
+  
+
+/* .notification-icon: واجهة الإشعارات والتنبيهات؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+.notification-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  
+
+/* .notification-icon: واجهة الإشعارات والتنبيهات؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+.notification-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  
+
+/* .notification-title-row: واجهة الإشعارات والتنبيهات؛ ينسق الخط والألوان. */
+.notification-title-row h3 {
+    font-size: 13px;
+  }
+
+  
+
+/* .notification-content: واجهة الإشعارات والتنبيهات؛ ينسق الخط والألوان. */
+.notification-content > p {
+    font-size: 12px;
+  }
+
+  
+
+/* .notification-read-button: واجهة الإشعارات والتنبيهات؛ يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.notification-read-button {
+    align-self: flex-start;
+    padding: 7px 8px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  
+
+/* .notification-card: واجهة الإشعارات والتنبيهات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.notification-card {
+    flex-wrap: wrap;
+  }
+
+  
+
+/* .notification-content: واجهة الإشعارات والتنبيهات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.notification-content {
+    flex-basis: calc(100% - 55px);
+  }
+
+  
+
+/* .notification-read-button: واجهة الإشعارات والتنبيهات؛ يضبط المسافات الخارجية. */
+.notification-read-button {
+    margin-left: 49px;
+  }
+}
+/* Header notification button */
+
+/* .cd-header-actions: مجموعة أزرار الإجراءات؛ يضبط المسافات الخارجية، يتحكم بالارتفاع. */
+.cd-header-actions {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+/* .cd-notification-button: زر لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
+.cd-notification-button {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 50%;
+  background: #fdf3d6;
+  color: #c99518;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+/* .cd-notification-button: زر لتنفيذ إجراء؛ يحدد الخلفية. */
+.cd-notification-button:hover {
+  background: #f8e7b5;
+
+  transform: scale(1.05);
+}
+
+/* .cd-user: معلومات المستخدم والحساب؛ يحدد الحدود والفواصل. */
+.cd-user {
+  border-left: 1px solid var(--cd-border);
+}
+
+/* Notification dot on header bell */
+
+/* .cd-notification-button: زر لتنفيذ إجراء؛ يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.cd-notification-button {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* .cd-notification-dot: العنصر `cd-notification-dot` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+.cd-notification-dot {
+  position: absolute !important;
+  top: -3px !important;
+  right: -3px !important;
+  width: 11px !important;
+  height: 11px !important;
+  display: block !important;
+  background: #f04438 !important;
+  border: 2px solid white !important;
+  border-radius: 50% !important;
+  z-index: 9999 !important;
+}

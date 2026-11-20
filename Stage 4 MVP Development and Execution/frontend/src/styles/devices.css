@@ -1,19 +1,41 @@
 /* Device verification status (provider and contractor) */
+/* .dv-wrap: العنصر `dv-wrap` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .dv-wrap { display: grid; gap: 14px; }
+/* .dv-counts: العنصر `dv-counts` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .dv-counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+/* .dv-counts: العنصر `dv-counts` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
 .dv-counts div { display: grid; gap: 2px; padding: 12px 14px; border: 1px solid #eceef2; border-radius: 10px; background: #f9fafb; }
+/* .dv-counts: العنصر `dv-counts` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .dv-counts strong { font-size: 22px; color: #111827; }
+/* .dv-counts: العنصر `dv-counts` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .dv-counts span { color: #6b7280; font-size: 12.5px; }
+/* .dv-counts: العنصر `dv-counts` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .ok: العنصر `ok` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .dv-counts .ok { background: #eef8f1; border-color: #c7ebd4; }
+/* .dv-counts: العنصر `dv-counts` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .wait: العنصر `wait` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .dv-counts .wait { background: #fffaeb; border-color: #f7e2a1; }
+/* .dv-table: جدول يعرض بيانات في صفوف وأعمدة؛ يتحكم بالتمرير وإخفاء المحتوى الزائد. */
 .dv-table { overflow-x: auto; }
+/* .dv-table: جدول يعرض بيانات في صفوف وأعمدة؛ يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .dv-table table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+/* .dv-table: جدول يعرض بيانات في صفوف وأعمدة؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .dv-table th { text-align: start; color: #6b7280; font-size: 12px; font-weight: 600; padding: 8px 10px; border-bottom: 1px solid #eceef2; white-space: nowrap; }
+/* .dv-table: جدول يعرض بيانات في صفوف وأعمدة؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
 .dv-table td { padding: 10px; border-bottom: 1px solid #f2f4f7; vertical-align: middle; }
+/* .dv-table: جدول يعرض بيانات في صفوف وأعمدة؛ ينسق الخط والألوان. */
 .dv-table td b { display: block; color: #111827; }
+/* .dv-table: جدول يعرض بيانات في صفوف وأعمدة؛ ينسق الخط والألوان. */
 .dv-table td small { color: #6b7280; font-size: 12px; }
+/* .dv-pill: العنصر `dv-pill` ضمن واجهة هذا الدور؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .dv-pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+/* .dv-pill: العنصر `dv-pill` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .ok: العنصر `ok` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .dv-pill.ok { background: #e3f4e8; color: #1f7a40; }
+/* .dv-pill: العنصر `dv-pill` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .wait: العنصر `wait` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .dv-pill.wait { background: #fff8e1; color: #b8860b; }
+/* .dv-empty: حالة عدم وجود بيانات؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .dv-empty { margin: 0; padding: 14px; border-radius: 10px; background: #f9fafb; color: #6b7280; font-size: 13px; line-height: 1.6; }
+/* .dv-note: العنصر `dv-note` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .dv-note { margin: 0; color: #98a2b3; font-size: 12px; }

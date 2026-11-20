@@ -6,6 +6,9 @@
 /* ---------- Shared bits ---------- */
 
 /* Status pills keep their own size instead of stretching in column layouts */
+/* .pf-pill: العنصر `pf-pill` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+/* .cd-status: شارة توضح حالة المشروع أو الطلب؛ يتحكم بالعرض. */
+/* .pv-badge: شارة صغيرة لتصنيف أو حالة؛ يتحكم بالعرض. */
 .pf-pill,
 .cd-status,
 .pv-badge {
@@ -14,6 +17,7 @@
 }
 
 /* Empty states look like a quiet card, not loose text */
+/* .pf-empty: حالة عدم وجود بيانات؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .pf-empty {
   margin: 0;
   padding: 32px 20px;
@@ -26,19 +30,41 @@
 }
 
 /* Plain "Back to ..." links look like the other back links */
+/* .pf-main: العنصر `pf-main` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+/* .fw-main: العنصر `fw-main` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ ينسق الخط والألوان. */
+/* .provider-main-area: واجهة مقدم الخدمة أو بياناته؛ ينسق الخط والألوان. */
+/* .quotation-content: واجهة عرض السعر أو تفاصيل تسعيره؛ ينسق الخط والألوان. */
 :is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content) a[href]:not([class]) {
   color: #475467;
   font-size: 13px;
   text-decoration: none;
 }
+/* .pf-main: العنصر `pf-main` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+/* .fw-main: العنصر `fw-main` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ ينسق الخط والألوان. */
+/* .provider-main-area: واجهة مقدم الخدمة أو بياناته؛ ينسق الخط والألوان. */
+/* .quotation-content: واجهة عرض السعر أو تفاصيل تسعيره؛ ينسق الخط والألوان. */
 :is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content) a[href]:not([class]):hover {
   color: #111827;
 }
 
 /* Inputs, selects and textareas: one height, one focus colour */
+/* .pf-main: العنصر `pf-main` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .fw-main: العنصر `fw-main` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالارتفاع. */
+/* .provider-main-area: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالارتفاع. */
+/* .quotation-content: واجهة عرض السعر أو تفاصيل تسعيره؛ يتحكم بالارتفاع. */
+/* .adm-main: العنصر `adm-main` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
 :is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content, .adm-main) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select) {
   min-height: 40px;
 }
+/* .pf-main: العنصر `pf-main` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .fw-main: العنصر `fw-main` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .provider-main-area: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .quotation-content: واجهة عرض السعر أو تفاصيل تسعيره؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .adm-main: العنصر `adm-main` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
 :is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content, .adm-main) :is(input, select, textarea):focus {
   outline: none;
   border-color: #f5c518;
@@ -46,19 +72,33 @@
 }
 
 /* Tables: comfortable rows */
+/* .pf-main: العنصر `pf-main` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .fw-main: العنصر `fw-main` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .provider-main-area: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .quotation-content: واجهة عرض السعر أو تفاصيل تسعيره؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .adm-main: العنصر `adm-main` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 :is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content, .adm-main) table th {
   white-space: nowrap;
 }
+/* .pf-main: العنصر `pf-main` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .fw-main: العنصر `fw-main` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .provider-main-area: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .quotation-content: واجهة عرض السعر أو تفاصيل تسعيره؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .adm-main: العنصر `adm-main` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 :is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content, .adm-main) table td {
   vertical-align: middle;
 }
 
 /* Admin page uses the same light grey background as the other dashboards */
+/* .adm-page: العنصر `adm-page` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
 .adm-page {
   background: #f5f7fa;
 }
 
 /* Landing page: "Featured Service Providers" is a heading like "How MAMAR Works", not a yellow bar */
+/* .providers-title: العنصر `providers-title` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .providers-title {
   width: auto;
   height: auto;
@@ -74,24 +114,32 @@
    ========================================================================== */
 @media (max-width: 760px) {
   /* Contractor menu: a short scrolling strip at the top instead of a full screen */
-  .cd-body .mamar-sidebar {
+  /* .cd-body: العنصر `cd-body` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+/* .mamar-sidebar: الشريط الجانبي للتنقل؛ يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+.cd-body .mamar-sidebar {
     width: 100%;
     min-width: 0;
     min-height: 0;
     border-right: none;
     border-bottom: 1px solid #eceef2;
   }
-  .cd-body .mamar-sidebar-nav {
+  /* .cd-body: العنصر `cd-body` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+/* .mamar-sidebar-nav: العنصر `mamar-sidebar-nav` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.cd-body .mamar-sidebar-nav {
     flex-direction: row;
     margin-top: 0;
     overflow-x: auto;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
   }
-  .cd-body .mamar-sidebar-nav::-webkit-scrollbar {
+  /* .cd-body: العنصر `cd-body` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .mamar-sidebar-nav: العنصر `mamar-sidebar-nav` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.cd-body .mamar-sidebar-nav::-webkit-scrollbar {
     display: none;
   }
-  .cd-body .mamar-sidebar-nav a {
+  /* .cd-body: العنصر `cd-body` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+/* .mamar-sidebar-nav: العنصر `mamar-sidebar-nav` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.cd-body .mamar-sidebar-nav a {
     flex-shrink: 0;
     min-height: 46px;
     gap: 8px;
@@ -100,10 +148,15 @@
     border-left: none;
     border-bottom: 3px solid transparent;
   }
-  .cd-body .mamar-sidebar-nav a.active {
+  /* .cd-body: العنصر `cd-body` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .mamar-sidebar-nav: العنصر `mamar-sidebar-nav` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.cd-body .mamar-sidebar-nav a.active {
     border-bottom-color: #ffc400;
   }
-  .cd-body .mamar-sidebar-bottom {
+  /* .cd-body: العنصر `cd-body` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+/* .mamar-sidebar-bottom: العنصر `mamar-sidebar-bottom` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.cd-body .mamar-sidebar-bottom {
     margin-top: 0;
     flex-direction: row;
     flex-wrap: wrap;
@@ -111,45 +164,70 @@
     padding: 8px 14px 10px;
     border-top: 1px solid #f2f4f7;
   }
-  .cd-body .mamar-sidebar-bottom a {
+  /* .cd-body: العنصر `cd-body` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+/* .mamar-sidebar-bottom: العنصر `mamar-sidebar-bottom` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.cd-body .mamar-sidebar-bottom a {
     font-size: 11.5px;
   }
 
   /* Page padding a little tighter on phones */
-  .pf-main,
+  /* .pf-main: العنصر `pf-main` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+/* .fw-main: العنصر `fw-main` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.pf-main,
   .fw-main {
     padding: 20px 16px 32px;
   }
 
   /* Wide tables scroll sideways instead of squeezing the columns */
-  :is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content, .adm-main) :has(> table) {
+  /* .pf-main: العنصر `pf-main` ضمن واجهة هذا الدور؛ يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+/* .fw-main: العنصر `fw-main` ضمن واجهة هذا الدور؛ يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+/* .provider-main-area: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+/* .quotation-content: واجهة عرض السعر أو تفاصيل تسعيره؛ يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+/* .adm-main: العنصر `adm-main` ضمن واجهة هذا الدور؛ يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+:is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content, .adm-main) :has(> table) {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-  :is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content, .adm-main) table {
+  /* .pf-main: العنصر `pf-main` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+/* .fw-main: العنصر `fw-main` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالعرض. */
+/* .provider-main-area: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالعرض. */
+/* .quotation-content: واجهة عرض السعر أو تفاصيل تسعيره؛ يتحكم بالعرض. */
+/* .adm-main: العنصر `adm-main` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+:is(.pf-main, .fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content, .adm-main) table {
     min-width: 760px;
   }
 
   /* My Projects: the search and the filter share the row without overflowing */
-  .mp-toolbar {
+  /* .mp-toolbar: شريط أدوات البحث والفلترة والإجراءات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.mp-toolbar {
     flex-wrap: wrap;
   }
-  .mp-toolbar > * {
+  /* .mp-toolbar: شريط أدوات البحث والفلترة والإجراءات؛ يتحكم بالعرض. */
+.mp-toolbar > * {
     min-width: 0;
   }
-  .mp-search {
+  /* .mp-search: حقل البحث وأيقونة البحث؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.mp-search {
     flex: 1 1 100%;
   }
 
   /* Contractor guide: one feature per row so the text is not squeezed */
-  .contractor-guide-highlights {
+  /* .contractor-guide-highlights: العنصر `contractor-guide-highlights` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.contractor-guide-highlights {
     grid-template-columns: 1fr;
     gap: 16px;
   }
 }
 
 @media (max-width: 480px) {
-  .pf-heading h1,
+  /* .pf-heading: عنوان الصفحة أو القسم والوصف التابع له؛ ينسق الخط والألوان. */
+/* .fw-main: العنصر `fw-main` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+/* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ ينسق الخط والألوان. */
+/* .provider-main-area: واجهة مقدم الخدمة أو بياناته؛ ينسق الخط والألوان. */
+/* .quotation-content: واجهة عرض السعر أو تفاصيل تسعيره؛ ينسق الخط والألوان. */
+.pf-heading h1,
   :is(.fw-main, .provider-dashboard-content, .provider-main-area, .quotation-content) h1 {
     font-size: 24px;
   }

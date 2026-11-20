@@ -1,3 +1,4 @@
+/* .hero: العنصر `hero` ضمن واجهة هذا الدور؛ يتحكم بالعرض، يتحكم بالارتفاع، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
 .hero {
   width: 100%;
   height: 738px;
@@ -6,6 +7,7 @@
   overflow: hidden;
 }
 
+/* .hero-image: صورة معروضة داخل الواجهة؛ يتحكم بالعرض، يتحكم بالارتفاع. */
 .hero-image {
   width: 100%;
   height: 100%;
@@ -14,6 +16,7 @@
   object-position: center;
 }
 
+/* .hero-content: منطقة المحتوى الداخلي؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .hero-content {
   position: absolute;
 
@@ -21,6 +24,7 @@
   top: 250px;
 }
 
+/* .hero-content: منطقة المحتوى الداخلي؛ ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
 .hero-content h1 {
   width: 572px;
 
@@ -33,14 +37,17 @@
   line-height: 1.18;
 }
 
+/* .hero-gray: العنصر `hero-gray` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .hero-gray {
   color: #b3b3b3;
 }
 
+/* .hero-yellow: العنصر `hero-yellow` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .hero-yellow {
   color: #fabf0d;
 }
 
+/* .hero-actions: مجموعة أزرار الإجراءات؛ يضبط المسافات الخارجية. */
 .hero-actions {
   display: flex;
   align-items: center;
@@ -50,6 +57,7 @@
   margin-top: 50px;
 }
 
+/* .outline-btn: زر لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .outline-btn {
   display: inline-flex;
   align-items: center;
@@ -69,6 +77,7 @@
   transition: 0.2s ease;
 }
 
+/* .outline-btn: زر لتنفيذ إجراء؛ يحدد الخلفية، ينسق الخط والألوان. */
 .outline-btn:hover {
   background: #f3f4f6;
   color: #6b7280;
@@ -77,10 +86,12 @@
 /* =========================
    HOW MAMAR WORKS
 ========================= */
+/* .how-section: قسم مستقل من محتوى الصفحة؛ يضبط المساحة الداخلية. */
 .how-section {
   padding: 48px 40px;
 }
 
+/* .steps-box: العنصر `steps-box` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية، يتحكم بالعرض. */
 .steps-box {
   margin-top: 66px;
 
@@ -99,6 +110,7 @@
   border-bottom: 1px solid #f8d991;
 }
 
+/* .step-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
 .step-card {
   height: 141px;
 
@@ -111,6 +123,7 @@
   padding: 10px;
 }
 
+/* .step-number: خطوة ضمن مسار تنفيذ؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .step-number {
   width: 24px;
   height: 19px;
@@ -129,6 +142,7 @@
   color: #3c3d3e;
 }
 
+/* .step-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .step-card h3 {
   margin-top: 12px;
 
@@ -138,6 +152,7 @@
   color: #3c3d3e;
 }
 
+/* .step-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .step-card p {
   margin-top: 20px;
 
@@ -148,6 +163,7 @@
 }
 
 /* How MAMAR Works */
+/* .how-title: العنصر `how-title` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، يتحكم بالارتفاع. */
 .how-title {
   display: flex;
   align-items: center;
@@ -157,12 +173,14 @@
   line-height: 1.1;
 }
 
+/* .how-title-text: العنصر `how-title-text` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .how-title-text {
   color: #000000;
   font-size: 22px;
   font-weight: 700;
 }
 
+/* .how-title-highlight: العنصر `how-title-highlight` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .how-title-highlight {
   color: #ffcc00;
   font-size: 22px;
@@ -173,12 +191,14 @@
    FEATURED PROVIDERS
 ========================= */
 
+/* .providers-section: قسم مستقل من محتوى الصفحة؛ يحدد الخلفية، يضبط المساحة الداخلية. */
 .providers-section {
   padding: 66px 52px 55px;
 
   background: #ffffff;
 }
 
+/* .providers-title: العنصر `providers-title` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .providers-title {
   width: 553px;
   height: 40px;
@@ -199,6 +219,7 @@
   color: #000000;
 }
 
+/* .providers-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .providers-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -206,6 +227,7 @@
   gap: 15px;
 }
 
+/* .provider-card: واجهة مقدم الخدمة أو بياناته؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
 .provider-card {
   min-height: 150px;
 
@@ -224,6 +246,7 @@
   background: #ffffff;
 }
 
+/* .provider-name: واجهة مقدم الخدمة أو بياناته؛ ينسق الخط والألوان، يتحكم بالعرض. */
 .provider-name {
   max-width: 165px;
 
@@ -233,6 +256,7 @@
   color: #111827;
 }
 
+/* .provider-card: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالعرض، يتحكم بالارتفاع. */
 .provider-card img {
   max-width: 75px;
   max-height: 75px;
@@ -244,12 +268,14 @@
    WHY MAMAR
 ========================= */
 
+/* .why-section: قسم مستقل من محتوى الصفحة؛ يحدد الخلفية، يضبط المساحة الداخلية. */
 .why-section {
   background: #f5f7fa;
 
   padding: 26px 36px 34px;
 }
 
+/* .why-section: قسم مستقل من محتوى الصفحة؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .why-section h2 {
   font-size: 23px;
   font-weight: 700;
@@ -259,10 +285,12 @@
   margin-bottom: 28px;
 }
 
+/* .why-section: قسم مستقل من محتوى الصفحة؛ ينسق الخط والألوان. */
 .why-section h2 span {
   color: #fabf0d;
 }
 
+/* .why-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .why-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -270,6 +298,7 @@
   gap: 70px;
 }
 
+/* .why-grid: شبكة توزيع العناصر؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .why-grid article h3 {
   margin-bottom: 14px;
 
@@ -279,6 +308,7 @@
   color: #111827;
 }
 
+/* .why-grid: شبكة توزيع العناصر؛ ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
 .why-grid article p {
   max-width: 245px;
 
@@ -292,6 +322,7 @@
    CTA
 ========================= */
 
+/* .cta-section: قسم مستقل من محتوى الصفحة؛ يحدد الخلفية، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
 .cta-section {
   min-height: 95px;
 
@@ -304,6 +335,7 @@
   background: #fff9ec;
 }
 
+/* .cta-section: قسم مستقل من محتوى الصفحة؛ ينسق الخط والألوان. */
 .cta-section p {
   font-size: 19px;
   font-weight: 700;
@@ -311,10 +343,12 @@
   color: #111827;
 }
 
+/* .outline-btn: زر لتنفيذ إجراء؛ يحدد الخلفية. */
 .outline-btn:hover {
   background: #ffffff;
 }
 
+/* .sign-in: العنصر `sign-in` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .sign-in:hover {
   opacity: 0.85;
 }
@@ -325,11 +359,15 @@
 
 @media (max-width: 1000px) {
 
-  .hero-content {
+  /* .hero-content: منطقة المحتوى الداخلي؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.hero-content {
     left: 25px;
   }
 
-  .steps-box,
+  /* .steps-box: العنصر `steps-box` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .providers-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .why-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.steps-box,
   .providers-grid,
   .why-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -338,51 +376,63 @@
 
 @media (max-width: 650px) {
 
-  .brand img {
+  /* .brand: العنصر `brand` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+.brand img {
     width: 70px;
   }
 
-  .sign-in {
+  /* .sign-in: العنصر `sign-in` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+.sign-in {
     width: 75px;
   }
 
-  .get-started {
+  /* .get-started: العنصر `get-started` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+.get-started {
     width: 90px;
   }
 
-  .hero {
+  /* .hero: العنصر `hero` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+.hero {
     height: 560px;
   }
 
-  .hero-content {
+  /* .hero-content: منطقة المحتوى الداخلي؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.hero-content {
     left: 20px;
     top: 260px;
   }
 
-  .hero-content h1 {
+  /* .hero-content: منطقة المحتوى الداخلي؛ ينسق الخط والألوان، يتحكم بالعرض. */
+.hero-content h1 {
     width: 90%;
 
     font-size: 34px;
   }
 
-  .hero-actions {
+  /* .hero-actions: مجموعة أزرار الإجراءات؛ يضبط المسافات الخارجية. */
+.hero-actions {
     flex-direction: column;
     align-items: flex-start;
 
     margin-top: 30px;
   }
 
-  .steps-box,
+  /* .steps-box: العنصر `steps-box` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .providers-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .why-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.steps-box,
   .providers-grid,
   .why-grid {
     grid-template-columns: 1fr;
   }
 
-  .providers-title {
+  /* .providers-title: العنصر `providers-title` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+.providers-title {
     width: 100%;
   }
 
-  .cta-section {
+  /* .cta-section: قسم مستقل من محتوى الصفحة؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.cta-section {
     flex-direction: column;
 
     align-items: flex-start;

@@ -15,7 +15,7 @@ import FieldWorkerShell from "../../components/FieldWorkerShell";
 import Header from "../../components/Header";
 import PhoneAlertsCard from "../../components/PhoneAlertsCard";
 import { getSession } from "../../services/auth";
-import "../../styles/Weblogin/notification.css"
+import "../../styles/Contractor/notification.css"
 
 import {
   getNotifications,

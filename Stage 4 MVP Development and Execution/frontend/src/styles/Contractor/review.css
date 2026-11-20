@@ -1,0 +1,547 @@
+/* Contractor role: review project details before submitting or continuing the project flow. */
+
+/* ==========================================
+   REVIEW PAGE - MAIN LAYOUT
+========================================== */
+
+/* .review-content: منطقة المحتوى الداخلي؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالعرض. */
+.review-content {
+  width: 100%;
+  max-width: 1250px;
+  margin: 0 auto;
+  padding: 28px 24px 40px;
+  box-sizing: border-box;
+  color: #172033;
+  font-family: Arial, sans-serif;
+}
+
+/* .review-content: منطقة المحتوى الداخلي؛ يحدد الحدود والفواصل. */
+.review-content * {
+  box-sizing: border-box;
+}
+
+/* Heading */
+
+/* .review-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية. */
+.review-heading {
+  margin-bottom: 24px;
+}
+
+/* .review-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.review-heading h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: #172033;
+}
+
+/* .review-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.review-heading p {
+  margin-top: 10px;
+  font-size: 15px;
+  color: #475467;
+  line-height: 1.6;
+}
+
+/* ==========================================
+   PROGRESS
+========================================== */
+
+/* .review-progress: مؤشر تقدم المراحل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.review-progress {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  padding: 22px 28px;
+  background: #ffffff;
+  border: 1px solid #eef0f3;
+  border-radius: 16px;
+  width: 100%;
+}
+
+/* .review-progress-step: خطوة ضمن مسار تنفيذ؛ ينسق الخط والألوان. */
+.review-progress-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #667085;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* .review-progress-number: العنصر `review-progress-number` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
+.review-progress-number {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #f2f4f7;
+  color: #667085;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* .review-progress-step: خطوة ضمن مسار تنفيذ؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .completed: العنصر `completed` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .review-progress-number: العنصر `review-progress-number` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.review-progress-step.completed .review-progress-number {
+  background: #4caf50;
+  color: #ffffff;
+}
+
+/* .review-progress-step: خطوة ضمن مسار تنفيذ؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .review-progress-number: العنصر `review-progress-number` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+.review-progress-step.active .review-progress-number {
+  background: #f9c93c;
+  color: #172033;
+}
+
+/* .review-progress-step: خطوة ضمن مسار تنفيذ؛ ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+/* .review-progress-label: العنصر `review-progress-label` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.review-progress-step.active .review-progress-label {
+  color: #172033;
+  font-weight: 700;
+}
+
+/* .review-progress-line: العنصر `review-progress-line` ضمن واجهة هذا الدور؛ يحدد الخلفية، يتحكم بالعرض، يتحكم بالارتفاع. */
+.review-progress-line {
+  flex: 1;
+  min-width: 15px;
+  height: 2px;
+  background: #e5e7eb;
+}
+
+/* .review-progress-line: العنصر `review-progress-line` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+/* .completed: العنصر `completed` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+.review-progress-line.completed {
+  background: #4caf50;
+}
+
+/* ==========================================
+   CARDS GRID
+========================================== */
+
+/* .review-grid: شبكة توزيع العناصر؛ يتحكم بالعرض. */
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+  width: 100%;
+}
+
+/* .review-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
+.review-card {
+  min-width: 0;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #eef0f3;
+  border-radius: 16px;
+}
+
+/* .review-services-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.review-services-card {
+  grid-column: 1 / -1;
+}
+
+/* .review-card-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية. */
+.review-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* .review-card-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.review-card-heading h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #172033;
+}
+
+/* .review-card-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.review-card-heading p {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #667085;
+}
+
+/* Edit Button */
+
+/* .review-edit-button: زر لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.review-edit-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+/* .review-edit-button: زر لتنفيذ إجراء؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.review-edit-button:hover {
+  background: #fff9ec;
+  border-color: #f9c93c;
+}
+
+/* ==========================================
+   PROJECT DETAILS
+========================================== */
+
+/* .review-field: حقل من حقول النموذج؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.review-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 0;
+  border-bottom: 1px solid #eef0f3;
+}
+
+/* .review-field: حقل من حقول النموذج؛ ينسق الخط والألوان. */
+.review-field span {
+  font-size: 12px;
+  color: #667085;
+}
+
+/* .review-field: حقل من حقول النموذج؛ ينسق الخط والألوان. */
+.review-field strong {
+  font-size: 15px;
+  font-weight: 700;
+  color: #172033;
+  word-break: break-word;
+}
+
+/* .review-details-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الحدود والفواصل. */
+/* .review-field: حقل من حقول النموذج؛ يحدد الحدود والفواصل. */
+.review-details-card .review-field:last-child {
+  border-bottom: none;
+}
+
+/* ==========================================
+   MAP
+========================================== */
+
+/* .review-map: مساحة عرض الخريطة؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+.review-map {
+  width: 100%;
+  height: 280px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #f2f4f7;
+}
+
+/* .review-map: مساحة عرض الخريطة؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+/* .mamar-map-container: حاوية تجمع عناصر الواجهة؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+.review-map .mamar-map-container {
+  width: 100%;
+  height: 100% !important;
+  min-height: 0;
+  border: none;
+  border-radius: 0;
+}
+
+/* .review-map: مساحة عرض الخريطة؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+/* .mamar-map: مساحة عرض الخريطة؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+.review-map .mamar-map {
+  width: 100%;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+/* .review-map-empty: حالة عدم وجود بيانات؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
+.review-map-empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #667085;
+  font-size: 14px;
+}
+
+/* .review-location-info: العنصر `review-location-info` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.review-location-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 16px;
+  color: #f0ab00;
+}
+
+/* .review-location-info: العنصر `review-location-info` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.review-location-info strong {
+  display: block;
+  font-size: 14px;
+  color: #172033;
+}
+
+/* .review-location-info: العنصر `review-location-info` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.review-location-info p {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #475467;
+  line-height: 1.5;
+}
+
+/* .review-location-info: العنصر `review-location-info` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.review-location-info small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #667085;
+}
+
+/* ==========================================
+   SERVICES
+========================================== */
+
+/* .review-services-list: قائمة من العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.review-services-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* .review-service-item: عنصر منفرد ضمن مجموعة؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.review-service-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  background: #fffdf5;
+  border: 1px solid #f9c93c;
+  border-radius: 12px;
+}
+
+/* .review-service-check: العنصر `review-service-check` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
+.review-service-check {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #f9c93c;
+  color: #172033;
+}
+
+/* .review-service-item: عنصر منفرد ضمن مجموعة؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.review-service-item h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #172033;
+}
+
+/* .review-service-item: عنصر منفرد ضمن مجموعة؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.review-service-item p {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #667085;
+  line-height: 1.5;
+}
+
+/* .review-empty-services: العنصر `review-empty-services` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.review-empty-services {
+  font-size: 14px;
+  color: #667085;
+}
+
+/* ==========================================
+   CONFIRMATION
+========================================== */
+
+/* .review-confirmation: العنصر `review-confirmation` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.review-confirmation {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+  padding: 20px 24px;
+  background: #fff9ec;
+  border: 1px solid #f8d991;
+  border-radius: 16px;
+}
+
+/* .review-confirmation-icon: أيقونة توضيحية أو إجرائية؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
+.review-confirmation-icon {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #f9c93c;
+  color: #172033;
+}
+
+/* .review-confirmation-text: العنصر `review-confirmation-text` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.review-confirmation-text h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #172033;
+}
+
+/* .review-confirmation-text: العنصر `review-confirmation-text` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.review-confirmation-text p {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #475467;
+  line-height: 1.5;
+}
+
+/* ==========================================
+   MESSAGES
+========================================== */
+
+/* .review-error: رسالة خطأ؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية، ينسق الخط والألوان. */
+/* .review-success: رسالة نجاح؛ يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.review-error,
+.review-success {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* .review-error: رسالة خطأ؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.review-error {
+  background: #fef3f2;
+  border: 1px solid #fecdca;
+  color: #b42318;
+}
+
+/* .review-success: رسالة نجاح؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.review-success {
+  background: #ecfdf3;
+  border: 1px solid #abefc6;
+  color: #067647;
+}
+
+/* ==========================================
+   ACTION BUTTONS
+========================================== */
+
+/* .review-actions: مجموعة أزرار الإجراءات؛ يضبط المسافات الخارجية. */
+.review-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+/* .review-actions-right: العنصر `review-actions-right` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.review-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 1000px) {
+  
+/* .review-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.review-grid {
+    grid-template-columns: 1fr;
+  }
+
+  
+/* .review-services-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.review-services-card {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 650px) {
+  
+/* .review-content: منطقة المحتوى الداخلي؛ يضبط المساحة الداخلية. */
+.review-content {
+    padding: 20px 14px 30px;
+  }
+
+  
+/* .review-heading: عنوان الصفحة أو القسم والوصف التابع له؛ ينسق الخط والألوان. */
+.review-heading h1 {
+    font-size: 26px;
+  }
+
+  
+/* .review-progress: مؤشر تقدم المراحل؛ يضبط المساحة الداخلية، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.review-progress {
+    padding: 16px;
+    gap: 10px;
+    overflow-x: auto;
+  }
+
+  
+/* .review-progress-step: خطوة ضمن مسار تنفيذ؛ ينسق الخط والألوان. */
+.review-progress-step {
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  
+/* .review-progress-line: العنصر `review-progress-line` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+.review-progress-line {
+    min-width: 18px;
+  }
+
+  
+/* .review-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المساحة الداخلية. */
+.review-card {
+    padding: 18px;
+  }
+
+  
+/* .review-card-heading: عنوان الصفحة أو القسم والوصف التابع له؛ ينسق الخط والألوان. */
+.review-card-heading h2 {
+    font-size: 18px;
+  }
+
+  
+/* .review-map: مساحة عرض الخريطة؛ يتحكم بالارتفاع. */
+.review-map {
+    height: 220px;
+  }
+
+  
+/* .review-confirmation: العنصر `review-confirmation` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.review-confirmation {
+    padding: 16px;
+  }
+
+  
+/* .review-actions: مجموعة أزرار الإجراءات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.review-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  
+/* .review-actions-right: العنصر `review-actions-right` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.review-actions-right {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+

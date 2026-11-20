@@ -10,7 +10,7 @@ import {
   getConfirmedQuotationId,
   openProjectById,
 } from "../../services/Contractor/Contractor";
-import "../../styles/Weblogin/payment.css"
+import "../../styles/Contractor/payment.css"
 import {
   clearPendingPayment,
   finishPayment,

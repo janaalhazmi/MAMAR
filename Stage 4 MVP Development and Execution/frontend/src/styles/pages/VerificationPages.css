@@ -1,6 +1,7 @@
 /* =========================
    verification Page
 ========================= */
+/* .verification-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
 .verification-card {
   width: 540px;
   min-height: 460px;
@@ -14,6 +15,7 @@
   box-shadow: 20px 25px 60px rgba(228, 230, 234, 0.74);
 }
 
+/* .verification-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .verification-card h1 {
   margin: 0;
   color: #30332d;
@@ -22,6 +24,8 @@
   text-align: center;
 }
 
+/* .verification-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+/* .signup-subtitle: العنصر `signup-subtitle` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .verification-card .signup-subtitle {
   margin: 14px 0 30px;
   color: #7b7d73;
@@ -30,6 +34,7 @@
   text-align: center;
 }
 
+/* .verification-role-buttons: العنصر `verification-role-buttons` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، يتحكم بالعرض. */
 .verification-role-buttons {
   width: 100%;
   display: grid;
@@ -38,6 +43,8 @@
   margin-bottom: 48px;
 }
 
+/* .verification-role-buttons: العنصر `verification-role-buttons` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
+/* .signup-role-btn: زر لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .verification-role-buttons .signup-role-btn {
   width: 100%;
   min-height: 48px;
@@ -50,11 +57,16 @@
   cursor: pointer;
 }
 
+/* .verification-role-buttons: العنصر `verification-role-buttons` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .signup-role-btn: زر لتنفيذ إجراء؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .verification-role-buttons .signup-role-btn.active {
   background: #ffcc00;
   color: #111;
 }
 
+/* .verification-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يتحكم بالعرض. */
+/* .signup-form: نموذج إدخال البيانات؛ يتحكم بالعرض. */
 .verification-card .signup-form {
   width: 100%;
   display: flex;
@@ -62,6 +74,8 @@
   gap: 18px;
 }
 
+/* .verification-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يتحكم بالعرض. */
+/* .signup-field: حقل من حقول النموذج؛ يتحكم بالعرض. */
 .verification-card .signup-field {
   width: 100%;
   display: flex;
@@ -69,11 +83,15 @@
   gap: 10px;
 }
 
+/* .verification-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ ينسق الخط والألوان. */
+/* .signup-field: حقل من حقول النموذج؛ ينسق الخط والألوان. */
 .verification-card .signup-field label {
   color: #55584f;
   font-size: 15px;
 }
 
+/* .verification-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+/* .signup-field: حقل من حقول النموذج؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .verification-card .signup-field input {
   width: 100%;
   height: 48px;
@@ -86,15 +104,21 @@
   background: #fff;
 }
 
+/* .verification-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ ينسق الخط والألوان. */
+/* .signup-field: حقل من حقول النموذج؛ ينسق الخط والألوان. */
 .verification-card .signup-field input::placeholder {
   color: #a4a69d;
 }
 
+/* .verification-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .signup-field: حقل من حقول النموذج؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .verification-card .signup-field input:focus {
   border-color: #fabf0d;
   box-shadow: 0 0 0 2px rgba(250, 191, 13, 0.15);
 }
 
+/* .verification-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المسافات الخارجية، ينسق الخط والألوان. */
+/* .signup-submit: العنصر `signup-submit` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .verification-card .signup-submit {
   width: 100%;
   min-height: 48px;
@@ -108,10 +132,13 @@
   cursor: pointer;
 }
 
+/* .verification-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يحدد الخلفية. */
+/* .signup-submit: العنصر `signup-submit` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
 .verification-card .signup-submit:hover {
   background: #f5c000;
 }
 
+/* .verification-back: العنصر `verification-back` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .verification-back {
   width: 100%;
   min-height: 44px;
@@ -124,10 +151,12 @@
   cursor: pointer;
 }
 
+/* .verification-back: العنصر `verification-back` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
 .verification-back:hover {
   background: #e8e8e8;
 }
 
+/* .signup-error: رسالة خطأ؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
 .signup-error {
   width: 100%;
   margin: 0;
@@ -136,10 +165,12 @@
   line-height: 1.5;
 }
 
+/* .worker-verification-card: عنصر خاص بالعامل الميداني؛ يتحكم بالارتفاع. */
 .worker-verification-card {
   min-height: 460px;
 }
 
+/* .worker-role-badge: عنصر خاص بالعامل الميداني؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .worker-role-badge {
   display: inline-flex;
   align-items: center;
@@ -155,42 +186,51 @@
   font-weight: 600;
 }
 
+/* .worker-verification-card: عنصر خاص بالعامل الميداني؛ يضبط المسافات الخارجية، يتحكم بالعرض. */
+/* .signup-subtitle: العنصر `signup-subtitle` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، يتحكم بالعرض. */
 .worker-verification-card .signup-subtitle {
   max-width: 310px;
   margin: 16px 0 30px;
 }
 
+/* .worker-verification-card: عنصر خاص بالعامل الميداني؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .signup-form: نموذج إدخال البيانات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .worker-verification-card .signup-form {
   gap: 18px;
 }
 
 @media (max-width: 600px) {
-  .verification-card {
+  /* .verification-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المساحة الداخلية، يتحكم بالعرض، يتحكم بالارتفاع. */
+.verification-card {
     width: 100%;
     min-height: 0;
     padding: 36px 24px;
   }
 
-  .verification-role-buttons {
+  /* .verification-role-buttons: العنصر `verification-role-buttons` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
+.verification-role-buttons {
     margin-bottom: 32px;
   }
 
-  .verification-card h1 {
+  /* .verification-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ ينسق الخط والألوان. */
+.verification-card h1 {
     font-size: 26px;
   }
 }
-
-
 
 /* =========================
    CONTRACTOR DASHBOARD MAP
 ========================= */
 
+/* .contractor-dashboard: لوحة التحكم ومؤشراتها؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+/* .locations-panel: لوحة تجمع عناصر ومعلومات مرتبطة؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
 .contractor-dashboard .locations-panel {
   min-width: 0;
   overflow: hidden;
 }
 
+/* .contractor-dashboard: لوحة التحكم ومؤشراتها؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
+/* .dashboard-map-frame: لوحة التحكم ومؤشراتها؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
 .contractor-dashboard .dashboard-map-frame {
   position: relative;
   width: 100%;
@@ -202,6 +242,9 @@
   border: 1px solid #e5e7eb;
 }
 
+/* .contractor-dashboard: لوحة التحكم ومؤشراتها؛ يتحكم بالعرض، يتحكم بالارتفاع، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+/* .dashboard-map-frame: لوحة التحكم ومؤشراتها؛ يتحكم بالعرض، يتحكم بالارتفاع، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+/* .mamar-map-container: حاوية تجمع عناصر الواجهة؛ يتحكم بالعرض، يتحكم بالارتفاع، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
 .contractor-dashboard .dashboard-map-frame .mamar-map-container {
   width: 100%;
   height: 100%;
@@ -209,6 +252,8 @@
   overflow: hidden;
 }
 
+/* .contractor-dashboard: لوحة التحكم ومؤشراتها؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+/* .dashboard-map-frame: لوحة التحكم ومؤشراتها؛ يتحكم بالعرض، يتحكم بالارتفاع. */
 .contractor-dashboard .dashboard-map-frame arcgis-map {
   display: block;
   width: 100%;
@@ -216,12 +261,16 @@
   min-width: 0;
 }
 
+/* .contractor-dashboard: لوحة التحكم ومؤشراتها؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .dashboard-map-frame: لوحة التحكم ومؤشراتها؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .contractor-dashboard .dashboard-map-frame arcgis-zoom {
   --calcite-color-brand: #fabc05;
 }
 
 /* Map button */
 
+/* .contractor-dashboard: لوحة التحكم ومؤشراتها؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+/* .map-full-button: زر لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .contractor-dashboard .map-full-button {
   display: flex;
   align-items: center;
@@ -237,6 +286,8 @@
   transition: background 0.2s ease;
 }
 
+/* .contractor-dashboard: لوحة التحكم ومؤشراتها؛ يحدد الخلفية. */
+/* .map-full-button: زر لتنفيذ إجراء؛ يحدد الخلفية. */
 .contractor-dashboard .map-full-button:hover {
   background: #fff9ec;
 }
@@ -244,11 +295,15 @@
 /* Responsive */
 
 @media (max-width: 650px) {
-  .contractor-dashboard .dashboard-map-frame {
+  /* .contractor-dashboard: لوحة التحكم ومؤشراتها؛ يتحكم بالارتفاع. */
+/* .dashboard-map-frame: لوحة التحكم ومؤشراتها؛ يتحكم بالارتفاع. */
+.contractor-dashboard .dashboard-map-frame {
     height: 200px;
   }
 }
 
+/* .quick-actions-panel: لوحة تجمع عناصر ومعلومات مرتبطة؛ يحدد الخلفية، يحدد الحدود والفواصل، يتحكم بالعرض. */
+/* .quick-action: زر أو رابط لتنفيذ إجراء؛ يحدد الخلفية، يحدد الحدود والفواصل، يتحكم بالعرض. */
 .quick-actions-panel button.quick-action {
   width: 100%;
   border: 1px solid #e1e5eb;
@@ -257,7 +312,4 @@
   text-align: left;
   cursor: pointer;
 }
-
-
-
 

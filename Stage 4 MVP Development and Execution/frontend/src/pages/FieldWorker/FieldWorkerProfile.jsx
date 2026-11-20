@@ -13,7 +13,7 @@ import {
   getProfileInitial,
 } from "../../services/Contractor/profileUtils";
 
-import "../../styles/Contractor/profile.css";
+import "../../styles/FieldWorker/profile.css";
 
 const EMPTY_PROFILE = {
   full_name: "",

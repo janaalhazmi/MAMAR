@@ -29,7 +29,16 @@ textarea {
 
 /* 100vh on iPhone includes the area behind Safari's toolbar */
 @supports (min-height: 100dvh) {
-  .cd-page,
+  /* .cd-page: العنصر `cd-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .login-page: العنصر `login-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .signup-page: العنصر `signup-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .location-screen: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+/* .services-page: العنصر `services-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .review-page: العنصر `review-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .quotation-page: واجهة عرض السعر أو تفاصيل تسعيره؛ يتحكم بالارتفاع. */
+/* .provider-dashboard-page: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالارتفاع. */
+/* .project-location-page: واجهة تحديد موقع المشروع؛ يتحكم بالارتفاع. */
+.cd-page,
   .login-page,
   .signup-page,
   
@@ -42,11 +51,13 @@ textarea {
     min-height: 100dvh;
   }
 
-  .login-main {
+  /* .login-main: العنصر `login-main` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+.login-main {
     min-height: calc(100dvh - 83px);
   }
 
-  .signup-main {
+  /* .signup-main: العنصر `signup-main` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+.signup-main {
     min-height: calc(100dvh - 80px);
   }
 }
@@ -78,10 +89,13 @@ textarea {
     max-width: 100%;
   }
 
-
   
 
-  .cd-nav a,
+  /* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .create-project-navigation: واجهة إنشاء المشروع؛ يتحكم بالارتفاع. */
+/* .location-sidebar-nav: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+/* .services-sidebar-nav: العنصر `services-sidebar-nav` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+.cd-nav a,
   .create-project-navigation a,
   .location-sidebar-nav a,
   .services-sidebar-nav a {
@@ -90,22 +104,27 @@ textarea {
 
  
 
-  .location-back-button,
+  /* .location-back-button: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+/* .location-next-button: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+.location-back-button,
   .location-next-button
   
   {
     min-height: 44px;
   }
 
-  .location-search {
+  /* .location-search: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+.location-search {
     height: 44px;
   }
 
-  .location-search button {
+  /* .location-search: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+.location-search button {
     height: 44px;
   }
 
-  .mamar-map-tool-button {
+  /* .mamar-map-tool-button: زر لتنفيذ إجراء؛ يتحكم بالارتفاع. */
+.mamar-map-tool-button {
     min-height: 40px;
   }
 
@@ -116,7 +135,11 @@ textarea {
 
 @media (max-width: 760px) {
   /* Sidebar "Help / Log out" links were hidden on phones: show them as a row */
-  .cd-sidebar-bottom,
+  /* .cd-sidebar-bottom: العنصر `cd-sidebar-bottom` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+/* .create-project-sidebar-bottom: واجهة إنشاء المشروع؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+/* .location-sidebar-bottom: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+/* .services-sidebar-bottom: العنصر `services-sidebar-bottom` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.cd-sidebar-bottom,
   .create-project-sidebar-bottom,
   .location-sidebar-bottom,
   .services-sidebar-bottom {
@@ -128,7 +151,11 @@ textarea {
     padding: 8px 16px 10px;
   }
 
-  .cd-sidebar-bottom a,
+  /* .cd-sidebar-bottom: العنصر `cd-sidebar-bottom` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
+/* .create-project-sidebar-bottom: واجهة إنشاء المشروع؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
+/* .location-sidebar-bottom: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
+/* .services-sidebar-bottom: العنصر `services-sidebar-bottom` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالارتفاع. */
+.cd-sidebar-bottom a,
   .create-project-sidebar-bottom a,
   .location-sidebar-bottom a,
   .services-sidebar-bottom a {
@@ -137,7 +164,11 @@ textarea {
   }
 
   /* horizontal nav strips: smooth scrolling, no visible scrollbar */
-  .cd-nav,
+  /* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+/* .create-project-navigation: واجهة إنشاء المشروع؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+/* .location-sidebar-nav: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+/* .services-sidebar-nav: العنصر `services-sidebar-nav` ضمن واجهة هذا الدور؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.cd-nav,
   .create-project-navigation,
   .location-sidebar-nav,
   .services-sidebar-nav {
@@ -145,7 +176,11 @@ textarea {
     scrollbar-width: none;
   }
 
-  .cd-nav::-webkit-scrollbar,
+  /* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .create-project-navigation: واجهة إنشاء المشروع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .location-sidebar-nav: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .services-sidebar-nav: العنصر `services-sidebar-nav` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.cd-nav::-webkit-scrollbar,
   .create-project-navigation::-webkit-scrollbar,
   .location-sidebar-nav::-webkit-scrollbar,
   .services-sidebar-nav::-webkit-scrollbar {
@@ -154,11 +189,13 @@ textarea {
 
   /* ----- Contractor dashboard ----- */
 
-  .cd-nav a {
+  /* .cd-nav: العنصر `cd-nav` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+.cd-nav a {
     min-height: 44px;
   }
 
-  .cd-user-info strong {
+  /* .cd-user-info: العنصر `cd-user-info` ضمن واجهة هذا الدور؛ يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.cd-user-info strong {
     max-width: 130px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -167,79 +204,103 @@ textarea {
 
   /* ----- Project location (Figma) page had no mobile layout ----- */
 
-  .location-screen {
+  /* .location-screen: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.location-screen {
     display: block;
   }
 
-  .location-sidebar {
+  /* .location-sidebar: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الحدود والفواصل، يتحكم بالعرض. */
+.location-sidebar {
     width: 100%;
     min-width: 0;
     border-right: none;
     border-bottom: 1px solid #eaecf0;
   }
 
-  .location-sidebar-logo {
+  /* .location-sidebar-logo: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+.location-sidebar-logo {
     height: 56px;
   }
 
-  .location-sidebar-nav {
+  /* .location-sidebar-nav: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المساحة الداخلية، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.location-sidebar-nav {
     flex-direction: row;
     overflow-x: auto;
     padding: 4px 8px;
   }
 
-  .location-sidebar-nav a {
+  /* .location-sidebar-nav: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.location-sidebar-nav a {
     flex-shrink: 0;
     padding: 0 14px;
     border-left: none;
     border-bottom: 3px solid transparent;
   }
 
-  .location-sidebar-nav a.location-nav-active {
+  /* .location-sidebar-nav: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .location-nav-active: تحديد الموقع أو عرض بيانات العنوان؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.location-sidebar-nav a.location-nav-active {
     border-bottom-color: #ffcc00;
   }
 
-  .location-header {
+  /* .location-header: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.location-header {
     height: 56px;
     padding: 0 16px;
   }
 
-  .location-content {
+  /* .location-content: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المساحة الداخلية. */
+.location-content {
     padding: 20px 14px;
   }
 
-  .location-page-heading h1 {
+  /* .location-page-heading: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
+.location-page-heading h1 {
     font-size: 22px;
   }
 
-  .location-progress {
+  /* .location-progress: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.location-progress {
     overflow-x: auto;
     justify-content: flex-start;
   }
 
-  .location-progress-step {
+  /* .location-progress-step: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.location-progress-step {
     flex-shrink: 0;
   }
 
-  .location-progress-line {
+  /* .location-progress-line: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.location-progress-line {
     flex: 0 0 18px;
   }
 
-  .location-workspace {
+  /* .location-workspace: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.location-workspace {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .location-map-panel,
+  /* .location-map-panel: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المساحة الداخلية. */
+/* .location-details-panel: تحديد الموقع أو عرض بيانات العنوان؛ يضبط المساحة الداخلية. */
+.location-map-panel,
   .location-details-panel {
     padding: 14px;
   }
 
-  .location-map-frame {
+  /* .location-map-frame: تحديد الموقع أو عرض بيانات العنوان؛ يتحكم بالارتفاع. */
+.location-map-frame {
     height: 320px;
   }
 
   /* text that was 9–11px is unreadable on a phone */
-  .location-progress-label,
+  /* .location-progress-label: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
+/* .location-map-panel-heading: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
+/* .location-details-description: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
+/* .location-detail-subtext: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
+/* .location-work-zone: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
+/* .location-selected-message: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
+/* .location-error: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
+.location-progress-label,
   .location-map-panel-heading p,
   .location-details-description,
   .location-detail-subtext,
@@ -249,11 +310,13 @@ textarea {
     font-size: 12px;
   }
 
-  .location-detail-label {
+  /* .location-detail-label: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
+.location-detail-label {
     font-size: 11px;
   }
 
-  .location-detail-section strong {
+  /* .location-detail-section: تحديد الموقع أو عرض بيانات العنوان؛ ينسق الخط والألوان. */
+.location-detail-section strong {
     font-size: 13px;
   }
 }
@@ -262,68 +325,85 @@ textarea {
 
 @media (max-width: 650px) {
   /* Shared header / footer */
-  .mamar-header {
+  /* .mamar-header: رأس الصفحة أو القسم؛ يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.mamar-header {
     height: 72px;
     padding: 0 16px;
   }
 
-  .mamar-header-actions {
+  /* .mamar-header-actions: مجموعة أزرار الإجراءات؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.mamar-header-actions {
     gap: 8px;
   }
 
-  .mamar-footer {
+  /* .mamar-footer: تذييل البطاقة أو الصفحة؛ يضبط المساحة الداخلية. */
+.mamar-footer {
     padding: 28px 16px 16px;
   }
 
   /* Landing page spacing */
-  .how-section {
+  /* .how-section: قسم مستقل من محتوى الصفحة؛ يضبط المساحة الداخلية. */
+.how-section {
     padding: 32px 16px;
   }
 
-  .steps-box {
+  /* .steps-box: العنصر `steps-box` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.steps-box {
     margin-top: 32px;
     padding: 24px 16px;
     gap: 16px;
   }
 
-  .providers-section {
+  /* .providers-section: قسم مستقل من محتوى الصفحة؛ يضبط المساحة الداخلية. */
+.providers-section {
     padding: 40px 16px;
   }
 
-  .why-section {
+  /* .why-section: قسم مستقل من محتوى الصفحة؛ يضبط المساحة الداخلية. */
+.why-section {
     padding: 24px 16px 32px;
   }
 
-  .why-grid {
+  /* .why-grid: شبكة توزيع العناصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.why-grid {
     gap: 28px;
   }
 
-  .cta-section {
+  /* .cta-section: قسم مستقل من محتوى الصفحة؛ يضبط المساحة الداخلية. */
+.cta-section {
     padding: 20px 16px;
   }
 
   /* Login: two fixed 200px columns overflowed a 390px screen */
-  .role-buttons {
+  /* .role-buttons: العنصر `role-buttons` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.role-buttons {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .role-buttons .role-btn,
+  /* .role-buttons: العنصر `role-buttons` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+/* .role-btn: زر لتنفيذ إجراء؛ يتحكم بالعرض. */
+.role-buttons .role-btn,
   .role-buttons .role-btn:first-child,
   .role-buttons .role-btn:last-child {
     width: 100%;
   }
 
-  .role-buttons .role-btn:nth-child(3) {
+  /* .role-buttons: العنصر `role-buttons` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .role-btn: زر لتنفيذ إجراء؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.role-buttons .role-btn:nth-child(3) {
     justify-self: stretch;
   }
 
-
   /* Review page: shared sidebar becomes a scrolling strip */
-  .review-page .mamar-sidebar-logo {
+  /* .review-page: العنصر `review-page` ضمن واجهة هذا الدور؛ يتحكم بالارتفاع. */
+/* .mamar-sidebar-logo: الشعار وحجمه ومحاذاته؛ يتحكم بالارتفاع. */
+.review-page .mamar-sidebar-logo {
     height: 64px;
   }
 
-  .review-page .mamar-sidebar-nav {
+  /* .review-page: العنصر `review-page` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+/* .mamar-sidebar-nav: العنصر `mamar-sidebar-nav` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.review-page .mamar-sidebar-nav {
     flex-direction: row;
     overflow-x: auto;
     margin-top: 0;
@@ -331,11 +411,15 @@ textarea {
     scrollbar-width: none;
   }
 
-  .review-page .mamar-sidebar-nav::-webkit-scrollbar {
+  /* .review-page: العنصر `review-page` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .mamar-sidebar-nav: العنصر `mamar-sidebar-nav` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.review-page .mamar-sidebar-nav::-webkit-scrollbar {
     display: none;
   }
 
-  .review-page .mamar-sidebar-nav a {
+  /* .review-page: العنصر `review-page` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+/* .mamar-sidebar-nav: العنصر `mamar-sidebar-nav` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.review-page .mamar-sidebar-nav a {
     flex-shrink: 0;
     min-height: 48px;
     padding: 0 16px;
@@ -343,39 +427,51 @@ textarea {
     border-bottom: 4px solid transparent;
   }
 
-  .review-page .mamar-sidebar-nav a.active {
+  /* .review-page: العنصر `review-page` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .mamar-sidebar-nav: العنصر `mamar-sidebar-nav` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.review-page .mamar-sidebar-nav a.active {
     border-bottom-color: #ffc400;
   }
 
-  .review-page .mamar-sidebar-bottom {
+  /* .review-page: العنصر `review-page` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+/* .mamar-sidebar-bottom: العنصر `mamar-sidebar-bottom` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.review-page .mamar-sidebar-bottom {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 8px 18px;
     padding: 8px 16px 12px;
   }  
 
-  .review-page .review-heading h1 {
+  /* .review-page: العنصر `review-page` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+/* .review-heading: عنوان الصفحة أو القسم والوصف التابع له؛ ينسق الخط والألوان. */
+.review-page .review-heading h1 {
     font-size: 26px;
   }
 
-  .review-page .review-card {
+  /* .review-page: العنصر `review-page` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+/* .review-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المساحة الداخلية. */
+.review-page .review-card {
     padding: 16px;
   }
 
   
 
-  .cd-stat-card {
+  /* .cd-stat-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.cd-stat-card {
     min-height: 72px;
     gap: 10px;
     padding: 10px 12px;
   }
 
-  .cd-stat-icon {
+  /* .cd-stat-icon: أيقونة توضيحية أو إجرائية؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+.cd-stat-icon {
     width: 38px;
     height: 38px;
   }
 
-  .cd-stat-info strong {
+  /* .cd-stat-info: العنصر `cd-stat-info` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+.cd-stat-info strong {
     font-size: 20px;
   }
 }
@@ -383,42 +479,50 @@ textarea {
 /* ---------- Provider dashboard had no mobile layout ---------- */
 
 @media (max-width: 900px) {
-  .provider-summary-grid {
+  /* .provider-summary-grid: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .provider-bottom-grid {
+  /* .provider-bottom-grid: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-bottom-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .request-details {
+  /* .request-details: تفاصيل إضافية للعنصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.request-details {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 650px) {
-  .provider-dashboard-page {
+  /* .provider-dashboard-page: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-dashboard-page {
     display: block;
   }
 
-  .provider-sidebar {
+  /* .provider-sidebar: واجهة مقدم الخدمة أو بياناته؛ يتحكم بالعرض، يتحكم بالارتفاع. */
+.provider-sidebar {
     width: 100%;
     min-width: 0;
     min-height: auto;
   }
 
-  .provider-sidebar-logo {
+  /* .provider-sidebar-logo: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.provider-sidebar-logo {
     height: 64px;
     padding-left: 16px;
   }
 
-  .provider-sidebar-nav {
+  /* .provider-sidebar-nav: واجهة مقدم الخدمة أو بياناته؛ يضبط المسافات الخارجية، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.provider-sidebar-nav {
     flex-direction: row;
     overflow-x: auto;
     margin-top: 0;
   }
 
-  .provider-sidebar-nav a {
+  /* .provider-sidebar-nav: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.provider-sidebar-nav a {
     flex-shrink: 0;
     min-height: 48px;
     padding: 0 16px;
@@ -426,70 +530,89 @@ textarea {
     border-bottom: 4px solid transparent;
   }
 
-  .provider-sidebar-nav a.active {
+  /* .provider-sidebar-nav: واجهة مقدم الخدمة أو بياناته؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.provider-sidebar-nav a.active {
     border-bottom-color: #ffc400;
   }
 
-  .provider-sidebar-bottom {
+  /* .provider-sidebar-bottom: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية. */
+.provider-sidebar-bottom {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 8px 18px;
     padding: 8px 16px 12px;
   }
 
-  .provider-topbar {
+  /* .provider-topbar: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية، يتحكم بالارتفاع. */
+.provider-topbar {
     height: 64px;
     padding: 0 16px;
   }
 
-  .provider-dashboard-content {
+  /* .provider-dashboard-content: واجهة مقدم الخدمة أو بياناته؛ يضبط المساحة الداخلية. */
+.provider-dashboard-content {
     padding: 20px 16px 28px;
   }
 
-  .provider-title h1 {
+  /* .provider-title: واجهة مقدم الخدمة أو بياناته؛ ينسق الخط والألوان. */
+.provider-title h1 {
     font-size: 24px;
   }
 
-  .provider-summary-grid,
+  /* .provider-summary-grid: واجهة مقدم الخدمة أو بياناته؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .request-details: تفاصيل إضافية للعنصر؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.provider-summary-grid,
   .request-details {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .request-footer,
+  /* .request-footer: تذييل البطاقة أو الصفحة؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .assigned-project-card: بطاقة تعرض مجموعة معلومات داخل إطار مستقل؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.request-footer,
   .assigned-project-card {
     flex-direction: column;
     align-items: stretch;
     gap: 14px;
   }
 
-  .request-tags {
+  /* .request-tags: العنصر `request-tags` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.request-tags {
     flex-wrap: wrap;
   }
 
-  .request-tags span {
+  /* .request-tags: العنصر `request-tags` ضمن واجهة هذا الدور؛ يتحكم بالعرض. */
+.request-tags span {
     min-width: 0;
   }
 
-  .request-status,
+  /* .request-status: شارة توضح حالة المشروع أو الطلب؛ يتحكم بالعرض. */
+/* .ready-status: شارة توضح حالة المشروع أو الطلب؛ يتحكم بالعرض. */
+.request-status,
   .ready-status {
     min-width: 0;
   }
 
-  .prepare-quotation-btn,
+  /* .prepare-quotation-btn: زر لتنفيذ إجراء؛ يتحكم بالعرض. */
+/* .view-project-btn: زر لتنفيذ إجراء؛ يتحكم بالعرض. */
+.prepare-quotation-btn,
   .view-project-btn {
     width: 100%;
   }
 
-  .active-project-header {
+  /* .active-project-header: رأس الصفحة أو القسم؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.active-project-header {
     display: none;
   }
 
-  .active-project-row {
+  /* .active-project-row: صف بيانات أو عنصر ضمن قائمة؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.active-project-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     row-gap: 8px;
   }
 
-  .progress-bar {
+  /* .progress-bar: مؤشر تقدم المراحل؛ يتحكم بالعرض. */
+.progress-bar {
     width: 100%;
     flex: 1;
   }

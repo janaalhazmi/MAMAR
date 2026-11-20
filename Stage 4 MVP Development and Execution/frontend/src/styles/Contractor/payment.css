@@ -1,0 +1,563 @@
+/*
+ * Role stylesheet: styles only the page/components assigned to this folder.
+ * Before each class selector there is an Arabic note describing its purpose
+ * and the visible layout properties controlled by that selector.
+ * Edit the matching class here when changing that part of the interface.
+ */
+
+/* Payment page styles */
+
+/* .payment-page: واجهة الدفع وملخص عملية الدفع؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالعرض. */
+.payment-page {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 28px 48px;
+  color: #172033;
+  box-sizing: border-box;
+}
+
+/* .payment-page: واجهة الدفع وملخص عملية الدفع؛ يحدد الحدود والفواصل. */
+.payment-page * {
+  box-sizing: border-box;
+}
+
+/* .payment-heading: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية. */
+.payment-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 26px;
+}
+
+/* .payment-eyebrow: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.payment-eyebrow {
+  margin: 0 0 8px;
+  color: #a87900;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+}
+
+/* .payment-heading: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+/* .payment-success-card: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.payment-heading h1,
+.payment-success-card h1 {
+  margin: 0;
+  color: #172033;
+  font-size: 30px;
+  font-weight: 750;
+}
+
+/* .payment-heading: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.payment-heading > div > p:last-child {
+  margin: 9px 0 0;
+  color: #667085;
+  font-size: 14px;
+}
+
+/* .payment-demo-badge: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.payment-demo-badge {
+  flex-shrink: 0;
+  padding: 9px 13px;
+  border: 1px solid #f2d27b;
+  border-radius: 999px;
+  background: #fff9e8;
+  color: #805b00;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* .payment-layout: واجهة الدفع وملخص عملية الدفع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.payment-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.85fr);
+  align-items: start;
+  gap: 22px;
+}
+
+/* .payment-panel: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
+.payment-panel {
+  min-width: 0;
+  padding: 26px;
+  border: 1px solid #e9edf2;
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 5px 20px rgba(16, 24, 40, 0.04);
+}
+
+/* .payment-panel: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.payment-panel h2 {
+  margin: 0;
+  color: #172033;
+  font-size: 19px;
+}
+
+/* .payment-muted: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.payment-muted {
+  margin: 7px 0 20px;
+  color: #667085;
+  font-size: 13px;
+}
+
+/* .payment-methods: واجهة الدفع وملخص عملية الدفع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.payment-methods {
+  display: grid;
+  gap: 12px;
+}
+
+/* .payment-method: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.payment-method {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 15px;
+  border: 1px solid #e1e5eb;
+  border-radius: 12px;
+  background: #fff;
+  color: #172033;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+/* .payment-method: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية، يحدد الحدود والفواصل. */
+/* .selected: العنصر `selected` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل. */
+.payment-method.selected {
+  border: 1.5px solid #e5b629;
+  background: #fffdf6;
+}
+
+/* .payment-method-symbol: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
+.payment-method-symbol {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: #f2f4f7;
+  font-size: 22px;
+}
+
+/* .payment-method: واجهة الدفع وملخص عملية الدفع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.payment-method > span:nth-child(2) {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+}
+
+/* .payment-method: واجهة الدفع وملخص عملية الدفع؛ ينسق الخط والألوان. */
+.payment-method strong {
+  font-size: 14px;
+}
+
+/* .payment-method: واجهة الدفع وملخص عملية الدفع؛ ينسق الخط والألوان. */
+.payment-method small {
+  color: #667085;
+  font-size: 12px;
+}
+
+/* .payment-radio: واجهة الدفع وملخص عملية الدفع؛ ينسق الخط والألوان. */
+.payment-radio {
+  color: #b8860b;
+  font-size: 18px;
+}
+
+/* .payment-apple: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
+.payment-apple {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: #111;
+  color: #fff;
+  font-size: 22px;
+}
+
+/* .payment-form: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية. */
+.payment-form {
+  display: grid;
+  gap: 15px;
+  margin-top: 22px;
+}
+
+/* .payment-form: واجهة الدفع وملخص عملية الدفع؛ ينسق الخط والألوان. */
+.payment-form label {
+  display: grid;
+  gap: 7px;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+/* .payment-form: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+.payment-form input {
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 13px;
+  border: 1px solid #d0d5dd;
+  border-radius: 9px;
+  outline: none;
+  background: #fff;
+  color: #172033;
+  font: inherit;
+  font-size: 14px;
+}
+
+/* .payment-form: واجهة الدفع وملخص عملية الدفع؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
+.payment-form input:focus {
+  border-color: #d5a91f;
+  box-shadow: 0 0 0 3px rgba(249, 201, 60, 0.17);
+}
+
+/* .payment-form-row: واجهة الدفع وملخص عملية الدفع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.payment-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 13px;
+}
+
+/* .payment-demo-note: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+/* .payment-security-note: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.payment-demo-note,
+.payment-security-note {
+  margin: 0;
+  color: #7a8494;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* .payment-apple-info: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.payment-apple-info {
+  margin: 22px 0;
+  padding: 24px;
+  border: 1px dashed #cbd0d8;
+  border-radius: 12px;
+  background: #f8f9fb;
+  text-align: center;
+}
+
+/* .payment-apple-large: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.payment-apple-large {
+  margin-bottom: 12px;
+  color: #111;
+  font-size: 26px;
+  font-weight: 750;
+}
+
+/* .payment-apple-info: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
+.payment-apple-info p {
+  max-width: 390px;
+  margin: 0 auto;
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* .payment-error: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.payment-error {
+  margin: 16px 0 0;
+  padding: 11px 13px;
+  border: 1px solid #fecdca;
+  border-radius: 9px;
+  background: #fef3f2;
+  color: #b42318;
+  font-size: 13px;
+}
+
+/* .payment-primary-button: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.payment-primary-button {
+  width: 100%;
+  min-height: 49px;
+  margin-top: 20px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: #f5c842;
+  color: #172033;
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+/* .payment-primary-button: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية. */
+.payment-primary-button:hover {
+  background: #e9b92d;
+  transform: translateY(-1px);
+}
+
+/* .payment-primary-button: واجهة الدفع وملخص عملية الدفع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.payment-primary-button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+  transform: none;
+}
+
+/* .payment-primary-button: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .apple-button: زر لتنفيذ إجراء؛ يحدد الخلفية، ينسق الخط والألوان. */
+.payment-primary-button.apple-button {
+  background: #111;
+  color: #fff;
+}
+
+/* .payment-primary-button: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية. */
+/* .apple-button: زر لتنفيذ إجراء؛ يحدد الخلفية. */
+.payment-primary-button.apple-button:hover {
+  background: #303030;
+}
+
+/* .payment-security-note: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية. */
+.payment-security-note {
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* .payment-summary: واجهة الدفع وملخص عملية الدفع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.payment-summary {
+  position: sticky;
+  top: 24px;
+}
+
+/* .payment-summary: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية. */
+.payment-summary h2 {
+  margin-bottom: 22px;
+}
+
+/* .payment-summary-row: واجهة الدفع وملخص عملية الدفع؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.payment-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 13px 0;
+  border-bottom: 1px solid #eef0f3;
+}
+
+/* .payment-summary-row: واجهة الدفع وملخص عملية الدفع؛ ينسق الخط والألوان. */
+.payment-summary-row span {
+  color: #667085;
+  font-size: 13px;
+}
+
+/* .payment-summary-row: واجهة الدفع وملخص عملية الدفع؛ ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.payment-summary-row strong {
+  max-width: 60%;
+  color: #172033;
+  font-size: 13px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* .payment-summary-divider: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية. */
+.payment-summary-divider {
+  margin: 8px 0;
+}
+
+/* .payment-total-row: واجهة الدفع وملخص عملية الدفع؛ يضبط المساحة الداخلية. */
+.payment-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+/* .payment-total-row: واجهة الدفع وملخص عملية الدفع؛ ينسق الخط والألوان. */
+.payment-total-row span {
+  color: #344054;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* .payment-total-row: واجهة الدفع وملخص عملية الدفع؛ ينسق الخط والألوان. */
+.payment-total-row strong {
+  color: #172033;
+  font-size: 22px;
+}
+
+/* .payment-summary-footnote: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+.payment-summary-footnote {
+  margin: 8px 0 0;
+  color: #7a8494;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* .payment-back-button: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.payment-back-button {
+  width: 100%;
+  margin-top: 22px;
+  padding: 11px;
+  border: 1px solid #d0d5dd;
+  border-radius: 9px;
+  background: #fff;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+/* .payment-back-button: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية. */
+.payment-back-button:hover {
+  background: #f8f9fb;
+}
+
+/* .payment-success-card: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.payment-success-card {
+  max-width: 650px;
+  margin: 35px auto;
+  padding: 38px;
+  border: 1px solid #e9edf2;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 8px 30px rgba(16, 24, 40, 0.05);
+  text-align: center;
+}
+
+/* .payment-success-mark: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المسافات الخارجية، ينسق الخط والألوان. */
+.payment-success-mark {
+  width: 66px;
+  height: 66px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: #e8f8ee;
+  color: #16834a;
+  font-size: 34px;
+  font-weight: 800;
+}
+
+/* .payment-success-card: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية. */
+/* .payment-eyebrow: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية. */
+.payment-success-card .payment-eyebrow {
+  margin-bottom: 9px;
+}
+
+/* .payment-success-copy: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
+.payment-success-copy {
+  max-width: 470px;
+  margin: 12px auto 22px;
+  color: #667085;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+/* .payment-reference: واجهة الدفع وملخص عملية الدفع؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.payment-reference {
+  display: grid;
+  gap: 6px;
+  margin: 0 auto 20px;
+  padding: 14px;
+  border-radius: 10px;
+  background: #f8f9fb;
+}
+
+/* .payment-reference: واجهة الدفع وملخص عملية الدفع؛ ينسق الخط والألوان. */
+.payment-reference span {
+  color: #667085;
+  font-size: 12px;
+}
+
+/* .payment-reference: واجهة الدفع وملخص عملية الدفع؛ ينسق الخط والألوان. */
+.payment-reference strong {
+  color: #172033;
+  font-size: 15px;
+}
+
+/* .payment-success-details: واجهة الدفع وملخص عملية الدفع؛ يضبط المسافات الخارجية. */
+.payment-success-details {
+  display: grid;
+  gap: 0;
+  margin: 0 0 8px;
+  text-align: left;
+}
+
+/* .payment-success-details: واجهة الدفع وملخص عملية الدفع؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
+.payment-success-details div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eef0f3;
+}
+
+/* .payment-success-details: واجهة الدفع وملخص عملية الدفع؛ ينسق الخط والألوان. */
+.payment-success-details span {
+  color: #667085;
+  font-size: 13px;
+}
+
+/* .payment-success-details: واجهة الدفع وملخص عملية الدفع؛ ينسق الخط والألوان. */
+.payment-success-details strong {
+  color: #172033;
+  font-size: 13px;
+  text-align: right;
+}
+
+@media (max-width: 850px) {
+  
+
+/* .payment-layout: واجهة الدفع وملخص عملية الدفع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.payment-layout {
+    grid-template-columns: 1fr;
+  }
+
+  
+
+/* .payment-summary: واجهة الدفع وملخص عملية الدفع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.payment-summary {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  
+
+/* .payment-page: واجهة الدفع وملخص عملية الدفع؛ يضبط المساحة الداخلية. */
+.payment-page {
+    padding: 22px 14px 35px;
+  }
+
+  
+
+/* .payment-heading: واجهة الدفع وملخص عملية الدفع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.payment-heading {
+    flex-direction: column;
+  }
+
+  
+
+/* .payment-heading: واجهة الدفع وملخص عملية الدفع؛ ينسق الخط والألوان. */
+/* .payment-success-card: واجهة الدفع وملخص عملية الدفع؛ ينسق الخط والألوان. */
+.payment-heading h1,
+  .payment-success-card h1 {
+    font-size: 25px;
+  }
+
+  
+
+/* .payment-panel: واجهة الدفع وملخص عملية الدفع؛ يضبط المساحة الداخلية. */
+.payment-panel {
+    padding: 19px;
+  }
+
+  
+
+/* .payment-form-row: واجهة الدفع وملخص عملية الدفع؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.payment-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  
+
+/* .payment-success-card: واجهة الدفع وملخص عملية الدفع؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
+.payment-success-card {
+    margin: 12px auto;
+    padding: 25px 18px;
+  }
+}

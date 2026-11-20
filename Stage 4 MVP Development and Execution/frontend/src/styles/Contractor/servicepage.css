@@ -1,20 +1,30 @@
+/*
+ * Role stylesheet: styles only the page/components assigned to this folder.
+ * Before each class selector there is an Arabic note describing its purpose
+ * and the visible layout properties controlled by that selector.
+ * Edit the matching class here when changing that part of the interface.
+ */
+
 /* ==========================================
    SERVICES PAGE
    (Sidebar and header are provided by ContractorShell)
 ========================================== */
 
+/* .services-page: العنصر `services-page` ضمن واجهة هذا الدور؛ ينسق الخط والألوان، يتحكم بالعرض. */
 .services-page {
   width: 100%;
   color: #172033;
   font-family: Arial, sans-serif;
 }
 
+/* .services-page: العنصر `services-page` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل. */
 .services-page *,
 .services-page *::before,
 .services-page *::after {
   box-sizing: border-box;
 }
 
+/* .services-page: العنصر `services-page` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .services-page a {
   color: inherit;
   text-decoration: none;
@@ -22,6 +32,7 @@
 
 /* ---------- Content wrapper ---------- */
 
+/* .services-content: منطقة المحتوى الداخلي؛ يضبط المساحة الداخلية، يضبط المسافات الخارجية، يتحكم بالعرض. */
 .services-content {
   width: 100%;
   max-width: 1250px;
@@ -31,10 +42,12 @@
 
 /* ---------- Page heading ---------- */
 
+/* .services-page-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية. */
 .services-page-heading {
   margin-bottom: 22px;
 }
 
+/* .services-page-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .services-page-heading h1 {
   margin: 0;
   color: #172033;
@@ -42,6 +55,7 @@
   font-weight: 700;
 }
 
+/* .services-page-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .services-page-heading p {
   margin: 8px 0 0;
   color: #667085;
@@ -51,6 +65,7 @@
 
 /* ---------- Progress bar ---------- */
 
+/* .services-progress: مؤشر تقدم المراحل؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يضبط المسافات الخارجية. */
 .services-progress {
   min-height: 62px;
   width: 100%;
@@ -64,6 +79,7 @@
   background: #fff;
 }
 
+/* .services-progress-step: خطوة ضمن مسار تنفيذ؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .services-progress-step {
   display: flex;
   align-items: center;
@@ -71,6 +87,7 @@
   white-space: nowrap;
 }
 
+/* .services-progress-number: العنصر `services-progress-number` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .services-progress-number {
   width: 28px;
   height: 28px;
@@ -84,26 +101,37 @@
   font-weight: 600;
 }
 
+/* .services-progress-label: العنصر `services-progress-label` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .services-progress-label {
   color: #667085;
   font-size: 12px;
 }
 
+/* .services-progress-step: خطوة ضمن مسار تنفيذ؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .completed: العنصر `completed` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .services-progress-number: العنصر `services-progress-number` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .services-progress-step.completed .services-progress-number {
   background: #32b76a;
   color: #fff;
 }
 
+/* .services-progress-step: خطوة ضمن مسار تنفيذ؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
+/* .services-progress-number: العنصر `services-progress-number` ضمن واجهة هذا الدور؛ يحدد الخلفية، ينسق الخط والألوان. */
 .services-progress-step.active .services-progress-number {
   background: #ffcc00;
   color: #172033;
 }
 
+/* .services-progress-step: خطوة ضمن مسار تنفيذ؛ ينسق الخط والألوان. */
+/* .active: العنصر `active` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
+/* .services-progress-label: العنصر `services-progress-label` ضمن واجهة هذا الدور؛ ينسق الخط والألوان. */
 .services-progress-step.active .services-progress-label {
   color: #172033;
   font-weight: 700;
 }
 
+/* .services-progress-line: العنصر `services-progress-line` ضمن واجهة هذا الدور؛ يحدد الخلفية، يتحكم بالعرض، يتحكم بالارتفاع. */
 .services-progress-line {
   height: 1px;
   min-width: 12px;
@@ -111,12 +139,15 @@
   background: #eaecf0;
 }
 
+/* .services-progress-line: العنصر `services-progress-line` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
+/* .completed-line: العنصر `completed-line` ضمن واجهة هذا الدور؛ يحدد الخلفية. */
 .services-progress-line.completed-line {
   background: #32b76a;
 }
 
 /* ---------- Workspace (list + summary) ---------- */
 
+/* .services-workspace: العنصر `services-workspace` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .services-workspace {
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
@@ -124,6 +155,8 @@
   gap: 20px;
 }
 
+/* .services-list-panel: لوحة تجمع عناصر ومعلومات مرتبطة؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
+/* .services-summary-panel: لوحة تجمع عناصر ومعلومات مرتبطة؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالعرض. */
 .services-list-panel,
 .services-summary-panel {
   min-width: 0;
@@ -133,10 +166,13 @@
   background: #fff;
 }
 
+/* .services-panel-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية. */
 .services-panel-heading {
   margin-bottom: 16px;
 }
 
+/* .services-panel-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
+/* .services-summary-panel: لوحة تجمع عناصر ومعلومات مرتبطة؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .services-panel-heading h2,
 .services-summary-panel h2 {
   margin: 0;
@@ -145,6 +181,8 @@
   font-weight: 700;
 }
 
+/* .services-panel-heading: عنوان الصفحة أو القسم والوصف التابع له؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
+/* .services-summary-description: العنصر `services-summary-description` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .services-panel-heading p,
 .services-summary-description {
   margin: 7px 0 0;
@@ -155,12 +193,14 @@
 
 /* ---------- Service options ---------- */
 
+/* .services-options: العنصر `services-options` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .services-options {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
+/* .services-option: العنصر `services-option` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، يتحكم بالارتفاع. */
 .services-option {
   position: relative;
   min-height: 130px;
@@ -175,15 +215,19 @@
   transition: border-color 0.2s, background 0.2s;
 }
 
+/* .services-option: العنصر `services-option` ضمن واجهة هذا الدور؛ يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .services-option:hover {
   border-color: #ffe08a;
 }
 
+/* .services-option: العنصر `services-option` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
+/* .selected: العنصر `selected` ضمن واجهة هذا الدور؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .services-option.selected {
   border-color: #ffcc00;
   background: #fffdf7;
 }
 
+/* .services-option-icon: أيقونة توضيحية أو إجرائية؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، ينسق الخط والألوان، يتحكم بالعرض. */
 .services-option-icon {
   width: 48px;
   height: 48px;
@@ -197,10 +241,12 @@
   font-weight: 700;
 }
 
+/* .services-option-content: منطقة المحتوى الداخلي؛ يتحكم بالعرض. */
 .services-option-content {
   min-width: 0;
 }
 
+/* .services-option-content: منطقة المحتوى الداخلي؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .services-option-content h3 {
   margin: 0;
   color: #172033;
@@ -209,6 +255,7 @@
   line-height: 1.5;
 }
 
+/* .services-option-content: منطقة المحتوى الداخلي؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالارتفاع. */
 .services-option-content p {
   margin: 6px 0 12px;
   color: #667085;
@@ -216,12 +263,14 @@
   line-height: 1.6;
 }
 
+/* .services-option-tags: العنصر `services-option-tags` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .services-option-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
 
+/* .services-option-tags: العنصر `services-option-tags` ضمن واجهة هذا الدور؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .services-option-tags span {
   padding: 3px 9px;
   border-radius: 10px;
@@ -230,6 +279,7 @@
   font-size: 11px;
 }
 
+/* .services-option: العنصر `services-option` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية، ينسق الخط والألوان، يتحكم بالعرض، يتحكم بالارتفاع. */
 .services-option input[type="checkbox"] {
   position: absolute;
   top: 16px;
@@ -241,6 +291,7 @@
   cursor: pointer;
 }
 
+/* .services-error: رسالة خطأ؛ يضبط المسافات الخارجية، ينسق الخط والألوان. */
 .services-error {
   margin: 12px 0 0;
   color: #d92d20;
@@ -249,10 +300,12 @@
 
 /* ---------- Project summary ---------- */
 
+/* .services-summary-description: العنصر `services-summary-description` ضمن واجهة هذا الدور؛ يضبط المسافات الخارجية. */
 .services-summary-description {
   margin-bottom: 16px;
 }
 
+/* .services-summary-map: مساحة عرض الخريطة؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المسافات الخارجية، يتحكم بالعرض. */
 .services-summary-map {
   width: 100%;
   height: 240px;
@@ -262,11 +315,13 @@
   background: #f2f4f7;
 }
 
+/* .services-summary-map: مساحة عرض الخريطة؛ يتحكم بالعرض، يتحكم بالارتفاع. */
 .services-summary-map > * {
   width: 100%;
   height: 100%;
 }
 
+/* .services-summary-map: مساحة عرض الخريطة؛ يحدد الحدود والفواصل، يتحكم بالعرض، يتحكم بالارتفاع. */
 .services-summary-map iframe {
   display: block;
   width: 100%;
@@ -274,12 +329,14 @@
   border: 0;
 }
 
+/* .services-summary-items: العنصر `services-summary-items` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .services-summary-items {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   column-gap: 24px;
 }
 
+/* .services-summary-item: عنصر منفرد ضمن مجموعة؛ يحدد الحدود والفواصل، يضبط المساحة الداخلية. */
 .services-summary-item {
   display: flex;
   flex-direction: column;
@@ -289,15 +346,20 @@
 }
 
 /* Wide items span both columns */
+
+/* .services-summary-item: عنصر منفرد ضمن مجموعة؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+/* .full: العنصر `full` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
 .services-summary-item.full {
   grid-column: 1 / -1;
 }
 
+/* .services-summary-item: عنصر منفرد ضمن مجموعة؛ ينسق الخط والألوان. */
 .services-summary-item span {
   color: #667085;
   font-size: 12px;
 }
 
+/* .services-summary-item: عنصر منفرد ضمن مجموعة؛ ينسق الخط والألوان، يتحكم بالارتفاع، يتحكم بالتمرير وإخفاء المحتوى الزائد. */
 .services-summary-item strong {
   color: #172033;
   font-size: 13px;
@@ -307,6 +369,7 @@
 
 /* ---------- Bottom buttons ---------- */
 
+/* .services-actions: مجموعة أزرار الإجراءات؛ يضبط المسافات الخارجية. */
 .services-actions {
   display: flex;
   align-items: center;
@@ -315,6 +378,8 @@
   margin-top: 18px;
 }
 
+/* .services-back-button: زر لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
+/* .services-next-button: زر لتنفيذ إجراء؛ يحدد الخلفية، يضبط استدارة الحواف، يحدد الحدود والفواصل، يضبط المساحة الداخلية، ينسق الخط والألوان. */
 .services-back-button,
 .services-next-button {
   min-width: 106px;
@@ -331,22 +396,26 @@
   transition: background 0.2s;
 }
 
+/* .services-back-button: زر لتنفيذ إجراء؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .services-back-button {
   border: 1px solid #cbd2dc;
   background: #fff;
   color: #344054;
 }
 
+/* .services-back-button: زر لتنفيذ إجراء؛ يحدد الخلفية. */
 .services-back-button:hover {
   background: #f9fafb;
 }
 
+/* .services-next-button: زر لتنفيذ إجراء؛ يحدد الخلفية، يحدد الحدود والفواصل، ينسق الخط والألوان. */
 .services-next-button {
   border: 1px solid #ffcc00;
   background: #ffcc00;
   color: #111827;
 }
 
+/* .services-next-button: زر لتنفيذ إجراء؛ يحدد الخلفية. */
 .services-next-button:hover {
   background: #f2bf00;
 }
@@ -356,56 +425,93 @@
 ========================================== */
 
 @media (max-width: 900px) {
-  .services-content {
+  
+
+/* .services-content: منطقة المحتوى الداخلي؛ يضبط المساحة الداخلية. */
+.services-content {
     padding: 22px 14px;
   }
 
-  .services-workspace {
+  
+
+/* .services-workspace: العنصر `services-workspace` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.services-workspace {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
-  .services-progress {
+  
+
+/* .services-progress: مؤشر تقدم المراحل؛ يضبط المساحة الداخلية. */
+.services-progress {
     gap: 7px;
     padding: 10px;
   }
 
-  .services-progress-step {
+  
+
+/* .services-progress-step: خطوة ضمن مسار تنفيذ؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.services-progress-step {
     gap: 5px;
   }
 }
 
 @media (max-width: 650px) {
-  .services-page-heading h1 {
+  
+
+/* .services-page-heading: عنوان الصفحة أو القسم والوصف التابع له؛ ينسق الخط والألوان. */
+.services-page-heading h1 {
     font-size: 22px;
   }
 
-  .services-progress {
+  
+
+/* .services-progress: مؤشر تقدم المراحل؛ يتحكم بالتمرير وإخفاء المحتوى الزائد. */
+.services-progress {
     overflow-x: auto;
     justify-content: flex-start;
   }
 
-  .services-progress-step {
+  
+
+/* .services-progress-step: خطوة ضمن مسار تنفيذ؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.services-progress-step {
     flex-shrink: 0;
   }
 
-  .services-progress-line {
+  
+
+/* .services-progress-line: العنصر `services-progress-line` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.services-progress-line {
     flex: 0 0 18px;
   }
 
-  .services-workspace {
+  
+
+/* .services-workspace: العنصر `services-workspace` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.services-workspace {
     grid-template-columns: 1fr;
   }
 
-  .services-summary-items {
+  
+
+/* .services-summary-items: العنصر `services-summary-items` ضمن واجهة هذا الدور؛ يضبط المظهر والمحاذاة وفق الخصائص المحددة. */
+.services-summary-items {
     grid-template-columns: 1fr;
   }
 
-  .services-list-panel,
+  
+
+/* .services-list-panel: لوحة تجمع عناصر ومعلومات مرتبطة؛ يضبط المساحة الداخلية. */
+/* .services-summary-panel: لوحة تجمع عناصر ومعلومات مرتبطة؛ يضبط المساحة الداخلية. */
+.services-list-panel,
   .services-summary-panel {
     padding: 14px;
   }
 
-  .services-option {
+  
+
+/* .services-option: العنصر `services-option` ضمن واجهة هذا الدور؛ يضبط المساحة الداخلية. */
+.services-option {
     padding-right: 36px;
   }
 }
