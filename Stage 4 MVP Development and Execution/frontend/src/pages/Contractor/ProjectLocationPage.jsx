@@ -9,6 +9,8 @@ import {
   saveProjectLocation,
 } from "../../services/Contractor/Contractor";
 
+import "../../styles/Contractor/location.css"
+
 function ProjectLocationPage() {
   const navigate = useNavigate();
   const mapDrawingRef = useRef(null);
