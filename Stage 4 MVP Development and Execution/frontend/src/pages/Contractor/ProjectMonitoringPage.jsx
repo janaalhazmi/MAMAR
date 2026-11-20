@@ -22,6 +22,9 @@ function ProjectMonitoringPage() {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const safety = useSafetyChecks(project.id, data?.photos?.length || 0);
+  const allMilestonesCompleted =
+  data?.milestones?.length > 0 &&
+  data.milestones.every((milestone) => milestone.state === "done");
 
   // Refresh the monitoring data so contractor sees provider milestone changes.
   useEffect(() => {
@@ -156,7 +159,7 @@ function ProjectMonitoringPage() {
 
       <div className="pf-actions pf-actions-split">
         <button type="button" className="pf-btn pf-btn-secondary" onClick={() => navigate("/quotations/select")}>← Back</button>
-        <button type="button" className="pf-btn pf-btn-primary" disabled={!data.completionSubmitted} onClick={() => navigate("/review-completion")}>Review Completion →</button>
+        <button type="button" className="pf-btn pf-btn-primary" disabled={!allMilestonesCompleted} onClick={() => navigate("/review-completion")}>Review Completion →</button>
       </div>
     </ContractorShell>
   );
