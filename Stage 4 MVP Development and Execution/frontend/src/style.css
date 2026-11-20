@@ -4180,7 +4180,7 @@ textarea {
   .cd-page,
   .login-page,
   .signup-page,
-  .create-project-page,
+
   .location-screen,
   .services-page,
   .review-page,
@@ -4237,9 +4237,8 @@ textarea {
 
  
   .location-back-button,
-  .location-next-button,
-  .create-project-back-button,
-  .create-project-next-button {
+  .location-next-button
+    {
     min-height: 44px;
   }
 
@@ -4657,7 +4656,7 @@ textarea {
   .cd-page,
   .login-page,
   .signup-page,
-  .create-project-page,
+  
   .location-screen,
   .services-page,
   .review-page,
@@ -4716,9 +4715,9 @@ textarea {
  
 
   .location-back-button,
-  .location-next-button,
-  .create-project-back-button,
-  .create-project-next-button {
+  .location-next-button
+  
+  {
     min-height: 44px;
   }
 
