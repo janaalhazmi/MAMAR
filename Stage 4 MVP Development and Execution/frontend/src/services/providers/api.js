@@ -35,7 +35,8 @@ export function useProviderDashboard(readSession, loadDashboard) {
     loadDashboard()
       .then((result) => active && setData(result))
       .catch(
-        (err) => active && setError(err.message || "Could not load your dashboard.")
+        (err) =>
+          active && setError(err.message || "Could not load your dashboard.")
       )
       .finally(() => active && setLoading(false));
 
@@ -83,16 +84,12 @@ export function useQuotationRequest(requestId) {
       }
 
       try {
-        const data = await fetchRequestWorkZone(
-          accessToken,
-          requestId
-        );
+        const data = await fetchRequestWorkZone(accessToken, requestId);
 
         if (cancelled) return;
 
         setRequestDetails(data);
         setWorkZone(data?.work_zone ?? null);
-
       } catch (error) {
         if (cancelled) return;
 
@@ -111,8 +108,7 @@ export function useQuotationRequest(requestId) {
   return { requestDetails, realRequest, workZone, workZoneError };
 }
 
-// GET /provider/projects returns Active / Upcoming / Completed; the page uses
-// lowercase keys for its filters and badge colours.
+// GET /provider/projects returns Active / Upcoming / Completed.
 function toRow(project) {
   return { ...project, status: String(project.status || "").toLowerCase() };
 }
@@ -124,17 +120,22 @@ export function useProviderProjects(given) {
 
   useEffect(() => {
     if (given) return undefined;
+
     let active = true;
+
     getProviderProjects()
       .then((rows) => {
         if (active) setLoaded(rows.map(toRow));
       })
       .catch((error) => {
-        if (active) setLoadError(error.message || "Could not load your projects.");
+        if (active) {
+          setLoadError(error.message || "Could not load your projects.");
+        }
       })
       .finally(() => {
         if (active) setLoading(false);
       });
+
     return () => {
       active = false;
     };
@@ -149,12 +150,65 @@ const apiUrl = (
   import.meta.env.VITE_API_URL || "https://mamar-api.onrender.com"
 ).replace(/\/+$/, "");
 
+// Fetch project milestones.
+export async function fetchProjectMilestones(token, projectId) {
+  const response = await fetch(
+    `${apiUrl}/provider/projects/${encodeURIComponent(projectId)}/milestones`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Could not load milestones (${response.status}).`);
+  }
+
+  return response.json();
+}
+
+// Update a project milestone.
+export async function updateProjectMilestone(
+  token,
+  projectId,
+  milestoneId,
+  status
+) {
+  const response = await fetch(
+    `${apiUrl}/provider/projects/${encodeURIComponent(
+      projectId
+    )}/milestones/${encodeURIComponent(milestoneId)}`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.detail || "Could not update milestone.");
+  }
+
+  return response.json();
+}
+
 export function useProviderProjectDetails(projectId) {
   const session = getSession();
   const token = session?.access_token;
   const name = session?.user?.full_name || "Provider";
-  const initials = name.trim().split(/\s+/).slice(0, 2)
-    .map((word) => word.charAt(0).toUpperCase()).join("") || "P";
+
+  const initials =
+    name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((word) => word.charAt(0).toUpperCase())
+      .join("") || "P";
 
   const [result, setResult] = useState(null);
   const [reviewBusy, setReviewBusy] = useState(false);
@@ -162,55 +216,158 @@ export function useProviderProjectDetails(projectId) {
   const [reviewNotice, setReviewNotice] = useState("");
   const [note, setNote] = useState("");
 
-  // Field worker -> provider -> contractor. The page shows the updated project
-  // the server returns, so the status and buttons change at once.
+  // Milestones state.
+  const [milestones, setMilestones] = useState([]);
+  const [milestonesLoading, setMilestonesLoading] = useState(true);
+  const [milestonesError, setMilestonesError] = useState("");
+  const [milestoneBusy, setMilestoneBusy] = useState(null);
+  const [milestoneNotice, setMilestoneNotice] = useState("");
+
+  // Load project milestones.
+  useEffect(() => {
+    let active = true;
+
+    async function loadMilestones() {
+      setMilestonesLoading(true);
+      setMilestonesError("");
+
+      try {
+        if (!projectId) {
+          throw new Error("No project was selected.");
+        }
+
+        if (!token) {
+          throw new Error("Please sign in again.");
+        }
+
+        const data = await fetchProjectMilestones(token, projectId);
+
+        if (active) {
+          setMilestones(data);
+        }
+      } catch (error) {
+        if (active) {
+          setMilestonesError(
+            error.message || "Could not load milestones."
+          );
+        }
+      } finally {
+        if (active) {
+          setMilestonesLoading(false);
+        }
+      }
+    }
+
+    loadMilestones();
+
+    return () => {
+      active = false;
+    };
+  }, [projectId, token]);
+
+  // Update a milestone.
+  async function updateMilestone(milestoneId, status) {
+    if (milestoneBusy !== null) return;
+
+    setMilestoneBusy(milestoneId);
+    setMilestonesError("");
+    setMilestoneNotice("");
+
+    try {
+      const updated = await updateProjectMilestone(
+        token,
+        projectId,
+        milestoneId,
+        status
+      );
+
+      setMilestones((current) =>
+        current.map((item) =>
+          item.milestone_id === milestoneId ? updated : item
+        )
+      );
+
+      setMilestoneNotice("Milestone updated successfully.");
+    } catch (error) {
+      setMilestonesError(
+        error.message || "Could not update milestone."
+      );
+    } finally {
+      setMilestoneBusy(null);
+    }
+  }
+
+  // Field worker -> provider -> contractor.
   async function review(action) {
     if (reviewBusy) return;
+
     if (action === "return" && !note.trim()) {
       setReviewError("Write a note for the field team first.");
       return;
     }
+
     setReviewBusy(true);
     setReviewError("");
     setReviewNotice("");
+
     try {
-      const data = action === "submit"
-        ? await postSubmitCompletion(token, projectId)
-        : await postReturnToTeam(token, projectId, note.trim());
+      const data =
+        action === "submit"
+          ? await postSubmitCompletion(token, projectId)
+          : await postReturnToTeam(token, projectId, note.trim());
+
       setResult({ projectId, token, data });
       setNote("");
-      setReviewNotice(action === "submit"
-        ? "Sent to the contractor for review."
-        : "Returned to the field team with your note.");
+
+      setReviewNotice(
+        action === "submit"
+          ? "Sent to the contractor for review."
+          : "Returned to the field team with your note."
+      );
     } catch (error) {
-      setReviewError(error.message || "Could not update the project. Please try again.");
+      setReviewError(
+        error.message || "Could not update the project. Please try again."
+      );
     } finally {
       setReviewBusy(false);
     }
   }
 
+  // Load project details.
   useEffect(() => {
     const controller = new AbortController();
 
     async function load() {
       try {
-        if (!projectId) throw new Error("No project was selected.");
-        if (!token) throw new Error("Please sign in to continue.");
+        if (!projectId) {
+          throw new Error("No project was selected.");
+        }
+
+        if (!token) {
+          throw new Error("Please sign in to continue.");
+        }
 
         const response = await fetch(
           `${apiUrl}/provider/projects/${encodeURIComponent(projectId)}`,
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
             signal: controller.signal,
           }
         );
 
         if (!response.ok) {
-          throw new Error(`Could not load this project (${response.status}).`);
+          throw new Error(
+            `Could not load this project (${response.status}).`
+          );
         }
 
         const data = await response.json();
-        if (!controller.signal.aborted) setResult({ projectId, token, data });
+
+        if (!controller.signal.aborted) {
+          setResult({ projectId, token, data });
+        }
       } catch (error) {
         if (!controller.signal.aborted) {
           setResult({ projectId, token, error: error.message });
@@ -219,18 +376,38 @@ export function useProviderProjectDetails(projectId) {
     }
 
     load();
+
     return () => controller.abort();
   }, [projectId, token]);
 
-  const current = result?.projectId === projectId && result?.token === token
-    ? result
-    : null;
+  const current =
+    result?.projectId === projectId && result?.token === token
+      ? result
+      : null;
+
   const details = current?.data;
   const project = details?.project;
 
   return {
-    name, initials, current, details, project,
-    note, setNote, review, reviewBusy, reviewError, reviewNotice,
+    name,
+    initials,
+    current,
+    details,
+    project,
+
+    note,
+    setNote,
+    review,
+    reviewBusy,
+    reviewError,
+    reviewNotice,
+
+    milestones,
+    milestonesLoading,
+    milestonesError,
+    milestoneBusy,
+    milestoneNotice,
+    updateMilestone,
   };
 }
 
@@ -259,7 +436,10 @@ export function useDeviceVerificationProjects() {
 
 export async function verifyProviderDevice(deviceId, projectId, location) {
   const token = getSession()?.access_token;
-  if (!token) throw new Error("Please sign in again.");
+
+  if (!token) {
+    throw new Error("Please sign in again.");
+  }
 
   try {
     return await postDeviceVerify(token, deviceId.trim(), {
@@ -268,12 +448,16 @@ export async function verifyProviderDevice(deviceId, projectId, location) {
     });
   } catch (error) {
     if (error.status === 403) {
-      throw new Error("This account does not have permission to verify this device.");
+      throw new Error(
+        "This account does not have permission to verify this device."
+      );
     }
 
     if (error.status) {
       throw new Error(
-        "Verification failed (" + error.status + "). Check the device ID and project."
+        "Verification failed (" +
+          error.status +
+          "). Check the device ID and project."
       );
     }
 
@@ -292,11 +476,13 @@ export function useProviderFieldWorkers() {
     async function loadWorkers() {
       try {
         const token = getSession()?.access_token;
+
         if (!token) {
           throw new Error("Please sign in again.");
         }
 
         const data = await fetchProviderWorkers(token);
+
         if (!Array.isArray(data)) {
           throw new Error("Could not read the field team response.");
         }
@@ -316,7 +502,9 @@ export function useProviderFieldWorkers() {
         if (active) setWorkers(loadedWorkers);
       } catch (error) {
         if (active) {
-          setWorkersError(error.message || "Could not load field workers.");
+          setWorkersError(
+            error.message || "Could not load field workers."
+          );
         }
       } finally {
         if (active) setLoadingWorkers(false);
@@ -324,7 +512,10 @@ export function useProviderFieldWorkers() {
     }
 
     loadWorkers();
-    return () => { active = false; };
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   return { workers, setWorkers, loadingWorkers, workersError };
@@ -335,16 +526,27 @@ export function useWorkerAssignmentProjects(canAssign, setError) {
 
   useEffect(() => {
     if (!canAssign) return;
+
     let active = true;
 
     getProviderProjects()
-      // Only open projects take new workers: completed and cancelled ones are left out.
       .then((items) => {
-        if (active) setProjects(items.filter((item) => item.status === "Active" || item.status === "Upcoming"));
+        if (active) {
+          setProjects(
+            items.filter(
+              (item) =>
+                item.status === "Active" || item.status === "Upcoming"
+            )
+          );
+        }
       })
-      .catch(() => { if (active) setError("Could not load assigned projects."); });
+      .catch(() => {
+        if (active) setError("Could not load assigned projects.");
+      });
 
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [canAssign, setError]);
 
   return projects;
@@ -352,7 +554,10 @@ export function useWorkerAssignmentProjects(canAssign, setError) {
 
 export async function assignProviderWorker(projectId, workerId) {
   const token = getSession()?.access_token;
-  if (!token) throw new Error("Please sign in again.");
+
+  if (!token) {
+    throw new Error("Please sign in again.");
+  }
 
   return postAssignment(token, projectId, workerId);
 }
@@ -362,21 +567,25 @@ export function useFieldWorkerRegistration(onCreated) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [created, setCreated] = useState(false);
-  // The robot check token for the sign up of the worker (only when Turnstile is on).
+
+  // The robot check token for the sign up of the worker.
   const [captcha, setCaptcha] = useState("");
   const [captchaReset, setCaptchaReset] = useState(0);
 
   async function submit(event) {
     event.preventDefault();
+
     if (busy || created) return;
 
     const fields = new FormData(event.currentTarget);
+
     setBusy(true);
     setError("");
 
     try {
       if (worker) {
         const passcode = String(fields.get("passcode") || "").trim();
+
         if (!/^\d{6}$/.test(passcode)) {
           throw new Error("Enter the 6-digit passcode.");
         }
@@ -394,19 +603,29 @@ export function useFieldWorkerRegistration(onCreated) {
           status: "Available",
           activity: "—",
         });
+
         setWorker(null);
         setCreated(true);
         return;
       }
 
       const session = getSession();
-      const providerId = Number(session?.user?.provider_id ?? session?.provider_id);
+
+      const providerId = Number(
+        session?.user?.provider_id ?? session?.provider_id
+      );
+
       if (!Number.isInteger(providerId) || providerId < 1) {
-        throw new Error("Your session is missing the company provider ID.");
+        throw new Error(
+          "Your session is missing the company provider ID."
+        );
       }
 
       const fullName = String(fields.get("full_name") || "").trim();
-      if (!fullName) throw new Error("Enter the worker's full name.");
+
+      if (!fullName) {
+        throw new Error("Enter the worker's full name.");
+      }
 
       const registration = {
         full_name: fullName,
@@ -420,14 +639,24 @@ export function useFieldWorkerRegistration(onCreated) {
       await sendPasscode(registration.email);
       setWorker(registration);
     } catch (failure) {
-      setError(failure.message || "Could not register the field worker.");
+      setError(
+        failure.message || "Could not register the field worker."
+      );
       setCaptchaReset((count) => count + 1);
     } finally {
       setBusy(false);
     }
   }
 
-  return { worker, busy, error, created, submit, setCaptcha, captchaReset };
+  return {
+    worker,
+    busy,
+    error,
+    created,
+    submit,
+    setCaptcha,
+    captchaReset,
+  };
 }
 
 export { providerProfileService };
@@ -436,9 +665,12 @@ export function getProviderCompanyName(profile) {
   if (profile?.company_name) return profile.company_name;
   if (profile?.provider_id == null) return "";
 
-  return PROVIDER_DIRECTORY.find(
-    (company) => String(company.id) === String(profile.provider_id)
-  )?.name ?? "";
+  return (
+    PROVIDER_DIRECTORY.find(
+      (company) =>
+        String(company.id) === String(profile.provider_id)
+    )?.name ?? ""
+  );
 }
 
 // Provider Profile: account settings, password and profile picture.
@@ -471,6 +703,7 @@ function getProviderProfilePictureUrl(profile) {
     "";
 
   if (!path) return "";
+
   if (/^https?:\/\//i.test(path)) return path;
 
   return `${apiUrl}${path.startsWith("/") ? "" : "/"}${path}`;
