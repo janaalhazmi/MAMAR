@@ -46,6 +46,8 @@ function ReviewCompletionPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const providerName = data?.providerName || provider?.providerName || "";
+
   if (!data) {
     return (
       <ContractorShell activeKey="projects">
@@ -69,7 +71,7 @@ function ReviewCompletionPage() {
         <div style={{ maxWidth: 560, margin: "24px auto" }}>
           <RateProvider
             projectId={project.id}
-            providerName={provider?.providerName}
+            providerName={providerName}
             onDone={() => navigate("/contractor-dashboard")}
           />
         </div>
@@ -101,7 +103,7 @@ function ReviewCompletionPage() {
         </div>
         <div className="pf-summary-item">
           <span className="pf-label">Service Provider</span>
-          <strong>{provider?.providerName || "Not assigned"}</strong>
+          <strong>{providerName || "Not assigned"}</strong>
         </div>
         <div className="pf-summary-item">
           <span className="pf-label">Completion Date</span>
@@ -165,7 +167,7 @@ function ReviewCompletionPage() {
         <section className="pf-card pf-pad">
           <h2>Final Evidence</h2>
           <p className="pf-sub">
-            Final site photos submitted by {provider?.providerName || "the provider"}.
+            Final site photos submitted by {providerName || "the provider"}.
           </p>
           {data.evidence.some((photo) => photo.stage !== "during") ? (
             // Before and after side by side, so the change on site is easy to see.

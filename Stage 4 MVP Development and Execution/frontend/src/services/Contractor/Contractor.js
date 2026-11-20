@@ -669,6 +669,9 @@ export async function getCompletionData(projectId) {
   return {
     completionDate: submitted,
     finalProgress: r.progress,
+    // The provider that won the project, from the server (not from this browser's saved quote).
+    providerName: r.provider?.company_name || "",
+    providerId: r.provider?.provider_id ?? null,
     checklist,
     providerNote: r.quote?.notes
       ? `Provider note: ${r.quote.notes}`
