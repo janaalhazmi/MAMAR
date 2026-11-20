@@ -574,29 +574,30 @@ export function getConfirmedQuotationId() {
 /* PROJECT MONITORING                                                  */
 /* ------------------------------------------------------------------ */
 function buildMilestones(r) {
-  const site = r.site_status;
-  const notStarted = site === "Not Started";
+  const milestones = r.milestones || [];
 
-  const prep = notStarted
-    ? { state: "pending", note: "Pending" }
-    : { state: "done", note: "Completed" };
+  return milestones.map((milestone) => {
+    const status = String(milestone.status || "pending").toLowerCase();
+    return {
+      id: milestone.milestone_id,
+      title: milestone.name,
+      state:
+        status === "completed"
 
-  const install =
-    site === "Completed"
-      ? { state: "done", note: "Completed" }
-      : notStarted
-        ? { state: "pending", note: "Pending" }
-        : { state: "active", note: `${site} • ${r.progress}%` };
+          ? "done"
+          : status === "in_progress"
+            ? "active"
+            : "pending",
+      note:
+        status === "completed"
+          ? "Completed"
+          : status === "in_progress"
 
-  const final = r.completion_submitted
-    ? { state: "done", note: "Submitted by the provider" }
-    : { state: "pending", note: "Pending" };
+            ? "In Progress"
 
-  return [
-    { id: 1, title: "Site Preparation", ...prep },
-    { id: 2, title: "Traffic Control Installation", ...install },
-    { id: 3, title: "Final Site Check", ...final },
-  ];
+            : "Pending",
+    };
+  });
 }
 
 function buildLatestUpdate(r) {

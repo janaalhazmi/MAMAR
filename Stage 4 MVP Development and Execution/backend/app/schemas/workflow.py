@@ -90,6 +90,7 @@ class SiteProgress(BaseModel):
     provider: ProviderSummary | None
     quote: QuoteResponse | None
     photos: list[PhotoResponse]
+    milestones: list[MilestoneResponse] = []
 
 
 class ChangeRequest(BaseModel):
