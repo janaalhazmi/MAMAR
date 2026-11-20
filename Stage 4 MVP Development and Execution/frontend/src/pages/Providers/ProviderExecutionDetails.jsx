@@ -31,7 +31,12 @@ function renderSitePhoto(photo) {
       src={src}
       alt={photo.caption || "Site photo"}
       loading="lazy"
-      style={{ display: "block", width: "100%", maxWidth: 360, borderRadius: 8 }}
+      style={{
+        display: "block",
+        width: "100%",
+        maxWidth: 360,
+        borderRadius: 8,
+      }}
     />
   );
 }
@@ -40,10 +45,30 @@ export default function ProviderProjectDetails() {
   const { projectId } = useParams();
 
   const {
-    name, initials, current, details, project,
-    note, setNote, review, reviewBusy, reviewError, reviewNotice,
+    name,
+    initials,
+    current,
+    details,
+    project,
+    note,
+    setNote,
+    review,
+    reviewBusy,
+    reviewError,
+    reviewNotice,
+    milestones = [], // the hook may not have them yet
+    milestonesLoading,
+    milestonesError,
+    milestoneBusy,
+    milestoneNotice,
+    updateMilestone,
   } = useProviderProjectDetails(projectId);
-  const progress = Math.max(0, Math.min(100, Number(details?.progress) || 0));
+
+  const progress = Math.max(
+    0,
+    Math.min(100, Number(details?.progress) || 0)
+  );
+
   const team = details?.team ?? [];
   const photos = details?.photos ?? [];
   const safety = useSafetyChecks(project?.project_id, photos.length);
@@ -54,8 +79,8 @@ export default function ProviderProjectDetails() {
 
       <div className="provider-main-area">
         <header className="provider-topbar">
-          
           <div />
+
           <div className="provider-account">
             <div className="provider-avatar">{initials}</div>
             <div>
@@ -63,8 +88,17 @@ export default function ProviderProjectDetails() {
               <span>Service Provider</span>
             </div>
           </div>
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}><NotificationBell /></div>
-</header>
+
+          <div
+            style={{
+              marginLeft: "auto",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <NotificationBell />
+          </div>
+        </header>
 
         <main className="provider-dashboard-content">
           <div className="pex-page pex-organized">
@@ -74,45 +108,166 @@ export default function ProviderProjectDetails() {
               <div>
                 <h1>{project?.project_name || "Execution Details"}</h1>
               </div>
-              {details && <span className="pex-status">{details?.status}</span>}
+
+              {details && (
+                <span className="pex-status">{details?.status}</span>
+              )}
             </div>
 
-            {!current && <p role="status">Loading project details…</p>}
-            {current?.error && <p role="alert">{current.error}</p>}
+            {!current && (
+              <p role="status">Loading project details…</p>
+            )}
+
+            {current?.error && (
+              <p role="alert">{current.error}</p>
+            )}
 
             {project && (
               <>
+                {/* Project Summary */}
                 <dl className="pex-card pex-summary">
                   <div>
                     <dt>Project ID</dt>
                     <dd>{project.project_id}</dd>
                   </div>
+
                   <div>
                     <dt>Project Dates</dt>
                     <dd>
-                      {project.start_date ? formatDate(project.start_date) : "—"}
+                      {project.start_date
+                        ? formatDate(project.start_date)
+                        : "—"}
                       {" – "}
-                      {project.end_date ? formatDate(project.end_date) : "—"}
+                      {project.end_date
+                        ? formatDate(project.end_date)
+                        : "—"}
                     </dd>
                   </div>
+
                   <div>
                     <dt>Services</dt>
                     <dd>{project.services?.join(", ") || "—"}</dd>
                   </div>
+
                   <div>
                     <dt>Overall Progress</dt>
                     <dd className="pex-progress">
-                      <progress aria-label="Overall progress" value={progress} max={100} />
+                      <progress
+                        aria-label="Overall progress"
+                        value={progress}
+                        max={100}
+                      />
                       <span>{progress}%</span>
                     </dd>
                   </div>
                 </dl>
 
+                {/* Project Milestones */}
+                <section
+                  className="pex-card"
+                  style={{ marginBottom: "24px" }}
+                >
+                  <h2>Project Milestones</h2>
 
+                  <p style={{ color: "#777" }}>
+                    Track and update the progress of each project stage.
+                  </p>
 
+                  {milestonesLoading && (
+                    <p>Loading milestones...</p>
+                  )}
+
+                  {milestonesError && (
+                    <p role="alert" style={{ color: "#dc2626" }}>
+                      {milestonesError}
+                    </p>
+                  )}
+
+                  {milestoneNotice && (
+                    <p role="status" style={{ color: "#16a34a" }}>
+                      {milestoneNotice}
+                    </p>
+                  )}
+
+                  {!milestonesLoading &&
+                    milestones.length === 0 &&
+                    !milestonesError && (
+                      <p>No milestones available for this project.</p>
+                    )}
+
+                  {!milestonesLoading && milestones.length > 0 && (
+                    <div style={{ display: "grid", gap: "14px" }}>
+                      {milestones.map((milestone) => (
+                        <div
+                          key={milestone.milestone_id}
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            gap: "16px",
+                            flexWrap: "wrap",
+                            padding: "16px",
+                            border: "1px solid #e5e7eb",
+                            borderRadius: "12px",
+                          }}
+                        >
+                          <div>
+                            <h3 style={{ margin: "0 0 6px" }}>
+                              {milestone.name}
+                            </h3>
+
+                            <small style={{ color: "#777" }}>
+                              {milestone.updated_at
+                                ? `Last updated: ${new Date(
+                                    milestone.updated_at
+                                  ).toLocaleString("en-GB")}`
+                                : "Not updated yet"}
+                            </small>
+                          </div>
+
+                          <select
+                            value={milestone.status}
+                            disabled={
+                              milestoneBusy !== null ||
+                              details?.completion_submitted
+                            }
+                            onChange={(event) =>
+                              updateMilestone(
+                                milestone.milestone_id,
+                                event.target.value
+                              )
+                            }
+                            style={{
+                              padding: "10px 14px",
+                              borderRadius: "8px",
+                              border: "1px solid #d1d5db",
+                              minWidth: "160px",
+                              cursor:
+                                milestoneBusy !== null ||
+                                details?.completion_submitted
+                                  ? "not-allowed"
+                                  : "pointer",
+                            }}
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                          </select>
+
+                          {milestoneBusy === milestone.milestone_id && (
+                            <small>Saving...</small>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+
+                {/* Work Zone and Site Status */}
                 <div className="pex-grid pex-grid-wide">
                   <section className="pex-card">
                     <h2>Work Zone</h2>
+
                     {project.work_zone ? (
                       <div
                         style={{
@@ -136,40 +291,66 @@ export default function ProviderProjectDetails() {
 
                   <section className="pex-card">
                     <h2>Site Status</h2>
-                    <p className="pex-status">{details?.site_status || "Not available"}</p>
-                    <p>{details?.field_team_count ?? team.length} team members assigned</p>
+
+                    <p className="pex-status">
+                      {details?.site_status || "Not available"}
+                    </p>
+
+                    <p>
+                      {details?.field_team_count ?? team.length} team
+                      members assigned
+                    </p>
+
                     <p>
                       Last check-in{" "}
                       {details?.last_check_in
-                        ? new Date(details?.last_check_in).toLocaleString()
+                        ? new Date(
+                            details.last_check_in
+                          ).toLocaleString()
                         : "—"}
                     </p>
                   </section>
                 </div>
 
-                {(details?.awaiting_review || details?.completion_submitted) && (
-                  <section className="pex-card" aria-label="Completion review">
+                {/* Completion Review */}
+                {(details?.awaiting_review ||
+                  details?.completion_submitted) && (
+                  <section
+                    className="pex-card"
+                    aria-label="Completion review"
+                  >
                     <h2>Completion Review</h2>
+
                     {details?.awaiting_review ? (
                       <>
                         <p>
-                          The field team marked this work as Completed. Check the
-                          site photos, then send it to the contractor or return it
-                          to the team.
+                          The field team marked this work as Completed.
+                          Check the site photos, then send it to the
+                          contractor or return it to the team.
                         </p>
+
                         <label>
                           Note for the field team (only when returning)
                           <textarea
                             value={note}
                             maxLength={1000}
                             rows={3}
-                            onChange={(event) => setNote(event.target.value)}
+                            onChange={(event) =>
+                              setNote(event.target.value)
+                            }
                           />
                         </label>
+
                         <div className="pex-actions">
-                          <Button onClick={() => review("submit")} disabled={reviewBusy}>
-                            {reviewBusy ? "Please wait…" : "Send to Contractor"}
+                          <Button
+                            onClick={() => review("submit")}
+                            disabled={reviewBusy}
+                          >
+                            {reviewBusy
+                              ? "Please wait…"
+                              : "Send to Contractor"}
                           </Button>
+
                           <Button
                             variant="secondary"
                             onClick={() => review("return")}
@@ -184,7 +365,9 @@ export default function ProviderProjectDetails() {
                         Sent to the contractor
                         {details?.submitted_at
                           ? ` on ${new Date(
-                              /[zZ]|[+-]\d\d:?\d\d$/.test(details?.submitted_at)
+                              /[zZ]|[+-]\d\d:?\d\d$/.test(
+                                details?.submitted_at
+                              )
                                 ? details?.submitted_at
                                 : `${details?.submitted_at}Z`
                             ).toLocaleString()}`
@@ -192,48 +375,85 @@ export default function ProviderProjectDetails() {
                         . Waiting for their review.
                       </p>
                     )}
-                    {reviewNotice && <p role="status">{reviewNotice}</p>}
-                    {reviewError && <p role="alert">{reviewError}</p>}
+
+                    {reviewNotice && (
+                      <p role="status">{reviewNotice}</p>
+                    )}
+
+                    {reviewError && (
+                      <p role="alert">{reviewError}</p>
+                    )}
                   </section>
                 )}
 
+                {/* Field Team and Site Updates */}
                 <div className="pex-grid">
                   <section className="pex-card">
                     <TeamOnSiteCard projectId={project.project_id} />
-                    <h2 className="pex-assigned-heading">Assigned Field Team</h2>
+
+                    <h2 className="pex-assigned-heading">
+                      Assigned Field Team
+                    </h2>
+
                     {team.length ? (
                       <ul className="pex-list">
                         {team.map((member) => (
-                          <li key={member.user_id}>{member.full_name}</li>
+                          <li key={member.user_id}>
+                            {member.full_name}
+                          </li>
                         ))}
                       </ul>
-                    ) : <p>No team members assigned yet.</p>}
+                    ) : (
+                      <p>No team members assigned yet.</p>
+                    )}
                   </section>
 
                   <section className="pex-card">
                     <h2>Site Updates</h2>
 
-                    {details?.change_note && <p>{details?.change_note}</p>}
+                    {details?.change_note && (
+                      <p>{details.change_note}</p>
+                    )}
 
                     {photos.length > 0 ? (
                       <details>
-                        <summary style={{ cursor: "pointer", padding: "8px 0" }}>
+                        <summary
+                          style={{
+                            cursor: "pointer",
+                            padding: "8px 0",
+                          }}
+                        >
                           📁 Site Photos ({photos.length})
                         </summary>
 
-                        <ul style={{
-                          display: "grid",
-                          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))",
-                          gap: 16,
-                          listStyle: "none",
-                          padding: 0,
-                        }}>
+                        <ul
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns:
+                              "repeat(auto-fit, minmax(min(100%, 180px), 1fr))",
+                            gap: 16,
+                            listStyle: "none",
+                            padding: 0,
+                          }}
+                        >
                           {photos.map((photo) => (
                             <li key={photo.photo_id}>
                               {renderSitePhoto(photo)}
-                              <div>{photo.caption || "Site photo"}</div>
-                              <SafetyBadge photoId={photo.photo_id} safety={safety} />
-                              {photo.created_at && <small>{formatDate(photo.created_at)}</small>}
+
+                              <div>
+                                {photo.caption || "Site photo"}
+                              </div>
+
+                              <SafetyBadge
+                                photoId={photo.photo_id}
+                                safety={safety}
+                              />
+
+                              {photo.created_at && (
+                                <small>
+                                  {formatDate(photo.created_at)}
+                                </small>
+                              )}
                             </li>
                           ))}
                         </ul>
@@ -244,22 +464,30 @@ export default function ProviderProjectDetails() {
                   </section>
                 </div>
 
+                {/* Weather and Traffic */}
                 <div className="pex-grid pex-environment">
                   <WeatherCard projectId={project.project_id} />
                   <TrafficCard projectId={project.project_id} />
                 </div>
 
+                {/* Daily Summary */}
                 <details className="pex-card pex-report pex-disclosure-card">
                   <summary>Today's Summary — Open Report</summary>
+
                   <div className="pex-disclosure-content">
                     <AiDailySummary projectId={project.project_id} />
                   </div>
                 </details>
 
+                {/* QR Codes */}
                 <details className="pex-card pex-tools pex-disclosure-card">
-                  <summary>Site &amp; Device QR Codes — Open Tools</summary>
+                  <summary>
+                    Site &amp; Device QR Codes — Open Tools
+                  </summary>
+
                   <div className="pex-grid pex-qr-grid pex-disclosure-content">
                     <SiteQrCard projectId={project.project_id} />
+
                     <DeviceQrCard
                       projectId={project.project_id}
                       projectName={project.project_name}

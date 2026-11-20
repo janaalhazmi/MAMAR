@@ -9,11 +9,13 @@ from app.services.activity import log_activity
 from app.core.access import get_project
 from app.core.security import allow_roles
 from app.db.database import get_db
-from app.models import Assignment, Project, Quote, ServiceRequest, SitePhoto, User
+from app.models import Assignment, Project, ProjectMilestone, Quote, ServiceRequest, SitePhoto, User
 from app.models.project import SITE_PROGRESS
 from app.routers.field_work import utc_now
 from app.routers.workflow import project_photos
 from app.schemas.error import ErrorResponse
+from app.schemas.milestone import MilestoneResponse, MilestoneUpdate
+from app.services.project_milestones import ensure_project_milestones, milestones_complete
 from app.schemas.service_request import ServiceRequestResponse
 from app.schemas.workflow import ChangeRequest
 from app.schemas.provider_view import (
@@ -154,7 +156,9 @@ def my_projects(status: ProjectTab | None = None, user: User = Depends(provider_
 def my_project(project_id: int, user: User = Depends(provider_only), db: Session = Depends(get_db)):
     # Project Details: progress, field team and site photos of a project the company won.
     project, quote = won_project(db, project_id, user)
-    return project_detail(db, project, quote)
+    result = project_detail(db, project, quote)
+    db.commit()  # Also persists milestones for projects awarded before this feature was added.
+    return result
 
 
 def won_project(db: Session, project_id: int, user: User) -> tuple[Project, Quote]:
@@ -179,7 +183,69 @@ def project_detail(db: Session, project: Project, quote: Quote) -> dict:
         "change_note": project.change_note,
         "team": [{"user_id": user_id, "full_name": full_name} for user_id, full_name in team],
         "photos": project_photos(db, project_id),
+        "milestones": [milestone.to_dict() for milestone in ensure_project_milestones(db, project_id)],
     }
+
+
+@router.get(
+    "/projects/{project_id}/milestones",
+    response_model=list[MilestoneResponse],
+    responses=PROJECT_ERRORS,
+)
+def get_project_milestones(
+    project_id: int,
+    user: User = Depends(provider_only),
+    db: Session = Depends(get_db),
+):
+    project, _ = won_project(db, project_id, user)
+    milestones = ensure_project_milestones(db, project.project_id)
+    db.commit()
+    return milestones
+
+
+@router.patch(
+    "/projects/{project_id}/milestones/{milestone_id}",
+    response_model=MilestoneResponse,
+    responses={
+        **PROJECT_ERRORS,
+        400: {"model": ErrorResponse, "description": "The project is closed or completion was already submitted"},
+        404: {"model": ErrorResponse, "description": "The milestone does not exist"},
+    },
+)
+def update_project_milestone(
+    project_id: int,
+    milestone_id: int,
+    data: MilestoneUpdate,
+    user: User = Depends(provider_only),
+    db: Session = Depends(get_db),
+):
+    project, _ = won_project(db, project_id, user)
+    if project.project_status in ("completed", "cancelled") or project.completion_submitted:
+        raise HTTPException(status_code=400, detail="The project is closed or completion was already submitted")
+
+    ensure_project_milestones(db, project_id)
+    milestone = db.scalar(
+        select(ProjectMilestone).where(
+            ProjectMilestone.milestone_id == milestone_id,
+            ProjectMilestone.project_id == project_id,
+        )
+    )
+    if milestone is None:
+        raise HTTPException(status_code=404, detail="Milestone not found")
+
+    milestone.status = data.status
+    milestone.updated_at = utc_now()
+    log_activity(
+        db,
+        user,
+        "milestone_updated",
+        f'Updated "{milestone.name}" to {data.status} for "{project.project_name}"',
+        project_id,
+    
+    )
+    db.commit()
+    db.refresh(milestone)
+    return milestone
 
 
 @router.get("/dashboard", response_model=ProviderDashboard, responses=TOKEN_ERRORS)
