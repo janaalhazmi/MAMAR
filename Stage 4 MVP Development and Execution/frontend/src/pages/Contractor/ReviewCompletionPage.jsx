@@ -8,8 +8,8 @@ import SafetyBadge from "../../components/SafetyBadge";
 import { useSafetyChecks } from "../../services/ai";
 import {
   formatDate,
+  formatDateTime,
   getCompletionData,
-  getConfirmedProvider,
   getCurrentProject,
   handleConfirmCompletion,
   handleSendChanges,
@@ -21,7 +21,6 @@ function ReviewCompletionPage() {
   const project = getCurrentProject();
 
   const [data, setData] = useState(null);
-  const [provider, setProvider] = useState(null);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [approved, setApproved] = useState(false);
@@ -32,27 +31,35 @@ function ReviewCompletionPage() {
   useEffect(() => {
     let active = true;
 
-    getCompletionData(project.id)
-      .then((result) => active && setData(result))
-      .catch(() => active && setError("Could not load the completion details."));
+    const load = () =>
+      getCompletionData(project.id)
+        .then((result) => {
+          if (active) {
+            setData(result);
+            setError("");
+          }
+        })
+        .catch(() => {
+          if (active && !data) {
+            setError("Could not load the completion details.");
+          }
+        });
 
-    getConfirmedProvider()
-      .then((q) => active && setProvider(q))
-      .catch(() => {});
+    load();
+    const timer = setInterval(load, 15000);
 
     return () => {
       active = false;
+      clearInterval(timer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [project.id]);
 
   if (!data) {
     return (
       <ContractorShell activeKey="projects">
         {error ? (
-          <p className="pf-alert" role="alert">
-            {error}
-          </p>
+          <p className="pf-alert" role="alert">{error}</p>
         ) : (
           <p className="pf-empty">Loading…</p>
         )}
@@ -63,13 +70,12 @@ function ReviewCompletionPage() {
   const hasLocation = hasProjectLocation(project);
 
   if (approved) {
-    // The work is approved: the contractor can rate the provider (or skip).
     return (
       <ContractorShell activeKey="projects">
         <div style={{ maxWidth: 560, margin: "24px auto" }}>
           <RateProvider
             projectId={project.id}
-            providerName={provider?.providerName}
+            providerName={data.provider?.providerName}
             onDone={() => navigate("/contractor-dashboard")}
           />
         </div>
@@ -101,11 +107,17 @@ function ReviewCompletionPage() {
         </div>
         <div className="pf-summary-item">
           <span className="pf-label">Service Provider</span>
-          <strong>{provider?.providerName || "Not assigned"}</strong>
+          <strong>{data.provider?.providerName || "Not assigned"}</strong>
         </div>
         <div className="pf-summary-item">
-          <span className="pf-label">Completion Date</span>
-          <strong>{formatDate(data.completionDate)}</strong>
+          <span className="pf-label">Completion Date & Time</span>
+          <strong>
+            {data.submittedAt
+              ? formatDateTime(data.submittedAt)
+              : data.completionDate
+                ? formatDate(data.completionDate)
+                : "Not specified"}
+          </strong>
         </div>
         <div className="pf-summary-item">
           <span className="pf-label">Final Progress</span>
@@ -122,7 +134,6 @@ function ReviewCompletionPage() {
         <section className="pf-card pf-pad">
           <h2>Provider Completion Summary</h2>
           <p className="pf-sub">The provider has marked all required work as complete.</p>
-
           <ul className="pf-done-list">
             {data.checklist.map((item) => (
               <li key={item.id}>
@@ -137,7 +148,6 @@ function ReviewCompletionPage() {
               </li>
             ))}
           </ul>
-
           <p className="pf-quote-note">{data.providerNote}</p>
         </section>
 
@@ -165,12 +175,14 @@ function ReviewCompletionPage() {
         <section className="pf-card pf-pad">
           <h2>Final Evidence</h2>
           <p className="pf-sub">
-            Final site photos submitted by {provider?.providerName || "the provider"}.
+            Final site photos submitted by {data.provider?.providerName || "the provider"}.
           </p>
-          {data.evidence.some((photo) => photo.stage !== "during") ? (
-            // Before and after side by side, so the change on site is easy to see.
+          {data.evidence.some((photo) => photo.stage === "before") && (
             <div className="ba-grid">
-              {[["before", "Before the work"], ["after", "After the work"]].map(([stage, label]) => (
+              {[
+                ["before", "Before the work"],
+                ["after", "After the work"],
+              ].map(([stage, label]) => (
                 <div key={stage}>
                   <h3>{label}</h3>
                   <div className="pf-evidence">
@@ -184,24 +196,27 @@ function ReviewCompletionPage() {
                 </div>
               ))}
             </div>
-          ) : null}
-          {data.evidence.some((photo) => photo.stage === "during") && (
+          )}
+          {data.evidence.some((photo) => photo.stage !== "before" && photo.stage !== "after") && (
             <div className="pf-evidence">
-              {data.evidence.filter((photo) => photo.stage === "during").map((photo) => (
-                <figure key={photo.id} className="ai-figure">
-                  <img src={photo.src} alt={photo.caption || "Site evidence"} />
-                  <SafetyBadge photoId={photo.id} safety={safety} />
-                </figure>
-              ))}
+              {data.evidence
+                .filter((photo) => photo.stage !== "before" && photo.stage !== "after")
+                .map((photo) => (
+                  <figure key={photo.id} className="ai-figure">
+                    <img src={photo.src} alt={photo.caption || "Site evidence"} />
+                    <SafetyBadge photoId={photo.id} safety={safety} />
+                  </figure>
+                ))}
             </div>
           )}
-          <small className="pf-muted">Submitted {formatDate(data.submittedOn)}</small>
+          <small className="pf-muted">
+            Submitted {data.submittedAt ? formatDateTime(data.submittedAt) : formatDate(data.submittedOn)}
+          </small>
         </section>
 
         <section className="pf-card pf-pad">
           <h2>Your Decision</h2>
           <p className="pf-sub">Review the final work before closing this project.</p>
-
           <div className="pf-note">
             <i className="pf-dot pf-dot-yellow" aria-hidden="true" />
             Confirm only after reviewing the final work.
@@ -220,11 +235,7 @@ function ReviewCompletionPage() {
             </div>
           )}
 
-          {error && (
-            <p className="pf-alert" role="alert">
-              {error}
-            </p>
-          )}
+          {error && <p className="pf-alert" role="alert">{error}</p>}
 
           <div className="pf-decision-buttons">
             {showChanges ? (
@@ -264,8 +275,8 @@ function ReviewCompletionPage() {
                 setError("");
                 handleConfirmCompletion(project.id)
                   .then(() => setApproved(true))
-                  .catch(() => {
-                    setError("Could not confirm completion. Please try again.");
+                  .catch((err) => {
+                    setError(err.message || "Could not confirm completion. Please try again.");
                     setSaving(false);
                   });
               }}

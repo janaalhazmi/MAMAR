@@ -653,36 +653,50 @@ export async function getMonitoringData(projectId) {
 /* REVIEW COMPLETION                                                   */
 /* ------------------------------------------------------------------ */
 export async function getCompletionData(projectId) {
-  const r = await fetchCompletion(token(), requireProjectId(projectId));
-  const submitted = r.submitted_at ? r.submitted_at.slice(0, 10) : "";
+  const r = await fetchMonitoring(token(), requireProjectId(projectId));
+  const submitted = r.submitted_at || null;
 
   const checklist = (r.services || []).map((id, index) => ({
     id: index + 1,
     title: SERVICE_LABELS[id] || id,
     note: "Implementation completed by the provider.",
   }));
+
   checklist.push({
     id: checklist.length + 1,
     title: "Final Site Inspection",
     note: "Final field inspection submitted by the provider.",
   });
 
+  const finalSubmitted = r.completion_submitted === true;
+
   return {
-    completionDate: submitted,
-    finalProgress: r.progress,
+    completionDate: submitted ? submitted.slice(0, 10) : "",
+    submittedAt: submitted,
+    finalProgress: finalSubmitted ? 100 : Number(r.progress) || 0,
     checklist,
-    providerNote: r.quote?.notes
-      ? `Provider note: ${r.quote.notes}`
-      : "The provider has submitted the work for your review.",
+    provider: r.provider
+      ? {
+          providerName: r.provider.company_name || "Not assigned",
+          providerDescription: r.provider.service_type || "",
+          providerLogo: PROVIDER_LOGOS[r.provider.provider_id] || null,
+        }
+      : null,
+    providerNote: r.change_note
+      ? `Provider note: ${r.change_note}`
+      : r.quote?.notes
+        ? `Provider note: ${r.quote.notes}`
+        : "The provider has submitted the work for your review.",
     evidence: (r.photos || []).map((photo) => ({
       id: photo.photo_id,
       src: absUrl(photo.url),
       stage: photo.stage || "during",
       caption: photo.caption,
     })),
-    submittedOn: submitted,
+    submittedOn: submitted ? submitted.slice(0, 10) : "",
   };
 }
+
 
 export async function approveCompletion(projectId) {
   const project = await postCompleteProject(token(), requireProjectId(projectId));
