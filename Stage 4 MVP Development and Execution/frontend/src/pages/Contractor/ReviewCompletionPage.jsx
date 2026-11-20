@@ -111,13 +111,17 @@ function ReviewCompletionPage() {
         </div>
         <div className="pf-summary-item">
           <span className="pf-label">Completion Date & Time</span>
-          <strong>
-            {data.submittedAt
-              ? formatDateTime(data.submittedAt)
-              : data.completionDate
-                ? formatDate(data.completionDate)
-                : "Not specified"}
-          </strong>
+        <strong>
+          {data.completionDateTime
+            ? new Date(data.completionDateTime).toLocaleString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "Not specified"}
+        </strong>
         </div>
         <div className="pf-summary-item">
           <span className="pf-label">Final Progress</span>

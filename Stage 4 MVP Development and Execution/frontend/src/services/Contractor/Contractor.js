@@ -654,32 +654,82 @@ export async function getMonitoringData(projectId) {
 /* ------------------------------------------------------------------ */
 export async function getCompletionData(projectId) {
   const r = await fetchMonitoring(token(), requireProjectId(projectId));
+
   const submitted = r.submitted_at || null;
+  const milestones = Array.isArray(r.milestones) ? r.milestones : [];
 
-  const checklist = (r.services || []).map((id, index) => ({
-    id: index + 1,
-    title: SERVICE_LABELS[id] || id,
-    note: "Implementation completed by the provider.",
-  }));
+  // Check whether all project milestones are completed.
+  const allMilestonesCompleted =
+    milestones.length > 0 &&
+    milestones.every(
+      (milestone) =>
+        String(milestone.status || "").toLowerCase() === "completed"
+    );
 
-  checklist.push({
-    id: checklist.length + 1,
-    title: "Final Site Inspection",
-    note: "Final field inspection submitted by the provider.",
-  });
+  // Find the actual completion time of the last updated milestone.
+  const completionMilestones = milestones
+    .filter(
+      (milestone) =>
+        String(milestone.status || "").toLowerCase() === "completed" &&
+        milestone.updated_at
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.updated_at).getTime() -
+        new Date(a.updated_at).getTime()
+    );
 
-  const finalSubmitted = r.completion_submitted === true;
+  const completionDateTime = allMilestonesCompleted
+    ? completionMilestones[0]?.updated_at || null
+    : null;
 
+  const completionDate = completionDateTime
+    ? completionDateTime.slice(0, 10)
+    : "";
+
+  // Build checklist using actual milestone statuses.
+  const checklist = milestones.length
+    ? milestones.map((milestone) => ({
+        id: milestone.milestone_id,
+        title: milestone.name,
+        note:
+          milestone.status === "completed"
+            ? "Implementation completed by the provider."
+            : milestone.status === "in_progress"
+              ? "Work is currently in progress."
+              : "Pending",
+        status: milestone.status,
+      }))
+    : (r.services || []).map((id, index) => ({
+        id: index + 1,
+        title: SERVICE_LABELS[id] || id,
+        note: "Implementation completed by the provider.",
+      }));
+
+  if (!milestones.length) {
+    checklist.push({
+      id: checklist.length + 1,
+      title: "Final Site Inspection",
+      note: "Final field inspection submitted by the provider.",
+    });
+  }
   return {
-    completionDate: submitted ? submitted.slice(0, 10) : "",
+    completionDate,
+    completionDateTime,
     submittedAt: submitted,
-    finalProgress: finalSubmitted ? 100 : Number(r.progress) || 0,
+    // 100% only when every milestone is completed.
+    finalProgress: allMilestonesCompleted
+      ? 100
+      : Number(r.progress) || 0,
+    allMilestonesCompleted,
+    milestones,
     checklist,
     provider: r.provider
       ? {
           providerName: r.provider.company_name || "Not assigned",
           providerDescription: r.provider.service_type || "",
-          providerLogo: PROVIDER_LOGOS[r.provider.provider_id] || null,
+          providerLogo:
+            PROVIDER_LOGOS[r.provider.provider_id] || null,
         }
       : null,
     providerNote: r.change_note
@@ -693,7 +743,7 @@ export async function getCompletionData(projectId) {
       stage: photo.stage || "during",
       caption: photo.caption,
     })),
-    submittedOn: submitted ? submitted.slice(0, 10) : "",
+    submittedOn: completionDate,
   };
 }
 

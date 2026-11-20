@@ -91,6 +91,7 @@ class SiteProgress(BaseModel):
     quote: QuoteResponse | None
     photos: list[PhotoResponse]
     milestones: list[MilestoneResponse] = []
+    milestones: list[MilestoneResponse] = Field(default_factory=list)
 
 
 class ChangeRequest(BaseModel):

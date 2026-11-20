@@ -11,7 +11,7 @@ class MilestoneResponse(BaseModel):
     project_id: int
     name: str
     status: str
-    updated_at: datetime | None = None
+    updated_at: datetime | None
 
 
 class MilestoneUpdate(BaseModel):
