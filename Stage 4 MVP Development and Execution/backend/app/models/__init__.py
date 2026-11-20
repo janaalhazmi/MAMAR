@@ -14,5 +14,6 @@ from app.models.review import Review
 from app.models.service_request import ServiceRequest
 from app.models.site_photo import SitePhoto
 from app.models.user import User
+from app.models.project_milestone import ProjectMilestone
 
-__all__ = ["AIResult", "Activity", "Attendance", "Assignment", "EmailPasscode", "Notification", "Payment", "Project", "ProjectDevice", "Provider", "Quote", "Review", "ServiceRequest", "SitePhoto", "User"]
+__all__ = ["AIResult", "Activity", "Attendance", "Assignment", "EmailPasscode", "Notification", "Payment", "Project", "ProjectDevice", "Provider", "Quote", "Review", "ServiceRequest", "SitePhoto", "User", "ProjectMilestone"]

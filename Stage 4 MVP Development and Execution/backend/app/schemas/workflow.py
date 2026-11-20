@@ -133,3 +133,17 @@ class DeviceVerificationResponse(BaseModel):
     distance_m: float
     max_distance_m: float
     status: str
+
+class MilestoneResponse(BaseModel):
+    milestone_id: int
+    project_id: int
+    name: str
+    status: str
+    updated_at: datetime | None
+
+class MilestoneUpdate(BaseModel):
+    status: Literal[
+        "pending",
+        "in_progress",
+        "completed"
+    ]
