@@ -1,8 +1,17 @@
-import * as providerProfileService from "../Contractor/profileService";
-import { PROVIDERS as PROVIDER_DIRECTORY } from "../Contractor/Contractor";
-import { useEffect, useState, useRef } from "react";
-import { getProviderProjects } from "./providerFlow";
+// Provider page hooks and supporting actions.
+
+// ============================================================================
+// Imports
+// ============================================================================
+
 import {
+  useParams as useDevicePageParams,
+  useNavigate as useQuotationNavigate,
+  useSearchParams as useQuotationSearchParams,
+  useLocation,
+} from "react-router-dom";
+import {
+  API_BASE_URL as EXECUTION_API_BASE_URL,
   fetchRequestWorkZone,
   postReturnToTeam,
   postSubmitCompletion,
@@ -12,8 +21,47 @@ import {
   registerUser,
   sendPasscode,
 } from "../api";
+import { useSafetyChecks as useExecutionSafetyChecks } from "../ai";
+import {
+  declineProviderRequest as declineQuotationRequest,
+  submitProviderQuotation as submitQuotationOffer,
+  getOpenRequestById,
+  getProviderDashboard,
+} from "./providerQuotes";
+import * as providerProfileService from "../Contractor/profileService";
+import { PROVIDERS as PROVIDER_DIRECTORY } from "../Contractor/Contractor";
+import { useEffect, useState, useRef } from "react";
+import { getProviderProjects } from "./providerFlow";
 import { getSession } from "../auth";
-import { getOpenRequestById } from "./providerQuotes";
+
+// ============================================================================
+// Shared configuration
+// ============================================================================
+
+const apiUrl = (
+  import.meta.env.VITE_API_URL || "https://mamar-api.onrender.com"
+).replace(/\/+$/, "");
+
+// ============================================================================
+// Provider Dashboard
+// ============================================================================
+
+const DASHBOARD_API_URL = (
+  import.meta.env.VITE_API_URL || "https://mamar-api.onrender.com"
+).replace(/\/+$/, "");
+
+function getDashboardProfilePictureUrl(user) {
+  const path =
+    user?.profile_picture_url ||
+    user?.profile_picture ||
+    user?.avatar_url ||
+    "";
+
+  if (!path) return "";
+  if (/^https?:\/\//i.test(path)) return path;
+
+  return `${DASHBOARD_API_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+}
 
 export function useProviderDashboard(readSession, loadDashboard) {
   const user = readSession()?.user;
@@ -36,7 +84,7 @@ export function useProviderDashboard(readSession, loadDashboard) {
       .then((result) => active && setData(result))
       .catch(
         (err) =>
-          active && setError(err.message || "Could not load your dashboard.")
+          active && setError(err.message || "Could not load your dashboard."),
       )
       .finally(() => active && setLoading(false));
 
@@ -47,6 +95,251 @@ export function useProviderDashboard(readSession, loadDashboard) {
 
   return { displayName, initials, data, loading, error };
 }
+
+export function useProviderDashboardPage() {
+  // Read the success message received after quotation submission.
+  const location = useLocation();
+  const [successMessage] = useState(() => location.state?.successMessage || "");
+
+  useEffect(() => {
+    if (location.state?.successMessage) {
+      window.history.replaceState({ ...window.history.state, usr: null }, "");
+    }
+  }, [location.state]);
+
+  // Load provider identity and dashboard data.
+  const { displayName, initials, data, loading, error } = useProviderDashboard(
+    getSession,
+    getProviderDashboard,
+  );
+
+  // Keep the top-bar avatar in sync when the profile picture is changed.
+  const [sessionUser, setSessionUser] = useState(
+    () => getSession()?.user || {},
+  );
+
+  useEffect(() => {
+    let active = true;
+    function handleUserUpdate(event) {
+      if (event.detail) {
+        setSessionUser((current) => ({
+          ...current,
+          ...event.detail,
+        }));
+      }
+    }
+    window.addEventListener("mamar:session-user-updated", handleUserUpdate);
+    async function loadUserProfile() {
+      try {
+        const profile = await providerProfileService.fetchMyProfile();
+        if (!active) return;
+        setSessionUser((current) => ({
+          ...current,
+          ...profile,
+        }));
+        window.dispatchEvent(
+          new CustomEvent("mamar:session-user-updated", {
+            detail: profile,
+          }),
+        );
+      } catch (error) {
+        console.error("Unable to load provider profile:", error);
+      }
+    }
+    loadUserProfile();
+    return () => {
+      active = false;
+      window.removeEventListener(
+        "mamar:session-user-updated",
+        handleUserUpdate,
+      );
+    };
+  }, []);
+
+  const picture = getDashboardProfilePictureUrl(sessionUser);
+
+  // Prepare project statistics and summary cards.
+  const stats = data?.stats || {
+    assigned: 0,
+    active: 0,
+    upcoming: 0,
+    completed: 0,
+  };
+
+  const summaryCards = [
+    {
+      label: "Assigned Projects",
+      value: stats.assigned,
+      icon: "＋",
+      color: "yellow",
+    },
+    {
+      label: "Active Execution",
+      value: stats.active,
+      icon: "✓",
+      color: "green",
+    },
+    { label: "Upcoming", value: stats.upcoming, icon: "⟳", color: "blue" },
+    {
+      label: "Completed Projects",
+      value: stats.completed,
+      icon: "✓",
+      color: "gray",
+    },
+  ];
+
+  // Prepare dashboard sections with empty-state defaults.
+  const newRequests = data?.newRequests || [];
+  const newProject = data?.newProject || null;
+  const activeProjects = data?.activeProjects || [];
+  const overview = data?.overview || { workersActive: 0, sitesActive: 0 };
+
+  return {
+    displayName,
+    initials,
+    picture,
+    successMessage,
+    loading,
+    error,
+    summaryCards,
+    newRequests,
+    newProject,
+    activeProjects,
+    overview,
+  };
+}
+
+// ============================================================================
+// Provider Projects
+// ============================================================================
+
+const PROVIDER_PROJECT_STATUS_LABELS = {
+  active: "Active",
+  upcoming: "Upcoming",
+  completed: "Completed",
+};
+
+function toRow(project) {
+  return { ...project, status: String(project.status || "").toLowerCase() };
+}
+
+export function useProviderProjects(given) {
+  const [loaded, setLoaded] = useState(null);
+  const [loading, setLoading] = useState(!given);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    if (given) return undefined;
+
+    let active = true;
+
+    getProviderProjects()
+      .then((rows) => {
+        if (active) setLoaded(rows.map(toRow));
+      })
+      .catch((error) => {
+        if (active) {
+          setLoadError(error.message || "Could not load your projects.");
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [given]);
+
+  const projects = given || loaded || [];
+
+  return { projects, loading, loadError };
+}
+
+export function useProviderProjectsPage(given) {
+  const { projects, loading, loadError } = useProviderProjects(given);
+  const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
+
+  const statuses = PROVIDER_PROJECT_STATUS_LABELS;
+  const counts = {
+    all: projects.length,
+    active: 0,
+    upcoming: 0,
+    completed: 0,
+  };
+
+  for (const project of projects) {
+    if (Object.hasOwn(statuses, project.status)) {
+      counts[project.status] += 1;
+    }
+  }
+
+  const query = search.trim().toLowerCase();
+  const visibleProjects = projects
+    .filter((project) => {
+      const matchesStatus = filter === "all" || project.status === filter;
+      const matchesSearch = [
+        project.name,
+        project.reference,
+        project.location,
+      ].some((value) =>
+        String(value ?? "")
+          .toLowerCase()
+          .includes(query),
+      );
+
+      return matchesStatus && matchesSearch;
+    })
+    .map((project) => ({
+      ...project,
+      progress: Number.isFinite(project.progress)
+        ? Math.max(0, Math.min(100, project.progress))
+        : null,
+      completed: project.status === "completed",
+      referenceLabel: [project.reference, project.location]
+        .filter(Boolean)
+        .join(" · "),
+    }));
+
+  return {
+    projects,
+    loading,
+    loadError,
+    filter,
+    setFilter,
+    search,
+    setSearch,
+    counts,
+    statuses,
+    visibleProjects,
+  };
+}
+
+// ============================================================================
+// Prepare Quotation
+// ============================================================================
+
+const PROVIDER_QUOTATION_INITIAL_SERVICES = [
+  {
+    id: 1,
+    name: "Traffic Barriers",
+    quantity: 20,
+    unitPrice: 150,
+  },
+  {
+    id: 2,
+    name: "Traffic Cones",
+    quantity: 10,
+    unitPrice: 80,
+  },
+  {
+    id: 3,
+    name: "Temporary Road Signs",
+    quantity: 5,
+    unitPrice: 200,
+  },
+];
 
 export function useQuotationRequest(requestId) {
   const [workZone, setWorkZone] = useState(null);
@@ -108,49 +401,204 @@ export function useQuotationRequest(requestId) {
   return { requestDetails, realRequest, workZone, workZoneError };
 }
 
-// GET /provider/projects returns Active / Upcoming / Completed.
-function toRow(project) {
-  return { ...project, status: String(project.status || "").toLowerCase() };
-}
+export function usePrepareQuotationPage() {
+  // Provider account display values.
+  const providerName = getSession()?.user?.full_name?.trim() || "Provider";
+  const providerInitials = providerName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join("");
 
-export function useProviderProjects(given) {
-  const [loaded, setLoaded] = useState(null);
-  const [loading, setLoading] = useState(!given);
-  const [loadError, setLoadError] = useState("");
+  // Navigation and selected service request.
+  const navigate = useQuotationNavigate();
+  const [searchParams] = useQuotationSearchParams();
+  const requestId = searchParams.get("requestId");
+  // Form state and duplicate submission guard.
+  const submitting = useRef(false);
+  const [services, setServices] = useState(PROVIDER_QUOTATION_INITIAL_SERVICES);
+  const [delivery, setDelivery] = useState(1200);
+  const [showWorkZone, setShowWorkZone] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const { requestDetails, realRequest, workZone, workZoneError } =
+    useQuotationRequest(requestId);
 
-  useEffect(() => {
-    if (given) return undefined;
+  const handleWorkZoneSelect = (polygon) => {
+    sessionStorage.setItem("providerWorkZone", JSON.stringify(polygon));
+  };
 
-    let active = true;
+  // Update the selected service quantity.
+  const handleQuantityChange = (id, value) => {
+    const newQuantity = Number(value);
 
-    getProviderProjects()
-      .then((rows) => {
-        if (active) setLoaded(rows.map(toRow));
-      })
-      .catch((error) => {
-        if (active) {
-          setLoadError(error.message || "Could not load your projects.");
-        }
-      })
-      .finally(() => {
-        if (active) setLoading(false);
+    setServices((currentServices) =>
+      currentServices.map((service) =>
+        service.id === id
+          ? {
+              ...service,
+              quantity: Number.isNaN(newQuantity) ? 0 : newQuantity,
+            }
+          : service,
+      ),
+    );
+  };
+
+  // Update the selected service unit price.
+  const handleUnitPriceChange = (id, value) => {
+    const newPrice = Number(value);
+
+    setServices((currentServices) =>
+      currentServices.map((service) =>
+        service.id === id
+          ? {
+              ...service,
+              unitPrice: Number.isNaN(newPrice) ? 0 : newPrice,
+            }
+          : service,
+      ),
+    );
+  };
+
+  // Calculate service and delivery totals.
+  const subtotal = services.reduce(
+    (total, service) => total + service.quantity * service.unitPrice,
+    0,
+  );
+
+  const total = subtotal + Number(delivery || 0);
+
+  // Collect the current quotation values.
+  const getQuotationData = () => ({
+    requestId,
+    services,
+    delivery,
+    subtotal,
+    total,
+    location: selectedLocation,
+    workZone,
+    notes: document.querySelector(".quotation-notes textarea")?.value || "",
+    validUntil: document.querySelector(".quotation-date")?.value || "",
+  });
+
+  // Decline the request and return to the dashboard.
+  const handleDeclineRequest = async () => {
+    if (!requestId || submitting.current) return;
+
+    submitting.current = true;
+    try {
+      await declineQuotationRequest(requestId);
+      navigate("/provider-dashboard", {
+        replace: true,
+        state: { successMessage: "Request declined successfully." },
       });
+    } catch (error) {
+      window.alert(error.message || "Could not save your decision.");
+    } finally {
+      submitting.current = false;
+    }
+  };
 
-    return () => {
-      active = false;
-    };
-  }, [given]);
+  // Validate and submit the quotation.
+  const handleSubmitQuotation = async () => {
+    if (submitting.current) return;
 
-  const projects = given || loaded || [];
+    if (!requestId) {
+      alert("Open this quotation from a service request.");
+      return;
+    }
 
-  return { projects, loading, loadError };
+    const quotation = getQuotationData();
+    const hasInvalidService = quotation.services.some(
+      ({ quantity, unitPrice }) =>
+        !Number.isFinite(quantity) ||
+        quantity <= 0 ||
+        !Number.isFinite(unitPrice) ||
+        unitPrice <= 0,
+    );
+
+    if (
+      hasInvalidService ||
+      !Number.isFinite(quotation.total) ||
+      quotation.total <= 0
+    ) {
+      alert("Please enter a valid quantity and unit price for all services.");
+      return;
+    }
+
+    submitting.current = true;
+    try {
+      const request = await getOpenRequestById(requestId);
+      if (!request?.projectId) {
+        throw new Error("This request is no longer available for quotation.");
+      }
+
+      const start = Date.parse(request.startDate?.slice(0, 10) ?? "");
+      const end = Date.parse(request.endDate?.slice(0, 10) ?? "");
+      const durationDays = (end - start) / 86400000 + 1;
+
+      if (!Number.isInteger(durationDays) || durationDays < 1) {
+        throw new Error("The request needs valid start and end dates.");
+      }
+
+      const notes = [
+        quotation.notes,
+        ...quotation.services.map(
+          ({ name, quantity, unitPrice }) =>
+            name + ": " + quantity + " × SAR " + unitPrice,
+        ),
+        "Delivery: SAR " + quotation.delivery,
+        quotation.validUntil && "Valid until: " + quotation.validUntil,
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      await submitQuotationOffer({
+        request,
+        price: quotation.total,
+        durationDays,
+        notes,
+      });
+      localStorage.removeItem("providerQuotationDraft");
+      navigate("/provider-dashboard", {
+        replace: true,
+        state: { successMessage: "Quotation submitted successfully." },
+      });
+    } catch (error) {
+      alert(
+        error.message || "Could not submit the quotation. Please try again.",
+      );
+    } finally {
+      submitting.current = false;
+    }
+  };
+
+  return {
+    providerName,
+    providerInitials,
+    requestId,
+    services,
+    delivery,
+    setDelivery,
+    showWorkZone,
+    setShowWorkZone,
+    requestDetails,
+    realRequest,
+    workZone,
+    workZoneError,
+    handleQuantityChange,
+    handleUnitPriceChange,
+    subtotal,
+    total,
+    handleDeclineRequest,
+    handleSubmitQuotation,
+  };
 }
 
-const apiUrl = (
-  import.meta.env.VITE_API_URL || "https://mamar-api.onrender.com"
-).replace(/\/+$/, "");
+// ============================================================================
+// Execution Details
+// ============================================================================
 
-// Fetch project milestones.
 export async function fetchProjectMilestones(token, projectId) {
   const response = await fetch(
     `${apiUrl}/provider/projects/${encodeURIComponent(projectId)}/milestones`,
@@ -158,7 +606,7 @@ export async function fetchProjectMilestones(token, projectId) {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -168,16 +616,15 @@ export async function fetchProjectMilestones(token, projectId) {
   return response.json();
 }
 
-// Update a project milestone.
 export async function updateProjectMilestone(
   token,
   projectId,
   milestoneId,
-  status
+  status,
 ) {
   const response = await fetch(
     `${apiUrl}/provider/projects/${encodeURIComponent(
-      projectId
+      projectId,
     )}/milestones/${encodeURIComponent(milestoneId)}`,
     {
       method: "PATCH",
@@ -186,7 +633,7 @@ export async function updateProjectMilestone(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ status }),
-    }
+    },
   );
 
   if (!response.ok) {
@@ -247,9 +694,7 @@ export function useProviderProjectDetails(projectId) {
         }
       } catch (error) {
         if (active) {
-          setMilestonesError(
-            error.message || "Could not load milestones."
-          );
+          setMilestonesError(error.message || "Could not load milestones.");
         }
       } finally {
         if (active) {
@@ -278,20 +723,18 @@ export function useProviderProjectDetails(projectId) {
         token,
         projectId,
         milestoneId,
-        status
+        status,
       );
 
       setMilestones((current) =>
         current.map((item) =>
-          item.milestone_id === milestoneId ? updated : item
-        )
+          item.milestone_id === milestoneId ? updated : item,
+        ),
       );
 
       setMilestoneNotice("Milestone updated successfully.");
     } catch (error) {
-      setMilestonesError(
-        error.message || "Could not update milestone."
-      );
+      setMilestonesError(error.message || "Could not update milestone.");
     } finally {
       setMilestoneBusy(null);
     }
@@ -322,11 +765,11 @@ export function useProviderProjectDetails(projectId) {
       setReviewNotice(
         action === "submit"
           ? "Sent to the contractor for review."
-          : "Returned to the field team with your note."
+          : "Returned to the field team with your note.",
       );
     } catch (error) {
       setReviewError(
-        error.message || "Could not update the project. Please try again."
+        error.message || "Could not update the project. Please try again.",
       );
     } finally {
       setReviewBusy(false);
@@ -354,13 +797,11 @@ export function useProviderProjectDetails(projectId) {
               Authorization: `Bearer ${token}`,
             },
             signal: controller.signal,
-          }
+          },
         );
 
         if (!response.ok) {
-          throw new Error(
-            `Could not load this project (${response.status}).`
-          );
+          throw new Error(`Could not load this project (${response.status}).`);
         }
 
         const data = await response.json();
@@ -381,9 +822,7 @@ export function useProviderProjectDetails(projectId) {
   }, [projectId, token]);
 
   const current =
-    result?.projectId === projectId && result?.token === token
-      ? result
-      : null;
+    result?.projectId === projectId && result?.token === token ? result : null;
 
   const details = current?.data;
   const project = details?.project;
@@ -410,6 +849,46 @@ export function useProviderProjectDetails(projectId) {
     updateMilestone,
   };
 }
+
+export function getProviderSitePhotoUrl(photo) {
+  const path = photo.url || photo.photo_url;
+  if (!path) return "";
+
+  let src;
+  try {
+    src = new URL(path, EXECUTION_API_BASE_URL.replace(/\/+$/, "") + "/").href;
+  } catch {
+    return "";
+  }
+
+  return src;
+}
+
+export function useProviderExecutionPage(projectId) {
+  const state = useProviderProjectDetails(projectId);
+  const progress = Math.max(
+    0,
+    Math.min(100, Number(state.details?.progress) || 0),
+  );
+  const team = state.details?.team ?? [];
+  const photos = state.details?.photos ?? [];
+  const safety = useExecutionSafetyChecks(
+    state.project?.project_id,
+    photos.length,
+  );
+
+  return {
+    ...state,
+    progress,
+    team,
+    photos,
+    safety,
+  };
+}
+
+// ============================================================================
+// Device Verification
+// ============================================================================
 
 export function useDeviceVerificationProjects() {
   const [projects, setProjects] = useState(null);
@@ -449,7 +928,7 @@ export async function verifyProviderDevice(deviceId, projectId, location) {
   } catch (error) {
     if (error.status === 403) {
       throw new Error(
-        "This account does not have permission to verify this device."
+        "This account does not have permission to verify this device.",
       );
     }
 
@@ -457,12 +936,67 @@ export async function verifyProviderDevice(deviceId, projectId, location) {
       throw new Error(
         "Verification failed (" +
           error.status +
-          "). Check the device ID and project."
+          "). Check the device ID and project.",
       );
     }
 
     throw error;
   }
+}
+
+export function useProviderDeviceVerificationPage() {
+  const { projectId } = useDevicePageParams();
+  const { projects, loadError } = useDeviceVerificationProjects();
+
+  const name = getSession()?.user?.full_name || "Provider";
+  const initials =
+    name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((word) => word.charAt(0).toUpperCase())
+      .join("") || "P";
+
+  const matchedProject = projects?.find(
+    (project) => String(project.id) === projectId,
+  );
+
+  // Prepare the existing progress value for the project summary.
+  const selected = matchedProject
+    ? {
+        ...matchedProject,
+        displayProgress: Math.max(
+          0,
+          Math.min(100, Number(matchedProject.progress) || 0),
+        ),
+      }
+    : matchedProject;
+
+  return {
+    projectId,
+    projects,
+    loadError,
+    name,
+    initials,
+    selected,
+  };
+}
+
+// ============================================================================
+// Field Team
+// ============================================================================
+
+export const PROVIDER_WORKER_STATUSES = ["Active", "Available", "On Leave"];
+
+export function getFieldTeamInitials(name) {
+  return (
+    name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((word) => word.charAt(0).toUpperCase())
+      .join("") || "P"
+  );
 }
 
 export function useProviderFieldWorkers() {
@@ -502,9 +1036,7 @@ export function useProviderFieldWorkers() {
         if (active) setWorkers(loadedWorkers);
       } catch (error) {
         if (active) {
-          setWorkersError(
-            error.message || "Could not load field workers."
-          );
+          setWorkersError(error.message || "Could not load field workers.");
         }
       } finally {
         if (active) setLoadingWorkers(false);
@@ -534,9 +1066,8 @@ export function useWorkerAssignmentProjects(canAssign, setError) {
         if (active) {
           setProjects(
             items.filter(
-              (item) =>
-                item.status === "Active" || item.status === "Upcoming"
-            )
+              (item) => item.status === "Active" || item.status === "Upcoming",
+            ),
           );
         }
       })
@@ -612,13 +1143,11 @@ export function useFieldWorkerRegistration(onCreated) {
       const session = getSession();
 
       const providerId = Number(
-        session?.user?.provider_id ?? session?.provider_id
+        session?.user?.provider_id ?? session?.provider_id,
       );
 
       if (!Number.isInteger(providerId) || providerId < 1) {
-        throw new Error(
-          "Your session is missing the company provider ID."
-        );
+        throw new Error("Your session is missing the company provider ID.");
       }
 
       const fullName = String(fields.get("full_name") || "").trim();
@@ -639,9 +1168,7 @@ export function useFieldWorkerRegistration(onCreated) {
       await sendPasscode(registration.email);
       setWorker(registration);
     } catch (failure) {
-      setError(
-        failure.message || "Could not register the field worker."
-      );
+      setError(failure.message || "Could not register the field worker.");
       setCaptchaReset((count) => count + 1);
     } finally {
       setBusy(false);
@@ -659,21 +1186,133 @@ export function useFieldWorkerRegistration(onCreated) {
   };
 }
 
-export { providerProfileService };
+export function useProviderFieldTeamPage() {
+  const statuses = PROVIDER_WORKER_STATUSES;
 
-export function getProviderCompanyName(profile) {
-  if (profile?.company_name) return profile.company_name;
-  if (profile?.provider_id == null) return "";
+  const { workers, setWorkers, loadingWorkers, workersError } =
+    useProviderFieldWorkers();
 
-  return (
-    PROVIDER_DIRECTORY.find(
-      (company) =>
-        String(company.id) === String(profile.provider_id)
-    )?.name ?? ""
+  const name = getSession()?.user?.full_name || "Provider";
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
+  const [project, setProject] = useState("");
+  const [selected, setSelected] = useState(null);
+  const [addingWorker, setAddingWorker] = useState(false);
+  const projects = [
+    ...new Set(workers.map((worker) => worker.project).filter(Boolean)),
+  ];
+
+  function addRegisteredWorker(worker) {
+    setWorkers((current) => [
+      ...current.filter((item) => item.email !== worker.email),
+      worker,
+    ]);
+  }
+
+  const query = search.trim().toLowerCase();
+  const visible = workers.filter(
+    (worker) =>
+      (!status || worker.status === status) &&
+      (!project || worker.project === project) &&
+      [worker.name, worker.id, worker.email].some((value) =>
+        String(value).toLowerCase().includes(query),
+      ),
   );
+
+  const stats = [
+    ["Total Workers", workers.length, "Registered workers"],
+    ...statuses.map((item, index) => [
+      item === "On Leave" ? item : item + " Workers",
+      workers.filter((worker) => worker.status === item).length,
+      [
+        "Assigned to projects",
+        "Ready for assignment",
+        "Temporarily unavailable",
+      ][index],
+    ]),
+  ];
+
+  // Synchronize the selected worker and directory after assignment.
+  function handleWorkerAssigned(project) {
+    const updated = {
+      ...selected,
+      project: project.name,
+      status: "Active",
+    };
+
+    setWorkers((current) =>
+      current.map((item) => (item.id === updated.id ? updated : item)),
+    );
+    setSelected(updated);
+  }
+
+  return {
+    workers,
+    loadingWorkers,
+    workersError,
+    name,
+    search,
+    setSearch,
+    status,
+    setStatus,
+    project,
+    setProject,
+    selected,
+    setSelected,
+    addingWorker,
+    setAddingWorker,
+    projects,
+    addRegisteredWorker,
+    visible,
+    stats,
+    handleWorkerAssigned,
+  };
 }
 
-// Provider Profile: account settings, password and profile picture.
+export function useProviderWorkerAssignment(worker, onAssigned) {
+  const [projectId, setProjectId] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const workerId = Number(worker.id);
+  const canAssign =
+    !worker.project && Number.isSafeInteger(workerId) && workerId > 0;
+
+  const projects = useWorkerAssignmentProjects(canAssign, setError);
+
+  async function assign(event) {
+    event.preventDefault();
+    const project = projects?.find((item) => String(item.id) === projectId);
+    if (!canAssign || !project || saving) return;
+
+    setSaving(true);
+    setError("");
+
+    try {
+      await assignProviderWorker(project.id, workerId);
+      onAssigned(project);
+    } catch (failure) {
+      setError(failure.message || "Could not assign the worker.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return {
+    projectId,
+    setProjectId,
+    saving,
+    error,
+    canAssign,
+    projects,
+    assign,
+  };
+}
+
+// ============================================================================
+// Provider Profile
+// ============================================================================
+
 const {
   fetchMyProfile,
   updateMyProfile,
@@ -690,6 +1329,17 @@ const EMPTY_PROVIDER_PROFILE = {
   profile_picture: "",
   created_at: "",
 };
+
+export function getProviderCompanyName(profile) {
+  if (profile?.company_name) return profile.company_name;
+  if (profile?.provider_id == null) return "";
+
+  return (
+    PROVIDER_DIRECTORY.find(
+      (company) => String(company.id) === String(profile.provider_id),
+    )?.name ?? ""
+  );
+}
 
 function getProviderProfileErrorMessage(error, fallback) {
   return error?.message || fallback;
@@ -729,7 +1379,7 @@ function notifyProviderShellUser(user) {
   window.dispatchEvent(
     new CustomEvent("mamar:session-user-updated", {
       detail: user,
-    })
+    }),
   );
 }
 
@@ -784,10 +1434,7 @@ export function useProviderProfile() {
       return updatedProfile;
     } catch (err) {
       setError(
-        getProviderProfileErrorMessage(
-          err,
-          "Unable to load your profile."
-        )
+        getProviderProfileErrorMessage(err, "Unable to load your profile."),
       );
 
       return null;
@@ -848,10 +1495,7 @@ export function useProviderProfile() {
       setSuccess("Your profile details have been updated.");
     } catch (err) {
       setError(
-        getProviderProfileErrorMessage(
-          err,
-          "Unable to update your profile."
-        )
+        getProviderProfileErrorMessage(err, "Unable to update your profile."),
       );
     } finally {
       setSavingProfile(false);
@@ -904,7 +1548,7 @@ export function useProviderProfile() {
     try {
       await changeMyPassword(
         passwords.current_password,
-        passwords.new_password
+        passwords.new_password,
       );
 
       setPasswords({
@@ -916,10 +1560,7 @@ export function useProviderProfile() {
       setSuccess("Your password has been changed.");
     } catch (err) {
       setError(
-        getProviderProfileErrorMessage(
-          err,
-          "Unable to change your password."
-        )
+        getProviderProfileErrorMessage(err, "Unable to change your password."),
       );
     } finally {
       setSavingPassword(false);
@@ -965,8 +1606,8 @@ export function useProviderProfile() {
       setError(
         getProviderProfileErrorMessage(
           err,
-          "Unable to upload your profile picture."
-        )
+          "Unable to upload your profile picture.",
+        ),
       );
     } finally {
       setPictureBusy(false);
@@ -996,8 +1637,8 @@ export function useProviderProfile() {
       setError(
         getProviderProfileErrorMessage(
           err,
-          "Unable to remove your profile picture."
-        )
+          "Unable to remove your profile picture.",
+        ),
       );
     } finally {
       setPictureBusy(false);
@@ -1006,10 +1647,7 @@ export function useProviderProfile() {
 
   const picture = getProviderProfilePictureUrl(profile);
 
-  const initial = (profile.full_name || "U")
-    .trim()
-    .charAt(0)
-    .toUpperCase();
+  const initial = (profile.full_name || "U").trim().charAt(0).toUpperCase();
 
   const companyName = getProviderCompanyName(profile) || "—";
 
@@ -1039,3 +1677,5 @@ export function useProviderProfile() {
     companyName,
   };
 }
+
+export { providerProfileService };

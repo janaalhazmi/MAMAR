@@ -1,123 +1,36 @@
-import { useEffect, useState } from "react";
-import logo from "../../assets/mamar-logo.svg";
-import NotificationBell from "../../components/NotificationBell";
-import { useProviderDashboard, providerProfileService} from "../../services/providers/api";
-import { Link, useLocation } from "react-router-dom";
-import ProviderSidebar from "../../components/ProviderSidebar";
+// Shared interface components.
 import Button from "../../components/Button";
-import { getSession } from "../../services/auth";
+import NotificationBell from "../../components/NotificationBell";
+import ProviderSidebar from "../../components/ProviderSidebar";
+
+// Navigation and dashboard services.
+import { Link } from "react-router-dom";
+import { useProviderDashboardPage } from "../../services/providers/api";
 import { formatDate } from "../../services/projectFlow";
-import { getProviderDashboard } from "../../services/providers/providerQuotes";
 
-
-const API_URL = (
-  import.meta.env.VITE_API_URL || "https://mamar-api.onrender.com"
-).replace(/\/+$/, "");
-
-function getProfilePictureUrl(user) {
-  const path =
-    user?.profile_picture_url ||
-    user?.profile_picture ||
-    user?.avatar_url ||
-    "";
-
-  if (!path) return "";
-  if (/^https?:\/\//i.test(path)) return path;
-
-  return `${API_URL}${path.startsWith("/") ? "" : "/"}${path}`;
-}
-
+// Provider dashboard view.
 function ProviderDashboard() {
-  const location = useLocation();
-  const [successMessage] = useState(
-    () => location.state?.successMessage || ""
-  );
-
-  useEffect(() => {
-    if (location.state?.successMessage) {
-      window.history.replaceState(
-        { ...window.history.state, usr: null },
-        ""
-      );
-    }
-  }, [location.state]);
-
-  const { displayName, initials, data, loading, error } =
-    useProviderDashboard(getSession, getProviderDashboard);
-
-  // Keep the top-bar avatar in sync when the profile picture is changed.
-  const [sessionUser, setSessionUser] = useState(
-    () => getSession()?.user || {}
-  );
-
-  useEffect(() => {
-  let active = true;
-  function handleUserUpdate(event) {
-    if (event.detail) {
-      setSessionUser((current) => ({
-        ...current,
-        ...event.detail,
-      }));
-    }
-  }
-  window.addEventListener(
-    "mamar:session-user-updated",
-    handleUserUpdate
-  );
-  async function loadUserProfile() {
-    try {
-      const profile =
-        await providerProfileService.fetchMyProfile();
-      if (!active) return;
-      setSessionUser((current) => ({
-        ...current,
-        ...profile,
-      }));
-      window.dispatchEvent(
-        new CustomEvent("mamar:session-user-updated", {
-          detail: profile,
-        })
-      );
-    } catch (error) {
-      console.error("Unable to load provider profile:", error);
-    }
-  }
-  loadUserProfile();
-  return () => {
-    active = false;
-    window.removeEventListener(
-      "mamar:session-user-updated",
-      handleUserUpdate
-    );
-  };
-}, []);
-
-  const picture = getProfilePictureUrl(sessionUser);
-
-  const stats = data?.stats || {
-    assigned: 0,
-    active: 0,
-    upcoming: 0,
-    completed: 0,
-  };
-
-  const summaryCards = [
-    { label: "Assigned Projects", value: stats.assigned, icon: "＋", color: "yellow" },
-    { label: "Active Execution", value: stats.active, icon: "✓", color: "green" },
-    { label: "Upcoming", value: stats.upcoming, icon: "⟳", color: "blue" },
-    { label: "Completed Projects", value: stats.completed, icon: "✓", color: "gray" },
-  ];
-
-  const newRequests = data?.newRequests || [];
-  const newProject = data?.newProject || null;
-  const activeProjects = data?.activeProjects || [];
-  const overview = data?.overview || { workersActive: 0, sitesActive: 0 };
+  const {
+    displayName,
+    initials,
+    picture,
+    successMessage,
+    loading,
+    error,
+    summaryCards,
+    newRequests,
+    newProject,
+    activeProjects,
+    overview,
+  } = useProviderDashboardPage();
 
   return (
     <div className="provider-dashboard-page">
+      {/* Provider navigation */}
       <ProviderSidebar />
 
       <div className="provider-main-area">
+        {/* Account and notifications */}
         <header className="provider-topbar">
           <div />
 
@@ -169,6 +82,7 @@ function ProviderDashboard() {
         </header>
 
         <main className="provider-dashboard-content">
+          {/* Quotation success message */}
           {successMessage && (
             <div
               role="status"
@@ -185,6 +99,7 @@ function ProviderDashboard() {
             </div>
           )}
 
+          {/* Page heading */}
           <section className="provider-title">
             <h1>Provider Dashboard</h1>
             <p>
@@ -193,12 +108,14 @@ function ProviderDashboard() {
             </p>
           </section>
 
+          {/* Dashboard error message */}
           {error && (
             <p className="review-error" role="alert">
               {error}
             </p>
           )}
 
+          {/* Project statistics */}
           <section className="provider-summary-grid">
             {summaryCards.map((card) => (
               <article className="provider-summary-card" key={card.label}>
@@ -213,6 +130,7 @@ function ProviderDashboard() {
             ))}
           </section>
 
+          {/* New service requests */}
           <section className="provider-section">
             <h2>New Service Request</h2>
 
@@ -268,6 +186,7 @@ function ProviderDashboard() {
             )}
           </section>
 
+          {/* Newly assigned project */}
           <section className="provider-section">
             <h2>New Assigned Project</h2>
 
@@ -293,6 +212,7 @@ function ProviderDashboard() {
             )}
           </section>
 
+          {/* Active projects and execution overview */}
           <section className="provider-bottom-grid">
             <article className="provider-bottom-card">
               <div className="provider-card-heading">

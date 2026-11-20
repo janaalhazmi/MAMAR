@@ -1,5 +1,5 @@
+// Provider execution interface and supporting components.
 import NotificationBell from "../../components/NotificationBell";
-import { API_BASE_URL } from "../../services/api";
 import { Link, useParams } from "react-router-dom";
 import ProviderSidebar from "../../components/ProviderSidebar";
 import MamarMap from "../../components/MamarMap";
@@ -9,22 +9,18 @@ import TrafficCard from "../../components/TrafficCard";
 import TeamOnSiteCard from "../../components/TeamOnSiteCard";
 import SiteQrCard from "../../components/SiteQrCard";
 import Button from "../../components/Button";
-import { useProviderProjectDetails } from "../../services/providers/api";
+import {
+  getProviderSitePhotoUrl,
+  useProviderExecutionPage,
+} from "../../services/providers/api";
 import { formatDate } from "../../services/projectFlow";
 import AiDailySummary from "../../components/AiDailySummary";
 import SafetyBadge from "../../components/SafetyBadge";
-import { useSafetyChecks } from "../../services/ai";
 
+// Execution: render a site photo using its resolved URL.
 function renderSitePhoto(photo) {
-  const path = photo.url || photo.photo_url;
-  if (!path) return null;
-
-  let src;
-  try {
-    src = new URL(path, API_BASE_URL.replace(/\/+$/, "") + "/").href;
-  } catch {
-    return null;
-  }
+  const src = getProviderSitePhotoUrl(photo);
+  if (!src) return null;
 
   return (
     <img
@@ -41,6 +37,7 @@ function renderSitePhoto(photo) {
   );
 }
 
+// Provider execution details view.
 export default function ProviderProjectDetails() {
   const { projectId } = useParams();
 
@@ -56,28 +53,26 @@ export default function ProviderProjectDetails() {
     reviewBusy,
     reviewError,
     reviewNotice,
-    milestones = [], // the hook may not have them yet
+    milestones = [],
     milestonesLoading,
     milestonesError,
     milestoneBusy,
     milestoneNotice,
     updateMilestone,
-  } = useProviderProjectDetails(projectId);
+    progress,
+    team,
+    photos,
+    safety,
+  } = useProviderExecutionPage(projectId);
 
-  const progress = Math.max(
-    0,
-    Math.min(100, Number(details?.progress) || 0)
-  );
-
-  const team = details?.team ?? [];
-  const photos = details?.photos ?? [];
-  const safety = useSafetyChecks(project?.project_id, photos.length);
 
   return (
     <div className="provider-dashboard-page">
+      {/* Provider navigation */}
       <ProviderSidebar />
 
       <div className="provider-main-area">
+        {/* Provider account and notifications */}
         <header className="provider-topbar">
           <div />
 
@@ -102,8 +97,10 @@ export default function ProviderProjectDetails() {
 
         <main className="provider-dashboard-content">
           <div className="pex-page pex-organized">
+            {/* Return to the project directory */}
             <Link to="/provider/projects">← Back to Projects</Link>
 
+            {/* Project heading and status */}
             <div className="pex-heading">
               <div>
                 <h1>{project?.project_name || "Execution Details"}</h1>
@@ -114,10 +111,12 @@ export default function ProviderProjectDetails() {
               )}
             </div>
 
+            {/* Project loading state */}
             {!current && (
               <p role="status">Loading project details…</p>
             )}
 
+            {/* Project loading error */}
             {current?.error && (
               <p role="alert">{current.error}</p>
             )}
@@ -164,7 +163,7 @@ export default function ProviderProjectDetails() {
 
                 {/* Project Milestones */}
                 <section
-                  className="pex-card"
+                  className="pex-card pex-milestones"
                   style={{ marginBottom: "24px" }}
                 >
                   <h2>Project Milestones</h2>

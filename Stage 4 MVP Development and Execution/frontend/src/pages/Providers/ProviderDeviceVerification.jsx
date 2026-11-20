@@ -1,30 +1,30 @@
-import { Link, useParams } from "react-router-dom";
+// Navigation.
+import { Link } from "react-router-dom";
 import NotificationBell from "../../components/NotificationBell";
 import ProviderSidebar from "../../components/ProviderSidebar";
 import MamarMap from "../../components/MamarMap";
 import DeviceStatusList from "../../components/DeviceStatusList";
-import { getSession } from "../../services/auth";
-import { useDeviceVerificationProjects } from "../../services/providers/api";
+// Device verification page logic.
+import { useProviderDeviceVerificationPage } from "../../services/providers/api";
 
+// Provider device verification directory and project view.
 export default function ProviderDeviceVerification() {
-  const { projectId } = useParams();
-  const { projects, loadError } = useDeviceVerificationProjects();
-
-  const name = getSession()?.user?.full_name || "Provider";
-  const initials = name.trim().split(/\s+/)
-    .slice(0, 2)
-    .map((word) => word.charAt(0).toUpperCase())
-    .join("") || "P";
-
-  const selected = projects?.find(
-    (project) => String(project.id) === projectId
-  );
+  const {
+    projectId,
+    projects,
+    loadError,
+    name,
+    initials,
+    selected,
+  } = useProviderDeviceVerificationPage();
 
   return (
     <div className="provider-dashboard-page">
+      {/* Provider navigation */}
       <ProviderSidebar />
 
       <div className="provider-main-area">
+        {/* Provider account and notifications */}
         <header className="provider-topbar">
           <div />
 
@@ -47,14 +47,14 @@ export default function ProviderDeviceVerification() {
 
         <main className="provider-dashboard-content">
           <div className="pex-page pex-organized">
+            {/* Return to the device verification directory */}
             {projectId && (
               <Link to="/provider/device-verification">
-        ← Back to Device Verification Status
-      </Link>
-              
-              
+                ← Back to Device Verification Status
+              </Link>
             )}
 
+            {/* Page heading and selected project status */}
             <div className="pex-heading">
               <div>
                 <h1>
@@ -70,12 +70,14 @@ export default function ProviderDeviceVerification() {
               )}
             </div>
 
+            {/* Loading, errors, project directory and selected details */}
             {loadError ? (
               <p role="alert">{loadError}</p>
             ) : projects === null ? (
               <p role="status">Loading projects...</p>
             ) : !projectId ? (
               <section aria-label="Projects for device verification">
+                {/* Assigned project count */}
                 <div className="pdvs-list-heading">
                   <h2>Your Projects</h2>
                   <span>
@@ -83,6 +85,7 @@ export default function ProviderDeviceVerification() {
                   </span>
                 </div>
 
+                {/* Empty directory or project selection cards */}
                 {projects.length === 0 ? (
                   <div className="pdvs-empty">
                     <h3>No assigned projects yet</h3>
@@ -148,6 +151,7 @@ export default function ProviderDeviceVerification() {
   );
 }
 
+// Selected project summary, location and verification records.
 function ProjectDeviceStatus({ project }) {
   return (
     <>
@@ -171,17 +175,17 @@ function ProjectDeviceStatus({ project }) {
           <dt>Overall Progress</dt>
           <dd className="pex-progress">
             <progress
-              value={Math.max(0, Math.min(100, Number(project.progress) || 0))}
+              value={project.displayProgress}
               max={100}
             />
             <span>
-              {Math.max(0, Math.min(100, Number(project.progress) || 0))}%
+              {project.displayProgress}%
             </span>
           </dd>
         </div>
       </dl>
 
-      {/* Work Zone + Site Status */}
+      {/* Work zone map and site status */}
       <div className="pex-grid pex-grid-wide">
         <section className="pex-card">
           <h2>Work Zone</h2>
@@ -224,7 +228,7 @@ function ProjectDeviceStatus({ project }) {
         </section>
       </div>
 
-      {/* Verification status, saved by the field workers' checks */}
+      {/* Verification records saved by assigned field workers */}
       <section className="pex-card">
         <h2>Device Verification Status</h2>
         <DeviceStatusList projectId={project.id} />

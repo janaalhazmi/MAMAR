@@ -9995,62 +9995,176 @@ textarea {
   }
 }
 
-/* Field Team: worker profile */
+
+/* Field Team: worker details */
 .pft-page .pft-details[aria-label="Worker details"] {
   box-sizing: border-box;
   width: 100%;
-  max-width: 900px;
+  max-width: 960px;
   margin: 0;
   padding: clamp(20px, 3vw, 32px);
+  border: 1px solid #e5e8ec;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(23, 32, 51, 0.04);
 }
 
 .pft-details[aria-label="Worker details"] > .pft-view {
-  padding: 6px 0;
-  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #fff8df;
   color: #725600;
-  font-size: 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .pft-details[aria-label="Worker details"] > .pft-view:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  background: #fff0b8;
+}
+
+.pft-details[aria-label="Worker details"] > .pft-view:focus-visible {
+  outline: 3px solid rgba(255, 204, 0, 0.45);
+  outline-offset: 3px;
 }
 
 .pft-details[aria-label="Worker details"] > h2 {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #edf0f3;
   color: #172033;
-  font-size: 26px;
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 650;
+  line-height: 1.4;
   overflow-wrap: anywhere;
 }
 
 .pft-details[aria-label="Worker details"] > dl.pft-stats {
+  display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  margin-bottom: 0;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .pft-details[aria-label="Worker details"] dl > .pft-card {
-  padding: 16px;
-  background: #f7f8fa;
-  border-color: #e8ebef;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #e8ecf0;
+  border-radius: 12px;
+  background: #fafbfc;
 }
 
 .pft-details[aria-label="Worker details"] dt {
-  color: #566275;
+  margin-bottom: 10px;
+  color: #738091;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
+  line-height: 1.5;
 }
 
 .pft-details[aria-label="Worker details"] dd {
-  margin: 6px 0 0;
-  color: #172033;
+  margin: 0;
+  color: #202c3d;
   font-size: 15px;
   font-weight: 600;
+  line-height: 1.6;
   overflow-wrap: anywhere;
+}
+
+.pft-details[aria-label="Worker details"] > p[role="status"] {
+  margin: 0;
+  padding: 16px 18px;
+  border: 1px solid #f1df9f;
+  border-left: 4px solid #ffcc00;
+  border-radius: 10px;
+  background: #fffbeb;
+  color: #705600;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+/* Worker details: project assignment form */
+.pft-details[aria-label="Worker details"] > form {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #edf0f3;
+}
+
+.pft-details[aria-label="Worker details"] > form .pft-filters {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 520px;
+  margin: 0 0 16px;
+}
+
+.pft-details[aria-label="Worker details"] label {
+  display: grid;
+  gap: 10px;
+  color: #344155;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pft-details[aria-label="Worker details"] select {
+  min-height: 46px;
+  padding: 12px 14px;
+  border: 1px solid #dce2e9;
+  border-radius: 9px;
+  background-color: #fff;
+  color: #263246;
+  font: inherit;
+  font-size: 14px;
+}
+
+.pft-details[aria-label="Worker details"] select:focus-visible {
+  outline: 3px solid rgba(255, 204, 0, 0.3);
+  outline-offset: 2px;
+  border-color: #c49c00;
+}
+
+.pft-details[aria-label="Worker details"] .pft-primary {
+  min-height: 44px;
+  padding: 11px 22px;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pft-details[aria-label="Worker details"] .pft-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pft-details[aria-label="Worker details"] form p {
+  margin: 12px 0;
+  color: #657386;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.pft-details[aria-label="Worker details"] form [role="alert"] {
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #fff1f0;
+  color: #a32d2d;
 }
 
 @media (max-width: 600px) {
   .pft-details[aria-label="Worker details"] > dl.pft-stats {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pft-details[aria-label="Worker details"] dl > .pft-card {
+    padding: 16px;
+  }
+
+  .pft-details[aria-label="Worker details"] > form .pft-primary {
+    width: 100%;
   }
 }
 
@@ -11409,4 +11523,97 @@ textarea {
 
 .pex-organized > [aria-label="Completion review"] {
   margin-bottom: 24px;
+}
+
+/* Provider project milestones layout */
+.pex-organized .pex-milestones {
+  margin-bottom: 24px;
+}
+
+.pex-organized .pex-milestones > h2 {
+  margin-bottom: 6px;
+}
+
+.pex-organized .pex-milestones > p {
+  margin-top: 0;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.pex-milestones > div {
+  margin-top: 20px;
+  gap: 12px !important;
+}
+
+.pex-milestones > div > div {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 180px;
+  gap: 10px 24px !important;
+  align-items: center;
+  padding: 18px 20px !important;
+  border: 1px solid #e6e9ed !important;
+  border-radius: 12px !important;
+  background: #fafbfc;
+}
+
+.pex-milestones > div > div > div {
+  min-width: 0;
+}
+
+.pex-milestones h3 {
+  margin: 0 0 7px !important;
+  color: #172033;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.pex-milestones small {
+  display: block;
+  color: #748091 !important;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.pex-milestones select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0 !important;
+  min-height: 44px;
+  padding: 10px 14px !important;
+  border: 1px solid #d9dee5 !important;
+  border-radius: 9px !important;
+  background-color: #fff;
+  color: #263246;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.pex-milestones select:focus-visible {
+  outline: 3px solid rgba(255, 204, 0, 0.3);
+  outline-offset: 2px;
+  border-color: #c99f00 !important;
+}
+
+.pex-milestones select:disabled {
+  background-color: #f0f2f5;
+  color: #778190;
+  cursor: not-allowed;
+}
+
+.pex-milestones > div > div > small {
+  grid-column: 2;
+}
+
+@container (max-width: 600px) {
+  .pex-milestones > div > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px !important;
+    padding: 16px !important;
+  }
+
+  .pex-milestones > div > div > small {
+    grid-column: 1;
+  }
 }

@@ -1,196 +1,39 @@
-import NotificationBell from "../../components/NotificationBell";
-import { useRef, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import {
-  declineProviderRequest,
-  getOpenRequestById,
-  submitProviderQuotation,
-} from "../../services/providers/providerQuotes";
+// Shared interface components and branding.
 import Button from "../../components/Button";
-import logo from "../../assets/mamar-logo.svg";
 import MamarMap from "../../components/MamarMap";
-import { useQuotationRequest } from "../../services/providers/api";
-import { getSession } from "../../services/auth";
+import NotificationBell from "../../components/NotificationBell";
+import logo from "../../assets/mamar-logo.svg";
 
-const initialServices = [
-  {
-    id: 1,
-    name: "Traffic Barriers",
-    quantity: 20,
-    unitPrice: 150,
-  },
-  {
-    id: 2,
-    name: "Traffic Cones",
-    quantity: 10,
-    unitPrice: 80,
-  },
-  {
-    id: 3,
-    name: "Temporary Road Signs",
-    quantity: 5,
-    unitPrice: 200,
-  },
-];
+// Navigation and quotation page logic.
+import { Link } from "react-router-dom";
+import { usePrepareQuotationPage } from "../../services/providers/api";
 
+// Provider quotation view.
 function PrepareQuotation() {
-  const providerName = getSession()?.user?.full_name?.trim() || "Provider";
-  const providerInitials = providerName
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join("");
-
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const requestId = searchParams.get("requestId");
-  const submitting = useRef(false);
-  const [services, setServices] = useState(initialServices);
-  const [delivery, setDelivery] = useState(1200);
-  const [showWorkZone, setShowWorkZone] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState(null);
-  const { requestDetails, realRequest, workZone, workZoneError } =
-    useQuotationRequest(requestId);
-
-  const handleWorkZoneSelect = (polygon) => {
-  sessionStorage.setItem(
-    "providerWorkZone",
-    JSON.stringify(polygon)
-  );
-};
-
-  const handleQuantityChange = (id, value) => {
-    const newQuantity = Number(value);
-
-    setServices((currentServices) =>
-      currentServices.map((service) =>
-        service.id === id
-          ? {
-              ...service,
-              quantity: Number.isNaN(newQuantity) ? 0 : newQuantity,
-            }
-          : service
-      )
-    );
-  };
-
-  const handleUnitPriceChange = (id, value) => {
-    const newPrice = Number(value);
-
-    setServices((currentServices) =>
-      currentServices.map((service) =>
-        service.id === id
-          ? {
-              ...service,
-              unitPrice: Number.isNaN(newPrice) ? 0 : newPrice,
-            }
-          : service
-      )
-    );
-  };
-
-  const subtotal = services.reduce(
-    (total, service) =>
-      total + service.quantity * service.unitPrice,
-    0
-  );
-
-  const total = subtotal + Number(delivery || 0);
-
-  const getQuotationData = () => ({
+  const {
+    providerName,
+    providerInitials,
     requestId,
     services,
     delivery,
+    setDelivery,
+    showWorkZone,
+    setShowWorkZone,
+    requestDetails,
+    realRequest,
+    workZone,
+    workZoneError,
+    handleQuantityChange,
+    handleUnitPriceChange,
     subtotal,
     total,
-    location: selectedLocation,
-    workZone,
-    notes: document.querySelector(".quotation-notes textarea")?.value || "",
-    validUntil: document.querySelector(".quotation-date")?.value || "",
-  });
-
-  const handleDeclineRequest = async () => {
-    if (!requestId || submitting.current) return;
-
-    submitting.current = true;
-    try {
-      await declineProviderRequest(requestId);
-      navigate("/provider-dashboard", {
-        replace: true,
-        state: { successMessage: "Request declined successfully." },
-      });
-    } catch (error) {
-      window.alert(error.message || "Could not save your decision.");
-    } finally {
-      submitting.current = false;
-    }
-  };
-
-  const handleSubmitQuotation = async () => {
-    if (submitting.current) return;
-
-    if (!requestId) {
-      alert("Open this quotation from a service request.");
-      return;
-    }
-
-    const quotation = getQuotationData();
-    const hasInvalidService = quotation.services.some(
-      ({ quantity, unitPrice }) =>
-        !Number.isFinite(quantity) || quantity <= 0 ||
-        !Number.isFinite(unitPrice) || unitPrice <= 0
-    );
-
-    if (hasInvalidService || !Number.isFinite(quotation.total) || quotation.total <= 0) {
-      alert("Please enter a valid quantity and unit price for all services.");
-      return;
-    }
-
-    submitting.current = true;
-    try {
-      const request = await getOpenRequestById(requestId);
-      if (!request?.projectId) {
-        throw new Error("This request is no longer available for quotation.");
-      }
-
-      const start = Date.parse(request.startDate?.slice(0, 10) ?? "");
-      const end = Date.parse(request.endDate?.slice(0, 10) ?? "");
-      const durationDays = (end - start) / 86400000 + 1;
-
-      if (!Number.isInteger(durationDays) || durationDays < 1) {
-        throw new Error("The request needs valid start and end dates.");
-      }
-
-      const notes = [
-        quotation.notes,
-        ...quotation.services.map(
-          ({ name, quantity, unitPrice }) => name + ": " + quantity + " × SAR " + unitPrice
-        ),
-        "Delivery: SAR " + quotation.delivery,
-        quotation.validUntil && "Valid until: " + quotation.validUntil,
-      ].filter(Boolean).join("\n");
-
-      await submitProviderQuotation({
-        request,
-        price: quotation.total,
-        durationDays,
-        notes,
-      });
-      localStorage.removeItem("providerQuotationDraft");
-      navigate("/provider-dashboard", {
-        replace: true,
-        state: { successMessage: "Quotation submitted successfully." },
-      });
-    } catch (error) {
-      alert(error.message || "Could not submit the quotation. Please try again.");
-    } finally {
-      submitting.current = false;
-    }
-  };
+    handleDeclineRequest,
+    handleSubmitQuotation,
+  } = usePrepareQuotationPage();
 
   return (
     <div className="quotation-page">
+      {/* Branding, provider account and notifications */}
       <header className="quotation-topbar">
           
         <Link to="/" className="quotation-logo">
@@ -209,6 +52,7 @@ function PrepareQuotation() {
 </header>
 
       <main className="quotation-content">
+        {/* Return to the provider dashboard */}
         <Link
           to="/provider-dashboard"
           className="quotation-back"
@@ -223,6 +67,7 @@ function PrepareQuotation() {
           offer.
         </p>
 
+        {/* Selected service request */}
         <section className="quotation-request-card">
           <div>
             <span className="quotation-label">
@@ -260,6 +105,7 @@ function PrepareQuotation() {
 
         <div className="quotation-layout">
           <div className="quotation-left">
+            {/* Service quantities and unit prices */}
             <section className="quotation-card pricing-card">
               <h2>Service Pricing</h2>
 
@@ -323,6 +169,7 @@ function PrepareQuotation() {
               </small>
             </section>
 
+            {/* Read-only project work zone */}
             {showWorkZone && (
               <section className="quotation-card work-zone-card">
                 <div className="work-zone-header">
@@ -359,6 +206,7 @@ function PrepareQuotation() {
           </section>
          )}
 
+            {/* Quotation notes and inclusions */}
             <section className="quotation-card quotation-notes">
               <h2>Notes and Inclusions</h2>
 
@@ -370,6 +218,7 @@ function PrepareQuotation() {
             </section>
           </div>
 
+          {/* Quotation totals and delivery charges */}
           <section className="quotation-card quotation-summary">
             <h2>Quotation Summary</h2>
 
@@ -416,6 +265,7 @@ function PrepareQuotation() {
               </strong>
             </div>
 
+            {/* Submit or decline the request */}
             <div className="quotation-actions">
               <Button className="quotation-action" onClick={handleSubmitQuotation}>
                 Submit Quotation →
@@ -429,6 +279,7 @@ function PrepareQuotation() {
           </section>
         </div>
 
+        {/* Existing design preview notice */}
         <small className="quotation-preview-note">
           Sample project and prices for the design preview.
         </small>
