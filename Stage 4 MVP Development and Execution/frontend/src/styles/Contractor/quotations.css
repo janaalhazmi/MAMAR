@@ -77,12 +77,12 @@
 .pf-quote .pf-btn { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; gap: 8px; padding: 10px 15px; border: 1px solid transparent; border-radius: 10px; cursor: pointer; font: inherit; font-size: .86rem; font-weight: 800; line-height: 1.2; text-align: center; transition: background .16s, color .16s, border-color .16s, transform .16s; }
 
 /* زر قبول العرض. */
-.pf-quote .pf-btn-accept { border-color: #176e64; background: #176e64; color: #fff; }
+.pf-quote .pf-btn-accept { border-color: #176e44; background: #176e44; color: #fff; }
 .pf-quote .pf-btn-accept:hover:not(:disabled) { transform: translateY(-1px); border-color: #10594f; background: #10594f; }
 
 /* زر رفض العرض. */
-.pf-quote .pf-btn-reject { border-color: #e8caca; background: #fff; color: #b34343; }
-.pf-quote .pf-btn-reject:hover:not(:disabled) { border-color: #c85a5a; background: #fff4f4; }
+.pf-quote .pf-btn-reject { border-color: #b13d3d; background: #b13d3d; color: #fff; }
+.pf-quote .pf-btn-reject:hover:not(:disabled) { border-color: #cf1212; background: #fff4f4; }
 
 /* حالة تعطيل الأزرار أثناء تنفيذ الطلب أو بعد حسم العرض. */
 .pf-quote .pf-btn:disabled { cursor: not-allowed; opacity: .55; transform: none; }
@@ -101,10 +101,10 @@
 
 /* لوحة الدعوة إلى مقارنة عروض الأسعار. */
 .pf-compare-banner { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 26px; padding: 22px 24px; border: 1px solid #dcebe7; border-radius: 16px; background: linear-gradient(110deg,#f0f8f6 0%,#fbfdfc 100%); }
-.pf-compare-banner h2 { margin: 0 0 6px; color: #203b38; font-size: 1.08rem; font-weight: 800; }
-.pf-compare-banner p { margin: 0; color: #71817e; font-size: .86rem; line-height: 1.6; }
+.pf-compare-banner h2 { margin: 0 0 6px; color: #f3b42c; font-size: 1.08rem; font-weight: 800; }
+.pf-compare-banner p { margin: 0; color: #e3f3f0; font-size: .86rem; line-height: 1.6; }
 .pf-compare-banner .pf-btn-primary { flex: 0 0 auto; min-height: 43px; padding: 10px 16px; border: 0; border-radius: 10px; background: #176e64; color: #fff; cursor: pointer; font: inherit; font-size: .85rem; font-weight: 800; }
-.pf-compare-banner .pf-btn-primary:hover { background: #10594f; }
+.pf-compare-banner .pf-btn-primary:hover { background: #f3b42c; }
 
 /* حاوية جدول المقارنة مع تمرير أفقي عند الحاجة. */
 .pf-table-wrap { width: 100%; margin-top: 16px; overflow-x: auto; border: 1px solid #e7ebf1; border-radius: 15px; background: #fff; box-shadow: 0 5px 18px rgba(24,39,75,.045); }
