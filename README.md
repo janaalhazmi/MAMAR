@@ -73,4 +73,4 @@ The MAMAR MVP has been developed and deployed, with supporting sprint documentat
 
 ---
 
-**MAMAR | GIS-Driven Temporary Traffic Control Management**
+**MAMAR | Temporary Traffic Control Management**
