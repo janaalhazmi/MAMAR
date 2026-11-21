@@ -556,9 +556,16 @@ Manual UAT screenshots were captured to document:
 - Completion Review.
 - Final project status.
 
-**Evidence Directory:** `docs/testing/evidence/`
+**Evidence Directory:** [Manual UAT Evidence](evidence/)
 
-Individual screenshots should be referenced by their actual repository paths once uploaded.
+**End-to-End UAT Evidence — Project #83**
+
+- **Project:** AlKhaiyran Street
+- **Test Date:** 21 November 2026
+- **Evidence:** [View Project #83 End-to-End UAT Evidence](evidence/UAT-008-project-83-end-to-end/README.md)
+- **Screenshots:** 16 numbered screenshots documenting the Contractor, Service Provider, and Field Worker workflows.
+
+The evidence covers project creation, GIS work-zone mapping, service requests, quotation management, PayPal Sandbox checkout, field worker assignment, device location verification, field execution, site photo evidence, provider completion review, and the contractor final approval interface.
 
 ### 8.3 Related GitHub Issues
 
