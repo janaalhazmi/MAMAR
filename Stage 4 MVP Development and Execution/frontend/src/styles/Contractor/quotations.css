@@ -99,6 +99,7 @@
 .pf-empty-state p { max-width: 520px; margin: 0 auto 18px; color: #788395; font-size: .9rem; line-height: 1.7; }
 .pf-empty-state .pf-btn-primary { min-height: 43px; padding: 10px 17px; border: 0; border-radius: 10px; background: #176e64; color: #fff; cursor: pointer; font: inherit; font-size: .86rem; font-weight: 800; }
 
+
 /* لوحة الدعوة إلى مقارنة عروض الأسعار. */
 .pf-compare-banner { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 26px; padding: 22px 24px; border: 1px solid #dcebe7; border-radius: 16px; background: linear-gradient(110deg,#f0f8f6 0%,#fbfdfc 100%); }
 .pf-compare-banner h2 { margin: 0 0 6px; color: #f3b42c; font-size: 1.08rem; font-weight: 800; }
