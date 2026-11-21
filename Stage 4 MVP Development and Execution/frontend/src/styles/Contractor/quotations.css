@@ -103,9 +103,9 @@
 /* لوحة الدعوة إلى مقارنة عروض الأسعار. */
 .pf-compare-banner { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 26px; padding: 22px 24px; border: 1px solid #dcebe7; border-radius: 16px; background: linear-gradient(110deg,#f0f8f6 0%,#fbfdfc 100%); }
 .pf-compare-banner h2 { margin: 0 0 6px; color: #f3b42c; font-size: 1.08rem; font-weight: 800; }
-.pf-compare-banner p { margin: 0; color: #e3f3f0; font-size: .86rem; line-height: 1.6; }
-.pf-compare-banner .pf-btn-primary { flex: 0 0 auto; min-height: 43px; padding: 10px 16px; border: 0; border-radius: 10px; background: #176e64; color: #fff; cursor: pointer; font: inherit; font-size: .85rem; font-weight: 800; }
-.pf-compare-banner .pf-btn-primary:hover { background: #f3b42c; }
+.pf-compare-banner p { margin: 0; color: #f3b42c; font-size: .86rem; line-height: 1.6; }
+.pf-compare-banner .pf-btn-primary { flex: 0 0 auto; min-height: 43px; padding: 10px 16px; border: 0; border-radius: 10px; background: #f3b42c; color: #fff; cursor: pointer; font: inherit; font-size: .85rem; font-weight: 800; }
+.pf-compare-banner .pf-btn-primary:hover { background: #ffae00; }
 
 /* حاوية جدول المقارنة مع تمرير أفقي عند الحاجة. */
 .pf-table-wrap { width: 100%; margin-top: 16px; overflow-x: auto; border: 1px solid #e7ebf1; border-radius: 15px; background: #fff; box-shadow: 0 5px 18px rgba(24,39,75,.045); }
