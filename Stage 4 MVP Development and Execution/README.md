@@ -157,7 +157,7 @@ The following table summarizes the required Stage 4 deliverables, their document
 | **Sprint Retrospectives** | [Sprint 1](docs/reviews/SPRINT_1_REVIEW.md) · [Sprint 2](docs/reviews/SPRINT_2_REVIEW.md) · [Sprint 3](docs/reviews/SPRINT_3_REVIEW.md) · [Sprint 4](docs/reviews/SPRINT_4_REVIEW.md) · [Sprint 5](docs/reviews/SPRINT_5_REVIEW.md) · [Sprint 6](docs/reviews/SPRINT_6_REVIEW.md) | Completed. Retrospective summaries are included in the sprint review documents. Sprint 2–5 summaries were compiled retrospectively from project records, while Sprint 6 Review and Retrospective were conducted and documented during the scheduled sprint period (November 15–21, 2026). |
 | **Source Repository** | [MAMAR Repository — main Branch](https://github.com/janaalhazmi/MAMAR/tree/main) | Available. Contains the integrated frontend, backend, project documentation, and testing resources. |
 | **Bug Tracking** | [GitHub Issues](https://github.com/janaalhazmi/MAMAR/issues) · [GitHub Project Board](https://github.com/users/janaalhazmi/projects/6) | Completed for the documented Sprint 6 scope. Identified defects #77, #79, and #80 were resolved and marked Done. |
-| **Testing Evidence and Results** | [Final QA & Testing Report](docs/testing/QA_Testing_Report.md) · [Sprint 1 QA Test Cases](docs/testing/QA_TEST_CASES_SPRINT1.md) | Completed. Automated testing, manual UAT, defect resolution, and final QA assessment are documented. |
+| **Testing Evidence and Results** | [QA & Testing Report](docs/testing/QA_Testing_Report.md) · [Sprint 1 QA Test Cases](docs/testing/QA_TEST_CASES_SPRINT1.md) · [Project #83 End-to-End UAT Evidence](docs/testing/evidence/UAT-008-project-83-end-to-end/README.md) | Automated testing results and manual UAT evidence are documented, including 16 screenshots covering the contractor, service provider, and field worker workflows. |
 | **Production Environment** | [MAMAR Live Application](https://mammar-blush.vercel.app/) · [Backend API](https://mamar-api.onrender.com) · [Swagger API Documentation](https://mamar-api.onrender.com/docs) · Database: Supabase (PostgreSQL) | Deployed and verified. Frontend and backend deployment configurations were aligned with the `main` branch. |
 
 ### Submission Checklist
@@ -170,6 +170,7 @@ The following table summarizes the required Stage 4 deliverables, their document
 - [x] Verify that all documentation links are accessible and up to date.
 - [x] Update the Sprint 6 review with its final completion status.
 - [x] Document UAT execution evidence and results in the QA report.
+- [x] Upload and organize the Project #83 end-to-end UAT screenshots in `docs/testing/evidence/UAT-008-project-83-end-to-end/`.
 - [x] Resolve the tracked Sprint 6 defects and document regression testing results.
 - [x] Add the verified deployed application URL.
 - [x] Complete the final QA review and academic delivery assessment.
@@ -200,9 +201,15 @@ Stage 4 MVP Development and Execution/
 │   │   ├── SPRINT_5_REVIEW.md
 │   │   └── SPRINT_6_REVIEW.md
 │   │
-│   └── testing/
-│       ├── QA_TEST_CASES_SPRINT1.md
-│       └── QA_Testing_Report.md
+└── testing/
+    ├── QA_TEST_CASES_SPRINT1.md
+    ├── QA_Testing_Report.md
+    └── evidence/
+        ├── README.md
+        └── UAT-008-project-83-end-to-end/
+            ├── README.md
+            ├── evidence-index.csv
+            └── 16 numbered screenshots (.png)
 │
 ├── README.md
 └── package-lock.json
