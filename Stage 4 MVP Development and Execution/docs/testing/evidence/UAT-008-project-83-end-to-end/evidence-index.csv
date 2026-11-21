@@ -1,0 +1,17 @@
+Sequence,Filename,Scenario,Project ID
+1,01-contractor-dashboard.png,Project #83 end-to-end UAT,83
+2,02-project-details.png,Project #83 end-to-end UAT,83
+3,03-gis-work-zone.png,Project #83 end-to-end UAT,83
+4,04-project-review.png,Project #83 end-to-end UAT,83
+5,05-provider-new-request.png,Project #83 end-to-end UAT,83
+6,06-provider-quotation.png,Project #83 end-to-end UAT,83
+7,07-contractor-quotation.png,Project #83 end-to-end UAT,83
+8,08-paypal-sandbox-checkout.png,Project #83 end-to-end UAT,83
+9,09-provider-field-team.png,Project #83 end-to-end UAT,83
+10,10-field-worker-dashboard.png,Project #83 end-to-end UAT,83
+11,11-device-location-verification.png,Project #83 end-to-end UAT,83
+12,12-field-execution-site-updates.png,Project #83 end-to-end UAT,83
+13,13-provider-project-milestones.png,Project #83 end-to-end UAT,83
+14,14-provider-completion-review.png,Project #83 end-to-end UAT,83
+15,15-contractor-completion-review.png,Project #83 end-to-end UAT,83
+16,16-contractor-final-evidence-and-approval.png,Project #83 end-to-end UAT,83
