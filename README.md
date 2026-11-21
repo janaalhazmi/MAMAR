@@ -1,125 +1,76 @@
-## GitHub Branching and Collaboration Workflow
+# MAMAR
 
-### 1. Branching Strategy
+### Temporary Traffic Control Management Platform
 
-The MAMAR development team follows a structured Git branching workflow to support collaboration and maintain code quality.
+MAMAR is a B2B GIS-based platform designed to streamline temporary traffic control operations by connecting contractors with service providers.
 
-The repository uses the following branches:
+The platform integrates project planning, service requests, quotations, field execution, and geographic verification into a centralized workflow, improving coordination, transparency, and operational efficiency.
 
-| Branch | Purpose |
-|--------|---------|
-| `main` | Stable version of the project. |
-| `development` | Main integration branch for ongoing development. |
-| `feature/frontend-*` | Frontend development and UI features. |
-| `feature/backend-*` | Backend development, APIs, and database functionality. |
-| `feature/gis-*` | GIS integration and mapping functionality. |
+## Key Features
 
-All new features should be developed in dedicated feature branches before being merged into `develop`.
+- **Project Management:** Create and manage temporary traffic control projects.
+- **GIS Integration:** Define project locations and draw work zones on interactive maps.
+- **Service Requests & Quotations:** Enable providers to submit quotations for contractor requests.
+- **Payment Integration:** Support payment workflows through PayPal Sandbox.
+- **Field Operations:** Assign field workers and monitor execution activities.
+- **Location Verification:** Verify field activities using GPS-based location checks.
+- **Project Monitoring:** Track progress, site updates, and completion approvals.
 
-### 2. Branch Naming Conventions
+## Technology Stack
 
-Feature branches should follow this naming format:
+| Component | Technology |
+|---|---|
+| Frontend | React, Vite |
+| Backend | FastAPI, Python |
+| Database | PostgreSQL (Supabase) |
+| GIS | ArcGIS |
+| Deployment | Vercel, Render |
+| Testing | Vitest, Pytest |
+| Project Management | GitHub Projects |
+| Version Control | Git, GitHub |
 
-`feature/<component>-<description>`
+## Project Team
 
-Examples:
+| Team Member | Role |
+|---|---|
+| Razan Kashr | Project Manager & GIS Integration Lead |
+| Kayan Alnazari | Frontend Development |
+| Shouq Alqarni | Backend Development |
+| Jana Alhazmi | Frontend Developer & UI/UX Integration |
 
-- `feature/frontend-auth`
-- `feature/backend-setup`
-- `feature/gis-map-integration`
+## Project Stages
 
-Branch names should be lowercase and use hyphens between words.
+MAMAR was developed through four structured stages:
 
-### 3. Development Workflow
+| Stage | Documentation |
+|---|---|
+| Stage 1 — Report Team Formation and Idea Development | [Stage 1](./Stage%201%20Report%20Team%20Formation%20and%20Idea%20Development/) |
+| Stage 2 — Project Charter Development | [Stage 2](./Stage%202%20Project%20Charter%20Development/) |
+| Stage 3 — Technical Documentation | [Stage 3](./Stage%203%20Technical%20Documentation/) |
+| Stage 4 — MVP Development and Execution | [Stage 4](./Stage%204%20MVP%20Development%20and%20Execution/) |
 
-1. Create a feature branch from `development`.
-2. Implement the assigned task.
-3. Commit changes with clear and descriptive commit messages.
-4. Push the feature branch to GitHub.
-5. Open a Pull Request targeting `development`.
-6. Request a code review from another team member.
-7. Address any feedback before merging.
-8. Merge approved changes into `development`.
-9. Merge `development` into `main` when a stable release is ready.
+## Live Application
 
-### 4. Pull Request Review Process
+**Frontend:** https://mammar-blush.vercel.app/
 
-Each Pull Request should include:
+**Backend API:** https://mamar-api.onrender.com/
 
-- A clear title describing the changes.
-- A summary of the implemented functionality.
-- Reference to the related GitHub Issue, when applicable.
-- Testing results or supporting evidence.
-- Any known limitations or pending work.
+## Project Documentation
 
-Before merging, the reviewer should verify:
+- [Stage 4 Development Documentation](./Stage%204%20MVP%20Development%20and%20Execution/README.md)
+- [Sprint Reviews](./Stage%204%20MVP%20Development%20and%20Execution/docs/reviews/)
+- [Sprint Planning](./Stage%204%20MVP%20Development%20and%20Execution/docs/planning/)
+- [QA Testing Report](./Stage%204%20MVP%20Development%20and%20Execution/docs/testing/QA_Testing_Report.md)
+- [UAT Testing Evidence](./Stage%204%20MVP%20Development%20and%20Execution/docs/testing/evidence/)
+- [GitHub Issues](https://github.com/janaalhazmi/MAMAR/issues)
+- [GitHub Project Board](https://github.com/users/janaalhazmi/projects/6)
 
-- The code follows the project structure.
-- The implementation meets the task requirements.
-- No unnecessary or duplicate files are introduced.
-- The changes do not introduce known errors.
-- Any identified issues are resolved or documented.
+## Project Status
 
-### 5. Team Responsibilities
+**Stage 4 Completed — November 2026**
 
-| Team Member | Responsibility |
-|-------------|----------------|
-| Jana Alhazmi | Frontend Development and Repository Coordination |
-| Razan Kashr | Project Management, GIS Integration, and Quality Assurance |
-| Kayan Alnazari | Frontend Development and Quality Assurance |
-| Shouq Alqarni | Backend Development and Database Management |
+The MAMAR MVP has been developed and deployed, with supporting sprint documentation, automated testing, and manual User Acceptance Testing (UAT) evidence.
 
-### 6. GitHub Issues and Project Tracking
+---
 
-Development tasks are tracked through GitHub Issues and the MAMAR GitHub Project board.
-
-The team uses the following statuses:
-
-- **Todo:** Task has not started.
-- **In Progress:** Task is currently being implemented.
-- **In Review:** Task is awaiting review or verification.
-- **Blocked:** Task cannot proceed due to an unresolved issue.
-- **Done:** Task has been completed and verified.
-
-Each task should have an assigned owner, priority, sprint, and due date.
-
-### 7. Code Quality and Collaboration
-
-To maintain an organized development process:
-
-- Avoid committing directly to `main`.
-- Use Pull Requests for integrating feature changes.
-- Review code before merging.
-- Keep commit messages meaningful.
-- Do not commit passwords, API keys, or database credentials.
-- Communicate blockers and update task statuses regularly.
-## Deployment & Setup
-
-### Frontend Deployment
-- Platform: Vercel
-- Live URL: https://mammar-blush.vercel.app/
-- Framework: React + Vite
-
-### Backend Deployment
-- Platform: Render
-- API URL: https://mamar-api.onrender.com
-- Framework: FastAPI
-- Database: PostgreSQL
-
-### Integration
-- The frontend communicates with the backend through REST API requests.
-- CORS is configured to allow requests from the deployed frontend.
-- User registration and login have been tested successfully.
-
-### Environment Configuration
-- The frontend requires the backend API URL.
-- The backend requires database connection settings.
-- Sensitive environment variables must be configured securely and must not be committed to GitHub.
-
-### Deployment Verification
-- Frontend deployment: Verified.
-- Backend deployment: Verified.
-- Frontend-to-backend API communication: Verified.
-- Registration and login: Verified.
-- Redeployment after code updates: Pending verification.
-
+**MAMAR | GIS-Driven Temporary Traffic Control Management**
