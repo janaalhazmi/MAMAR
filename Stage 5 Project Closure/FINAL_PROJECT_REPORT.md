@@ -222,6 +222,8 @@ Working on MAMAR was a valuable experience that helped me grow as a frontend dev
 Although balancing university and academy responsibilities was challenging, the project gave me practical experience in building a real-world application, solving technical problems, and collaborating with a development team.
 
 I am proud of my contributions to MAMAR and the skills I developed throughout the project.
+
+
 *Pending the team retrospective meeting and documented feedback — Issue #85.*
 
 ---
