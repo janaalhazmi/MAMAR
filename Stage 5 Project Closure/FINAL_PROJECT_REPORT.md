@@ -166,6 +166,62 @@ Further performance, security, scalability, and broader real-world validation ar
 
 # 3. Team Retrospective Highlights
 
+# Individual Retrospective – Kayan Alnazari
+**Project:** MAMAR – Temporary Traffic Control Management Platform  
+**Stage:** Stage 5 – Project Closure  
+**Team Member:** Kayan Alnazari  
+**Role:** Frontend Developer
+
+### 1. My Contributions and Achievements
+During the MAMAR project, I was responsible for developing and improving several frontend features using React.
+
+My main contributions included:
+- Developing and improving the Provider Dashboard, Prepare Quotation, Provider Projects, and Field Worker interfaces.
+- Connecting frontend components with backend APIs to support project and quotation workflows.
+- Improving UI layouts, page consistency, and navigation between different sections.
+- Fixing issues related to quotation submission, provider project tracking, and page navigation.
+- Writing and organizing automated frontend tests using Vitest and React Testing Library.
+- Testing user interactions, validating form inputs, and fixing bugs to improve application reliability.
+- Collaborating with team members through GitHub, code reviews, and regular discussions.
+
+These contributions helped improve the functionality, usability, and overall quality of the MAMAR MVP.
+
+### 2. Challenges I Faced
+One of my biggest challenges was balancing my university responsibilities with the intensive schedule of the academy. Managing university assignments, exams, project deadlines, and academy tasks at the same time required strong time management and organization.
+
+From a technical perspective, integrating frontend features with backend APIs was challenging, especially when some workflows depended on other team members' implementations.
+
+I also faced Git merge conflicts, navigation issues, and difficulties testing workflows that involved multiple user roles.
+
+Despite these challenges, I worked on prioritizing tasks, communicating with my teammates, and solving problems step by step.
+
+### 3. Lessons Learned
+Throughout this project, I gained valuable technical and personal skills.
+
+I improved my knowledge of React, API integration, debugging, automated testing, and GitHub collaboration.
+
+I learned the importance of writing tests early, maintaining clean and organized code, and ensuring consistent UI design across different pages.
+
+I also learned that clear communication and teamwork are essential when developing a project with multiple interconnected components.
+
+Most importantly, balancing university and academy responsibilities taught me how to manage my time, work under pressure, and stay committed to deadlines.
+
+### 4. Future Improvements
+For future projects, I would focus on:
+
+- Starting frontend and backend integration earlier to identify issues before final testing.
+- Writing automated tests throughout development instead of leaving them until later stages.
+- Creating more reusable components to improve code organization and consistency.
+- Improving task planning and time management to balance academic and project responsibilities.
+- Allocating more time for debugging, user testing, and UI improvements.
+- Strengthening communication between team members to reduce integration delays.
+
+### 5. Overall Reflection
+Working on MAMAR was a valuable experience that helped me grow as a frontend developer and team member.
+
+Although balancing university and academy responsibilities was challenging, the project gave me practical experience in building a real-world application, solving technical problems, and collaborating with a development team.
+
+I am proud of my contributions to MAMAR and the skills I developed throughout the project.
 *Pending the team retrospective meeting and documented feedback — Issue #85.*
 
 ---
