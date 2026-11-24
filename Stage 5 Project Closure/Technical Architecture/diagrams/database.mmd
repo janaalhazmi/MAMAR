@@ -1,22 +1,205 @@
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: '#FEF3C7'
+    primaryTextColor: '#1F2937'
+    primaryBorderColor: '#D4A900'
+    secondaryColor: '#F3F4F6'
+    tertiaryColor: '#FFFFFF'
+    lineColor: '#374151'
+    background: '#FFFFFF'
+    mainBkg: '#FEF3C7'
+    secondBkg: '#F3F4F6'
+    attributeBackgroundColorOdd: '#FFFFFF'
+    attributeBackgroundColorEven: '#FEF9E7'
+    fontFamily: 'Arial'
+    fontSize: '15px'
+---
 erDiagram
-    providers ||--o{ users : "employs"
-    users ||--o{ projects : "creates"
-    projects ||--o{ service_requests : ""
-    service_requests ||--o{ quotes : ""
-    providers ||--o{ quotes : "submits"
-    projects ||--o{ assignments : ""
-    users ||--o{ assignments : "worker"
-    projects ||--o{ payments : ""
-    quotes ||--o{ payments : ""
-    projects ||--o{ project_milestones : ""
-    projects ||--o{ site_photos : ""
-    projects ||--o{ attendance : ""
-    projects ||--o{ project_devices : ""
-    projects ||--o{ reviews : ""
-    providers ||--o{ reviews : "rated"
-    projects ||--o{ activity_log : ""
-    users ||--o{ notifications : ""
-    projects ||--o{ ai_results : ""
+
+    providers |o..o{ users : "organization"
+    users ||..o{ projects : "creates"
+
+    projects ||..o{ service_requests : "contains"
+    providers |o..o{ service_requests : "assigned provider"
+
+    service_requests ||..o{ quotes : "receives"
+    providers ||..o{ quotes : "submits"
+
+    projects ||..o{ assignments : "contains"
+    providers ||..o{ assignments : "assigns"
+    users ||..o{ assignments : "worker"
+
+    projects ||..o{ payments : "has"
+    quotes ||..o{ payments : "references"
+    users ||..o{ payments : "contractor"
+
+    projects ||..o{ project_milestones : "tracks"
+
+    projects ||..o{ site_photos : "documents"
+    users ||..o{ site_photos : "uploads"
+
+    projects ||..o{ attendance : "records"
+    users ||..o{ attendance : "worker"
+
+    projects ||..o{ project_devices : "contains"
+    users |o..o{ project_devices : "verifies"
+
+    projects ||..o{ reviews : "receives"
+    providers ||..o{ reviews : "rated"
+    users ||..o{ reviews : "contractor"
+
+    projects |o..o{ activity_log : "records"
+    users |o..o{ activity_log : "performs"
+
+    users ||..o{ notifications : "receives"
+
+    projects |o..o{ ai_results : "associated with"
+
+    providers {
+        integer provider_id PK
+        string company_name
+        string service_type
+        string city
+        boolean is_verified
+    }
+
+    users {
+        integer user_id PK
+        integer provider_id FK
+    }
+
+    projects {
+        integer project_id PK
+        integer contractor_id FK
+        string project_name
+        string project_status
+        string closure_type
+        date start_date
+        date end_date
+        string site_status
+        string location
+        double latitude
+        double longitude
+        json work_zone
+        json services
+        boolean completion_submitted
+    }
+
+    service_requests {
+        integer request_id PK
+        integer project_id FK
+        integer provider_id FK
+    }
+
+    quotes {
+        integer quote_id PK
+        integer request_id FK
+        integer provider_id FK
+    }
+
+    assignments {
+        integer assignment_id PK
+        integer project_id FK
+        integer provider_id FK
+        integer worker_id FK
+        string status
+        timestamp assigned_at
+    }
+
+    payments {
+        integer payment_id PK
+        integer project_id FK
+        integer quote_id FK
+        integer contractor_id FK
+        numeric amount
+        string currency
+        numeric charged_amount
+        string charged_currency
+        string paypal_order_id
+        string paypal_capture_id
+        string status
+    }
+
+    project_milestones {
+        integer milestone_id PK
+        integer project_id FK
+        string name
+        string status
+        timestamp updated_at
+    }
+
+    site_photos {
+        integer project_id FK
+        integer worker_id FK
+    }
+
+    attendance {
+        integer attendance_id PK
+        integer project_id FK
+        integer worker_id FK
+        timestamp check_in_at
+        double check_in_latitude
+        double check_in_longitude
+        double check_in_distance_m
+        timestamp check_out_at
+        double check_out_latitude
+        double check_out_longitude
+    }
+
+    project_devices {
+        integer device_pk PK
+        integer project_id FK
+        integer verified_by FK
+        string code
+        string name
+        string status
+        double planned_latitude
+        double planned_longitude
+        double verified_latitude
+        double verified_longitude
+        double distance_m
+        timestamp verified_at
+    }
+
+    reviews {
+        integer project_id FK
+        integer provider_id FK
+        integer contractor_id FK
+    }
+
+    notifications {
+        integer notification_id PK
+        integer user_id FK
+        string type
+        string title
+        text message
+        boolean is_read
+        timestamp created_at
+    }
+
+    activity_log {
+        integer activity_id PK
+        integer user_id FK
+        integer project_id FK
+        string action
+        string detail
+        timestamp created_at
+    }
+
+    ai_results {
+        integer result_id PK
+        integer project_id FK
+        string key
+        json result
+        timestamp created_at
+    }
+
     email_passcodes {
-        string email PK "sign-up code, no link to users"
+        string email PK
+        string passcode_hash
+        timestamp expires_at
+        timestamp sent_at
+        integer attempts
     }
