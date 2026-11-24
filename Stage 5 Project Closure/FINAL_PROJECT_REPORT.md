@@ -160,7 +160,64 @@ Further performance, security, scalability, and broader real-world validation ar
 
 # 2. Technical Results & Lessons Learned
 
-*Pending technical contributions and team review — Issue #84.*
+## 2.1 Backend and Integration — Shouq Alqarni
+
+*This part is written in first person by Shouq Alqarni, the backend owner. The architecture, the diagrams and the full API map are in [Technical Architecture](Technical%20Architecture/README.md) (Issue #88).*
+
+### Summary
+
+I built the FastAPI backend that every MAMAR screen uses. I also connected it to the database, the frontend and nine external services. The final backend is much larger than the Stage 3 plan, and every part of it is covered by automated tests.
+
+| Measure | Stage 3 plan | Final MVP |
+|---|---:|---:|
+| REST endpoints | 12 | 86 |
+| API routers | 5 | 17 |
+| Database tables | 6 | 16 |
+| Backend tests | — | 255 (15 unit, 240 integration) |
+| Backend statement coverage | — | 93% |
+
+### What I delivered
+
+| Area | Result |
+|---|---|
+| Security | JWT tokens that expire after 60 minutes; Argon2 password hashing; role and project checks on every protected route; login lockout after 10 failed attempts in 15 minutes; Cloudflare Turnstile on registration and login; an email passcode before an account is created |
+| Field checks | Check-in only within 300 m of the site. Device verification only within 50 m of the planned point. Each verification is saved and shown to the contractor and the provider. |
+| Site photos | JPEG, PNG or WebP, up to 5 MB each and 10 per upload, tagged as before, during or after the work |
+| Integrations | ArcGIS feature layer for planned device points, TomTom traffic, Twilio WhatsApp, EmailJS, PayPal Sandbox and Anthropic Claude for the smart features. Open-Meteo weather is loaded in the browser. |
+| Testing | 255 backend tests on a real PostgreSQL database, run by GitHub Actions on every pull request |
+| Deployment | Render for the backend and Vercel for the frontend, both deploying from `develop`. UptimeRobot watches `/health`. |
+
+### Technical challenges and how I solved them
+
+| Challenge | Cause | Solution | Evidence |
+|---|---|---|---|
+| A Render deploy failed | A database deadlock happened while `ALTER TABLE users ADD COLUMN ...` ran at start-up, while the running instance was still using the table. | I ran a manual redeploy of the same commit, and it succeeded. All schema changes use `ADD COLUMN IF NOT EXISTS`, so running them again is always safe. | Render deploy log |
+| The weather card said "service could not be reached" | Open-Meteo refused requests from Render's shared servers. It worked locally but not in production. | The backend now returns only the project location. The browser loads the weather directly, and the card shows one clear "today" view. | PR #70, PR #71 |
+| Smart-feature answers sometimes broke the page | The model sometimes added text around its JSON, so parsing failed. | I switched to a forced tool call, so the answer always returns as structured data. Answers are cached in `ai_results`, and each user is limited to 40 requests per hour. | `core/ai.py` |
+| Device verification was lost after a refresh | The endpoint checked the distance but did not save the result. | I added the `project_devices` table. Each verification now saves its time, position and distance, and notifies the contractor. | PR #75 |
+| Paying took the user to the wrong project | After PayPal returned to the site, the app did not know which project had been paid. | The payment page keeps the project id and opens that project after the capture. | PR #75 |
+| Site photos were not saved | Photos were sent only when the worker pressed a later button, so leaving the page lost them. | Photos now upload as soon as they are chosen. A failed upload shows a "Try again" button, and the page warns before closing with unsent photos. | Issue #79, PR #81 |
+| Tests passed locally but failed in CI | CI used Python 3.13 and Render used Python 3.14. A missing import only failed on 3.13. | I fixed the import in `schemas/workflow.py`. | PR #81 |
+| Merge conflicts at the end of Stage 4 | Several of us edited the same pages in the same week. At one point 24 frontend tests failed on `develop`. | I kept my teammates' fixes where they overlapped with mine, and I fixed the failing tests before the merge. | PR #81 |
+| The uptime monitor reported the site as down | UptimeRobot sends `HEAD` requests, and `/health` answered only `GET`, so it returned 405. | `/health` now answers both `GET` and `HEAD`. | `routers/health.py` |
+
+### Lessons learned
+
+1. **Production is a different environment.** IP blocking, a different Python version and a locked table all failed only on Render. I now check the deploy log and the live site after every merge.
+2. **Every external service needs a fallback.** Nine services are connected, and a failure in one of them affects only its own feature. The project workflow keeps working.
+3. **Tests need a real database.** Running the integration tests on PostgreSQL found problems that mocks would have hidden, such as the difference between a new database and an upgraded one.
+4. **Important state belongs on the server.** Device verification, the paid project and the provider name on the completion page all broke while they depended on the browser. Saving them in the backend fixed them on every device.
+5. **Small pull requests merge more easily.** The large end-of-stage pull requests had the conflicts. The small, focused ones merged without problems.
+
+### What I would do differently
+
+| Improvement | Why | Priority |
+|---|---|---|
+| Use Alembic migrations as a separate pre-deploy step | Schema changes would no longer run while the app starts, which caused the deadlock | High |
+| Use the same Python version in CI, Render and local development | The 3.13 / 3.14 difference hid an error in production | High |
+| Add end-to-end tests for the contractor, provider and field worker workflow | Most late bugs crossed two roles and were found only in manual testing | High |
+| Store photos in object storage, for example Supabase Storage | The database would stay small and backups would be faster | Medium |
+| Agree on the API contract with the frontend before building each feature | Both sides could work in parallel with fewer late changes | Medium |
 
 ---
 

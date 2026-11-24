@@ -1,0 +1,24 @@
+flowchart TB
+    U["<b>Users</b><br/>Contractor · Provider · Field Worker · Admin"]
+    FE["<b>Frontend</b> — React on Vercel<br/>React pages · ArcGIS Maps SDK<br/>Browser Geolocation · Open-Meteo weather"]
+    BE["<b>Backend</b> — FastAPI on Render<br/>17 routers · 86 endpoints<br/>JWT login · role and project access checks"]
+    DB[("<b>PostgreSQL</b> on Supabase<br/>16 tables")]
+    EXT["<b>External services</b><br/>TomTom Traffic · Twilio WhatsApp · EmailJS<br/>PayPal Sandbox · Cloudflare Turnstile<br/>Anthropic Claude · ArcGIS Feature Service"]
+    AGOL["<b>ArcGIS Online</b><br/>basemap · work zones · device layers"]
+
+    U --> FE
+    FE -->|"HTTPS · JSON · Bearer token"| BE
+    FE -->|"map tiles and layers"| AGOL
+    BE -->|"SQLAlchemy"| DB
+    BE -->|"server-side calls"| EXT
+
+    classDef user fill:#F1F5F9,stroke:#64748B,color:#0F172A
+    classDef fe fill:#E0F2FE,stroke:#0284C7,color:#0C4A6E
+    classDef be fill:#DCFCE7,stroke:#16A34A,color:#14532D
+    classDef db fill:#FEF3C7,stroke:#D97706,color:#78350F
+    classDef ext fill:#F3E8FF,stroke:#9333EA,color:#581C87
+    class U user
+    class FE fe
+    class BE be
+    class DB db
+    class EXT,AGOL ext

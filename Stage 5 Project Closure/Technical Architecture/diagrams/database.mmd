@@ -1,0 +1,22 @@
+erDiagram
+    providers ||--o{ users : "employs"
+    users ||--o{ projects : "creates"
+    projects ||--o{ service_requests : ""
+    service_requests ||--o{ quotes : ""
+    providers ||--o{ quotes : "submits"
+    projects ||--o{ assignments : ""
+    users ||--o{ assignments : "worker"
+    projects ||--o{ payments : ""
+    quotes ||--o{ payments : ""
+    projects ||--o{ project_milestones : ""
+    projects ||--o{ site_photos : ""
+    projects ||--o{ attendance : ""
+    projects ||--o{ project_devices : ""
+    projects ||--o{ reviews : ""
+    providers ||--o{ reviews : "rated"
+    projects ||--o{ activity_log : ""
+    users ||--o{ notifications : ""
+    projects ||--o{ ai_results : ""
+    email_passcodes {
+        string email PK "sign-up code, no link to users"
+    }
