@@ -160,7 +160,7 @@ Further performance, security, scalability, and broader real-world validation ar
 
 # 2. Technical Results & Lessons Learned
 
-## 2.1 Backend Development and System Integration
+## 2.1 Technical Implementation and System Integration
 
 This section presents the technical outcomes of the MAMAR backend development, system integrations, implementation challenges, technical lessons learned, and recommendations for future improvements.
 
