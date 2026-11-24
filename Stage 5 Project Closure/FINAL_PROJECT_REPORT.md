@@ -160,66 +160,140 @@ Further performance, security, scalability, and broader real-world validation ar
 
 # 2. Technical Results & Lessons Learned
 
-## 2.1 Backend and Integration — Shouq Alqarni
+## 2.1 Backend Development and System Integration
 
-*This part is written in first person by Shouq Alqarni, the backend owner. The architecture, the diagrams and the full API map are in [Technical Architecture](Technical%20Architecture/README.md) (Issue #88).*
+This section presents the technical outcomes of the MAMAR backend development, system integrations, implementation challenges, technical lessons learned, and recommendations for future improvements.
 
-### Summary
+Detailed system architecture, technical diagrams, and API documentation are available in the [Technical Architecture Documentation](https://github.com/janaalhazmi/MAMAR/blob/main/Stage%205%20Project%20Closure/Technical%20Architecture/README.md), associated with Issue #88.
 
-I built the FastAPI backend that every MAMAR screen uses. I also connected it to the database, the frontend and nine external services. The final backend is much larger than the Stage 3 plan, and every part of it is covered by automated tests.
+### 2.1.1 Technical Results Summary
 
-| Measure | Stage 3 plan | Final MVP |
+The MAMAR backend was developed using FastAPI and integrated with a PostgreSQL database, the frontend application, and multiple external services to support the platform's operational workflows.
+
+The final implementation exceeded the initial technical scope defined during Stage 3, demonstrating significant progress in system functionality, API development, database architecture, security, and automated testing.
+
+| Measure | Stage 3 Plan | Final MVP |
 |---|---:|---:|
-| REST endpoints | 12 | 86 |
-| API routers | 5 | 17 |
-| Database tables | 6 | 16 |
-| Backend tests | — | 255 (15 unit, 240 integration) |
-| Backend statement coverage | — | 93% |
+| REST API Endpoints | 12 | 86 |
+| API Routers | 5 | 17 |
+| Database Tables | 6 | 16 |
+| Backend Unit Tests | — | 15 |
+| Backend Integration Tests | — | 240 |
+| Total Backend Tests | — | 255 |
+| Backend Statement Coverage | — | 93% |
 
-### What I delivered
+The backend is supported by extensive automated testing, achieving 93% statement coverage. Integration tests were conducted using a PostgreSQL database to improve confidence in system reliability and database operations.
 
-| Area | Result |
+### 2.1.2 Key Technical Deliverables
+
+| Area | Implementation Results |
 |---|---|
-| Security | JWT tokens that expire after 60 minutes; Argon2 password hashing; role and project checks on every protected route; login lockout after 10 failed attempts in 15 minutes; Cloudflare Turnstile on registration and login; an email passcode before an account is created |
-| Field checks | Check-in only within 300 m of the site. Device verification only within 50 m of the planned point. Each verification is saved and shown to the contractor and the provider. |
-| Site photos | JPEG, PNG or WebP, up to 5 MB each and 10 per upload, tagged as before, during or after the work |
-| Integrations | ArcGIS feature layer for planned device points, TomTom traffic, Twilio WhatsApp, EmailJS, PayPal Sandbox and Anthropic Claude for the smart features. Open-Meteo weather is loaded in the browser. |
-| Testing | 255 backend tests on a real PostgreSQL database, run by GitHub Actions on every pull request |
-| Deployment | Render for the backend and Vercel for the frontend, both deploying from `develop`. UptimeRobot watches `/health`. |
+| Backend Architecture | FastAPI-based backend supporting the platform's operational workflows through structured REST APIs and modular routing. |
+| Authentication and Security | JWT-based authentication with a 60-minute expiration period, Argon2 password hashing, role-based authorization, project-level access validation, login lockout after 10 failed attempts within 15 minutes, Cloudflare Turnstile verification, and email passcode verification during account registration. |
+| Database Management | PostgreSQL database supporting project information, user accounts, service requests, quotations, field operations, and other platform data. |
+| GIS Integration | Integration with ArcGIS feature layers to support planned traffic control device locations and geographically referenced field operations, in coordination with the project's GIS integration activities. |
+| Location-Based Field Verification | Location-based check-in within 300 meters of the project site and device verification within 50 meters of the planned device location. Verification results are stored and made available to contractors and service providers. |
+| Field Documentation | Support for JPEG, PNG, and WebP image uploads, with a maximum size of 5 MB per image and up to 10 images per upload. Images are categorized according to project execution stages: before, during, and after implementation. |
+| Traffic Information | Integration with TomTom to support traffic-related information. |
+| Weather Information | Integration with Open-Meteo through browser-based requests to provide location-based weather information. |
+| Communication and Notifications | Integration with Twilio WhatsApp and EmailJS to support platform communication and notification capabilities. |
+| Payment Integration | Integration with PayPal Sandbox to demonstrate the payment workflow in a controlled testing environment. Live financial transactions remain outside the current MVP scope. |
+| AI-Assisted Features | Integration with Anthropic Claude to support intelligent platform features using structured responses, result caching, and request rate limiting. |
+| Automated Testing | Implementation of 255 backend tests, including 15 unit tests and 240 integration tests, with automated execution through GitHub Actions. |
+| Deployment | Backend deployment through Render and frontend deployment through Vercel, using the `develop` branch as the deployment source. |
+| System Monitoring | Integration with UptimeRobot to monitor backend availability through the `/health` endpoint. |
 
-### Technical challenges and how I solved them
+These technical deliverables contributed to the development of an integrated MVP supporting the operational requirements of contractors, service providers, and field workers.
 
-| Challenge | Cause | Solution | Evidence |
+### 2.1.3 Technical Challenges and Resolutions
+
+During the development and deployment phases, several technical challenges were identified across database operations, external service integrations, frontend-backend communication, automated testing, and production deployment.
+
+The following table summarizes the major challenges, their causes, implemented resolutions, and supporting references.
+
+| Technical Challenge | Root Cause | Implemented Resolution | Supporting Evidence |
 |---|---|---|---|
-| A Render deploy failed | A database deadlock happened while `ALTER TABLE users ADD COLUMN ...` ran at start-up, while the running instance was still using the table. | I ran a manual redeploy of the same commit, and it succeeded. All schema changes use `ADD COLUMN IF NOT EXISTS`, so running them again is always safe. | Render deploy log |
-| The weather card said "service could not be reached" | Open-Meteo refused requests from Render's shared servers. It worked locally but not in production. | The backend now returns only the project location. The browser loads the weather directly, and the card shows one clear "today" view. | PR #70, PR #71 |
-| Smart-feature answers sometimes broke the page | The model sometimes added text around its JSON, so parsing failed. | I switched to a forced tool call, so the answer always returns as structured data. Answers are cached in `ai_results`, and each user is limited to 40 requests per hour. | `core/ai.py` |
-| Device verification was lost after a refresh | The endpoint checked the distance but did not save the result. | I added the `project_devices` table. Each verification now saves its time, position and distance, and notifies the contractor. | PR #75 |
-| Paying took the user to the wrong project | After PayPal returned to the site, the app did not know which project had been paid. | The payment page keeps the project id and opens that project after the capture. | PR #75 |
-| Site photos were not saved | Photos were sent only when the worker pressed a later button, so leaving the page lost them. | Photos now upload as soon as they are chosen. A failed upload shows a "Try again" button, and the page warns before closing with unsent photos. | Issue #79, PR #81 |
-| Tests passed locally but failed in CI | CI used Python 3.13 and Render used Python 3.14. A missing import only failed on 3.13. | I fixed the import in `schemas/workflow.py`. | PR #81 |
-| Merge conflicts at the end of Stage 4 | Several of us edited the same pages in the same week. At one point 24 frontend tests failed on `develop`. | I kept my teammates' fixes where they overlapped with mine, and I fixed the failing tests before the merge. | PR #81 |
-| The uptime monitor reported the site as down | UptimeRobot sends `HEAD` requests, and `/health` answered only `GET`, so it returned 405. | `/health` now answers both `GET` and `HEAD`. | `routers/health.py` |
+| Backend deployment failure on Render | A database deadlock occurred during a startup schema modification while an existing application instance was accessing the same database table. | A manual redeployment of the same commit successfully restored deployment. Conditional schema statements using `ADD COLUMN IF NOT EXISTS` supported repeatable execution. A dedicated migration process is recommended to reduce future database locking risks. | Render Deployment Log |
+| Weather service unavailable in production | Requests to Open-Meteo from Render's shared infrastructure were unsuccessful, despite functioning in the local development environment. | Weather requests were moved to the frontend, while the backend provides the required project location information. | PR #70, PR #71 |
+| AI response parsing failures | AI-generated responses occasionally included additional text outside the expected JSON structure, resulting in parsing errors. | Structured tool-based responses were introduced to improve output consistency. Results are cached in the `ai_results` table, with a rate limit of 40 requests per user per hour. | `core/ai.py` |
+| Loss of device verification after page refresh | The original verification endpoint calculated the distance but did not persist verification results in the database. | The `project_devices` table was introduced to store verification timestamps, positions, and distances. Contractor notifications were also incorporated into the workflow. | PR #75 |
+| Incorrect project navigation after payment | The payment return workflow did not consistently retain the identifier of the associated project. | The project identifier is retained throughout the payment workflow, allowing users to return to the corresponding project after payment capture in the sandbox environment. | PR #75 |
+| Loss of field documentation images | Selected images were uploaded only after a subsequent user action, resulting in potential data loss when leaving the page. | Images are uploaded immediately after selection. Retry functionality and warnings for pending uploads were introduced to improve reliability. | Issue #79, PR #81 |
+| Inconsistent automated test results across environments | Differences between Python versions used in CI and production contributed to inconsistent behavior and exposed a missing import. | The missing import in `schemas/workflow.py` was corrected. Standardizing Python versions across environments was identified as a future improvement. | PR #81 |
+| Merge conflicts during Stage 4 | Multiple contributors modified overlapping application components during the same development period, resulting in merge conflicts and failing frontend tests. | Conflicting changes were reviewed and reconciled while preserving relevant team contributions. Failing tests were addressed before completing the merge. | PR #81 |
+| Incorrect system availability alerts | UptimeRobot issued `HEAD` requests, while the health endpoint initially supported only `GET` requests, resulting in HTTP 405 responses. | The `/health` endpoint was updated to support both `GET` and `HEAD` requests. | `routers/health.py` |
 
-### Lessons learned
+The resolution of these challenges contributed to improved system stability, deployment reliability, data persistence, and integration consistency.
 
-1. **Production is a different environment.** IP blocking, a different Python version and a locked table all failed only on Render. I now check the deploy log and the live site after every merge.
-2. **Every external service needs a fallback.** Nine services are connected, and a failure in one of them affects only its own feature. The project workflow keeps working.
-3. **Tests need a real database.** Running the integration tests on PostgreSQL found problems that mocks would have hidden, such as the difference between a new database and an upgraded one.
-4. **Important state belongs on the server.** Device verification, the paid project and the provider name on the completion page all broke while they depended on the browser. Saving them in the backend fixed them on every device.
-5. **Small pull requests merge more easily.** The large end-of-stage pull requests had the conflicts. The small, focused ones merged without problems.
+### 2.1.4 Technical Lessons Learned
 
-### What I would do differently
+#### 1. Production Environment Validation
 
-| Improvement | Why | Priority |
+Local development and production environments may behave differently due to infrastructure restrictions, software versions, database concurrency, and external service availability.
+
+The project demonstrated the importance of validating application behavior in the deployed environment and reviewing deployment logs following significant changes.
+
+#### 2. External Service Reliability
+
+Integrating external services introduces dependencies that may affect individual platform features when service availability changes.
+
+The weather integration challenge highlighted the importance of implementing appropriate error handling, alternative integration approaches, and graceful degradation where possible.
+
+Future development should include systematic validation of fallback mechanisms across external service integrations.
+
+#### 3. Database Integration Testing
+
+Testing against a PostgreSQL database provided valuable insights into database behavior that may not be identified through isolated unit tests or mocked database operations.
+
+Integration testing is particularly important when validating schema modifications, data persistence, relationships, and differences between newly initialized and existing databases.
+
+#### 4. Persistent Application State
+
+Critical operational information should be maintained through reliable persistence mechanisms rather than depending exclusively on temporary browser state.
+
+The project demonstrated this requirement through device verification, payment-related project navigation, and completion workflow information.
+
+Persisting critical verification data in the backend and maintaining consistent project identifiers improved workflow reliability.
+
+#### 5. Incremental Development and Pull Requests
+
+Large pull requests involving overlapping application components increased the complexity of code integration and conflict resolution.
+
+Smaller, focused pull requests support more efficient code reviews, reduce integration risks, and make technical changes easier to validate.
+
+#### 6. Frontend and Backend Coordination
+
+Several implementation challenges involved interactions between the frontend, backend, and database.
+
+This emphasized the importance of establishing clear API contracts, coordinating changes between development contributors, and validating integrated workflows throughout the development process rather than only during final testing.
+
+### 2.1.5 Recommended Technical Improvements
+
+Based on the technical outcomes and challenges encountered during development, the following improvements are recommended for future versions of MAMAR.
+
+| Recommended Improvement | Expected Benefit | Priority |
 |---|---|---|
-| Use Alembic migrations as a separate pre-deploy step | Schema changes would no longer run while the app starts, which caused the deadlock | High |
-| Use the same Python version in CI, Render and local development | The 3.13 / 3.14 difference hid an error in production | High |
-| Add end-to-end tests for the contractor, provider and field worker workflow | Most late bugs crossed two roles and were found only in manual testing | High |
-| Store photos in object storage, for example Supabase Storage | The database would stay small and backups would be faster | Medium |
-| Agree on the API contract with the frontend before building each feature | Both sides could work in parallel with fewer late changes | Medium |
+| Implement Alembic database migrations as a dedicated pre-deployment process. | Improve database schema management and reduce deployment-related locking risks. | High |
+| Standardize Python versions across local development, CI, and production environments. | Reduce environment-specific inconsistencies and improve reproducibility. | High |
+| Introduce automated end-to-end testing for contractor, service provider, and field worker workflows. | Identify cross-role integration issues earlier and reduce reliance on manual regression testing. | High |
+| Establish consistent API contracts before implementing new features. | Improve coordination between frontend and backend development and reduce integration-related rework. | Medium |
+| Introduce object storage for field documentation images, such as Supabase Storage. | Reduce database storage requirements and improve scalability and backup efficiency. | Medium |
+| Validate fallback and error-handling mechanisms for external service integrations. | Improve platform resilience and minimize the impact of external service interruptions. | Medium |
+| Adopt smaller and more focused pull requests throughout development. | Simplify code reviews, reduce merge conflicts, and improve integration efficiency. | Medium |
 
----
+### 2.1.6 Technical Conclusion
+
+The backend development and system integration activities contributed significantly to the successful implementation of the MAMAR MVP.
+
+The final implementation exceeded the initial Stage 3 technical scope, expanding from 12 planned REST API endpoints to 86 implemented endpoints and from 6 planned database tables to 16 implemented tables.
+
+The platform incorporates authentication and authorization mechanisms, location-based field verification, field documentation, external service integrations, automated testing, and cloud-based deployment.
+
+A total of 255 backend tests and 93% statement coverage demonstrate substantial progress in automated quality assurance.
+
+The technical challenges encountered throughout the development process provided valuable lessons in production deployment, database management, system integration, testing, and collaborative software development.
+
+These outcomes provide a technical foundation for the continued development of MAMAR, with future improvements focusing on scalability, reliability, maintainability, and operational readiness.
 
 # 3. Team Retrospective Highlights
 
