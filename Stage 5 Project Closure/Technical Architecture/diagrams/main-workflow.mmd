@@ -1,19 +1,92 @@
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: '#FEF3C7'
+    primaryTextColor: '#1F2937'
+    primaryBorderColor: '#D4A900'
+    secondaryColor: '#F3F4F6'
+    tertiaryColor: '#FFFFFF'
+    background: '#FFFFFF'
+    actorBkg: '#FACC15'
+    actorBorder: '#374151'
+    actorTextColor: '#1F2937'
+    actorLineColor: '#9CA3AF'
+    signalColor: '#374151'
+    signalTextColor: '#1F2937'
+    labelBoxBkgColor: '#FEF3C7'
+    labelBoxBorderColor: '#D4A900'
+    labelTextColor: '#1F2937'
+    loopTextColor: '#1F2937'
+    noteBkgColor: '#F3F4F6'
+    noteBorderColor: '#6B7280'
+    noteTextColor: '#1F2937'
+    activationBkgColor: '#FEF3C7'
+    activationBorderColor: '#D4A900'
+    fontFamily: 'Arial'
+    fontSize: '15px'
+  sequence:
+    actorMargin: 65
+    messageMargin: 35
+    mirrorActors: false
+---
 sequenceDiagram
+    autonumber
+
     actor C as Contractor
-    actor P as Provider
+    actor P as Service Provider
     actor W as Field Worker
     participant API as FastAPI
     participant DB as PostgreSQL
-    C->>API: POST /projects (work zone, dates)
-    API->>DB: save project
-    C->>API: POST /projects/{id}/requests (chosen providers)
-    P->>API: POST /requests/{id}/quotes (price, notes)
-    C->>API: POST /projects/{id}/confirm-provider
-    API->>DB: quote accepted, others rejected, project active, 3 milestones
-    C->>API: POST /projects/{id}/payments, then capture (PayPal Sandbox)
-    P->>API: POST /projects/{id}/assignments (field worker)
-    W->>API: POST attendance/check-in (site code + GPS, within 300 m)
-    W->>API: POST /devices/{code}/verify (GPS, within 50 m)
-    W->>API: POST /field-worker/projects/{id}/photos (before / during / after)
-    P->>API: PATCH milestones, then POST submit-completion
-    C->>API: POST /projects/{id}/complete or /request-changes
+
+    rect rgb(254, 249, 231)
+        Note over C,DB: Phase 1 - Project Creation and GIS Mapping
+        C->>API: POST /projects (work zone, dates)
+        API->>DB: Save project and work-zone geometry
+    end
+
+    rect rgb(243, 244, 246)
+        Note over C,DB: Phase 2 - Service Requests and Quotations
+        C->>API: POST /projects/{id}/requests (chosen providers)
+        P->>API: POST /requests/{id}/quotes (price, notes)
+        C->>API: POST /projects/{id}/confirm-provider
+        API->>DB: Accept selected quote and reject others
+        API->>DB: Activate project and create 3 milestones
+    end
+
+    rect rgb(254, 249, 231)
+        Note over C,DB: Phase 3 - Sandbox Payment
+        C->>API: POST /projects/{id}/payments
+        C->>API: Capture PayPal Sandbox payment
+        Note over C,API: Test environment - No real financial transaction
+    end
+
+    rect rgb(243, 244, 246)
+        Note over P,DB: Phase 4 - Field Team Assignment
+        P->>API: POST /projects/{id}/assignments (field worker)
+    end
+
+    rect rgb(254, 249, 231)
+        Note over W,DB: Phase 5 - GIS-Based Field Execution
+        W->>API: POST attendance/check-in (site code and GPS)
+        Note over W,API: Check-in distance threshold - 300 m
+
+        W->>API: POST /devices/{code}/verify (GPS)
+        Note over W,API: Device verification threshold - 50 m
+
+        W->>API: POST /field-worker/projects/{id}/photos
+        Note over W,API: Before, during and after field documentation
+    end
+
+    rect rgb(243, 244, 246)
+        Note over C,DB: Phase 6 - Monitoring and Project Completion
+
+        P->>API: PATCH project milestones
+        P->>API: POST submit-completion
+
+        alt Contractor approves completion
+            C->>API: POST /projects/{id}/complete
+        else Contractor requests changes
+            C->>API: POST /projects/{id}/request-changes
+        end
+    end
