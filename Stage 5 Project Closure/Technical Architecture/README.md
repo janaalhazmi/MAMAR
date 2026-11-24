@@ -1,192 +1,782 @@
 # MAMAR — Technical Architecture Showcase
 
-| | |
+| Item | Details |
 |---|---|
-| **Issue** | #88 |
-| **Prepared by** | Shouq Alqarni, backend and database |
-| **Date** | 24 November 2026 |
-| **Scope** | The MVP as deployed on 24 November 2026, not the Stage 3 plan |
+| Project | MAMAR |
+| Stage | Stage 5 — Project Closure |
+| Issue | #88 |
+| Prepared by | Shouq Alqarni — Backend Developer |
+| Technical Review | Razan Kashr — Project Manager & GIS Integration Lead |
+| Date | 24 November 2026 |
+| Scope | Final MVP implementation |
 
-This page shows how MAMAR is built. It covers the system parts, the external services, the API, the database and the main technical decisions. Every diagram is also saved as an image in [`diagrams/`](diagrams/) for the slide deck.
+## Overview
 
-## MAMAR at a glance
+MAMAR is a GIS-enabled B2B platform designed to connect contractors with temporary traffic control service providers and support the planning, coordination, execution, and monitoring of roadwork projects.
 
-| Measure | Value |
+The platform combines web application development, relational database management, geographic information systems, location-based verification, and external service integrations within a unified operational workflow.
+
+This document presents the final MVP architecture, technology stack, API structure, database design, GIS integration, technical decisions, quality assurance results, and changes from the initial Stage 3 design.
+
+## MAMAR at a Glance
+
+| Technical Indicator | Final MVP |
 |---|---:|
-| REST endpoints | 86 |
-| API routers | 17 |
-| Database tables | 16 |
-| External services | 9 |
-| Backend tests (unit + integration) | 255 (15 + 240) |
-| Backend statement coverage | 93% |
-| Frontend tests (Vitest) | 806 |
+| REST API Endpoints | 86 |
+| API Routers | 17 |
+| Database Tables | 16 |
+| Foreign Key Constraints | 26 |
+| External Integrations and Browser APIs | 9 |
+| Backend Unit Tests | 15 |
+| Backend Integration Tests | 240 |
+| Total Backend Tests | 255 |
+| Backend Statement Coverage | 93% |
+| Frontend Tests | 806 |
+| Total Automated Tests Passed | 1,061 |
 
-## Contents
+Database table counts, foreign key constraints, and spatial data fields were verified against the deployed PostgreSQL database.
 
-1. [System architecture](#1-system-architecture)
-2. [External services](#2-external-services)
-3. [Internal API](#3-internal-api)
-4. [Database](#4-database)
-5. [Major technical decisions](#5-major-technical-decisions)
-6. [Changes from the Stage 3 design](#6-changes-from-the-stage-3-design)
-7. [Content for the slide deck](#7-content-for-the-slide-deck)
+API and testing metrics are based on the project's documented technical and quality assurance results.
+
+## Table of Contents
+
+1. [System Architecture](#1-system-architecture)
+2. [GIS Architecture and Spatial Data Flow](#2-gis-architecture-and-spatial-data-flow)
+3. [External Integrations](#3-external-integrations)
+4. [Internal API](#4-internal-api)
+5. [Database Architecture](#5-database-architecture)
+6. [Security and Access Control](#6-security-and-access-control)
+7. [Major Technical Decisions](#7-major-technical-decisions)
+8. [Changes from the Stage 3 Design](#8-changes-from-the-stage-3-design)
+9. [Testing and Quality Assurance](#9-testing-and-quality-assurance)
+10. [Deployment and Monitoring](#10-deployment-and-monitoring)
+11. [Technical Limitations and Future Improvements](#11-technical-limitations-and-future-improvements)
+12. [Content for the Slide Deck](#12-content-for-the-slide-deck)
+13. [Technical Conclusion](#13-technical-conclusion)
 
 ---
 
 ## 1. System Architecture
 
-![System architecture](diagrams/system-architecture.png)
+MAMAR follows a client-server architecture that separates the presentation layer, application logic, database management, and geographic services.
 
-### How a request moves
+The architecture supports four primary user roles:
 
-1. The user works in the React app.
-2. The app sends a JSON request to the FastAPI backend. The request carries a JWT in the `Authorization` header.
-3. The backend checks the token, the user's role and the user's access to the project.
-4. The backend reads or writes PostgreSQL through SQLAlchemy. It calls an external service only when the request needs one.
-5. The backend returns JSON, and the app updates the page.
+- Contractor
+- Service Provider
+- Field Worker
+- Platform Administrator
 
-Maps are drawn in the browser by the ArcGIS Maps SDK. The worker's position comes from the browser's Geolocation API.
+![System Architecture](diagrams/system-architecture.png)
 
-### Components
+### 1.1 Technology Stack
 
-| Component | Technology | Hosting | Responsibility |
+| Component | Technology | Environment | Responsibility |
 |---|---|---|---|
-| Frontend | React 19, Vite, React Router | Vercel | Pages for the four roles, maps, forms and dashboards |
-| Backend | FastAPI, Pydantic, SQLAlchemy 2, Uvicorn | Render | REST API, validation, business rules and access control |
-| Database | PostgreSQL | Supabase | All non-spatial data, including site photos |
-| GIS | ArcGIS Maps SDK for JavaScript, ArcGIS Online | ArcGIS Online | Web map, work zones and planned traffic device points |
-| Location | Browser Geolocation API | User's phone | Position for site check-in and device verification |
-| Monitoring | UptimeRobot on `/health` | UptimeRobot | Alerts when the backend or its database connection is down |
-| CI | GitHub Actions with pytest | GitHub | Runs the backend unit and integration tests on every pull request |
+| Frontend | React 19, Vite, React Router | Vercel / User Browser | User interfaces, dashboards, forms, maps, and workflow interactions |
+| Backend | FastAPI, Pydantic, SQLAlchemy 2, Uvicorn | Render | REST APIs, business logic, validation, authentication, and authorization |
+| Database | PostgreSQL | Supabase | Relational data, project records, spatial data, field evidence, and operational history |
+| GIS | ArcGIS Maps SDK for JavaScript | User Browser | Interactive mapping, geographic visualization, and work-zone interaction |
+| Geographic Services | ArcGIS Online | ArcGIS Online | Web maps, geographic layers, and traffic control device features |
+| Location Services | Browser Geolocation API | User Device | Field worker positioning and location-based verification |
+| Automated Testing | Vitest, pytest | Development and CI Environments | Frontend and backend quality assurance |
+| Continuous Integration | GitHub Actions | GitHub | Automated backend unit and integration testing |
+| Monitoring | UptimeRobot | External Monitoring Service | Backend availability monitoring |
+| Version Control | Git and GitHub | GitHub | Source code management and collaborative development |
 
-Vercel and Render both deploy automatically from the `develop` branch.
+### 1.2 Application Request Flow
+
+1. The user interacts with the React frontend through a web browser.
+2. The frontend communicates with the FastAPI backend through HTTPS requests.
+3. Protected requests include a JWT in the Authorization header.
+4. The backend validates authentication, user roles, project permissions, and request data.
+5. Business logic is executed through the appropriate API router.
+6. PostgreSQL is accessed through SQLAlchemy when database operations are required.
+7. External services are accessed when required by the requested functionality.
+8. The backend returns a response to the frontend.
+9. The frontend updates the interface based on the response.
+
+Public authentication endpoints and the health endpoint do not require an existing JWT.
+
+Interactive maps are rendered in the browser using the ArcGIS Maps SDK for JavaScript.
 
 ---
 
-## 2. External Services
+## 2. GIS Architecture and Spatial Data Flow
 
-| Service | Called from | What MAMAR uses it for | If it is not available |
-|---|---|---|---|
-| ArcGIS Online (Feature Service) | Browser (SDK) and backend | The web map; the backend reads the planned point of a traffic device | The backend uses the project's saved location instead |
-| Browser Geolocation | Browser | Worker position for check-in (300 m) and device verification (50 m) | The worker cannot verify until location access is allowed |
-| TomTom Traffic Flow | Backend | Live speed and delay near the work zone, with a traffic level | The traffic card says the service is off |
-| Open-Meteo | Browser (weather card) and backend (daily summary) | Today's weather and safety advice for the site | The weather card shows an error; the page still works |
-| Twilio WhatsApp | Backend | WhatsApp copies of important notifications | In-app notifications still work |
-| EmailJS | Backend | Passcode email during registration | New accounts cannot be created until it is back |
-| PayPal Sandbox | Backend | Test payment for an accepted quotation | The quotation stays unpaid; no real money is involved |
-| Cloudflare Turnstile | Browser and backend | Bot check on login and registration | Login and registration are refused |
-| Anthropic Claude (Haiku) | Backend | Photo safety check, traffic plan explanation, quotation comparison, daily summary | The smart features are hidden; the main workflow does not use them |
+Geographic Information Systems are a core component of MAMAR and support the platform's project planning, field execution, and operational monitoring capabilities.
 
-Only EmailJS and Turnstile block a user action when they fail, and both block on purpose: they protect account creation and login. A failure in any other service affects only its own card.
+The GIS architecture combines ArcGIS Online, the ArcGIS Maps SDK for JavaScript, PostgreSQL, and browser-based geolocation.
 
-All keys are environment variables on Render, for example `TOMTOM_API_KEY`, `PAYPAL_CLIENT_SECRET` and `ANTHROPIC_API_KEY`. No key is stored in the code or sent to the browser.
+### 2.1 GIS Components
+
+| Component | Responsibility |
+|---|---|
+| ArcGIS Maps SDK for JavaScript | Interactive map rendering, geographic visualization, and work-zone interaction |
+| ArcGIS Online | Geographic layers, web maps, and planned traffic control device features |
+| PostgreSQL | Persistence of project geometry, geographic coordinates, verification records, and attendance data |
+| FastAPI | Geographic data processing, location-based business rules, and server-side distance validation |
+| Browser Geolocation API | Acquisition of field worker coordinates during location-based operations |
+
+### 2.2 Work-Zone Management
+
+Contractors can define geographic work zones as part of the project creation workflow.
+
+The platform supports:
+
+- Interactive geographic visualization.
+- Identification of project locations.
+- Definition of work-zone geometry.
+- Storage of project coordinates.
+- Persistence of work-zone geometry in PostgreSQL.
+- Geographic visualization during subsequent project workflows.
+
+Work-zone geometry is supported through the `projects.work_zone` field, which uses the PostgreSQL JSON data type.
+
+Project latitude and longitude are stored using double-precision numeric fields.
+
+### 2.3 Spatial Data Persistence
+
+MAMAR uses a combined geographic and relational data architecture.
+
+ArcGIS Online provides geographic visualization and feature services, while PostgreSQL stores spatial and operational information required by the application.
+
+| Spatial Data | Storage Location |
+|---|---|
+| Project Location | PostgreSQL — `projects.location` |
+| Project Latitude | PostgreSQL — `projects.latitude` |
+| Project Longitude | PostgreSQL — `projects.longitude` |
+| Work-Zone Geometry | PostgreSQL — `projects.work_zone` |
+| Geographic Map Layers | ArcGIS Online |
+| Planned Traffic Control Device Features | ArcGIS Online |
+| Planned Device Coordinates | PostgreSQL — `project_devices.planned_latitude` and `planned_longitude` |
+| Verified Device Coordinates | PostgreSQL — `project_devices.verified_latitude` and `verified_longitude` |
+| Device Verification Distance | PostgreSQL — `project_devices.distance_m` |
+| Field Worker Check-In Coordinates | PostgreSQL — `attendance.check_in_latitude` and `check_in_longitude` |
+| Field Worker Check-Out Coordinates | PostgreSQL — `attendance.check_out_latitude` and `check_out_longitude` |
+| Check-In Distance | PostgreSQL — `attendance.check_in_distance_m` |
+
+The presence of these fields was verified against the deployed database schema.
+
+Spatial data is represented through JSON geometry and geographic coordinate fields rather than being described as exclusively stored in ArcGIS Online.
+
+### 2.4 Location-Based Field Verification
+
+The platform implements location-based validation to support field operations.
+
+| Verification Type | Configured Distance Threshold |
+|---|---:|
+| Field Worker Site Check-In | 300 meters |
+| Traffic Control Device Verification | 50 meters |
+
+The browser provides the user's geographic coordinates, while the backend performs distance validation using the relevant reference location.
+
+Device verification records support the storage of:
+
+- Device identifier.
+- Project identifier.
+- Planned geographic coordinates.
+- Actual verification coordinates.
+- Verification timestamp.
+- Verification status.
+- Verifying user.
+- Calculated distance in meters.
+
+Field attendance records support the storage of check-in and check-out timestamps, geographic coordinates, and check-in distance.
+
+### 2.5 GIS Integration Limitations
+
+The accuracy of location-based verification depends on:
+
+- Availability of geographic reference data.
+- Device GPS accuracy.
+- Browser location permissions.
+- Network connectivity.
+- Availability of external geographic services.
+
+The current MVP includes fallback behavior when planned geographic reference information is unavailable.
+
+Project-level coordinates must not be treated as equivalent to an individual device's planned coordinates without appropriate validation.
+
+Future improvements should prioritize verified device-level reference coordinates and explicitly identify cases where precise device verification cannot be completed.
+
+Server-side distance validation improves consistency but does not independently guarantee that device-reported coordinates cannot be manipulated.
 
 ---
 
-## 3. Internal API
+## 3. External Integrations
 
-The backend has **86 endpoints in 17 routers**. The count comes from the OpenAPI specification, where `GET` and `HEAD /health` count as one endpoint. The live list, with request and response examples, is at **https://mamar-api.onrender.com/docs**.
+MAMAR integrates external services and browser APIs to extend the platform's operational capabilities.
 
-| Router | Endpoints | Main use |
+| Integration | Accessed From | Purpose | Failure Handling or Limitation |
+|---|---|---|---|
+| ArcGIS Online | Frontend and Backend | Geographic visualization and planned device information | Geographic functionality may be limited when feature services are unavailable |
+| Browser Geolocation API | Browser | Field worker positioning and geographic verification | Location-based actions require location permission and available coordinates |
+| TomTom Traffic | Backend | Traffic conditions, speed, and delay information | Traffic information may be unavailable while other platform features remain accessible |
+| Open-Meteo | Browser and selected backend workflows | Weather information and weather-related operational context | Weather-dependent information may be unavailable |
+| Twilio WhatsApp | Backend | WhatsApp notification delivery | In-app notifications provide an alternative communication channel |
+| EmailJS | Backend | Registration email passcodes | New account registration depends on successful passcode delivery |
+| PayPal Sandbox | Backend | Demonstration of the payment workflow | Payment-related actions remain incomplete when the service is unavailable |
+| Cloudflare Turnstile | Frontend and Backend | Automated bot protection during authentication | Protected authentication actions depend on successful verification |
+| Anthropic Claude | Backend | AI-assisted platform features | AI-assisted functionality may be unavailable without necessarily preventing core project operations |
+
+Browser Geolocation is a browser-provided API rather than an independently hosted external service.
+
+### 3.1 Integration Reliability
+
+External integrations are designed to limit the impact of individual service failures where possible.
+
+However, some platform actions depend on their associated services.
+
+Examples include:
+
+- Account registration and email verification.
+- Bot verification during authentication.
+- Location-based field operations.
+- Sandbox payment processing.
+
+The availability of these services may affect the completion of specific workflow actions.
+
+### 3.2 Integration Credentials
+
+Sensitive server-side credentials and API secrets are managed through environment variables.
+
+Examples include:
+
+- `TOMTOM_API_KEY`
+- `PAYPAL_CLIENT_SECRET`
+- `ANTHROPIC_API_KEY`
+
+Public client-side configuration values are managed separately from confidential backend credentials.
+
+Public identifiers and browser-facing site keys must not be confused with private API secrets.
+
+### 3.3 Payment Scope
+
+PayPal integration operates in a sandbox environment for demonstration and testing purposes.
+
+The current MVP does not support live financial transactions.
+
+Production payment processing would require additional configuration, security assessment, compliance validation, and operational readiness testing.
+
+---
+
+## 4. Internal API
+
+The documented backend implementation contains 86 REST API endpoints organized into 17 API routers.
+
+Interactive API documentation:
+
+https://mamar-api.onrender.com/docs
+
+### 4.1 API Router Structure
+
+| Router | Endpoints | Main Responsibility |
 |---|---:|---|
-| `provider` | 10 | Provider dashboard, incoming requests, projects, workers, milestones and completion |
-| `auth` | 8 | Email passcode, registration, login, profile, password change and avatar |
-| `workflow` | 8 | Quotation list and rejection, provider confirmation, monitoring, completion review and change requests |
-| `admin` | 8 | Admin summary, users, companies, projects, activity log and system status |
-| `notifications` | 6 | Notification list, unread count, read state and the WhatsApp channel |
-| `field_work` | 6 | Field worker projects, site status, site updates and photos |
-| `ai` | 6 | Smart features and their status |
-| `devices` | 5 | Device codes for providers and workers, and GPS verification |
-| `attendance` | 5 | Site code, check-in, check-out and attendance log |
-| `projects` | 4 | Create, list, read and update projects with their work zone |
-| `service_requests` | 4 | Send requests to providers, list them, award them and read the work zone |
-| `reviews` | 4 | Provider ratings |
-| `payments` | 4 | Create a PayPal order, list payments, capture and cancel |
-| `extras` | 3 | Weather location, live traffic and the PDF receipt |
-| `quotes` | 2 | Submit and list quotations for a request |
-| `assignments` | 2 | Assign field workers |
-| `health` | 1 | Service and database status |
+| `provider` | 10 | Provider dashboard, incoming requests, projects, workers, milestones, and completion |
+| `auth` | 8 | Registration, email verification, login, profiles, and account management |
+| `workflow` | 8 | Quotations, provider confirmation, monitoring, completion review, and change requests |
+| `admin` | 8 | Administrative dashboards, users, companies, projects, activity logs, and system status |
+| `notifications` | 6 | Notification management and communication preferences |
+| `field_work` | 6 | Field worker projects, site updates, site status, and photo documentation |
+| `ai` | 6 | AI-assisted features and availability |
+| `devices` | 5 | Traffic control device management and geographic verification |
+| `attendance` | 5 | Site codes, check-in, check-out, and attendance records |
+| `projects` | 4 | Project creation, retrieval, updates, and work-zone management |
+| `service_requests` | 4 | Service requests, provider access, awarding, and work-zone retrieval |
+| `reviews` | 4 | Provider ratings and project feedback |
+| `payments` | 4 | Sandbox payment creation, retrieval, capture, and cancellation |
+| `extras` | 3 | Weather location, traffic information, and PDF receipts |
+| `quotes` | 2 | Quotation submission and retrieval |
+| `assignments` | 2 | Field worker assignments |
+| `health` | 1 | Application and database health monitoring |
+| **Total** | **86** | **17 API Routers** |
 
-### Rules for every endpoint
+The documented endpoint count treats the GET and HEAD operations associated with `/health` as one logical endpoint.
 
-- Requests and responses are JSON. Photo upload (`multipart/form-data`) and the PDF receipt are the only exceptions.
-- Every endpoint needs `Authorization: Bearer <JWT>`, except registration, login and health. The token holds the user id and role, and it expires after 60 minutes.
-- Errors always return `{"detail": "..."}` with a clear status: 401 for a missing or bad token, 403 for the wrong role or project, 404 for not found, 409 for a duplicate and 422 for invalid data.
-- Access is checked per project, not only per role. A provider sees a project only after their quotation is accepted. A worker sees it only after being assigned to it.
+### 4.2 API Communication
 
-### Main workflow through the API
+The API primarily exchanges structured JSON requests and responses.
 
-![Main workflow](diagrams/main-workflow.png)
+Exceptions include:
+
+- Multipart form requests for file uploads.
+- PDF responses for generated receipts.
+- Responses without a body where applicable.
+
+Protected API requests use:
+
+`Authorization: Bearer <JWT>`
+
+Public authentication operations, including registration, login, and email passcode operations, do not require an existing authenticated session.
+
+### 4.3 API Error Handling
+
+The application uses HTTP status codes to communicate request outcomes.
+
+| Status Code | Meaning |
+|---|---|
+| 401 | Authentication is missing or invalid |
+| 403 | The user is not authorized to perform the action |
+| 404 | The requested resource was not found |
+| 409 | A conflicting or duplicate operation was identified |
+| 422 | Request validation failed |
+
+Error response structures may vary according to the validation or exception-handling mechanism.
+
+### 4.4 Role-Based and Project-Level Authorization
+
+Access control is based on user roles and relevant project relationships.
+
+Contractors manage their own projects and associated workflows.
+
+Service providers can access eligible service requests and submit quotations. Access to awarded project operations depends on the applicable project and workflow permissions.
+
+Field workers access projects according to their assignments and authorized responsibilities.
+
+Platform administrators access administrative functions according to their assigned permissions.
+
+### 4.5 Main Operational Workflow
+
+![Main Workflow](diagrams/main-workflow.png)
+
+The main workflow includes:
+
+1. Contractor creates a project.
+2. Contractor defines the geographic work zone.
+3. Contractor submits a service request.
+4. Eligible service providers review the request.
+5. Service providers submit quotations.
+6. Contractor reviews and selects a quotation.
+7. Sandbox payment is processed where applicable.
+8. Service provider assigns field workers.
+9. Field workers perform authorized site operations.
+10. Location-based attendance and device verification are recorded.
+11. Field documentation and project updates are submitted.
+12. Service provider submits the project for completion review.
+13. Contractor reviews the submitted work.
+14. Contractor confirms completion or requests changes.
 
 ---
 
-## 4. Database
+## 5. Database Architecture
 
-PostgreSQL holds **16 tables in five groups**. Spatial shapes, such as work-zone polygons and device points, stay in ArcGIS Online. PostgreSQL keeps only the coordinates the backend needs for its distance checks.
+MAMAR uses PostgreSQL hosted on Supabase as its primary relational database.
 
-![Database tables](diagrams/database.png)
+The deployed public schema contains 16 tables and 26 foreign key constraints.
 
-| Group | Tables | Notes |
+The database supports user management, project operations, quotations, payments, assignments, geographic data, field verification, notifications, and operational history.
+
+![Database Architecture](diagrams/database.png)
+
+### 5.1 Database Table Groups
+
+| Group | Tables | Responsibility |
 |---|---|---|
-| Accounts | `users`, `providers`, `email_passcodes` | Four roles in `users.role`; passwords hashed with Argon2; `email_passcodes` holds the hashed sign-up code before the account exists |
-| Core workflow | `projects`, `service_requests`, `quotes`, `payments`, `assignments`, `project_milestones` | The path from project to completion; payments and milestones were added after Stage 3 |
-| Field evidence | `site_photos`, `attendance`, `project_devices` | Photos (JPEG, PNG or WebP, up to 5 MB, 10 per upload), check-in times and the last GPS verification of each device |
-| Feedback and history | `reviews`, `notifications`, `activity_log` | Ratings after completion, notifications and a record of who did what |
-| Cache | `ai_results` | Saved smart-feature answers, so the same photo or plan is not analysed twice |
+| Accounts | `users`, `providers`, `email_passcodes` | User accounts, service provider organizations, and registration verification |
+| Core Workflow | `projects`, `service_requests`, `quotes`, `payments`, `assignments`, `project_milestones` | Project lifecycle, requests, quotations, payments, assignments, and milestones |
+| Field Operations | `site_photos`, `attendance`, `project_devices` | Field documentation, attendance, and geographic device verification |
+| Feedback and History | `reviews`, `notifications`, `activity_log` | Project feedback, notifications, and operational activity history |
+| AI Cache | `ai_results` | Cached AI-assisted results |
+| **Total** | **16 Tables** | |
 
-SQLAlchemy creates the tables at start-up. Columns added after the first deploy use `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`, so the live database is upgraded without losing data.
+### 5.2 Database Table Responsibilities
+
+| Table | Primary Responsibility |
+|---|---|
+| `users` | User accounts, roles, and organizational associations |
+| `providers` | Service provider company information |
+| `email_passcodes` | Registration verification information |
+| `projects` | Project details, status, geographic coordinates, and work-zone geometry |
+| `service_requests` | Requests for temporary traffic control services |
+| `quotes` | Service provider quotations |
+| `payments` | Sandbox payment records and transaction references |
+| `assignments` | Field worker assignments to projects |
+| `project_milestones` | Project execution milestones |
+| `site_photos` | Photographic field documentation |
+| `attendance` | Field worker check-in and check-out records |
+| `project_devices` | Traffic control device records and geographic verification |
+| `reviews` | Contractor feedback and provider ratings |
+| `notifications` | User notifications and read status |
+| `activity_log` | Operational activity records |
+| `ai_results` | Cached AI-generated results |
+
+### 5.3 Verified Foreign Key Constraints
+
+The following relationships were verified directly against the deployed PostgreSQL database.
+
+| Source Table | Foreign Key | Referenced Table | Referenced Column | Delete Rule |
+|---|---|---|---|---|
+| `activity_log` | `project_id` | `projects` | `project_id` | SET NULL |
+| `activity_log` | `user_id` | `users` | `user_id` | SET NULL |
+| `ai_results` | `project_id` | `projects` | `project_id` | NO ACTION |
+| `assignments` | `project_id` | `projects` | `project_id` | NO ACTION |
+| `assignments` | `provider_id` | `providers` | `provider_id` | NO ACTION |
+| `assignments` | `worker_id` | `users` | `user_id` | NO ACTION |
+| `attendance` | `project_id` | `projects` | `project_id` | NO ACTION |
+| `attendance` | `worker_id` | `users` | `user_id` | NO ACTION |
+| `notifications` | `user_id` | `users` | `user_id` | CASCADE |
+| `payments` | `contractor_id` | `users` | `user_id` | NO ACTION |
+| `payments` | `project_id` | `projects` | `project_id` | NO ACTION |
+| `payments` | `quote_id` | `quotes` | `quote_id` | NO ACTION |
+| `project_devices` | `project_id` | `projects` | `project_id` | NO ACTION |
+| `project_devices` | `verified_by` | `users` | `user_id` | NO ACTION |
+| `project_milestones` | `project_id` | `projects` | `project_id` | CASCADE |
+| `projects` | `contractor_id` | `users` | `user_id` | NO ACTION |
+| `quotes` | `provider_id` | `providers` | `provider_id` | NO ACTION |
+| `quotes` | `request_id` | `service_requests` | `request_id` | NO ACTION |
+| `reviews` | `contractor_id` | `users` | `user_id` | NO ACTION |
+| `reviews` | `project_id` | `projects` | `project_id` | NO ACTION |
+| `reviews` | `provider_id` | `providers` | `provider_id` | NO ACTION |
+| `service_requests` | `project_id` | `projects` | `project_id` | NO ACTION |
+| `service_requests` | `provider_id` | `providers` | `provider_id` | NO ACTION |
+| `site_photos` | `project_id` | `projects` | `project_id` | NO ACTION |
+| `site_photos` | `worker_id` | `users` | `user_id` | NO ACTION |
+| `users` | `provider_id` | `providers` | `provider_id` | NO ACTION |
+
+All 26 verified foreign key constraints use `NO ACTION` as their update rule.
+
+### 5.4 Referential Integrity
+
+| Delete Rule | Number of Constraints | Purpose |
+|---|---:|---|
+| NO ACTION | 22 | Prevent operations that would violate existing foreign key constraints |
+| CASCADE | 2 | Automatically remove dependent notifications or project milestones when the referenced record is deleted |
+| SET NULL | 2 | Preserve activity history while removing references to deleted users or projects |
+| **Total** | **26** | |
+
+The database uses foreign key constraints to maintain consistency between related operational records.
+
+### 5.5 Geographic Database Fields
+
+The following geographic fields were verified against the deployed database schema.
+
+| Table | Column | Data Type |
+|---|---|---|
+| `projects` | `location` | Character Varying |
+| `projects` | `latitude` | Double Precision |
+| `projects` | `longitude` | Double Precision |
+| `projects` | `work_zone` | JSON |
+| `project_devices` | `planned_latitude` | Double Precision |
+| `project_devices` | `planned_longitude` | Double Precision |
+| `project_devices` | `verified_latitude` | Double Precision |
+| `project_devices` | `verified_longitude` | Double Precision |
+| `project_devices` | `distance_m` | Double Precision |
+| `attendance` | `check_in_latitude` | Double Precision |
+| `attendance` | `check_in_longitude` | Double Precision |
+| `attendance` | `check_in_distance_m` | Double Precision |
+| `attendance` | `check_out_latitude` | Double Precision |
+| `attendance` | `check_out_longitude` | Double Precision |
+
+This database structure supports the persistence of geographic project information, planned and verified device locations, and location-based attendance records.
+
+### 5.6 Database Schema Management
+
+SQLAlchemy is used to define database models and manage application-level database interactions.
+
+The current implementation includes startup-based schema initialization and conditional column additions using statements such as:
+
+`ALTER TABLE ... ADD COLUMN IF NOT EXISTS`
+
+Conditional schema statements support repeatable execution but do not eliminate database locking or migration risks.
+
+A dedicated migration framework, such as Alembic, is recommended for future releases.
 
 ---
 
-## 5. Major Technical Decisions
+## 6. Security and Access Control
 
-Each decision below came from a real constraint of this project. The table lists the option we did not choose and the cost of our choice.
+MAMAR implements application-level security mechanisms to protect authentication and authorized workflow operations.
 
-| Decision | Project constraint behind it | Alternative not chosen | Trade-off we accepted |
+### 6.1 Implemented Security Mechanisms
+
+| Security Mechanism | Implementation |
+|---|---|
+| Authentication | JWT-based authentication |
+| Token Expiration | 60 minutes |
+| Password Protection | Argon2 password hashing |
+| Authorization | Role-based access control |
+| Resource Access | Project-level permission validation |
+| Login Protection | Lockout after 10 failed attempts within 15 minutes |
+| Bot Protection | Cloudflare Turnstile |
+| Registration Verification | Email passcodes |
+| Site Verification Code | HMAC-based project site code |
+| Input Validation | Pydantic request validation |
+| Communication | HTTPS |
+| Credential Management | Environment-based configuration for sensitive backend credentials |
+
+### 6.2 Database Access Security
+
+The backend is responsible for applying application-level authorization before performing protected database operations.
+
+Application-level authorization and database-level access controls are separate security mechanisms.
+
+Database permissions, direct API exposure, and Row Level Security policies require additional validation before the platform can be considered production-ready.
+
+The presence of backend authentication must not be interpreted as confirmation that every database access path is independently protected.
+
+### 6.3 Geographic Verification Security
+
+Location-based validation is performed through server-side distance calculations using device-reported geographic coordinates.
+
+This approach reduces reliance on client-generated verification flags.
+
+However, additional controls would be required to provide stronger protection against location spoofing and manipulated device coordinates.
+
+---
+
+## 7. Major Technical Decisions
+
+The following decisions reflect the technical requirements, project constraints, and implementation trade-offs encountered during MVP development.
+
+| Technical Decision | Rationale | Alternative | Trade-Off |
 |---|---|---|---|
-| FastAPI with Pydantic | The frontend team needed an exact, current API contract while the backend kept changing | Flask with hand-written documentation | More schema classes to write and maintain |
-| Vercel (frontend), Render (backend), Supabase (database) | A student team with no server administrator; every merged pull request had to go live with no manual steps | One self-managed virtual server | Three dashboards to keep in sync; CORS allows only the production frontend address |
-| One relational database for all non-spatial data | Quotations, payments, assignments and photos all hang off one project, so the queries need joins | Separate file storage for photos | Photos make the database grow faster than file storage would |
-| Access checks in one shared module (`core/access.py`) | Four roles share the same projects, and one missed check would expose another company's data | Checks written separately in each router | Every router depends on one module; 7 security tests guard it |
-| Backend reads ArcGIS for device verification | The planned device position must come from the server, or a worker could fake it in the browser | Browser-only ArcGIS, as planned in Stage 3 | One more external call on the server |
-| Distance checks on the server (300 m check-in, 50 m device) | Proof of presence on site is the purpose of check-in | Trusting a "verified" flag sent by the browser | Poor GPS on some phones, so the limits are generous |
-| Site code is an HMAC of the project id | Workers scan a printed QR code on site, so the code must be hard to guess | A random code stored in a table | Changing `SECRET_KEY` changes every site code |
-| Each external service fails on its own | Nine outside services, and a test or demo cannot stop because one of them is down | Hard failures that stop the request | More code paths to test |
-| Weather loaded in the browser | Open-Meteo refused requests from Render's shared servers | A paid weather API called from the backend | The user's browser must reach Open-Meteo |
-| Tests on every pull request (GitHub Actions with a PostgreSQL service) | Several team members merged into `develop`, and every merge deploys to production automatically | Running tests by hand before a merge | About 3 minutes of waiting per pull request |
+| FastAPI with Pydantic | Structured APIs, request validation, and automatically generated API documentation | Flask with manually maintained documentation | Additional schema definitions and maintenance |
+| React and Vite | Component-based frontend development and efficient development workflows | Traditional server-rendered interfaces | Increased client-side state management |
+| Vercel, Render, and Supabase | Managed deployment services suitable for a student development team | Self-managed virtual infrastructure | Multiple hosting environments require coordinated configuration |
+| PostgreSQL | Relational consistency across projects, users, quotations, and operational records | Non-relational database architecture | Schema changes require careful migration management |
+| ArcGIS Integration | Geographic visualization and location-based project operations | Non-geographic project management | Dependence on geographic services and spatial data quality |
+| JSON-Based Work-Zone Storage | Flexible persistence of project geometry within the existing relational database | Dedicated spatial database extensions | Advanced spatial queries may require additional processing |
+| Centralized Access Control | Consistent authorization across shared project workflows | Independent authorization logic in each router | Shared authorization components require comprehensive testing |
+| Backend Distance Validation | Centralized enforcement of location-based operational rules | Client-side verification flags | Dependence on GPS accuracy and reference coordinate availability |
+| HMAC-Based Site Codes | Deterministic site verification codes without additional code-storage requirements | Random codes stored in the database | Secret rotation may affect existing site codes |
+| Database-Based Field Documentation | Simplified association between project records and field evidence | Dedicated object storage | Database growth and backup requirements |
+| Browser-Based Weather Requests | Addressed weather service availability issues encountered in the deployment environment | Backend-only weather requests | Dependence on browser connectivity |
+| Independent Integration Error Handling | Reduce unnecessary disruption from external service failures | Treat all integration failures as application-wide failures | Additional error-handling paths and testing requirements |
+| Automated CI Testing | Detect integration issues before changes are merged | Manual testing only | Additional CI execution time |
+| PayPal Sandbox | Demonstrate the payment workflow without processing real transactions | Live payment processing | Limited to demonstration and testing |
+| AI Result Caching | Reduce repeated processing of equivalent AI-assisted requests | Reprocess every request | Cache invalidation and storage requirements |
 
 ---
 
-## 6. Changes from the Stage 3 Design
+## 8. Changes from the Stage 3 Design
 
-| Area | Stage 3 plan | Final MVP | Reason for the change |
+The final MVP expanded beyond the initial technical design as additional operational requirements were implemented.
+
+| Area | Stage 3 Plan | Final MVP | Reason for Change |
 |---|---|---|---|
-| API size | 12 endpoints in 5 routers | 86 endpoints in 17 routers | Field work, devices, payments, notifications, admin and smart features were added |
-| Database size | 6 tables | 16 tables | New tables for the added features |
-| Database host | PostgreSQL on Render | PostgreSQL on Supabase | The database is managed separately from the backend host |
-| ArcGIS | No link between FastAPI and ArcGIS Online | Backend reads planned device points | Device verification must not trust the browser |
-| Payments | None | PayPal Sandbox (test only) | Payment of an accepted quotation completes the workflow |
-| Messaging | None | In-app notifications, WhatsApp (Twilio) and email passcode (EmailJS) | Users must learn about new requests, quotations and changes |
+| REST API Endpoints | 12 | 86 | Additional operational workflows and platform features |
+| API Routers | 5 | 17 | Separation of responsibilities across application modules |
+| Database Tables | 6 | 16 | Additional entities required by the expanded workflow |
+| Database Hosting | PostgreSQL on Render | PostgreSQL on Supabase | Separation of database hosting from backend deployment |
+| GIS Integration | Frontend-focused geographic visualization | Frontend and backend GIS integration | Geographic data persistence and server-side verification |
+| Payments | Not included | PayPal Sandbox | Demonstration of quotation-related payment operations |
+| Messaging | Not included | In-app notifications, WhatsApp, and email verification | Improved communication and account verification |
+| Field Operations | Initial field workflow | Attendance, device verification, photos, and milestones | Expanded field execution and monitoring requirements |
+| AI-Assisted Features | Not included in the initial design | AI-assisted operational features | Additional decision-support functionality |
+| Monitoring | Limited initial scope | Backend health monitoring | Improved deployment visibility |
+| Automated Testing | Initial testing approach | Frontend and backend automated test suites | Improved regression testing and quality assurance |
 
 ---
 
-## 7. Content for the Slide Deck
+## 9. Testing and Quality Assurance
 
-**Slide 1 — System architecture** (image: `diagrams/system-architecture.png`)
-- React on Vercel, FastAPI on Render and PostgreSQL on Supabase, with maps from ArcGIS Online.
-- 86 REST endpoints protected by JWT, with access checked per project.
-- Nine external services; a failure in one does not stop the main workflow.
+The MAMAR MVP was evaluated through automated frontend testing, backend unit testing, backend integration testing, and manual workflow validation.
 
-**Slide 2 — From request to completion** (image: `diagrams/main-workflow.png`)
-- The contractor creates the project, the providers send quotations, and the contractor confirms one and pays in the sandbox.
-- The field worker checks in with the site QR code and GPS, verifies devices within 50 m and uploads photos.
-- The provider completes the milestones, and the contractor reviews the work.
+### 9.1 Documented Automated Testing Results
 
-**Slide 3 — Data** (image: `diagrams/database.png`)
-- 16 tables in five groups: accounts, core workflow, field evidence, feedback and history, and cache.
-- Spatial data stays in ArcGIS Online; everything else is in PostgreSQL.
+| Testing Category | Tests Passed |
+|---|---:|
+| Frontend Tests | 806 |
+| Backend Unit Tests | 15 |
+| Backend Integration Tests | 240 |
+| Total Backend Tests | 255 |
+| **Total Automated Tests** | **1,061** |
 
-**Slide 4 — Quality**
-- 255 backend tests (15 unit and 240 integration) with 93% statement coverage.
-- 806 frontend tests in Vitest.
-- Backend tests run automatically on every pull request.
+### 9.2 Code Coverage
+
+| Component | Documented Coverage |
+|---|---:|
+| Backend Statement Coverage | 93% |
+| Frontend Coverage | 91.37% |
+
+The frontend coverage figure was recorded during a separate documented coverage run and should not be interpreted as a newly measured result from the final 806-test run.
+
+### 9.3 Testing Approach
+
+The project testing approach includes:
+
+- Frontend component and application testing using Vitest.
+- Backend unit testing using pytest.
+- Backend integration testing against PostgreSQL.
+- Automated backend testing through GitHub Actions.
+- Manual user acceptance testing.
+- Validation of cross-role operational workflows.
+- Deployment verification.
+
+### 9.4 Quality Assurance Scope
+
+Testing activities covered key areas including:
+
+- Authentication and authorization.
+- Project creation and management.
+- Service requests and quotations.
+- Field worker assignments.
+- Geographic verification.
+- Field documentation.
+- Project monitoring.
+- Completion review.
+- Sandbox payment integration.
+- External service error handling where documented.
+
+The recorded test results are based on the project's existing quality assurance documentation.
+
+These results do not constitute an independent security audit or certification of production readiness.
+
+---
+
+## 10. Deployment and Monitoring
+
+MAMAR uses managed cloud hosting services to support deployment and accessibility of the MVP.
+
+### 10.1 Deployment Architecture
+
+| Component | Hosting Platform |
+|---|---|
+| Frontend | Vercel |
+| Backend | Render |
+| Database | Supabase |
+| Geographic Services | ArcGIS Online |
+| Source Code | GitHub |
+| Continuous Integration | GitHub Actions |
+| Availability Monitoring | UptimeRobot |
+
+### 10.2 Deployment Branch
+
+The production deployment source is the `main` branch, as confirmed by the project management team.
+
+Development and integration activities may use separate branches before changes are incorporated into the production branch.
+
+### 10.3 Application Access
+
+Frontend Application:
+
+https://mammar-blush.vercel.app/
+
+Backend API Documentation:
+
+https://mamar-api.onrender.com/docs
+
+### 10.4 System Monitoring
+
+The backend exposes a `/health` endpoint for application availability and database connection monitoring.
+
+The health endpoint supports GET and HEAD requests to accommodate monitoring services.
+
+UptimeRobot is used to monitor backend availability.
+
+Availability monitoring does not independently validate every application feature or external integration.
+
+---
+
+## 11. Technical Limitations and Future Improvements
+
+The current implementation represents an MVP intended to demonstrate the feasibility and functionality of the MAMAR platform.
+
+Additional improvements are recommended before broader operational deployment.
+
+| Recommended Improvement | Expected Benefit | Priority |
+|---|---|---|
+| Introduce dedicated Alembic migrations | Reduce schema management and deployment risks | High |
+| Standardize Python versions across environments | Improve consistency and reproducibility | High |
+| Expand automated end-to-end testing | Detect cross-role workflow issues earlier | High |
+| Review database permissions and Row Level Security policies | Strengthen database-level access protection | High |
+| Improve device-level geographic reference validation | Reduce inaccurate verification caused by unavailable or unsuitable reference coordinates | High |
+| Validate external integration failure scenarios | Improve workflow resilience | High |
+| Introduce object storage for field documentation | Improve database scalability and backup efficiency | Medium |
+| Strengthen protection against location spoofing | Improve confidence in geographic verification | Medium |
+| Establish API contracts before implementation | Improve frontend and backend coordination | Medium |
+| Adopt smaller and more focused pull requests | Reduce merge conflicts and simplify reviews | Medium |
+| Evaluate advanced spatial database capabilities | Support more complex geographic queries and spatial analysis | Medium |
+| Prepare production payment integration | Enable real financial transactions following compliance and security validation | Future Scope |
+
+---
+
+## 12. Content for the Slide Deck
+
+The following content is prepared for inclusion in the final project presentation.
+
+### Slide 1 — System Architecture
+
+Suggested visual:
+
+`diagrams/system-architecture.png`
+
+Key points:
+
+- React frontend hosted on Vercel.
+- FastAPI backend hosted on Render.
+- PostgreSQL database hosted on Supabase.
+- ArcGIS Online and ArcGIS Maps SDK integration.
+- 86 documented REST API endpoints across 17 routers.
+- Role-based and project-level authorization.
+
+### Slide 2 — GIS Integration
+
+Key points:
+
+- Interactive geographic project visualization.
+- Geographic work-zone definition.
+- Work-zone geometry stored in PostgreSQL as JSON.
+- Integration with ArcGIS Online geographic services.
+- Location-based field attendance.
+- Geographic verification of traffic control devices.
+- Persistence of planned and verified coordinates.
+
+### Slide 3 — End-to-End Workflow
+
+Suggested visual:
+
+`diagrams/main-workflow.png`
+
+Key points:
+
+- Contractor creates a project and defines the work zone.
+- Service providers submit quotations.
+- Contractor selects a quotation.
+- Payment workflow is demonstrated through PayPal Sandbox.
+- Service provider assigns field workers.
+- Field workers perform geographic verification and document site activities.
+- Contractor reviews the submitted work and confirms completion or requests changes.
+
+### Slide 4 — Database Architecture
+
+Suggested visual:
+
+`diagrams/database.png`
+
+Key points:
+
+- 16 verified PostgreSQL tables.
+- 26 verified foreign key constraints.
+- Five functional database groups.
+- Relational and geographic data persistence.
+- Support for project records, field evidence, attendance, and device verification.
+
+### Slide 5 — Testing and Quality Assurance
+
+Key points:
+
+- 806 frontend tests.
+- 15 backend unit tests.
+- 240 backend integration tests.
+- 1,061 documented automated tests passed.
+- 93% backend statement coverage.
+- Automated backend testing through GitHub Actions.
+- Manual user acceptance testing and deployment verification.
+
+---
+
+## 13. Technical Conclusion
+
+The final MAMAR MVP demonstrates the integration of web application development, backend services, relational database management, and Geographic Information Systems within a unified platform for temporary traffic control operations.
+
+The implementation expanded beyond the initial Stage 3 design, incorporating additional API modules, database entities, geographic verification capabilities, field documentation, notifications, sandbox payment functionality, and AI-assisted features.
+
+The deployed PostgreSQL database contains 16 tables and 26 verified foreign key constraints, supporting both relational and geographic data persistence.
+
+The GIS architecture combines ArcGIS Online, interactive web mapping, PostgreSQL-based spatial data storage, and location-based operational validation.
+
+Documented quality assurance results include 1,061 passed automated tests and 93% backend statement coverage.
+
+The current MVP provides a foundation for future development, with further improvements focused on security validation, geographic verification accuracy, database migration management, integration resilience, scalability, and production readiness.
