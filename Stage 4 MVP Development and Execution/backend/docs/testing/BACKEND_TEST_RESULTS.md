@@ -71,8 +71,8 @@ formula, weather code to text, weather alerts, site code, point inside the work 
 
 No backend test failed or was skipped.
 
-Found while merging: `app/schemas/workflow.py` used `MilestoneResponse` before defining it, so the backend could not start
-(every test stopped at import, and the Render deploy would fail). Fixed by importing the one definition from `app/schemas/milestone.py`.
+Found while merging: `app/schemas/workflow.py` used `MilestoneResponse` before defining it, so the backend could not start on
+Python 3.13 (every CI test stopped at import). Render runs Python 3.14, whose lazy type annotations hid the error, so production kept working. Fixed by importing the one definition from `app/schemas/milestone.py`.
 
 ## Evidence (this folder: `evidence/`)
 

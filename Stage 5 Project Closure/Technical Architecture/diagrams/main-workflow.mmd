@@ -1,0 +1,19 @@
+sequenceDiagram
+    actor C as Contractor
+    actor P as Provider
+    actor W as Field Worker
+    participant API as FastAPI
+    participant DB as PostgreSQL
+    C->>API: POST /projects (work zone, dates)
+    API->>DB: save project
+    C->>API: POST /projects/{id}/requests (chosen providers)
+    P->>API: POST /requests/{id}/quotes (price, notes)
+    C->>API: POST /projects/{id}/confirm-provider
+    API->>DB: quote accepted, others rejected, project active, 3 milestones
+    C->>API: POST /projects/{id}/payments, then capture (PayPal Sandbox)
+    P->>API: POST /projects/{id}/assignments (field worker)
+    W->>API: POST attendance/check-in (site code + GPS, within 300 m)
+    W->>API: POST /devices/{code}/verify (GPS, within 50 m)
+    W->>API: POST /field-worker/projects/{id}/photos (before / during / after)
+    P->>API: PATCH milestones, then POST submit-completion
+    C->>API: POST /projects/{id}/complete or /request-changes
